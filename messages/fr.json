@@ -136,5 +136,21 @@
     "soon": "Bientôt",
     "loading": "Chargement…",
     "comingSoon": "Cette section arrive bientôt."
+  },
+  "radar": {
+    "title": "Profil nutritionnel",
+    "perUnit": "pour 100 g / 100 ml",
+    "sugar": "Sucre",
+    "salt": "Sel",
+    "satFat": "Gras saturés",
+    "protein": "Protéines",
+    "fiber": "Fibres",
+    "additives": "Additifs",
+    "processing": "Transformation",
+    "mainConcern": "Surtout : {axis}",
+    "strength": "Point fort : {axis}",
+    "balanced": "Profil équilibré",
+    "partial": "Données partielles ({n} axe(s) manquant(s))",
+    "noData": "Données nutritionnelles indisponibles"
   }
 }

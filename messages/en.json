@@ -136,5 +136,21 @@
     "soon": "Soon",
     "loading": "Loading…",
     "comingSoon": "This section is coming soon."
+  },
+  "radar": {
+    "title": "Nutritional profile",
+    "perUnit": "per 100 g / 100 ml",
+    "sugar": "Sugar",
+    "salt": "Salt",
+    "satFat": "Sat. fat",
+    "protein": "Protein",
+    "fiber": "Fiber",
+    "additives": "Additives",
+    "processing": "Processing",
+    "mainConcern": "Mostly: {axis}",
+    "strength": "Strength: {axis}",
+    "balanced": "Balanced profile",
+    "partial": "Partial data ({n} axis/axes missing)",
+    "noData": "No nutrition data available"
   }
 }

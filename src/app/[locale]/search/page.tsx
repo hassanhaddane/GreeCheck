@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/components/score/score-ring";
+import { MiniRadar } from "@/components/radar/nutrition-radar";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { FILTERS } from "@/lib/constants/filters";
 import { searchProductsClient } from "@/lib/api/client";
@@ -146,6 +147,7 @@ export default function SearchPage() {
                     {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" />}
                   </div>
                 </div>
+                <span className="hidden shrink-0 sm:block" aria-hidden><MiniRadar product={p} size={40} /></span>
                 <ScoreRing value={provisionalScore(p)} size={46} label="" />
                 <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" />
               </Card>

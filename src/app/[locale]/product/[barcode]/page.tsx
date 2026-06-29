@@ -22,7 +22,6 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getProduct } from "@/lib/api/client";
 import type { ProductResult } from "@/lib/api/openfoodfacts";
 import type { Product, Confidence } from "@/types/product";
-import { radarValues } from "@/lib/scoring/provisional";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { useBasketStore } from "@/stores/basket-store";
@@ -251,7 +250,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       <Card>
         <CardContent className="grid place-items-center">
           <SectionTitle>{t("radar")}</SectionTitle>
-          <NutritionRadar values={radarValues(p)} />
+          <NutritionRadar product={p} />
         </CardContent>
       </Card>
 

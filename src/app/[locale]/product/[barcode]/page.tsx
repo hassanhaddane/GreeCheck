@@ -60,6 +60,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const basket = useBasketStore();
   const addHistory = useHistoryStore((s) => s.add);
   const addBattle = useBattleStore((s) => s.add);
+  const inBattle = useBattleStore((s) => s.has(barcode));
+  const battleFull = useBattleStore((s) => s.items.length >= 3 && !s.items.some((x) => x.barcode === barcode));
   const isFav = favorites.has(barcode);
 
   // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
@@ -149,7 +151,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
 
   const goToBattle = () => {
-    addBattle(item);
+    addBattle(p); // full product so the battle has all data
     router.push("/battle");
   };
 
@@ -314,7 +316,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </div>
         <div className="flex gap-2">
           <Button variant="primary" className="flex-1" onClick={goToBattle}>
-            <Swords className="h-5 w-5" /> {t("scanBattle")}
+            <Swords className="h-5 w-5" /> {inBattle ? t("alreadyInBattle") : battleFull ? t("battleFull") : t("scanBattle")}
           </Button>
           <Button variant="outline" className="flex-1" onClick={goToBattle}>
             <GitCompareArrows className="h-5 w-5" /> {t("compare")}

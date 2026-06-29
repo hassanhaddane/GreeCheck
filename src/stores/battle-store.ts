@@ -1,35 +1,36 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Product } from "@/types/product";
 
-export interface BattleItem {
-  barcode: string;
-  name: string;
-  imageUrl?: string;
-  score: number;
-}
+export const BATTLE_MAX = 3;
+
+export type AddResult = "added" | "full" | "duplicate";
 
 interface BattleState {
-  items: BattleItem[];
-  add: (item: BattleItem) => void;
+  items: Product[];
+  add: (p: Product) => AddResult;
   remove: (barcode: string) => void;
   clear: () => void;
+  has: (barcode: string) => boolean;
 }
 
-// Up to 3 products compared head-to-head (Scan Battle). Local only.
+// Up to 3 full products compared head-to-head. Local only, no backend.
 export const useBattleStore = create<BattleState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       items: [],
-      add: (item) =>
-        set((s) =>
-          s.items.some((x) => x.barcode === item.barcode) || s.items.length >= 3
-            ? s
-            : { items: [...s.items, item] }
-        ),
+      add: (p) => {
+        const items = get().items;
+        if (items.some((x) => x.barcode === p.barcode)) return "duplicate";
+        if (items.length >= BATTLE_MAX) return "full";
+        set({ items: [...items, p] });
+        return "added";
+      },
       remove: (barcode) => set((s) => ({ items: s.items.filter((x) => x.barcode !== barcode) })),
-      clear: () => set({ items: [] })
+      clear: () => set({ items: [] }),
+      has: (barcode) => get().items.some((x) => x.barcode === barcode)
     }),
-    { name: "greecheck.battle" }
+    { name: "greecheck.battle.v2" } // v2: stores full products (old key discarded)
   )
 );

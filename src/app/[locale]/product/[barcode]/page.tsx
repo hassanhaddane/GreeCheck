@@ -1,5 +1,5 @@
 "use client";
-import { use, useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Heart, GitCompareArrows, Sparkles, ShoppingBasket, AlertTriangle,
@@ -19,10 +19,12 @@ import { ErrorState } from "@/components/ui/error-state";
 import { getProduct } from "@/lib/api/client";
 import type { ProductResult } from "@/lib/api/openfoodfacts";
 import type { Product, Confidence } from "@/types/product";
-import { provisionalScore, radarValues } from "@/lib/scoring/provisional";
+import { radarValues } from "@/lib/scoring/provisional";
+import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { useBasketStore } from "@/stores/basket-store";
 import { useHistoryStore } from "@/stores/history-store";
+import { usePreferencesStore } from "@/stores/preferences-store";
 
 const CONFIDENCE_LABEL: Record<Confidence, string> = {
   high: "Confiance élevée",
@@ -51,6 +53,11 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const addHistory = useHistoryStore((s) => s.add);
   const isFav = favorites.has(barcode);
 
+  // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
+  const prefs = usePreferencesStore();
+  const prefsRef = useRef(prefs);
+  prefsRef.current = prefs;
+
   const load = useCallback(async () => {
     setState("loading");
     try {
@@ -58,13 +65,13 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       setData(result);
       setState(result.status);
       if (result.status !== "not_found") {
-        const score = provisionalScore(result.product);
+        const gree = computeGreeScore(result.product, prefsRef.current);
         addHistory({
           barcode: result.product.barcode,
           name: result.product.name,
           imageUrl: result.product.imageUrl,
-          score,
-          verdict: result.confidence === "low" ? "Données incomplètes" : "",
+          score: gree.global,
+          verdict: gree.label,
           scannedAt: Date.now()
         });
       }
@@ -77,7 +84,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     load();
   }, [load]);
 
-  /* ----------------------------- loading ----------------------------- */
   if (state === "loading") {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
@@ -88,7 +94,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
-  /* ------------------------------ error ------------------------------ */
   if (state === "error") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
@@ -101,7 +106,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
-  /* ---------------------------- not found ---------------------------- */
   if (state === "not_found" || !data || data.status === "not_found") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
@@ -119,11 +123,23 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
-  /* ------------------------------ found ------------------------------ */
   const p = data.product;
-  const score = provisionalScore(p);
+  // Live, personalized GreeScore — recomputes if the user changes preferences.
+  const gree = computeGreeScore(p, prefs);
+  const score = gree.global;
   const item = { barcode: p.barcode, name: p.name, imageUrl: p.imageUrl, score };
   const lowConfidence = data.confidence !== "high";
+
+  const subScores = [
+    { label: "Santé", value: gree.healthScore },
+    { label: "Naturalité", value: gree.naturalityScore },
+    { label: "Transfo.", value: gree.processingScore },
+    { label: "Additifs", value: gree.additivesScore },
+    ...(prefs.goals.length ? [{ label: "Objectif", value: gree.goalScore }] : []),
+    ...(gree.ecologyScore !== undefined ? [{ label: "Écologie", value: gree.ecologyScore }] : [])
+  ];
+
+  const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -148,7 +164,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </div>
       </Card>
 
-      {/* Confidence notice */}
       {lowConfidence && (
         <Card className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
           <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c" />
@@ -170,13 +185,56 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
                 </span>
               )}
             </div>
+            {gree.reasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {gree.reasons.slice(0, 4).map((r, i) => (
+                  <span
+                    key={i}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+                      r.kind === "bonus" ? "bg-natural/10 text-natural"
+                      : r.kind === "malus" ? "bg-score-d/10 text-score-d"
+                      : "bg-surface-2 text-muted"
+                    }`}
+                  >
+                    {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {r.label}
+                  </span>
+                ))}
+              </div>
+            )}
             <p className="rounded-2xl bg-surface-2 p-3 text-sm leading-relaxed">
               <Sparkles className="me-1 inline h-4 w-4 text-natural" />
-              Score provisoire calculé localement à partir du Nutri-Score et du niveau de transformation. Le GreeScore personnalisé arrivera avec tes objectifs.
+              GreeScore <strong>{gree.global}</strong> — {gree.label}. Calculé localement à partir de la nutrition, de la transformation, des additifs, des labels{prefs.goals.length ? " et de tes objectifs" : ""}.
             </p>
           </div>
         </CardContent>
       </Card>
+
+      {/* Sub-scores */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {subScores.map((s) => (
+          <Card key={s.label} className="p-4 text-center">
+            <p className="text-2xl font-bold tabular-nums">{s.value}</p>
+            <p className="mt-1 text-xs text-muted">{s.label}</p>
+          </Card>
+        ))}
+      </div>
+
+      {/* Warnings from the engine */}
+      {blockingWarnings.length > 0 && (
+        <div className="space-y-2">
+          {blockingWarnings.map((w, i) => (
+            <Card
+              key={i}
+              className={`flex items-center gap-3 p-4 ${
+                w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"
+              }`}
+            >
+              <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e" : "text-score-d"}`} />
+              <p className="text-sm font-medium">{w.label}</p>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Radar */}
       <Card>
@@ -185,14 +243,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <NutritionRadar values={radarValues(p)} />
         </CardContent>
       </Card>
-
-      {/* High sugar warning */}
-      {p.nutriments.sugars !== undefined && p.nutriments.sugars > 22.5 && (
-        <Card className="flex items-center gap-3 border-score-d/30 bg-score-d/5 p-4">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-score-d" />
-          <p className="text-sm font-medium">Sucre élevé ({p.nutriments.sugars} g / 100 g)</p>
-        </Card>
-      )}
 
       {/* Ingredients */}
       <Card><CardContent>

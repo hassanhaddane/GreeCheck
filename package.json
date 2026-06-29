@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "copy-wasm": "node scripts/copy-wasm.mjs",
     "predev": "node scripts/copy-wasm.mjs",
-    "prebuild": "node scripts/copy-wasm.mjs"
+    "prebuild": "node scripts/copy-wasm.mjs",
+    "test": "node --import tsx --test src/lib/scoring/gree-score.test.ts"
   },
   "dependencies": {
     "next": "14.2.5",
@@ -37,6 +38,7 @@
     "autoprefixer": "10.4.19",
     "tailwindcss-animate": "1.0.7",
     "eslint": "8.57.0",
-    "eslint-config-next": "14.2.5"
+    "eslint-config-next": "14.2.5",
+    "tsx": "^4.19.2"
   }
 }

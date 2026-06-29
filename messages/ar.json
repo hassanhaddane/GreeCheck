@@ -1,0 +1,115 @@
+{
+  "app": {
+    "name": "GreeCheck",
+    "tagline": "امسح. افهم. اختر الأفضل.",
+    "privacyBadge": "بياناتك تبقى على جهازك"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "scan": "مسح",
+    "search": "بحث",
+    "battle": "مقارنة",
+    "basket": "السلة",
+    "map": "الخريطة",
+    "settings": "الإعدادات",
+    "privacy": "الخصوصية"
+  },
+  "home": {
+    "greeting": "مرحباً",
+    "heroTitle": "افهم ما تأكله",
+    "heroSubtitle": "امسح منتجاً لاكتشاف درجة GreeScore المخصصة له.",
+    "scanCta": "امسح منتجاً",
+    "quickActions": "إجراءات سريعة",
+    "today": "اليوم",
+    "recent": "عمليات المسح الأخيرة",
+    "emptyRecent": "لا توجد عمليات مسح بعد. ابدأ بمسح منتج.",
+    "discover": "اكتشف ما تستهلكه حقاً"
+  },
+  "scan": {
+    "title": "GreeLens",
+    "instruction": "ضع الباركود داخل الإطار",
+    "analyzing": "جارٍ تحليل المنتج…",
+    "barcode": "باركود",
+    "qr": "رمز QR",
+    "manual": "إدخال يدوي",
+    "manualPlaceholder": "أدخل الباركود"
+  },
+  "search": {
+    "title": "بحث",
+    "placeholder": "منتج، علامة، حاجة…",
+    "filters": "عوامل التصفية",
+    "sortBy": "ترتيب حسب",
+    "noResults": "لا توجد نتائج",
+    "reset": "إعادة تعيين"
+  },
+  "product": {
+    "title": "المنتج",
+    "summary": "ملخص",
+    "greeScore": "GreeScore",
+    "nutriScore": "Nutri-Score",
+    "nova": "NOVA",
+    "greenScore": "Green-Score",
+    "radar": "رادار التغذية",
+    "ingredients": "المكونات",
+    "additives": "الإضافات",
+    "allergens": "مسببات الحساسية",
+    "nutrition": "القيم الغذائية",
+    "alternatives": "بدائل",
+    "addToBasket": "أضف إلى السلة",
+    "favorite": "المفضلة",
+    "compare": "قارن",
+    "understand": "افهم",
+    "findBetter": "ابحث عن أفضل",
+    "notFound": "المنتج غير موجود",
+    "contribute": "ساهم في Open Food Facts"
+  },
+  "battle": {
+    "title": "Scan Battle",
+    "subtitle": "قارن حتى 3 منتجات واعثر على الأفضل.",
+    "addProduct": "أضف منتجاً",
+    "winner": "الخيار الأفضل",
+    "verdict": "النتيجة",
+    "replace": "استبدل في سلتي"
+  },
+  "basket": {
+    "title": "السلة الذكية",
+    "subtitle": "امسح عدة منتجات واحصل على تقييم شامل.",
+    "score": "تقييم السلة",
+    "empty": "سلتك فارغة.",
+    "toReplace": "استبدلها أولاً",
+    "level": { "good": "ممتاز", "ok": "جيد", "bad": "بحاجة لتحسين" }
+  },
+  "map": {
+    "title": "حولي",
+    "subtitle": "اعثر على متاجر عضوية وأسواق ومحلات.",
+    "searchCity": "ابحث عن مدينة",
+    "nearMe": "حولي",
+    "filters": { "bio": "عضوي", "supermarket": "سوبر ماركت", "halal": "حلال", "market": "سوق", "grocery": "بقالة" }
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "theme": "المظهر",
+    "goals": "الأهداف",
+    "allergens": "مسببات الحساسية",
+    "preferences": "التفضيلات",
+    "data": "بياناتي",
+    "clearData": "امسح بياناتي المحلية",
+    "themeLight": "فاتح",
+    "themeDark": "داكن",
+    "themeSystem": "النظام"
+  },
+  "privacy": {
+    "title": "الخصوصية",
+    "statement": "بياناتك تبقى على جهازك. لا ينشئ GreeCheck حساباً ولا يخزن ملفك الصحي ولا يحتفظ بسجل المسح.",
+    "noAccount": "لا حاجة لحساب",
+    "localOnly": "تخزين محلي 100%",
+    "attribution": "بيانات المنتجات مقدمة من Open Food Facts (ODbL)."
+  },
+  "common": {
+    "back": "رجوع",
+    "soon": "قريباً",
+    "loading": "جارٍ التحميل…",
+    "comingSoon": "هذا القسم قادم قريباً."
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "app": {
+    "name": "GreeCheck",
+    "tagline": "Scanne. Comprends. Choisis mieux.",
+    "privacyBadge": "Vos données restent sur votre appareil"
+  },
+  "nav": {
+    "home": "Accueil",
+    "scan": "Scanner",
+    "search": "Rechercher",
+    "battle": "Battle",
+    "basket": "Panier",
+    "map": "Carte",
+    "settings": "Réglages",
+    "privacy": "Confidentialité"
+  },
+  "home": {
+    "greeting": "Bonjour",
+    "heroTitle": "Comprends ce que tu manges",
+    "heroSubtitle": "Scanne un produit pour découvrir son GreeScore personnalisé.",
+    "scanCta": "Scanner un produit",
+    "quickActions": "Actions rapides",
+    "today": "Aujourd'hui",
+    "recent": "Scans récents",
+    "emptyRecent": "Aucun scan pour le moment. Commence par scanner un produit.",
+    "discover": "Découvre mieux ce que tu consommes"
+  },
+  "scan": {
+    "title": "GreeLens",
+    "instruction": "Place le code-barres dans le cadre",
+    "analyzing": "Analyse du produit…",
+    "barcode": "Code-barres",
+    "qr": "QR code",
+    "manual": "Saisie manuelle",
+    "manualPlaceholder": "Entrer un code-barres"
+  },
+  "search": {
+    "title": "Rechercher",
+    "placeholder": "Produit, marque, besoin…",
+    "filters": "Filtres",
+    "sortBy": "Trier par",
+    "noResults": "Aucun résultat",
+    "reset": "Réinitialiser"
+  },
+  "product": {
+    "title": "Fiche produit",
+    "summary": "Résumé",
+    "greeScore": "GreeScore",
+    "nutriScore": "Nutri-Score",
+    "nova": "NOVA",
+    "greenScore": "Green-Score",
+    "radar": "Radar nutritionnel",
+    "ingredients": "Ingrédients",
+    "additives": "Additifs",
+    "allergens": "Allergènes",
+    "nutrition": "Valeurs nutritionnelles",
+    "alternatives": "Alternatives",
+    "addToBasket": "Ajouter au panier",
+    "favorite": "Favori",
+    "compare": "Comparer",
+    "understand": "Comprendre",
+    "findBetter": "Trouver mieux",
+    "notFound": "Produit non trouvé",
+    "contribute": "Contribuer sur Open Food Facts"
+  },
+  "battle": {
+    "title": "Scan Battle",
+    "subtitle": "Compare jusqu'à 3 produits et trouve le meilleur.",
+    "addProduct": "Ajouter un produit",
+    "winner": "Meilleur choix",
+    "verdict": "Verdict",
+    "replace": "Remplacer dans mon panier"
+  },
+  "basket": {
+    "title": "Panier intelligent",
+    "subtitle": "Scanne plusieurs produits et obtiens une note globale.",
+    "score": "Score du panier",
+    "empty": "Ton panier est vide.",
+    "toReplace": "À remplacer en priorité",
+    "level": { "good": "Excellent", "ok": "Correct", "bad": "À améliorer" }
+  },
+  "map": {
+    "title": "Autour de moi",
+    "subtitle": "Trouve magasins bio, supermarchés et marchés.",
+    "searchCity": "Rechercher une ville",
+    "nearMe": "Autour de moi",
+    "filters": { "bio": "Bio", "supermarket": "Supermarché", "halal": "Halal", "market": "Marché", "grocery": "Épicerie" }
+  },
+  "settings": {
+    "title": "Réglages",
+    "language": "Langue",
+    "theme": "Thème",
+    "goals": "Objectifs",
+    "allergens": "Allergènes",
+    "preferences": "Préférences",
+    "data": "Mes données",
+    "clearData": "Effacer mes données locales",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système"
+  },
+  "privacy": {
+    "title": "Confidentialité",
+    "statement": "Vos données restent sur votre appareil. GreeCheck ne crée pas de compte, ne stocke pas votre profil santé et ne conserve pas votre historique de scan.",
+    "noAccount": "Aucun compte requis",
+    "localOnly": "Stockage 100% local",
+    "attribution": "Données produits fournies par Open Food Facts (ODbL)."
+  },
+  "common": {
+    "back": "Retour",
+    "soon": "Bientôt",
+    "loading": "Chargement…",
+    "comingSoon": "Cette section arrive bientôt."
+  }
+}

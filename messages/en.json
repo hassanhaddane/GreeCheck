@@ -1,0 +1,115 @@
+{
+  "app": {
+    "name": "GreeCheck",
+    "tagline": "Scan. Understand. Choose better.",
+    "privacyBadge": "Your data stays on your device"
+  },
+  "nav": {
+    "home": "Home",
+    "scan": "Scan",
+    "search": "Search",
+    "battle": "Battle",
+    "basket": "Basket",
+    "map": "Map",
+    "settings": "Settings",
+    "privacy": "Privacy"
+  },
+  "home": {
+    "greeting": "Hello",
+    "heroTitle": "Understand what you eat",
+    "heroSubtitle": "Scan a product to reveal its personalized GreeScore.",
+    "scanCta": "Scan a product",
+    "quickActions": "Quick actions",
+    "today": "Today",
+    "recent": "Recent scans",
+    "emptyRecent": "No scans yet. Start by scanning a product.",
+    "discover": "Discover what you really consume"
+  },
+  "scan": {
+    "title": "GreeLens",
+    "instruction": "Place the barcode inside the frame",
+    "analyzing": "Analyzing product…",
+    "barcode": "Barcode",
+    "qr": "QR code",
+    "manual": "Manual entry",
+    "manualPlaceholder": "Enter a barcode"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Product, brand, need…",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "noResults": "No results",
+    "reset": "Reset"
+  },
+  "product": {
+    "title": "Product",
+    "summary": "Summary",
+    "greeScore": "GreeScore",
+    "nutriScore": "Nutri-Score",
+    "nova": "NOVA",
+    "greenScore": "Green-Score",
+    "radar": "Nutrition radar",
+    "ingredients": "Ingredients",
+    "additives": "Additives",
+    "allergens": "Allergens",
+    "nutrition": "Nutrition facts",
+    "alternatives": "Alternatives",
+    "addToBasket": "Add to basket",
+    "favorite": "Favorite",
+    "compare": "Compare",
+    "understand": "Understand",
+    "findBetter": "Find better",
+    "notFound": "Product not found",
+    "contribute": "Contribute on Open Food Facts"
+  },
+  "battle": {
+    "title": "Scan Battle",
+    "subtitle": "Compare up to 3 products and find the best.",
+    "addProduct": "Add a product",
+    "winner": "Best choice",
+    "verdict": "Verdict",
+    "replace": "Replace in my basket"
+  },
+  "basket": {
+    "title": "Smart basket",
+    "subtitle": "Scan several products and get an overall score.",
+    "score": "Basket score",
+    "empty": "Your basket is empty.",
+    "toReplace": "Replace first",
+    "level": { "good": "Excellent", "ok": "Decent", "bad": "Needs work" }
+  },
+  "map": {
+    "title": "Around me",
+    "subtitle": "Find organic stores, supermarkets and markets.",
+    "searchCity": "Search a city",
+    "nearMe": "Around me",
+    "filters": { "bio": "Organic", "supermarket": "Supermarket", "halal": "Halal", "market": "Market", "grocery": "Grocery" }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "goals": "Goals",
+    "allergens": "Allergens",
+    "preferences": "Preferences",
+    "data": "My data",
+    "clearData": "Clear my local data",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  },
+  "privacy": {
+    "title": "Privacy",
+    "statement": "Your data stays on your device. GreeCheck does not create an account, store your health profile, or keep your scan history.",
+    "noAccount": "No account required",
+    "localOnly": "100% local storage",
+    "attribution": "Product data provided by Open Food Facts (ODbL)."
+  },
+  "common": {
+    "back": "Back",
+    "soon": "Soon",
+    "loading": "Loading…",
+    "comingSoon": "This section is coming soon."
+  }
+}

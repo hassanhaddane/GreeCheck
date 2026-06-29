@@ -72,7 +72,11 @@
     "understand": "Understand",
     "findBetter": "Find better",
     "notFound": "Product not found",
-    "contribute": "Contribute on Open Food Facts"
+    "contribute": "Contribute on Open Food Facts",
+    "scanBattle": "Scan Battle",
+    "betterChoice": "Better choice",
+    "incomplete": "Incomplete product",
+    "verdict": "Our take"
   },
   "battle": {
     "title": "Scan Battle",

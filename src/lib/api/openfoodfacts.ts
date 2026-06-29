@@ -217,3 +217,28 @@ export async function searchProducts(query: string, page = 1, pageSize = 20): Pr
     products
   };
 }
+
+/**
+ * Find products in the same category — used to suggest healthier alternatives.
+ * Sorted by popularity so suggestions are recognizable; ranking by GreeScore
+ * happens client-side (it needs the user's local preferences).
+ */
+export async function searchByCategory(category: string, pageSize = 16): Promise<SearchResult> {
+  const params = new URLSearchParams({
+    action: "process",
+    json: "1",
+    page_size: String(pageSize),
+    tagtype_0: "categories",
+    tag_contains_0: "contains",
+    tag_0: category,
+    sort_by: "unique_scans_n",
+    fields: OFF_FIELDS
+  });
+  const url = `${BASE}/cgi/search.pl?${params.toString()}`;
+  const res = await offFetch(url, 60 * 60);
+  if (!res.ok) throw new Error(`OFF category search responded ${res.status}`);
+
+  const data = (await res.json()) as { count?: number; page?: number; page_size?: number; products?: OffRawProduct[] };
+  const products = (data.products ?? []).map(mapOffProduct).filter((p) => p.barcode && p.name);
+  return { count: data.count ?? products.length, page: 1, pageSize, products };
+}

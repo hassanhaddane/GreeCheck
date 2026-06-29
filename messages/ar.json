@@ -72,7 +72,11 @@
     "understand": "افهم",
     "findBetter": "ابحث عن أفضل",
     "notFound": "المنتج غير موجود",
-    "contribute": "ساهم في Open Food Facts"
+    "contribute": "ساهم في Open Food Facts",
+    "scanBattle": "Scan Battle",
+    "betterChoice": "خيار أفضل",
+    "incomplete": "بطاقة غير مكتملة",
+    "verdict": "رأينا"
   },
   "battle": {
     "title": "Scan Battle",

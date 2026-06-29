@@ -32,7 +32,18 @@
     "barcode": "Code-barres",
     "qr": "QR code",
     "manual": "Saisie manuelle",
-    "manualPlaceholder": "Entrer un code-barres"
+    "manualPlaceholder": "Entrer un code-barres",
+    "starting": "Démarrage de la caméra…",
+    "cameraDenied": "Caméra refusée",
+    "cameraDeniedHelp": "Autorise l'accès à la caméra dans ton navigateur, puis réessaie. Tu peux aussi saisir le code manuellement.",
+    "cameraUnsupported": "Caméra indisponible",
+    "cameraUnsupportedHelp": "Ton appareil ou navigateur ne permet pas le scan. Saisis le code-barres manuellement ci-dessous.",
+    "retry": "Réessayer",
+    "notAProduct": "Ce code ne correspond pas à un produit",
+    "searchInstead": "Rechercher par texte",
+    "requesting": "Autorisation de la caméra…",
+    "privacyNote": "La caméra est utilisée uniquement sur cet appareil. Aucune image n'est envoyée.",
+    "scanningStatus": "Recherche d'un code…"
   },
   "search": {
     "title": "Rechercher",
@@ -77,14 +88,24 @@
     "score": "Score du panier",
     "empty": "Ton panier est vide.",
     "toReplace": "À remplacer en priorité",
-    "level": { "good": "Excellent", "ok": "Correct", "bad": "À améliorer" }
+    "level": {
+      "good": "Excellent",
+      "ok": "Correct",
+      "bad": "À améliorer"
+    }
   },
   "map": {
     "title": "Autour de moi",
     "subtitle": "Trouve magasins bio, supermarchés et marchés.",
     "searchCity": "Rechercher une ville",
     "nearMe": "Autour de moi",
-    "filters": { "bio": "Bio", "supermarket": "Supermarché", "halal": "Halal", "market": "Marché", "grocery": "Épicerie" }
+    "filters": {
+      "bio": "Bio",
+      "supermarket": "Supermarché",
+      "halal": "Halal",
+      "market": "Marché",
+      "grocery": "Épicerie"
+    }
   },
   "settings": {
     "title": "Réglages",

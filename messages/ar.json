@@ -32,7 +32,18 @@
     "barcode": "باركود",
     "qr": "رمز QR",
     "manual": "إدخال يدوي",
-    "manualPlaceholder": "أدخل الباركود"
+    "manualPlaceholder": "أدخل الباركود",
+    "starting": "جارٍ تشغيل الكاميرا…",
+    "cameraDenied": "تم رفض الكاميرا",
+    "cameraDeniedHelp": "اسمح بالوصول إلى الكاميرا في المتصفح ثم أعد المحاولة. يمكنك أيضاً إدخال الرمز يدوياً.",
+    "cameraUnsupported": "الكاميرا غير متاحة",
+    "cameraUnsupportedHelp": "جهازك أو متصفحك لا يدعم المسح. أدخل الباركود يدوياً بالأسفل.",
+    "retry": "إعادة المحاولة",
+    "notAProduct": "هذا الرمز ليس منتجاً",
+    "searchInstead": "البحث بالنص",
+    "requesting": "طلب إذن الكاميرا…",
+    "privacyNote": "تُستخدم الكاميرا على هذا الجهاز فقط. لا يتم رفع أي صورة.",
+    "scanningStatus": "البحث عن رمز…"
   },
   "search": {
     "title": "بحث",
@@ -77,14 +88,24 @@
     "score": "تقييم السلة",
     "empty": "سلتك فارغة.",
     "toReplace": "استبدلها أولاً",
-    "level": { "good": "ممتاز", "ok": "جيد", "bad": "بحاجة لتحسين" }
+    "level": {
+      "good": "ممتاز",
+      "ok": "جيد",
+      "bad": "بحاجة لتحسين"
+    }
   },
   "map": {
     "title": "حولي",
     "subtitle": "اعثر على متاجر عضوية وأسواق ومحلات.",
     "searchCity": "ابحث عن مدينة",
     "nearMe": "حولي",
-    "filters": { "bio": "عضوي", "supermarket": "سوبر ماركت", "halal": "حلال", "market": "سوق", "grocery": "بقالة" }
+    "filters": {
+      "bio": "عضوي",
+      "supermarket": "سوبر ماركت",
+      "halal": "حلال",
+      "market": "سوق",
+      "grocery": "بقالة"
+    }
   },
   "settings": {
     "title": "الإعدادات",

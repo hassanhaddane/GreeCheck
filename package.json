@@ -2,17 +2,20 @@
   "name": "greecheck",
   "version": "0.1.0",
   "private": true,
-  "description": "GreeCheck — Scanne. Comprends. Choisis mieux. Premium nutrition PWA.",
+  "description": "GreeCheck \u2014 Scanne. Comprends. Choisis mieux. Premium nutrition PWA.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "copy-wasm": "node scripts/copy-wasm.mjs",
+    "predev": "node scripts/copy-wasm.mjs",
+    "prebuild": "node scripts/copy-wasm.mjs"
   },
   "dependencies": {
-    "next": "16.2.6",
-    "next-intl": "4.9.2",
+    "next": "14.2.5",
+    "next-intl": "3.26.5",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "zustand": "4.5.4",
@@ -21,7 +24,8 @@
     "lucide-react": "0.408.0",
     "clsx": "2.1.1",
     "tailwind-merge": "2.4.0",
-    "class-variance-authority": "0.7.0"
+    "class-variance-authority": "0.7.0",
+    "barcode-detector": "^2.2.10"
   },
   "devDependencies": {
     "typescript": "5.5.4",

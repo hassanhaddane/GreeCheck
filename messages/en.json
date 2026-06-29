@@ -32,7 +32,18 @@
     "barcode": "Barcode",
     "qr": "QR code",
     "manual": "Manual entry",
-    "manualPlaceholder": "Enter a barcode"
+    "manualPlaceholder": "Enter a barcode",
+    "starting": "Starting camera…",
+    "cameraDenied": "Camera blocked",
+    "cameraDeniedHelp": "Allow camera access in your browser, then retry. You can also enter the code manually.",
+    "cameraUnsupported": "Camera unavailable",
+    "cameraUnsupportedHelp": "Your device or browser can't scan. Enter the barcode manually below.",
+    "retry": "Retry",
+    "notAProduct": "This code isn't a product",
+    "searchInstead": "Search by text",
+    "requesting": "Requesting camera…",
+    "privacyNote": "The camera is used only on this device. No image is uploaded.",
+    "scanningStatus": "Looking for a code…"
   },
   "search": {
     "title": "Search",
@@ -77,14 +88,24 @@
     "score": "Basket score",
     "empty": "Your basket is empty.",
     "toReplace": "Replace first",
-    "level": { "good": "Excellent", "ok": "Decent", "bad": "Needs work" }
+    "level": {
+      "good": "Excellent",
+      "ok": "Decent",
+      "bad": "Needs work"
+    }
   },
   "map": {
     "title": "Around me",
     "subtitle": "Find organic stores, supermarkets and markets.",
     "searchCity": "Search a city",
     "nearMe": "Around me",
-    "filters": { "bio": "Organic", "supermarket": "Supermarket", "halal": "Halal", "market": "Market", "grocery": "Grocery" }
+    "filters": {
+      "bio": "Organic",
+      "supermarket": "Supermarket",
+      "halal": "Halal",
+      "market": "Market",
+      "grocery": "Grocery"
+    }
   },
   "settings": {
     "title": "Settings",

@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { BattleCard } from "@/components/battle/battle-card";
 import { ComparisonTable } from "@/components/battle/comparison-table";
 import { AxisBars } from "@/components/battle/axis-bars";
+import { Podium } from "@/components/battle/podium";
 import { AddSheet } from "@/components/battle/add-sheet";
 import { computeBattle } from "@/lib/scoring/battle";
 import { useBattleStore, BATTLE_MAX } from "@/stores/battle-store";
@@ -124,6 +125,14 @@ export default function BattlePage() {
                   <p className="text-sm font-medium">{t("partial")} — {t("missingData")}.</p>
                 </Card>
               )}
+
+              {/* Podium */}
+              <Card>
+                <CardContent>
+                  <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-muted">{t("podium")}</h2>
+                  <Podium ranking={ranking} />
+                </CardContent>
+              </Card>
 
               {/* Verdict */}
               <Card className="overflow-hidden bg-deep-grad text-white">

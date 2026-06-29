@@ -24,6 +24,7 @@ export default function HomePage() {
   const t = useTranslations("home");
   const tn = useTranslations("nav");
   const tApp = useTranslations("app");
+  const tb = useTranslations("battle");
   const mounted = useMounted();
   const entries = useHistoryStore((s) => s.entries);
 
@@ -62,6 +63,25 @@ export default function HomePage() {
               </div>
               <ArrowRight className="h-5 w-5 text-neon rtl:rotate-180" />
             </div>
+          </Card>
+        </Link>
+      </motion.div>
+
+      {/* Scan Battle — star feature */}
+      <motion.div {...fade(2)}>
+        <Link href="/battle" className="block">
+          <Card className="gc-pressable relative flex items-center gap-4 overflow-hidden border-natural/30 bg-natural/5 p-4">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neon-grad text-deep shadow-glow">
+              <Swords className="h-6 w-6" strokeWidth={2.2} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="flex items-center gap-1.5 text-sm font-bold">
+                {tb("title")}
+                <span className="rounded-full bg-neon-grad px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-deep">★</span>
+              </p>
+              <p className="mt-0.5 line-clamp-2 text-xs text-muted">{tb("subtitle")}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted rtl:rotate-180" />
           </Card>
         </Link>
       </motion.div>

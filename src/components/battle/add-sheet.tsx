@@ -92,7 +92,7 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
   const [q, setQ] = useState("");
   const [items, setItems] = useState<Product[]>([]);
   const [status, setStatus] = useState<"idle" | "loading" | "ok">("idle");
-  const debounce = useRef<ReturnType<typeof setTimeout>>();
+  const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     clearTimeout(debounce.current);

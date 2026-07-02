@@ -62,7 +62,7 @@ export function ScanClient() {
   const [lastCode, setLastCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [manual, setManual] = useState("");
-  const noticeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const flashNotice = useCallback((message: string) => {
     clearTimeout(noticeTimer.current);

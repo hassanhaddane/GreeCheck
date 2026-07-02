@@ -266,7 +266,19 @@
       "halal": "Halal",
       "market": "Marché",
       "grocery": "Épicerie"
-    }
+    },
+    "privacyNote": "Ta position est utilisée uniquement sur ton appareil pour la recherche. Elle n'est jamais stockée ni envoyée.",
+    "directions": "Itinéraire",
+    "away": "{km} km",
+    "results": "{n} lieu(x)",
+    "noResults": "Aucun lieu trouvé ici.",
+    "searching": "Recherche…",
+    "locating": "Localisation…",
+    "denied": "Accès à la position refusé.",
+    "unsupported": "Géolocalisation indisponible.",
+    "searchHint": "Cherche une ville ou utilise ta position.",
+    "viewOnMap": "Voir sur la carte",
+    "openNow": "Horaires"
   },
   "settings": {
     "title": "Réglages",

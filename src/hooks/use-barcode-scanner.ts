@@ -189,7 +189,7 @@ export function useBarcodeScanner({ onDetect }: Options) {
   const startingRef = useRef(false);
   const lastRawRef = useRef("");
   const lastRawAtRef = useRef(0);
-  const selectedDeviceRef = useRef<string | undefined>();
+  const selectedDeviceRef = useRef<string | undefined>(undefined);
 
   const onDetectRef = useRef(onDetect);
   onDetectRef.current = onDetect;

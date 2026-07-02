@@ -42,7 +42,7 @@ export default function SearchPage() {
   const [active, setActive] = useState<Set<string>>(new Set());
   const [nutriSel, setNutriSel] = useState<Set<string>>(new Set());
   const [novaSel, setNovaSel] = useState<Set<number>>(new Set());
-  const debounce = useRef<ReturnType<typeof setTimeout>>();
+  const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const groups: Record<FilterGroup, typeof FILTER_DEFS> = useMemo(
     () => ({

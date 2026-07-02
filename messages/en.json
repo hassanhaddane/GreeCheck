@@ -266,7 +266,19 @@
       "halal": "Halal",
       "market": "Market",
       "grocery": "Grocery"
-    }
+    },
+    "privacyNote": "Your location is used only on your device to search. It is never stored or sent.",
+    "directions": "Directions",
+    "away": "{km} km",
+    "results": "{n} place(s)",
+    "noResults": "No places found here.",
+    "searching": "Searching…",
+    "locating": "Locating…",
+    "denied": "Location access denied.",
+    "unsupported": "Geolocation unavailable.",
+    "searchHint": "Search a city or use your location.",
+    "viewOnMap": "View on map",
+    "openNow": "Hours"
   },
   "settings": {
     "title": "Settings",

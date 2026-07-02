@@ -45,7 +45,12 @@ export default function BattlePage() {
   const addWinnerToBasket = () => {
     if (!result?.winner) return;
     const w = result.winner;
-    basket.add({ barcode: w.product.barcode, name: w.product.name, imageUrl: w.product.imageUrl, score: w.gree.global });
+    basket.addProduct(w.product, w.gree);
+    router.push("/basket");
+  };
+
+  const addEntryToBasket = (entry: NonNullable<typeof result>["ranking"][number]) => {
+    basket.addProduct(entry.product, entry.gree);
     router.push("/basket");
   };
 
@@ -80,7 +85,13 @@ export default function BattlePage() {
               const entry = ranking.find((e) => e.product.barcode === p.barcode)!;
               return (
                 <motion.div key={p.barcode} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                  <BattleCard entry={entry} isWinner={items.length >= 2 && p.barcode === winnerBarcode} onRemove={() => remove(p.barcode)} />
+                  <BattleCard
+                    entry={entry}
+                    isWinner={items.length >= 2 && p.barcode === winnerBarcode}
+                    inBasket={basket.has(p.barcode)}
+                    onRemove={() => remove(p.barcode)}
+                    onAddBasket={() => addEntryToBasket(entry)}
+                  />
                 </motion.div>
               );
             })}

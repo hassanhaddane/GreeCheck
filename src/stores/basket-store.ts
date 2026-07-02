@@ -1,38 +1,39 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Product } from "@/types/product";
+import type { GreeScore } from "@/types/scoring";
 
 export interface BasketItem {
-  barcode: string;
-  name: string;
-  imageUrl?: string;
-  score: number;
+  product: Product;
+  score: number; // GreeScore snapshot at add time
+  addedAt: number;
 }
+
+export type BasketAddResult = "added" | "duplicate";
 
 interface BasketState {
   items: BasketItem[];
-  add: (item: BasketItem) => void;
+  addProduct: (product: Product, gree: GreeScore) => BasketAddResult;
   remove: (barcode: string) => void;
   clear: () => void;
-  averageScore: () => number;
+  has: (barcode: string) => boolean;
 }
 
+// Smart basket — full products, 100% local (localStorage). Nothing leaves the device.
 export const useBasketStore = create<BasketState>()(
   persist(
     (set, get) => ({
       items: [],
-      add: (item) =>
-        set((s) => ({
-          items: s.items.some((i) => i.barcode === item.barcode) ? s.items : [...s.items, item]
-        })),
-      remove: (barcode) => set((s) => ({ items: s.items.filter((i) => i.barcode !== barcode) })),
+      addProduct: (product, gree) => {
+        if (get().items.some((i) => i.product.barcode === product.barcode)) return "duplicate";
+        set((s) => ({ items: [...s.items, { product, score: gree.global, addedAt: Date.now() }] }));
+        return "added";
+      },
+      remove: (barcode) => set((s) => ({ items: s.items.filter((i) => i.product.barcode !== barcode) })),
       clear: () => set({ items: [] }),
-      averageScore: () => {
-        const items = get().items;
-        if (!items.length) return 0;
-        return Math.round(items.reduce((a, b) => a + b.score, 0) / items.length);
-      }
+      has: (barcode) => get().items.some((i) => i.product.barcode === barcode)
     }),
-    { name: "greecheck.basket" }
+    { name: "greecheck.basket.v2" } // v2: stores full products
   )
 );

@@ -1,7 +1,8 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { X, Trophy, AlertTriangle } from "lucide-react";
+import { X, Trophy, AlertTriangle, ShoppingBasket } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ScoreRing } from "@/components/score/score-ring";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
@@ -11,7 +12,19 @@ import type { BattleEntry } from "@/lib/scoring/battle";
 
 const GRADE_BG: Record<string, string> = { A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e" };
 
-export function BattleCard({ entry, isWinner, onRemove }: { entry: BattleEntry; isWinner?: boolean; onRemove: () => void }) {
+export function BattleCard({
+  entry,
+  isWinner,
+  inBasket,
+  onRemove,
+  onAddBasket
+}: {
+  entry: BattleEntry;
+  isWinner?: boolean;
+  inBasket?: boolean;
+  onRemove: () => void;
+  onAddBasket?: () => void;
+}) {
   const t = useTranslations("battle");
   const { product: p, gree } = entry;
   const warning = gree.warnings.find((w) => w.level !== "info");
@@ -53,6 +66,12 @@ export function BattleCard({ entry, isWinner, onRemove }: { entry: BattleEntry; 
         <p className="flex items-center gap-1 rounded-lg bg-score-d/10 px-2 py-1 text-[0.6rem] font-medium text-score-d">
           <AlertTriangle className="h-3 w-3 shrink-0" /> {warning.label}
         </p>
+      )}
+
+      {onAddBasket && (
+        <Button variant={inBasket ? "neon" : "soft"} size="sm" className="mt-auto h-8 w-full px-2 text-[0.68rem]" onClick={onAddBasket}>
+          <ShoppingBasket className="h-3.5 w-3.5" /> {inBasket ? t("goToBasket") : t("addToBasket")}
+        </Button>
       )}
     </Card>
   );

@@ -55,6 +55,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
   const [state, setState] = useState<"loading" | "error" | ProductResult["status"]>("loading");
   const [data, setData] = useState<ProductResult | null>(null);
+  const [basketNotice, setBasketNotice] = useState<"added" | "duplicate" | null>(null);
 
   const favorites = useFavoritesStore();
   const basket = useBasketStore();
@@ -153,6 +154,12 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const goToBattle = () => {
     addBattle(p); // full product so the battle has all data
     router.push("/battle");
+  };
+
+  const productInBasket = basket.has(p.barcode);
+  const addToBasket = () => {
+    const result = basket.addProduct(p, gree);
+    setBasketNotice(result === "duplicate" ? "duplicate" : "added");
   };
 
   return (
@@ -305,13 +312,22 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {/* ── Sticky actions ── */}
       <div className="sticky bottom-24 z-30 space-y-2 md:bottom-4">
+        {basketNotice && (
+          <div className="flex items-center gap-2 rounded-2xl border border-natural/25 bg-surface/95 p-2.5 text-sm font-semibold text-natural shadow-glass backdrop-blur">
+            <ShoppingBasket className="h-4 w-4" />
+            <span className="min-w-0 flex-1">{t(basketNotice === "added" ? "addedToBasket" : "alreadyInBasket")}</span>
+            <Button variant="ghost" size="sm" onClick={() => router.push("/basket")}>
+              {t("goToBasket")}
+            </Button>
+          </div>
+        )}
         <div className="flex gap-2">
           <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
             onClick={() => favorites.toggle({ ...item, verdict: gree.label, scannedAt: Date.now() })}>
             <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
           </Button>
-          <Button variant="soft" className="flex-1" onClick={() => basket.add(item)}>
-            <ShoppingBasket className="h-5 w-5" /> {t("addToBasket")}
+          <Button variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
+            <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
           </Button>
         </div>
         <div className="flex gap-2">

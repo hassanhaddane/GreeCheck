@@ -6,8 +6,8 @@ import { X, ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, L
 import { Button } from "@/components/ui/button";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
-import { useBarcodeScanner } from "@/hooks/use-barcode-scanner";
-import { parseScan } from "@/lib/utils/parse-scan";
+import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
+import { parseProductCode } from "@/lib/utils/parse-scan";
 import { getProduct, searchProductsClient } from "@/lib/api/client";
 import { useBattleStore, type AddResult } from "@/stores/battle-store";
 import type { Product } from "@/types/product";
@@ -176,16 +176,21 @@ function ManualTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) =
 /* ── scan (reuses the shared scanner hook) ── */
 function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => void; add: (p: Product) => AddResult }) {
   const t = useTranslations("battle");
+  const scanT = useTranslations("scan");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const blockedStates: CamState[] = ["insecure", "denied", "no-camera", "in-use", "unsupported", "error"];
 
-  const { videoRef, state, stop } = useBarcodeScanner({
+  const scanner = useBarcodeScanner({
     onDetect: (raw) => {
-      const parsed = parseScan(raw);
-      if (parsed.type !== "barcode") return false;
+      const code = parseProductCode(raw);
+      if (!code) {
+        setErr(scanT("unsupportedCode"));
+        return false;
+      }
       setBusy(true);
-      stop();
-      getProduct(parsed.code)
+      setErr(null);
+      getProduct(code)
         .then((res) => {
           if (res.status === "not_found") setErr(t("notFound"));
           else onResolve(add(res.product), res.product.name);
@@ -199,15 +204,41 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
   return (
     <div className="space-y-3">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-deep-grad">
-        <video ref={videoRef} className={`absolute inset-0 h-full w-full object-cover ${state === "active" ? "opacity-100" : "opacity-0"}`} muted playsInline autoPlay aria-hidden />
-        {state === "active" && <div className="pointer-events-none absolute inset-8 rounded-2xl border-2 border-neon/60 shadow-glow" />}
-        {(state === "denied" || state === "unsupported" || state === "error") && (
+        <video ref={scanner.videoRef} className={`absolute inset-0 h-full w-full object-cover ${scanner.state === "active" ? "opacity-100" : "opacity-0"}`} muted playsInline autoPlay aria-hidden />
+        {scanner.state === "active" && <div className="pointer-events-none absolute inset-8 rounded-2xl border-2 border-neon/60 shadow-glow" />}
+        {scanner.state === "active" && (
+          <p className="absolute inset-x-4 bottom-4 rounded-2xl bg-black/45 px-3 py-2 text-center text-xs font-medium text-white/80 backdrop-blur">
+            {scanT("scanGuidance")}
+          </p>
+        )}
+        {blockedStates.includes(scanner.state) && (
           <div className="absolute inset-0 grid place-items-center p-4 text-center text-white/80">
-            <div className="flex flex-col items-center gap-2"><CameraOff className="h-7 w-7" /><span className="text-sm">{t("manualEntry")}</span></div>
+            <div className="flex flex-col items-center gap-2">
+              <CameraOff className="h-7 w-7" />
+              <span className="text-sm">
+                {scanner.state === "insecure"
+                  ? scanT("httpsRequiredTitle")
+                  : scanner.state === "denied"
+                    ? scanT("cameraDenied")
+                    : scanner.state === "no-camera"
+                      ? scanT("noCameraFound")
+                      : scanner.state === "in-use"
+                        ? scanT("cameraInUse")
+                        : scanT("cameraUnsupported")}
+              </span>
+              <Button variant="neon" size="sm" onClick={scanner.retry}>
+                {scanT("retry")}
+              </Button>
+            </div>
           </div>
         )}
         {busy && <div className="absolute inset-0 grid place-items-center bg-deep/40"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>}
       </div>
+      {scanner.devices.length > 1 && (
+        <Button variant="soft" size="sm" className="w-full" onClick={() => scanner.switchCamera()}>
+          {scanT("switchCamera")}
+        </Button>
+      )}
       {err && <p className="text-center text-sm font-medium text-score-d">{err}</p>}
     </div>
   );

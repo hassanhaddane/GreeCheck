@@ -1,195 +1,427 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  BarcodeFormat,
+  BrowserMultiFormatReader,
+  type IScannerControls
+} from "@zxing/browser";
+import { DecodeHintType, NotFoundException } from "@zxing/library";
 
-export type CamState = "idle" | "requesting" | "active" | "denied" | "unsupported" | "error";
+export type CamState =
+  | "idle"
+  | "checking"
+  | "requesting"
+  | "active"
+  | "paused"
+  | "insecure"
+  | "denied"
+  | "no-camera"
+  | "in-use"
+  | "unsupported"
+  | "error";
 
-// Detect linear barcodes AND 2D/QR codes together — the UI toggle is purely visual framing.
-const FORMATS = [
-  "ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf", "codabar",
-  "qr_code", "data_matrix", "aztec", "pdf417"
+export type CameraPermissionState = "unknown" | "prompt" | "granted" | "denied" | "unsupported";
+
+export interface ScannerDebugInfo {
+  secureContext: boolean;
+  mediaDevices: boolean;
+  getUserMedia: boolean;
+  permission: CameraPermissionState;
+  selectedCameraLabel: string;
+  availableCamerasCount: number;
+  scannerEngine: string;
+  supportedFormats: string[];
+  lastDetectedRaw: string;
+  lastError: string;
+  framesScanned: number;
+}
+
+export interface ScannerEnvironment {
+  secureContext: boolean;
+  mediaDevices: boolean;
+  getUserMedia: boolean;
+}
+
+interface Options {
+  /** Return true to stop scanning permanently, for example when navigation starts. */
+  onDetect: (raw: string, format?: string) => boolean | void;
+}
+
+const SUPPORTED_FORMATS = [
+  BarcodeFormat.EAN_13,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
+  BarcodeFormat.CODE_128,
+  BarcodeFormat.QR_CODE
 ];
 
-interface DetectedCode {
-  rawValue: string;
-  format?: string;
+export const SUPPORTED_FORMAT_LABELS = ["EAN_13", "EAN_8", "UPC_A", "UPC_E", "CODE_128", "QR_CODE"];
+const ZXING_ENGINE = "@zxing/browser BrowserMultiFormatReader";
+const VIDEO_TRACKS = (track: MediaStreamTrack) => (track.kind === "video" ? [track] : []);
+
+type ExtendedCapabilities = MediaTrackCapabilities & {
+  torch?: boolean;
+  focusMode?: string[];
+  exposureMode?: string[];
+  zoom?: { min?: number; max?: number; step?: number } | number;
+};
+
+type ExtendedConstraints = MediaTrackConstraints & {
+  advanced?: Array<Record<string, unknown>>;
+  torch?: boolean;
+  focusMode?: string;
+  exposureMode?: string;
+  zoom?: number;
+};
+
+type ExtendedSettings = MediaTrackSettings & {
+  zoom?: number;
+};
+
+function environment(): ScannerEnvironment {
+  const mediaDevices = typeof navigator !== "undefined" && Boolean(navigator.mediaDevices);
+  return {
+    secureContext: typeof window !== "undefined" ? window.isSecureContext : false,
+    mediaDevices,
+    getUserMedia: mediaDevices && typeof navigator.mediaDevices.getUserMedia === "function"
+  };
 }
-type Detector = { detect: (s: CanvasImageSource) => Promise<DetectedCode[]> };
 
-// Set the self-hosted wasm override only once per session.
-let zxingOverridden = false;
+function classifyCameraError(error: unknown): CamState {
+  const name = (error as DOMException | undefined)?.name;
+  if (name === "NotAllowedError" || name === "SecurityError") return "denied";
+  if (name === "NotFoundError" || name === "OverconstrainedError") return "no-camera";
+  if (name === "NotReadableError" || name === "AbortError") return "in-use";
+  if (name === "NotSupportedError") return "unsupported";
+  return "error";
+}
 
-async function createDetector(): Promise<Detector | null> {
-  if (typeof window === "undefined") return null;
-  const G = window as unknown as { BarcodeDetector?: any };
+function cameraSortScore(device: MediaDeviceInfo, index: number): number {
+  const label = device.label.toLowerCase();
+  let score = 100 - index;
+  if (/\bback\b|rear|environment|world|main/.test(label)) score += 80;
+  if (/wide|ultra|0\.5|macro|depth|tele/.test(label)) score -= 30;
+  if (/front|face|user|selfie|frontal/.test(label)) score -= 60;
+  return score;
+}
 
-  // 1) Native BarcodeDetector (Chrome, Edge, Android WebView) — fastest, zero download.
-  if (G.BarcodeDetector) {
-    try {
-      const supported: string[] = (await G.BarcodeDetector.getSupportedFormats?.()) ?? [];
-      const formats = FORMATS.filter((f) => supported.includes(f));
-      if (formats.length) return new G.BarcodeDetector({ formats });
-    } catch {
-      /* fall through to bundled fallback */
-    }
+function chooseDefaultDevice(devices: MediaDeviceInfo[]): string | undefined {
+  if (!devices.length) return undefined;
+  return [...devices].sort((a, b) => cameraSortScore(b, devices.indexOf(b)) - cameraSortScore(a, devices.indexOf(a)))[0]?.deviceId;
+}
+
+async function readPermission(): Promise<CameraPermissionState> {
+  if (typeof navigator === "undefined" || !navigator.permissions?.query) return "unknown";
+  try {
+    const status = await navigator.permissions.query({ name: "camera" as PermissionName });
+    return status.state as CameraPermissionState;
+  } catch {
+    return "unsupported";
+  }
+}
+
+function makeReader(): BrowserMultiFormatReader {
+  const hints = new Map<DecodeHintType, unknown>();
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, SUPPORTED_FORMATS);
+  hints.set(DecodeHintType.TRY_HARDER, true);
+  return new BrowserMultiFormatReader(hints, {
+    delayBetweenScanAttempts: 100,
+    delayBetweenScanSuccess: 450
+  });
+}
+
+function constraintsForDevice(deviceId?: string): MediaStreamConstraints {
+  const video: ExtendedConstraints = {
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    advanced: [
+      { focusMode: "continuous" },
+      { exposureMode: "continuous" }
+    ]
+  };
+
+  if (deviceId) {
+    video.deviceId = { exact: deviceId };
+  } else {
+    video.facingMode = { ideal: "environment" };
   }
 
-  // 2) Cross-browser fallback (Safari/iOS, Firefox) via `barcode-detector` (zxing-wasm).
-  //    PRIVACY-FIRST: zxing-wasm's default `locateFile` fetches `zxing_full.wasm` from a
-  //    public CDN (fastly.jsdelivr.net) at runtime. We override it to load the binary from
-  //    our OWN origin (/wasm/zxing_full.wasm, copied by scripts/copy-wasm.mjs at build).
-  //    No third-party runtime code is ever fetched.
+  return { audio: false, video };
+}
+
+function getCapabilities(controls: IScannerControls | null): ExtendedCapabilities | null {
   try {
-    const mod = await import("barcode-detector/pure");
-    if (!zxingOverridden) {
-      mod.setZXingModuleOverrides({
-        locateFile: (path: string, prefix: string) =>
-          path.endsWith(".wasm") ? `/wasm/${path}` : `${prefix}${path}`
-      });
-      zxingOverridden = true;
-    }
-    return new mod.BarcodeDetector({ formats: FORMATS as any });
+    return (controls?.streamVideoCapabilitiesGet?.(VIDEO_TRACKS) as ExtendedCapabilities | undefined) ?? null;
   } catch {
     return null;
   }
 }
 
-interface Options {
-  /** Return true to stop scanning permanently (e.g. valid product → navigate). */
-  onDetect: (raw: string, format?: string) => boolean | void;
+function getSettings(controls: IScannerControls | null): ExtendedSettings | null {
+  try {
+    return (controls?.streamVideoSettingsGet?.(VIDEO_TRACKS) as ExtendedSettings | undefined) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function applyContinuousCameraConstraints(controls: IScannerControls | null) {
+  const capabilities = getCapabilities(controls);
+  const advanced: Array<Record<string, unknown>> = [];
+  if (capabilities?.focusMode?.includes("continuous")) advanced.push({ focusMode: "continuous" });
+  if (capabilities?.exposureMode?.includes("continuous")) advanced.push({ exposureMode: "continuous" });
+  if (!advanced.length) return;
+
+  try {
+    controls?.streamVideoConstraintsApply?.({ advanced } as ExtendedConstraints, VIDEO_TRACKS);
+  } catch {
+    /* Some browsers expose capabilities but reject the constraint. Scanning can continue. */
+  }
 }
 
 export function useBarcodeScanner({ onDetect }: Options) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const detectorRef = useRef<Detector | null>(null);
-  const rafRef = useRef<number>();
-
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const controlsRef = useRef<IScannerControls | null>(null);
   const mountedRef = useRef(true);
-  const finishedRef = useRef(false); // latch: once handled, never scan/restart again
-  const lastRaw = useRef<string>("");
-  const lastRawAt = useRef(0);
-  const lastDecodeAt = useRef(0);
+  const finishedRef = useRef(false);
+  const startingRef = useRef(false);
+  const lastRawRef = useRef("");
+  const lastRawAtRef = useRef(0);
+  const selectedDeviceRef = useRef<string | undefined>();
 
   const onDetectRef = useRef(onDetect);
   onDetectRef.current = onDetect;
 
+  const env = useMemo(environment, []);
   const [state, setState] = useState<CamState>("idle");
+  const [permission, setPermission] = useState<CameraPermissionState>("unknown");
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | undefined>();
+  const [selectedCameraLabel, setSelectedCameraLabel] = useState("");
+  const [lastDetectedRaw, setLastDetectedRaw] = useState("");
+  const [lastError, setLastError] = useState("");
+  const [framesScanned, setFramesScanned] = useState(0);
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const [zoomSupported, setZoomSupported] = useState(false);
+  const [zoom, setZoomValue] = useState<number | undefined>();
 
-  /** Fully release camera + cancel the detection loop. Idempotent. */
   const stopStream = useCallback(() => {
-    if (rafRef.current) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = undefined;
+    try {
+      controlsRef.current?.stop();
+    } catch {
+      /* noop */
     }
-    const s = streamRef.current;
-    if (s) {
-      s.getTracks().forEach((t) => {
-        try { t.stop(); } catch { /* noop */ }
+    controlsRef.current = null;
+    readerRef.current = null;
+    setTorchOn(false);
+    setTorchSupported(false);
+    setZoomSupported(false);
+    setZoomValue(undefined);
+
+    const video = videoRef.current;
+    const stream = video?.srcObject as MediaStream | null;
+    if (stream) {
+      stream.getTracks().forEach((track) => {
+        try {
+          track.stop();
+        } catch {
+          /* noop */
+        }
       });
-      streamRef.current = null;
     }
-    const v = videoRef.current;
-    if (v) {
-      try { v.pause(); } catch { /* noop */ }
-      v.srcObject = null;
+    if (video) {
+      try {
+        video.pause();
+      } catch {
+        /* noop */
+      }
+      video.srcObject = null;
     }
   }, []);
 
-  const loop = useCallback(() => {
-    const run = async (ts: number) => {
-      if (!mountedRef.current || finishedRef.current) return;
-      const v = videoRef.current;
-      const d = detectorRef.current;
-      if (!v || !d) return;
-
-      // Throttle decoding (~6 fps) — keeps the UI smooth and CPU low.
-      if (ts - lastDecodeAt.current > 160 && v.readyState >= 2) {
-        lastDecodeAt.current = ts;
-        try {
-          const codes = await d.detect(v);
-          const raw = codes?.[0]?.rawValue;
-          if (raw && !finishedRef.current) {
-            const isDuplicate = raw === lastRaw.current && ts - lastRawAt.current < 2000;
-            if (!isDuplicate) {
-              lastRaw.current = raw;
-              lastRawAt.current = ts;
-              const handled = onDetectRef.current(raw, codes[0].format);
-              if (handled) {
-                // Single-fire: latch, buzz once, release camera immediately. No reschedule.
-                finishedRef.current = true;
-                if (typeof navigator !== "undefined") navigator.vibrate?.(45);
-                stopStream();
-                return;
-              }
-            }
-          }
-        } catch {
-          /* transient decode error — keep scanning */
-        }
+  const refreshDevices = useCallback(async () => {
+    if (!env.mediaDevices) {
+      setDevices([]);
+      return [];
+    }
+    try {
+      const list = await navigator.mediaDevices.enumerateDevices();
+      const cameras = list.filter((device) => device.kind === "videoinput");
+      setDevices(cameras);
+      if (!selectedDeviceRef.current) {
+        const preferred = chooseDefaultDevice(cameras);
+        selectedDeviceRef.current = preferred;
+        setSelectedDeviceId(preferred);
       }
-      if (mountedRef.current && !finishedRef.current) {
-        rafRef.current = requestAnimationFrame(run);
-      }
-    };
-    rafRef.current = requestAnimationFrame(run);
-  }, [stopStream]);
+      const selected = cameras.find((device) => device.deviceId === selectedDeviceRef.current) ?? cameras[0];
+      setSelectedCameraLabel(selected?.label || "");
+      return cameras;
+    } catch (error) {
+      setLastError((error as Error)?.message || "enumerateDevices failed");
+      setDevices([]);
+      return [];
+    }
+  }, [env.mediaDevices]);
 
   const start = useCallback(async () => {
-    if (finishedRef.current) return;
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    if (finishedRef.current || startingRef.current) return;
+    setState("checking");
+    setLastError("");
+
+    const currentEnv = environment();
+    if (!currentEnv.secureContext) {
+      setState("insecure");
+      return;
+    }
+    if (!currentEnv.mediaDevices || !currentEnv.getUserMedia) {
       setState("unsupported");
       return;
     }
-    setState("requesting");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false
-      });
-      // Guard against unmount/finish during the async permission prompt.
-      if (!mountedRef.current || finishedRef.current) {
-        stream.getTracks().forEach((t) => t.stop());
-        return;
-      }
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(() => {});
-      }
-      detectorRef.current = await createDetector();
-      if (!detectorRef.current) {
-        stopStream();
-        setState("unsupported");
-        return;
-      }
-      if (!mountedRef.current || finishedRef.current) {
-        stopStream();
-        return;
-      }
-      setState("active");
-      loop();
-    } catch (e) {
-      const name = (e as DOMException)?.name;
-      if (name === "NotAllowedError" || name === "SecurityError") setState("denied");
-      else if (name === "NotFoundError" || name === "OverconstrainedError") setState("unsupported");
-      else setState("error");
-    }
-  }, [loop, stopStream]);
+    if (!videoRef.current) return;
 
-  /** Explicit full stop for callers (e.g. before navigating away). */
+    startingRef.current = true;
+    setState("requesting");
+    setPermission(await readPermission());
+
+    try {
+      const reader = makeReader();
+      readerRef.current = reader;
+      await refreshDevices();
+      const controls = await reader.decodeFromConstraints(
+        constraintsForDevice(selectedDeviceRef.current),
+        videoRef.current,
+        (result, error) => {
+          if (!mountedRef.current || finishedRef.current) return;
+          setFramesScanned((count) => count + 1);
+
+          if (result) {
+            const raw = result.getText().trim();
+            const format = BarcodeFormat[result.getBarcodeFormat()];
+            const now = Date.now();
+            setLastDetectedRaw(raw);
+
+            if (raw && !(raw === lastRawRef.current && now - lastRawAtRef.current < 1800)) {
+              lastRawRef.current = raw;
+              lastRawAtRef.current = now;
+              const handled = onDetectRef.current(raw, format);
+              if (handled) {
+                finishedRef.current = true;
+                navigator.vibrate?.(45);
+                stopStream();
+                setState("paused");
+              }
+            }
+            return;
+          }
+
+          if (error && !(error instanceof NotFoundException)) {
+            setLastError(error.message || error.name || "Decode error");
+          }
+        }
+      );
+
+      if (!mountedRef.current || finishedRef.current) {
+        controls.stop();
+        return;
+      }
+
+      controlsRef.current = controls;
+      applyContinuousCameraConstraints(controls);
+      const capabilities = getCapabilities(controls);
+      const settings = getSettings(controls);
+      setTorchSupported(Boolean(capabilities?.torch && controls.switchTorch));
+      setZoomSupported(Boolean(capabilities?.zoom));
+      setZoomValue(typeof settings?.zoom === "number" ? settings.zoom : undefined);
+      await refreshDevices();
+      setPermission(await readPermission());
+      setState("active");
+    } catch (error) {
+      stopStream();
+      const next = classifyCameraError(error);
+      setState(next);
+      setLastError((error as Error)?.message || next);
+      setPermission(next === "denied" ? "denied" : await readPermission());
+    } finally {
+      startingRef.current = false;
+    }
+  }, [refreshDevices, stopStream]);
+
   const stop = useCallback(() => {
     finishedRef.current = true;
     stopStream();
+    setState("paused");
   }, [stopStream]);
 
-  /** Reset the latch and try again (used by "retry" after denied/error). */
-  const retry = useCallback(() => {
-    finishedRef.current = false;
-    lastRaw.current = "";
+  const pause = useCallback(() => {
+    if (state !== "active") return;
+    stopStream();
+    setState("paused");
+  }, [state, stopStream]);
+
+  const resume = useCallback(() => {
+    if (finishedRef.current) return;
     start();
   }, [start]);
 
-  // Mount: start once. Unmount: tear everything down (no background camera, no leaks).
+  const retry = useCallback(() => {
+    finishedRef.current = false;
+    lastRawRef.current = "";
+    lastRawAtRef.current = 0;
+    setFramesScanned(0);
+    setLastDetectedRaw("");
+    setLastError("");
+    stopStream();
+    start();
+  }, [start, stopStream]);
+
+  const switchCamera = useCallback(async (deviceId?: string) => {
+    if (!devices.length) return;
+    const currentIndex = Math.max(0, devices.findIndex((device) => device.deviceId === (deviceId ?? selectedDeviceRef.current)));
+    const nextDevice = deviceId
+      ? devices.find((device) => device.deviceId === deviceId)
+      : devices[(currentIndex + 1) % devices.length];
+    if (!nextDevice) return;
+
+    selectedDeviceRef.current = nextDevice.deviceId;
+    setSelectedDeviceId(nextDevice.deviceId);
+    setSelectedCameraLabel(nextDevice.label || "");
+    finishedRef.current = false;
+    lastRawRef.current = "";
+    stopStream();
+    start();
+  }, [devices, start, stopStream]);
+
+  const toggleTorch = useCallback(async () => {
+    if (!torchSupported || !controlsRef.current?.switchTorch) return;
+    const next = !torchOn;
+    try {
+      await controlsRef.current.switchTorch(next);
+      setTorchOn(next);
+    } catch (error) {
+      setLastError((error as Error)?.message || "Torch unavailable");
+      setTorchSupported(false);
+    }
+  }, [torchOn, torchSupported]);
+
+  const setZoom = useCallback((value: number) => {
+    const controls = controlsRef.current;
+    const capabilities = getCapabilities(controls);
+    if (!controls || !capabilities?.zoom) return;
+    const zoomCapability = capabilities.zoom;
+    const min = typeof zoomCapability === "object" ? zoomCapability.min ?? 1 : 1;
+    const max = typeof zoomCapability === "object" ? zoomCapability.max ?? 4 : Number(zoomCapability);
+    const next = Math.max(min, Math.min(max, value));
+    try {
+      controls.streamVideoConstraintsApply?.({ advanced: [{ zoom: next }] } as ExtendedConstraints, VIDEO_TRACKS);
+      setZoomValue(next);
+    } catch (error) {
+      setLastError((error as Error)?.message || "Zoom unavailable");
+    }
+  }, []);
+
   useEffect(() => {
     mountedRef.current = true;
     start();
@@ -197,14 +429,21 @@ export function useBarcodeScanner({ onDetect }: Options) {
       mountedRef.current = false;
       stopStream();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [start, stopStream]);
 
-  // Never keep the camera live while the tab/app is backgrounded.
+  useEffect(() => {
+    if (!env.mediaDevices) return;
+    navigator.mediaDevices.addEventListener?.("devicechange", refreshDevices);
+    return () => navigator.mediaDevices.removeEventListener?.("devicechange", refreshDevices);
+  }, [env.mediaDevices, refreshDevices]);
+
   useEffect(() => {
     const onVisibility = () => {
       if (document.hidden) {
-        stopStream();
+        if (!finishedRef.current) {
+          stopStream();
+          setState("paused");
+        }
       } else if (!finishedRef.current && mountedRef.current) {
         start();
       }
@@ -213,5 +452,39 @@ export function useBarcodeScanner({ onDetect }: Options) {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [start, stopStream]);
 
-  return { videoRef, state, stop, retry };
+  const debug: ScannerDebugInfo = {
+    secureContext: env.secureContext,
+    mediaDevices: env.mediaDevices,
+    getUserMedia: env.getUserMedia,
+    permission,
+    selectedCameraLabel,
+    availableCamerasCount: devices.length,
+    scannerEngine: ZXING_ENGINE,
+    supportedFormats: SUPPORTED_FORMAT_LABELS,
+    lastDetectedRaw,
+    lastError,
+    framesScanned
+  };
+
+  return {
+    videoRef,
+    state,
+    env,
+    permission,
+    devices,
+    selectedDeviceId,
+    selectedCameraLabel,
+    torchSupported,
+    torchOn,
+    zoomSupported,
+    zoom,
+    debug,
+    stop,
+    pause,
+    resume,
+    retry,
+    switchCamera,
+    toggleTorch,
+    setZoom
+  };
 }

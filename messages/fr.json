@@ -12,7 +12,8 @@
     "basket": "Panier",
     "map": "Carte",
     "settings": "Réglages",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "list": "Liste"
   },
   "home": {
     "greeting": "Bonjour",
@@ -333,5 +334,48 @@
     "balanced": "Profil équilibré",
     "partial": "Données partielles ({n} axe(s) manquant(s))",
     "noData": "Données nutritionnelles indisponibles"
+  },
+  "list": {
+    "title": "Liste de courses",
+    "subtitle": "Ta liste intelligente, notée localement.",
+    "newList": "Nouvelle liste",
+    "listName": "Nom de la liste",
+    "create": "Créer",
+    "noList": "Crée ta première liste de courses.",
+    "empty": "Liste vide — ajoute des produits.",
+    "addProduct": "Ajouter un produit",
+    "searchPlaceholder": "Produit, marque…",
+    "estScore": "Score estimé",
+    "items": "{n} produit(s)",
+    "checked": "{n} coché(s)",
+    "filters": "Filtres",
+    "filterBio": "Bio",
+    "filterHalal": "Halal",
+    "filterLowSugar": "Faible sucre",
+    "filterProtein": "Protéiné",
+    "toImprove": "À remplacer",
+    "toImproveHint": "Produits qui baissent le score de ta liste.",
+    "clear": "Vider",
+    "deleteList": "Supprimer la liste",
+    "rename": "Renommer",
+    "noResults": "Aucun résultat",
+    "addedToList": "Ajouté à la liste",
+    "alreadyInList": "Déjà dans la liste",
+    "aisle": {
+      "produce": "Fruits & légumes",
+      "dairy": "Produits laitiers",
+      "bakery": "Boulangerie & céréales",
+      "beverages": "Boissons",
+      "meat_fish": "Viandes & poissons",
+      "frozen": "Surgelés",
+      "sweet": "Épicerie sucrée & snacks",
+      "pantry": "Épicerie salée",
+      "other": "Autres"
+    },
+    "level": {
+      "good": "Excellent",
+      "ok": "Correct",
+      "bad": "À améliorer"
+    }
   }
 }

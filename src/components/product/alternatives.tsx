@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Sparkles, GitCompareArrows, ShoppingBasket, Check } from "lucide-react";
+import { Sparkles, GitCompareArrows, ShoppingBasket, Check, ListChecks } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/section-title";
@@ -12,6 +12,7 @@ import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { getAlternatives, type Alternative } from "@/lib/api/client";
 import { useBattleStore } from "@/stores/battle-store";
 import { useBasketStore } from "@/stores/basket-store";
+import { useShoppingListStore } from "@/stores/shopping-list-store";
 import type { Product } from "@/types/product";
 import type { LocalPreferences } from "@/types/user-preferences";
 
@@ -22,6 +23,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
   const router = useRouter();
   const addBattle = useBattleStore((s) => s.add);
   const basket = useBasketStore();
+  const addToList = useShoppingListStore((s) => s.addProduct);
 
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<Alternative[]>([]);
@@ -91,6 +93,9 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
                 <div className="mt-auto flex gap-2">
                   <Button variant="soft" size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => compare(alt)}>
                     <GitCompareArrows className="h-3.5 w-3.5" /> {t("compare")}
+                  </Button>
+                  <Button variant="soft" size="icon" className="h-8 w-8 shrink-0" aria-label="list" onClick={() => addToList(alt.product, alt.gree)}>
+                    <ListChecks className="h-3.5 w-3.5" />
                   </Button>
                   <Button variant={isAdded ? "neon" : "primary"} size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => toBasket(alt)} disabled={isAdded}>
                     {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingBasket className="h-3.5 w-3.5" />} {isAdded ? t("addedToBasket") : t("addToBasket")}

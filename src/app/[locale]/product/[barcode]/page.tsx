@@ -3,7 +3,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Heart, GitCompareArrows, Sparkles, ShoppingBasket, AlertTriangle, Swords,
-  ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3
+  ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3, ListChecks
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +28,7 @@ import { useBasketStore } from "@/stores/basket-store";
 import { useHistoryStore } from "@/stores/history-store";
 import { useBattleStore } from "@/stores/battle-store";
 import { usePreferencesStore } from "@/stores/preferences-store";
+import { useShoppingListStore } from "@/stores/shopping-list-store";
 
 const CONFIDENCE_LABEL: Record<Confidence, string> = {
   high: "Confiance élevée",
@@ -51,6 +52,7 @@ const NUTRI_ROWS: { key: keyof Product["nutriments"]; label: string; unit: strin
 export default function ProductPage({ params }: { params: Promise<{ barcode: string }> }) {
   const { barcode } = use(params);
   const t = useTranslations("product");
+  const tList = useTranslations("list");
   const router = useRouter();
 
   const [state, setState] = useState<"loading" | "error" | ProductResult["status"]>("loading");
@@ -64,6 +66,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const inBattle = useBattleStore((s) => s.has(barcode));
   const battleFull = useBattleStore((s) => s.items.length >= 3 && !s.items.some((x) => x.barcode === barcode));
   const isFav = favorites.has(barcode);
+  const addToList = useShoppingListStore((s) => s.addProduct);
+  const inList = useShoppingListStore((s) => s.has(barcode));
 
   // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
   const prefs = usePreferencesStore();
@@ -325,6 +329,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
             onClick={() => favorites.toggle({ ...item, verdict: gree.label, scannedAt: Date.now() })}>
             <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
+          </Button>
+          <Button variant={inList ? "neon" : "soft"} size="icon" aria-label={tList("addProduct")} onClick={() => addToList(p, gree)}>
+            <ListChecks className="h-5 w-5" />
           </Button>
           <Button variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
             <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}

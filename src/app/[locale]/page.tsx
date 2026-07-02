@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { ScanLine, Search, Swords, ShoppingBasket, ShieldCheck, ArrowRight, ChevronRight, History } from "lucide-react";
+import { ScanLine, Search, Swords, ShoppingBasket, ShieldCheck, ArrowRight, ChevronRight, History, ListChecks } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,8 @@ export default function HomePage() {
   const actions = [
     { key: "search", href: "/search", icon: Search, hint: "Filtres intelligents" },
     { key: "battle", href: "/battle", icon: Swords, hint: "Compare jusqu'à 3" },
-    { key: "basket", href: "/basket", icon: ShoppingBasket, hint: "Note ton panier" }
+    { key: "basket", href: "/basket", icon: ShoppingBasket, hint: "Note ton panier" },
+    { key: "list", href: "/list", icon: ListChecks, hint: "Liste de courses" }
   ];
 
   return (
@@ -89,7 +90,7 @@ export default function HomePage() {
       {/* Named actions */}
       <section>
         <SectionTitle>{t("quickActions")}</SectionTitle>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {actions.map((a, i) => {
             const Icon = a.icon;
             return (

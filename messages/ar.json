@@ -12,7 +12,8 @@
     "basket": "السلة",
     "map": "الخريطة",
     "settings": "الإعدادات",
-    "privacy": "الخصوصية"
+    "privacy": "الخصوصية",
+    "list": "القائمة"
   },
   "home": {
     "greeting": "مرحباً",
@@ -333,5 +334,48 @@
     "balanced": "ملف متوازن",
     "partial": "بيانات جزئية ({n} محاور ناقصة)",
     "noData": "لا تتوفر بيانات غذائية"
+  },
+  "list": {
+    "title": "قائمة التسوق",
+    "subtitle": "قائمتك الذكية، مُقيَّمة على الجهاز.",
+    "newList": "قائمة جديدة",
+    "listName": "اسم القائمة",
+    "create": "إنشاء",
+    "noList": "أنشئ أول قائمة تسوق.",
+    "empty": "قائمة فارغة — أضف منتجات.",
+    "addProduct": "أضف منتجاً",
+    "searchPlaceholder": "منتج، علامة…",
+    "estScore": "التقييم المقدّر",
+    "items": "{n} منتج",
+    "checked": "{n} محدد",
+    "filters": "فلاتر",
+    "filterBio": "عضوي",
+    "filterHalal": "حلال",
+    "filterLowSugar": "سكر منخفض",
+    "filterProtein": "غني بالبروتين",
+    "toImprove": "استبدال",
+    "toImproveHint": "منتجات تخفض تقييم قائمتك.",
+    "clear": "تفريغ",
+    "deleteList": "حذف القائمة",
+    "rename": "إعادة تسمية",
+    "noResults": "لا نتائج",
+    "addedToList": "أُضيف إلى القائمة",
+    "alreadyInList": "موجود في القائمة",
+    "aisle": {
+      "produce": "خضار وفواكه",
+      "dairy": "ألبان",
+      "bakery": "مخبوزات وحبوب",
+      "beverages": "مشروبات",
+      "meat_fish": "لحوم وأسماك",
+      "frozen": "مجمدات",
+      "sweet": "حلويات ووجبات",
+      "pantry": "بقالة",
+      "other": "أخرى"
+    },
+    "level": {
+      "good": "ممتاز",
+      "ok": "جيد",
+      "bad": "بحاجة لتحسين"
+    }
   }
 }

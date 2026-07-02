@@ -12,7 +12,8 @@
     "basket": "Basket",
     "map": "Map",
     "settings": "Settings",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "list": "List"
   },
   "home": {
     "greeting": "Hello",
@@ -333,5 +334,48 @@
     "balanced": "Balanced profile",
     "partial": "Partial data ({n} axis/axes missing)",
     "noData": "No nutrition data available"
+  },
+  "list": {
+    "title": "Shopping list",
+    "subtitle": "Your smart list, scored on-device.",
+    "newList": "New list",
+    "listName": "List name",
+    "create": "Create",
+    "noList": "Create your first shopping list.",
+    "empty": "Empty list — add some products.",
+    "addProduct": "Add a product",
+    "searchPlaceholder": "Product, brand…",
+    "estScore": "Estimated score",
+    "items": "{n} product(s)",
+    "checked": "{n} checked",
+    "filters": "Filters",
+    "filterBio": "Organic",
+    "filterHalal": "Halal",
+    "filterLowSugar": "Low sugar",
+    "filterProtein": "High protein",
+    "toImprove": "Replace",
+    "toImproveHint": "Products lowering your list score.",
+    "clear": "Clear",
+    "deleteList": "Delete list",
+    "rename": "Rename",
+    "noResults": "No results",
+    "addedToList": "Added to list",
+    "alreadyInList": "Already in list",
+    "aisle": {
+      "produce": "Fruit & veg",
+      "dairy": "Dairy",
+      "bakery": "Bakery & cereals",
+      "beverages": "Beverages",
+      "meat_fish": "Meat & fish",
+      "frozen": "Frozen",
+      "sweet": "Sweets & snacks",
+      "pantry": "Pantry",
+      "other": "Other"
+    },
+    "level": {
+      "good": "Excellent",
+      "ok": "Decent",
+      "bad": "Needs work"
+    }
   }
 }

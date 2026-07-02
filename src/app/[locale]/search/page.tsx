@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/components/score/score-ring";
@@ -237,6 +238,9 @@ export default function SearchPage() {
           )}
         </Card>
       )}
+
+      {/* Discrete ad */}
+      <AdSlot variant="inline" />
 
       {/* Results count */}
       {status === "ok" && (

@@ -311,7 +311,11 @@
     "statement": "Vos données restent sur votre appareil. GreeCheck ne crée pas de compte, ne stocke pas votre profil santé et ne conserve pas votre historique de scan.",
     "noAccount": "Aucun compte requis",
     "localOnly": "Stockage 100% local",
-    "attribution": "Données produits fournies par Open Food Facts (ODbL)."
+    "attribution": "Données produits fournies par Open Food Facts (ODbL).",
+    "adsTitle": "Publicités",
+    "adsBody": "GreeCheck est gratuit et financé par la publicité. Par défaut, les publicités sont contextuelles et non personnalisées. Tu peux activer des publicités personnalisées via le consentement — géré par un partenaire externe, jamais par un profilage interne à GreeCheck.",
+    "noTracking": "Aucun tracking utilisateur interne",
+    "noTrackingBody": "GreeCheck ne crée pas de profil publicitaire et ne suit pas ton comportement dans l'application."
   },
   "common": {
     "back": "Retour",
@@ -377,5 +381,20 @@
       "ok": "Correct",
       "bad": "À améliorer"
     }
+  },
+  "ads": {
+    "label": "Espace publicitaire",
+    "sponsored": "Sponsorisé",
+    "nonPersonalized": "Non personnalisée",
+    "personalized": "Personnalisée",
+    "why": "Pourquoi ?",
+    "manage": "Gérer les publicités",
+    "bannerTitle": "Publicités & confidentialité",
+    "bannerBody": "GreeCheck reste gratuit grâce à la publicité. Par défaut elle n'est pas personnalisée et ne suit pas ton profil.",
+    "learnMore": "En savoir plus",
+    "keepNonPersonalized": "Non personnalisées",
+    "acceptPersonalized": "Accepter personnalisées",
+    "settingsTitle": "Publicités",
+    "settingsBody": "Choisis le type de publicités affichées."
   }
 }

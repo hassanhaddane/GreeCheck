@@ -16,6 +16,7 @@ import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { NutritionRadar } from "@/components/radar/nutrition-radar";
 import { Alternatives } from "@/components/product/alternatives";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
@@ -310,6 +311,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           })}
         </div>
       </CollapsibleSection>
+
+      {/* ── Discrete ad ── */}
+      <AdSlot variant="inline" />
 
       {/* ── Alternatives (only when the product is medium or poor) ── */}
       {score < 65 && <Alternatives product={p} prefs={prefs} />}

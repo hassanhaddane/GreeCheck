@@ -15,6 +15,7 @@ import { useFavoritesStore } from "@/stores/favorites-store";
 import { useBasketStore } from "@/stores/basket-store";
 import { clearHistory, clearFavorites, clearBasket, clearProductCache, resetApp } from "@/lib/storage/local-data";
 import { useMounted } from "@/lib/utils/use-mounted";
+import { useConsentStore } from "@/stores/consent-store";
 import { GOALS, GOAL_LABELS } from "@/lib/constants/goals";
 import { cn } from "@/lib/utils/cn";
 
@@ -40,6 +41,7 @@ const PREF_LABELS: Record<(typeof PREF_KEYS)[number], Record<Locale, string>> = 
 /** Two-step confirm button for destructive local-data actions. */
 function ConfirmButton({ label, icon, onConfirm, className }: { label: string; icon: React.ReactNode; onConfirm: () => void; className?: string }) {
   const t = useTranslations("settings");
+  const tAds = useTranslations("ads");
   const [armed, setArmed] = useState(false);
   const click = () => {
     if (armed) { onConfirm(); setArmed(false); return; }
@@ -59,12 +61,15 @@ function ConfirmButton({ label, icon, onConfirm, className }: { label: string; i
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
+  const tAds = useTranslations("ads");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const prefs = usePreferencesStore();
   const mounted = useMounted();
+  const adMode = useConsentStore((c) => c.adMode);
+  const setAdMode = useConsentStore((c) => c.setMode);
 
   const historyCount = useHistoryStore((s) => s.entries.length);
   const favCount = useFavoritesStore((s) => s.items.length);
@@ -198,6 +203,25 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
       </section>
+
+      {/* Ads */}
+      <section>
+        <SectionTitle>{tAds("settingsTitle")}</SectionTitle>
+        <Card>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted">{tAds("settingsBody")}</p>
+            <div className="flex flex-wrap gap-2">
+              <Chip active={mounted && adMode === "non_personalized"} onClick={() => setAdMode("non_personalized")}>
+                {tAds("keepNonPersonalized")}
+              </Chip>
+              <Chip active={mounted && adMode === "personalized"} onClick={() => setAdMode("personalized")}>
+                {tAds("acceptPersonalized")}
+              </Chip>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+
     </div>
   );
 }

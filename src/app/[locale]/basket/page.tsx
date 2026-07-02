@@ -6,6 +6,7 @@ import { Link, useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { ScoreRing } from "@/components/score/score-ring";
 import { BasketItemCard } from "@/components/basket/basket-item-card";
 import { Alternatives } from "@/components/product/alternatives";
@@ -150,6 +151,9 @@ export default function BasketPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Discrete ad */}
+      <AdSlot variant="inline" />
 
       {/* Quick actions */}
       <div className="flex flex-wrap gap-2">

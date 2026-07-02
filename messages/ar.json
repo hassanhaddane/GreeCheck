@@ -131,7 +131,20 @@
     "battleFull": "المقارنة ممتلئة (3)",
     "alreadyInBasket": "موجود في السلة",
     "addedToBasket": "أُضيف إلى السلة",
-    "goToBasket": "عرض السلة"
+    "goToBasket": "عرض السلة",
+    "recommendedBecause": "لماذا؟",
+    "altReason": {
+      "betterScore": "GreeScore أفضل",
+      "betterNutri": "Nutri-Score أفضل",
+      "lowerNova": "أقل معالجة",
+      "lessSugar": "سكر أقل",
+      "lessSalt": "ملح أقل",
+      "lessSatFat": "دهون مشبعة أقل",
+      "moreFiber": "ألياف أكثر",
+      "moreProtein": "بروتين أكثر",
+      "bio": "عضوي",
+      "halal": "متوافق حلال"
+    }
   },
   "battle": {
     "title": "Scan Battle",

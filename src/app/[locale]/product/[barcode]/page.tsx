@@ -307,8 +307,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </div>
       </CollapsibleSection>
 
-      {/* ── Alternatives ── */}
-      <Alternatives product={p} prefs={prefs} />
+      {/* ── Alternatives (only when the product is medium or poor) ── */}
+      {score < 65 && <Alternatives product={p} prefs={prefs} />}
 
       {/* ── Sticky actions ── */}
       <div className="sticky bottom-24 z-30 space-y-2 md:bottom-4">

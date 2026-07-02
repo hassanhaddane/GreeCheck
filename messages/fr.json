@@ -131,7 +131,20 @@
     "battleFull": "Battle plein (3)",
     "alreadyInBasket": "Déjà au panier",
     "addedToBasket": "Ajouté au panier",
-    "goToBasket": "Voir le panier"
+    "goToBasket": "Voir le panier",
+    "recommendedBecause": "Pourquoi ?",
+    "altReason": {
+      "betterScore": "meilleur GreeScore",
+      "betterNutri": "meilleur Nutri-Score",
+      "lowerNova": "moins transformé",
+      "lessSugar": "moins de sucre",
+      "lessSalt": "moins de sel",
+      "lessSatFat": "moins de gras saturés",
+      "moreFiber": "plus de fibres",
+      "moreProtein": "plus de protéines",
+      "bio": "bio",
+      "halal": "compatible halal"
+    }
   },
   "battle": {
     "title": "Scan Battle",

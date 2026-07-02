@@ -145,7 +145,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                         <p className="line-clamp-2 text-sm font-bold">{alternative.product.name}</p>
                         <p className="truncate text-xs text-muted">{alternative.product.brand || t("unknownBrand")}</p>
                       </div>
-                      <ScoreRing value={alternative.score} size={56} label="" tone="neon" />
+                      <ScoreRing value={alternative.gree.global} size={56} label="" tone="neon" />
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <Button variant="soft" size="sm" onClick={() => onCompare(current, alternative.product)}>

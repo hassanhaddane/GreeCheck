@@ -279,7 +279,19 @@
     "clearData": "Clear my local data",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "storage": "Local storage",
+    "onDevice": "All your data stays on this device. GreeCheck sends nothing to a server.",
+    "clearHistory": "Clear history",
+    "clearFavorites": "Delete favorites",
+    "clearBasket": "Clear basket",
+    "clearCache": "Clear product cache",
+    "resetApp": "Reset the app",
+    "resetHint": "Erases preferences, goals, history, favorites, basket and cache.",
+    "confirm": "Confirm?",
+    "done": "Done",
+    "items": "{n} item(s)",
+    "empty": "Empty"
   },
   "privacy": {
     "title": "Privacy",

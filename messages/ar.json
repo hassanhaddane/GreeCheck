@@ -279,7 +279,19 @@
     "clearData": "امسح بياناتي المحلية",
     "themeLight": "فاتح",
     "themeDark": "داكن",
-    "themeSystem": "النظام"
+    "themeSystem": "النظام",
+    "storage": "تخزين محلي",
+    "onDevice": "كل بياناتك تبقى على هذا الجهاز. لا يرسل GreeCheck أي شيء إلى خادم.",
+    "clearHistory": "مسح السجل",
+    "clearFavorites": "حذف المفضلة",
+    "clearBasket": "تفريغ السلة",
+    "clearCache": "مسح ذاكرة المنتجات",
+    "resetApp": "إعادة تعيين التطبيق",
+    "resetHint": "يمحو التفضيلات والأهداف والسجل والمفضلة والسلة والذاكرة.",
+    "confirm": "تأكيد؟",
+    "done": "تم",
+    "items": "{n} عنصر",
+    "empty": "فارغ"
   },
   "privacy": {
     "title": "الخصوصية",

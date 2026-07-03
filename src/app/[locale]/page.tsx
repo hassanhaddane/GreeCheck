@@ -193,7 +193,7 @@ export default function HomePage() {
               <Link key={e.barcode} href={`/product/${e.barcode}`} className="block">
                 <PremiumCard interactive className="flex items-center gap-3 p-3">
                   <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     {e.imageUrl ? <img src={e.imageUrl} alt="" className="h-full w-full object-contain" loading="lazy" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">

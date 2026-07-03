@@ -163,7 +163,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       <Card className="overflow-hidden">
         <div className="grid gap-4 p-5 sm:grid-cols-[120px_1fr] sm:items-center">
           <div className="aspect-square w-28 justify-self-center overflow-hidden rounded-2xl bg-surface-2 sm:w-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
           </div>
           <div>

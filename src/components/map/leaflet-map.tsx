@@ -73,7 +73,7 @@ export function LeafletMap({ center, places, userPoint, onSelect, onError }: {
     if (mapRef.current) {
       try { mapRef.current.setView([center.lat, center.lon], Math.max(13, mapRef.current.getZoom())); } catch { /* noop */ }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [center.lat, center.lon]);
 
   useEffect(() => {

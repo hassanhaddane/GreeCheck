@@ -30,7 +30,7 @@ export function Podium({ ranking }: { ranking: BattleEntry[] }) {
             {/* avatar */}
             <div className="relative">
               <div className={cn("overflow-hidden rounded-full bg-surface-2", isWinner ? "h-16 w-16 ring-2 ring-neon shadow-glow" : "h-12 w-12")}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 {e.product.imageUrl ? <img src={e.product.imageUrl} alt={e.product.name} className="h-full w-full object-contain" loading="lazy" /> : null}
               </div>
               <span className={cn("absolute -right-1 -top-1 grid place-items-center rounded-lg text-[0.6rem] font-extrabold text-white", isWinner ? "h-5 w-5" : "h-4 w-4 text-[0.55rem]", GRADE_BG[e.gree.grade])}>

@@ -18,7 +18,7 @@ export function BasketItemCard({ entry, onRemove, priority }: { entry: BattleEnt
     <Card className={cn("flex items-center gap-3 p-2.5", priority && "border-score-d/30 bg-score-d/5")}>
       <Link href={`/product/${p.barcode}`} className="flex min-w-0 flex-1 items-center gap-3">
         <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          { }
           {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
         </div>
         <div className="min-w-0 flex-1">

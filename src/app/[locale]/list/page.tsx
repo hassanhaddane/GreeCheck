@@ -210,7 +210,7 @@ export default function ListPage() {
                 return (
                   <div key={p.barcode} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2.5">
                     <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      { }
                       {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -249,7 +249,7 @@ export default function ListPage() {
                         {item.checked && <Check className="h-4 w-4" />}
                       </button>
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        { }
                         {item.product.imageUrl ? <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-contain" loading="lazy" /> : null}
                       </div>
                       <div className="min-w-0 flex-1">

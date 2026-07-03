@@ -105,7 +105,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
               <Card key={current.barcode} className="overflow-hidden p-4">
                 <div className="flex items-start gap-3">
                   <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     {current.imageUrl ? <img src={current.imageUrl} alt={current.name} className="h-full w-full object-contain" loading="lazy" /> : null}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -132,7 +132,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                     <div className="flex items-center gap-3">
                       <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface">
                         {alternative.product.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
+                           
                           <img
                             src={alternative.product.imageUrl}
                             alt={alternative.product.name}

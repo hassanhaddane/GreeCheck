@@ -65,7 +65,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
               <Card key={alt.product.barcode} className="flex flex-col gap-3 p-3">
                 <div className="flex items-center gap-3">
                   <Link href={`/product/${alt.product.barcode}`} className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    { }
                     {alt.product.imageUrl ? <img src={alt.product.imageUrl} alt={alt.product.name} className="h-full w-full object-contain" loading="lazy" /> : null}
                   </Link>
                   <Link href={`/product/${alt.product.barcode}`} className="min-w-0 flex-1">

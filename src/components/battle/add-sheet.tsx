@@ -119,7 +119,7 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
           return (
             <div key={p.barcode} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2.5">
               <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+                { }
                 {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
               </div>
               <div className="min-w-0 flex-1">

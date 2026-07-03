@@ -42,7 +42,7 @@ export function BattleCard({
       </button>
 
       <div className="mt-1 h-14 w-14 overflow-hidden rounded-xl bg-surface-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
       </div>
 

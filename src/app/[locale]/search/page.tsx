@@ -77,22 +77,21 @@ export default function SearchPage() {
     [results, prefs]
   );
 
+  // Resolve active filter definitions once (not per product).
+  const activeDefs = useMemo(() => FILTER_DEFS.filter((f) => active.has(f.id)), [active]);
+
   const visible = useMemo(() => {
     const list = scored.filter(({ p, gree }) => {
       if (nutriSel.size && !(p.nutriScore && nutriSel.has(p.nutriScore))) return false;
       if (novaSel.size && !(p.novaGroup && novaSel.has(p.novaGroup))) return false;
-      for (const id of active) {
-        const def = FILTER_DEFS.find((f) => f.id === id);
-        if (def && !def.match(p, gree)) return false;
-      }
-      return true;
+      return activeDefs.every((def) => def.match(p, gree));
     });
     return [...list].sort((a, b) => {
       if (sort === "gree") return b.gree.global - a.gree.global;
       if (sort === "nutri") return nutriRank(a.p.nutriScore) - nutriRank(b.p.nutriScore);
       return novaRank(a.p.novaGroup) - novaRank(b.p.novaGroup);
     });
-  }, [scored, active, nutriSel, novaSel, sort]);
+  }, [scored, activeDefs, nutriSel, novaSel, sort]);
 
   const sorts: { id: SortMode; label: string }[] = [
     { id: "gree", label: t("sortGree") },

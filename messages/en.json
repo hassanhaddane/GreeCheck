@@ -464,7 +464,18 @@
     "adsTitle": "Ads",
     "adsBody": "GreeCheck is free and ad-funded. By default, ads are contextual and non-personalized. You can enable personalized ads via consent — handled by an external partner, never by internal profiling in GreeCheck.",
     "noTracking": "No internal user tracking",
-    "noTrackingBody": "GreeCheck builds no ad profile and does not track your behavior in the app."
+    "noTrackingBody": "GreeCheck builds no ad profile and does not track your behavior in the app.",
+    "localTitle": "What stays on your device",
+    "localHistory": "Scan history — stored locally, erasable anytime.",
+    "localFavorites": "Favorites — saved on your device only.",
+    "localBasket": "Basket & shopping lists — never sent to a server.",
+    "localPrefs": "Preferences, goals and allergens — used locally to personalize your GreeScore.",
+    "noHealthServer": "No health data is stored server-side: GreeCheck has no user database and no profiles.",
+    "geoTitle": "Location",
+    "geoBody": "Your position is used only on your device, for the duration of a store search. It is never stored or transmitted.",
+    "contributeTitle": "Open Food Facts contribution",
+    "contributeBody": "If a product can't be found, you can add it to the collaborative Open Food Facts database. Contribution happens on their site, under their terms.",
+    "contributeCta": "Contribute on Open Food Facts"
   },
   "common": {
     "back": "Back",
@@ -475,7 +486,9 @@
     "retry": "Retry",
     "changeLanguage": "Change language",
     "toggleTheme": "Toggle theme",
-    "unavailable": "Unavailable"
+    "unavailable": "Unavailable",
+    "pageNotFound": "Page not found",
+    "backHome": "Back to home"
   },
   "radar": {
     "title": "Nutritional profile",

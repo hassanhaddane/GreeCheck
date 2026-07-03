@@ -464,7 +464,18 @@
     "adsTitle": "Publicités",
     "adsBody": "GreeCheck est gratuit et financé par la publicité. Par défaut, les publicités sont contextuelles et non personnalisées. Tu peux activer des publicités personnalisées via le consentement — géré par un partenaire externe, jamais par un profilage interne à GreeCheck.",
     "noTracking": "Aucun tracking utilisateur interne",
-    "noTrackingBody": "GreeCheck ne crée pas de profil publicitaire et ne suit pas ton comportement dans l'application."
+    "noTrackingBody": "GreeCheck ne crée pas de profil publicitaire et ne suit pas ton comportement dans l'application.",
+    "localTitle": "Ce qui reste sur ton appareil",
+    "localHistory": "Historique de scans — stocké localement, effaçable à tout moment.",
+    "localFavorites": "Favoris — enregistrés uniquement sur ton appareil.",
+    "localBasket": "Panier & listes de courses — jamais envoyés à un serveur.",
+    "localPrefs": "Préférences, objectifs et allergènes — utilisés localement pour personnaliser ton GreeScore.",
+    "noHealthServer": "Aucune donnée santé n'est stockée côté serveur : GreeCheck n'a ni base utilisateur, ni profil.",
+    "geoTitle": "Localisation",
+    "geoBody": "Ta position est utilisée uniquement sur ton appareil, le temps d'une recherche de magasins. Elle n'est jamais stockée ni transmise.",
+    "contributeTitle": "Contribution Open Food Facts",
+    "contributeBody": "Si un produit est introuvable, tu peux l'ajouter à la base collaborative Open Food Facts. La contribution se fait sur leur site, selon leurs conditions.",
+    "contributeCta": "Contribuer sur Open Food Facts"
   },
   "common": {
     "back": "Retour",
@@ -475,7 +486,9 @@
     "retry": "Réessayer",
     "changeLanguage": "Changer de langue",
     "toggleTheme": "Changer de thème",
-    "unavailable": "Indisponible"
+    "unavailable": "Indisponible",
+    "pageNotFound": "Page introuvable",
+    "backHome": "Retour à l'accueil"
   },
   "radar": {
     "title": "Profil nutritionnel",

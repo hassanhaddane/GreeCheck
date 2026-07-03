@@ -1,4 +1,4 @@
-import { Home, ScanLine, Search, Swords, ShoppingBasket, MapPin, type LucideIcon } from "lucide-react";
+import { Home, ScanLine, Search, Swords, ShoppingBasket, MapPin, ListChecks, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   key: string;
@@ -17,5 +17,6 @@ export const BOTTOM_NAV: NavItem[] = [
 ];
 
 export const SECONDARY_NAV: NavItem[] = [
+  { key: "list", href: "/list", icon: ListChecks },
   { key: "map", href: "/map", icon: MapPin }
 ];

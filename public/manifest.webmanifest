@@ -1,17 +1,27 @@
 {
-  "name": "GreeCheck",
+  "id": "/",
+  "name": "GreeCheck — Scanne. Comprends. Choisis mieux.",
   "short_name": "GreeCheck",
-  "description": "Scanne. Comprends. Choisis mieux.",
-  "start_url": "/fr",
+  "description": "Scanne un produit et découvre son GreeScore personnalisé. Privacy-first, sans compte.",
+  "lang": "fr",
+  "dir": "auto",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#FAFAF7",
+  "background_color": "#0B3D2E",
   "theme_color": "#FAFAF7",
-  "categories": ["food", "health", "lifestyle"],
+  "categories": ["food", "health", "lifestyle", "shopping"],
   "icons": [
     { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Scanner", "short_name": "Scan", "url": "/fr/scan", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Rechercher", "short_name": "Recherche", "url": "/fr/search", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Scan Battle", "short_name": "Battle", "url": "/fr/battle", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }

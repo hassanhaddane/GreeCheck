@@ -178,7 +178,7 @@ export default function MapPage() {
           const Icon = CAT_ICON[p.category];
           const dir = `https://www.openstreetmap.org/directions?from=${userPoint ? `${userPoint.lat},${userPoint.lon}` : ""}&to=${p.lat},${p.lon}`;
           return (
-            <Card key={p.id} className="flex items-center gap-3 p-3">
+            <Card key={p.id} className="gc-lift flex items-center gap-3 p-3">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-natural"><Icon className="h-5 w-5" /></span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{p.name}</p>

@@ -305,7 +305,103 @@
     "searchProduct": "بحث",
     "clear": "تفريغ السلة",
     "remove": "إزالة",
-    "suggestions": "بدائل مقترحة"
+    "suggestions": "بدائل مقترحة",
+    "gradeLabel": {
+      "excellent": "ممتاز",
+      "good": "جيد",
+      "mixed": "متوسط",
+      "needsImprovement": "يحتاج تحسيناً",
+      "poor": "ضعيف"
+    },
+    "confidence": {
+      "label": "موثوقية البيانات",
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "verdict": {
+      "empty": "سلتك فارغة.",
+      "excellentClean": "سلة ممتازة: صحية وقليلة المعالجة وبدون تنبيهات.",
+      "halalMatch": "سلة متوافقة 100% مع الحلال.",
+      "goodButProcessed": "سلة جيدة، لكن {count} منتج(ات) فائقة المعالجة.",
+      "goodButSugar": "سلة جيدة، لكن {count} منتج(ات) عالية السكر.",
+      "poorProcessedSugar": "تحتاج مراجعة: {nova} فائقة المعالجة و{sugar} عالية السكر.",
+      "partial": "{count} منتج(ات) ببيانات ناقصة — نتيجة جزئية.",
+      "goodOverall": "سلة جيدة إجمالاً.",
+      "mixed": "سلة مقبولة مع مجال حقيقي للتحسين.",
+      "poor": "هذه السلة تحتاج اهتماماً.",
+      "allergenConflict": "تنبيه: {count} منتج(ات) تحتوي مسبب حساسية تتجنبه."
+    },
+    "warning": {
+      "allergenConflicts": "{count} تعارض حساسية",
+      "nova4": "{count} فائقة المعالجة",
+      "highSugar": "{count} عالية السكر",
+      "highSalt": "{count} عالية الملح",
+      "manyAdditives": "{count} كثيرة الإضافات",
+      "missingData": "{count} بيانات ناقصة",
+      "halalUnknown": "{count} حلال غير موثق",
+      "bioLow": "{count} غير عضوية"
+    },
+    "positive": {
+      "excellentProducts": "{count} منتج(ات) ممتازة",
+      "lowProcessed": "{count} قليلة المعالجة",
+      "bioMatch": "{percent}% عضوي",
+      "halalMatch": "{percent}% حلال",
+      "protein": "بروتين جيد",
+      "fiber": "ألياف جيدة",
+      "balancedBasics": "أساسيات متوازنة"
+    },
+    "strength": {
+      "strongNutri": "{count} منتجات Nutri-Score A/B",
+      "lowProcessed": "{count} قليلة المعالجة",
+      "lowAdditives": "{count} بدون إضافات",
+      "protein": "غني بالبروتين",
+      "fiber": "غني بالألياف",
+      "bio": "غالبيتها عضوية",
+      "halal": "غالبيتها حلال",
+      "balanced": "متوازنة إجمالاً"
+    },
+    "risk": {
+      "allergenConflicts": "{count} تعارض حساسية",
+      "nova4": "{count} منتج(ات) فائقة المعالجة",
+      "highSugar": "{count} منتج(ات) عالية السكر",
+      "highSalt": "{count} منتج(ات) عالية الملح",
+      "manyAdditives": "{count} منتج(ات) كثيرة الإضافات",
+      "missingData": "{count} منتج(ات) ببيانات ناقصة",
+      "lowScore": "{count} منتج(ات) بنتيجة منخفضة",
+      "none": "لا خطر رئيسي"
+    },
+    "replacementReason": {
+      "allergenConflict": "يحتوي مسبب حساسية تتجنبه",
+      "halalConflict": "مكوّن غير حلال",
+      "halalUnknown": "حلال غير موثق",
+      "veganConflict": "غير نباتي صرف",
+      "vegetarianConflict": "غير نباتي",
+      "nova4": "فائق المعالجة (NOVA 4)",
+      "highSugar": "سكر مرتفع",
+      "highSalt": "ملح مرتفع",
+      "highSatFat": "دهون مشبعة مرتفعة",
+      "manyAdditives": "إضافات كثيرة",
+      "missingData": "بيانات ناقصة",
+      "missingNova": "مستوى معالجة مجهول",
+      "lowScore": "نتيجة GreeScore منخفضة",
+      "notBio": "غير عضوي",
+      "betterFit": "يوجد خيار أفضل"
+    },
+    "replacementSuggestions": "استبدالات موصى بها",
+    "noReplacementNeeded": "لا شيء للاستبدال: سلتك جيدة.",
+    "upgradeGain": "+{gain} نقطة",
+    "replacementError": "تعذر تحميل بديل.",
+    "noReplacementFound": "لا بديل أفضل في هذه الفئة.",
+    "unknownBrand": "علامة مجهولة",
+    "compare": "قارن",
+    "replaceInBasket": "استبدل",
+    "whatIsGood": "ما هو جيد",
+    "mainRisk": "الخطر الرئيسي",
+    "optimize": "تحسين سلتي",
+    "optimizing": "جارٍ التحسين…",
+    "optimizeDone": "تم استبدال {count} منتج(ات) — النتيجة الجديدة المقدرة: {score}",
+    "optimizeNone": "لا استبدال تلقائي — سلتك محسّنة أصلاً."
   },
   "map": {
     "title": "حولي",
@@ -441,7 +537,10 @@
       "good": "ممتاز",
       "ok": "جيد",
       "bad": "بحاجة لتحسين"
-    }
+    },
+    "copyList": "نسخ القائمة",
+    "copied": "تم النسخ!",
+    "goalsRespected": "الأهداف المحققة"
   },
   "ads": {
     "label": "مساحة إعلانية",

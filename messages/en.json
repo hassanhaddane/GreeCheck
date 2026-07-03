@@ -305,7 +305,103 @@
     "searchProduct": "Search",
     "clear": "Clear basket",
     "remove": "Remove",
-    "suggestions": "Suggested alternatives"
+    "suggestions": "Suggested alternatives",
+    "gradeLabel": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "mixed": "Mixed",
+      "needsImprovement": "Needs work",
+      "poor": "Poor"
+    },
+    "confidence": {
+      "label": "Data confidence",
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    },
+    "verdict": {
+      "empty": "Your basket is empty.",
+      "excellentClean": "Excellent basket: healthy, minimally processed, no alerts.",
+      "halalMatch": "Basket 100% halal-compatible.",
+      "goodButProcessed": "Good basket, but {count} ultra-processed product(s).",
+      "goodButSugar": "Good basket, but {count} too-sugary product(s).",
+      "poorProcessedSugar": "Needs work: {nova} ultra-processed and {sugar} too sugary.",
+      "partial": "{count} product(s) with incomplete data — partial score.",
+      "goodOverall": "Good basket overall.",
+      "mixed": "Decent basket, with real room to improve.",
+      "poor": "This basket needs attention.",
+      "allergenConflict": "Warning: {count} product(s) contain an allergen you avoid."
+    },
+    "warning": {
+      "allergenConflicts": "{count} allergen conflict(s)",
+      "nova4": "{count} ultra-processed",
+      "highSugar": "{count} too sugary",
+      "highSalt": "{count} too salty",
+      "manyAdditives": "{count} additive-heavy",
+      "missingData": "{count} incomplete data",
+      "halalUnknown": "{count} unverified halal",
+      "bioLow": "{count} not organic"
+    },
+    "positive": {
+      "excellentProducts": "{count} excellent product(s)",
+      "lowProcessed": "{count} minimally processed",
+      "bioMatch": "{percent}% organic",
+      "halalMatch": "{percent}% halal",
+      "protein": "Good protein intake",
+      "fiber": "Good fiber intake",
+      "balancedBasics": "Balanced basics"
+    },
+    "strength": {
+      "strongNutri": "{count} Nutri-Score A/B products",
+      "lowProcessed": "{count} minimally processed",
+      "lowAdditives": "{count} additive-free",
+      "protein": "High protein",
+      "fiber": "High fiber",
+      "bio": "Mostly organic",
+      "halal": "Mostly halal",
+      "balanced": "Balanced overall"
+    },
+    "risk": {
+      "allergenConflicts": "{count} allergen conflict(s)",
+      "nova4": "{count} ultra-processed product(s)",
+      "highSugar": "{count} too-sugary product(s)",
+      "highSalt": "{count} too-salty product(s)",
+      "manyAdditives": "{count} additive-heavy product(s)",
+      "missingData": "{count} product(s) with incomplete data",
+      "lowScore": "{count} low-score product(s)",
+      "none": "No major risk detected"
+    },
+    "replacementReason": {
+      "allergenConflict": "Contains an allergen you avoid",
+      "halalConflict": "Non-halal ingredient detected",
+      "halalUnknown": "Halal status unverified",
+      "veganConflict": "Not vegan",
+      "vegetarianConflict": "Not vegetarian",
+      "nova4": "Ultra-processed (NOVA 4)",
+      "highSugar": "Too sugary",
+      "highSalt": "Too salty",
+      "highSatFat": "Too much saturated fat",
+      "manyAdditives": "Too many additives",
+      "missingData": "Incomplete data",
+      "missingNova": "Unknown processing level",
+      "lowScore": "Low GreeScore",
+      "notBio": "Not organic",
+      "betterFit": "A better option exists"
+    },
+    "replacementSuggestions": "Recommended swaps",
+    "noReplacementNeeded": "Nothing to replace: your basket holds up.",
+    "upgradeGain": "+{gain} pts",
+    "replacementError": "Couldn't load an alternative.",
+    "noReplacementFound": "No better alternative found in this category.",
+    "unknownBrand": "Unknown brand",
+    "compare": "Compare",
+    "replaceInBasket": "Replace",
+    "whatIsGood": "What's good",
+    "mainRisk": "Main risk",
+    "optimize": "Optimize my basket",
+    "optimizing": "Optimizing…",
+    "optimizeDone": "{count} product(s) replaced — new estimated score: {score}",
+    "optimizeNone": "No automatic swap found — your basket is already well optimized."
   },
   "map": {
     "title": "Around me",
@@ -441,7 +537,10 @@
       "good": "Excellent",
       "ok": "Decent",
       "bad": "Needs work"
-    }
+    },
+    "copyList": "Copy list",
+    "copied": "Copied!",
+    "goalsRespected": "Goals respected"
   },
   "ads": {
     "label": "Ad space",

@@ -305,7 +305,103 @@
     "searchProduct": "Rechercher",
     "clear": "Vider le panier",
     "remove": "Retirer",
-    "suggestions": "Suggestions d'alternatives"
+    "suggestions": "Suggestions d'alternatives",
+    "gradeLabel": {
+      "excellent": "Excellent",
+      "good": "Correct",
+      "mixed": "Mitigé",
+      "needsImprovement": "À améliorer",
+      "poor": "À revoir"
+    },
+    "confidence": {
+      "label": "Confiance des données",
+      "high": "élevée",
+      "medium": "moyenne",
+      "low": "faible"
+    },
+    "verdict": {
+      "empty": "Ton panier est vide.",
+      "excellentClean": "Excellent panier : sain, peu transformé et sans alerte.",
+      "halalMatch": "Panier 100% compatible halal.",
+      "goodButProcessed": "Bon panier, mais {count} produit(s) ultra-transformé(s).",
+      "goodButSugar": "Bon panier, mais {count} produit(s) trop sucré(s).",
+      "poorProcessedSugar": "Panier à revoir : {nova} ultra-transformé(s) et {sugar} trop sucré(s).",
+      "partial": "{count} produit(s) avec données incomplètes — score partiel.",
+      "goodOverall": "Bon panier dans l'ensemble.",
+      "mixed": "Panier correct, avec une vraie marge de progression.",
+      "poor": "Panier à améliorer en priorité.",
+      "allergenConflict": "Attention : {count} produit(s) contiennent un allergène que tu évites."
+    },
+    "warning": {
+      "allergenConflicts": "{count} conflit(s) allergène",
+      "nova4": "{count} ultra-transformé(s)",
+      "highSugar": "{count} trop sucré(s)",
+      "highSalt": "{count} trop salé(s)",
+      "manyAdditives": "{count} riche(s) en additifs",
+      "missingData": "{count} donnée(s) incomplète(s)",
+      "halalUnknown": "{count} halal non vérifié(s)",
+      "bioLow": "{count} non bio"
+    },
+    "positive": {
+      "excellentProducts": "{count} excellent(s) produit(s)",
+      "lowProcessed": "{count} peu transformé(s)",
+      "bioMatch": "{percent}% bio",
+      "halalMatch": "{percent}% halal",
+      "protein": "Bon apport en protéines",
+      "fiber": "Bon apport en fibres",
+      "balancedBasics": "Bases équilibrées"
+    },
+    "strength": {
+      "strongNutri": "{count} produits Nutri-Score A/B",
+      "lowProcessed": "{count} produits peu transformés",
+      "lowAdditives": "{count} produits sans additifs",
+      "protein": "Riche en protéines",
+      "fiber": "Riche en fibres",
+      "bio": "Majorité bio",
+      "halal": "Majorité halal",
+      "balanced": "Ensemble équilibré"
+    },
+    "risk": {
+      "allergenConflicts": "{count} conflit(s) allergène",
+      "nova4": "{count} produit(s) ultra-transformé(s)",
+      "highSugar": "{count} produit(s) trop sucré(s)",
+      "highSalt": "{count} produit(s) trop salé(s)",
+      "manyAdditives": "{count} produit(s) chargé(s) en additifs",
+      "missingData": "{count} produit(s) aux données incomplètes",
+      "lowScore": "{count} produit(s) à score faible",
+      "none": "Aucun risque majeur détecté"
+    },
+    "replacementReason": {
+      "allergenConflict": "Contient un allergène que tu évites",
+      "halalConflict": "Ingrédient non halal détecté",
+      "halalUnknown": "Statut halal non vérifié",
+      "veganConflict": "Non vegan",
+      "vegetarianConflict": "Non végétarien",
+      "nova4": "Ultra-transformé (NOVA 4)",
+      "highSugar": "Trop sucré",
+      "highSalt": "Trop salé",
+      "highSatFat": "Trop de gras saturés",
+      "manyAdditives": "Trop d'additifs",
+      "missingData": "Données incomplètes",
+      "missingNova": "Transformation inconnue",
+      "lowScore": "GreeScore faible",
+      "notBio": "Pas bio",
+      "betterFit": "Une meilleure option existe"
+    },
+    "replacementSuggestions": "Remplacements recommandés",
+    "noReplacementNeeded": "Rien à remplacer : ton panier tient la route.",
+    "upgradeGain": "+{gain} pts",
+    "replacementError": "Impossible de charger une alternative.",
+    "noReplacementFound": "Pas de meilleure alternative trouvée dans cette catégorie.",
+    "unknownBrand": "Marque inconnue",
+    "compare": "Comparer",
+    "replaceInBasket": "Remplacer",
+    "whatIsGood": "Ce qui est bien",
+    "mainRisk": "Risque principal",
+    "optimize": "Optimiser mon panier",
+    "optimizing": "Optimisation…",
+    "optimizeDone": "{count} produit(s) remplacé(s) — nouveau score estimé : {score}",
+    "optimizeNone": "Aucun remplacement automatique trouvé — panier déjà bien optimisé."
   },
   "map": {
     "title": "Autour de moi",
@@ -441,7 +537,10 @@
       "good": "Excellent",
       "ok": "Correct",
       "bad": "À améliorer"
-    }
+    },
+    "copyList": "Copier la liste",
+    "copied": "Copiée !",
+    "goalsRespected": "Objectifs respectés"
   },
   "ads": {
     "label": "Espace publicitaire",

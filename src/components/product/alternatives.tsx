@@ -84,7 +84,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
                 </div>
 
                 {/* Explained recommendation */}
-                <p className="flex items-start gap-1.5 rounded-xl bg-natural/8 px-2.5 py-1.5 text-xs font-medium text-natural">
+                <p className="flex items-start gap-1.5 rounded-xl bg-natural/10 px-2.5 py-1.5 text-xs font-medium text-natural">
                   <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   <span>{alt.reasons.map((r) => t(`altReason.${r}`)).join(" · ")}</span>
                 </p>

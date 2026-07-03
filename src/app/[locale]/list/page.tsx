@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { ListChecks, Plus, Search as SearchIcon, Trash2, X, Check, Sparkles, ShoppingCart } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { ListChecks, Plus, Search as SearchIcon, Trash2, X, Check, Sparkles, ShoppingCart, Copy, Target } from "lucide-react";
 import { PageHeading } from "@/components/app/page-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,8 @@ import { usePreferencesStore } from "@/stores/preferences-store";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { searchProductsClient } from "@/lib/api/client";
 import { classifyAisle, AISLE_ORDER, AISLE_EMOJI, type Aisle } from "@/lib/shopping/aisles";
+import { assessGoalCompliance } from "@/lib/nutrition/goal-compliance";
+import { GOALS, GOAL_LABELS } from "@/lib/constants/goals";
 import { useMounted } from "@/hooks/use-mounted";
 import type { Product } from "@/types/product";
 
@@ -30,7 +32,9 @@ const matchFilter: Record<FilterKey, (p: Product) => boolean> = {
 
 export default function ListPage() {
   const t = useTranslations("list");
+  const locale = useLocale() as "fr" | "en" | "ar";
   const mounted = useMounted();
+  const [copied, setCopied] = useState(false);
   const prefs = usePreferencesStore();
   const store = useShoppingListStore();
   const { lists, createList, removeList, setActive, addProduct, removeItem, toggleChecked, clearList } = store;
@@ -64,6 +68,10 @@ export default function ListPage() {
   );
 
   const estScore = entries.length ? Math.round(entries.reduce((a, e) => a + e.gree.global, 0) / entries.length) : 0;
+  const goalCompliance = useMemo(
+    () => (entries.length ? assessGoalCompliance(prefs.goals, entries.map((e) => ({ product: e.item.product, gree: e.gree }))) : []),
+    [entries, prefs.goals]
+  );
   const level = estScore >= 75 ? "good" : estScore >= 50 ? "ok" : "bad";
   const checkedCount = entries.filter((e) => e.item.checked).length;
 
@@ -86,6 +94,34 @@ export default function ListPage() {
   const worst = [...entries].filter((e) => e.gree.global < 50).sort((a, b) => a.gree.global - b.gree.global);
 
   const toggleF = (f: FilterKey) => setActiveF((s) => { const n = new Set(s); n.has(f) ? n.delete(f) : n.add(f); return n; });
+
+  /** Export the active list as plain text, grouped by aisle (local only). */
+  const copyAsText = async () => {
+    if (!activeList) return;
+    const byAisle = new Map<Aisle, typeof entries>();
+    for (const e of entries) {
+      const a = classifyAisle(e.item.product);
+      if (!byAisle.has(a)) byAisle.set(a, []);
+      byAisle.get(a)!.push(e);
+    }
+    const lines: string[] = [`${activeList.name} — GreeCheck (${estScore}/100)`, ""];
+    for (const a of AISLE_ORDER) {
+      const group = byAisle.get(a);
+      if (!group?.length) continue;
+      lines.push(`${AISLE_EMOJI[a]} ${t(`aisle.${a}`)}`);
+      for (const e of group) {
+        lines.push(`${e.item.checked ? "[x]" : "[ ]"} ${e.item.product.name}${e.item.product.brand ? ` — ${e.item.product.brand}` : ""} (${e.gree.global}/100)`);
+      }
+      lines.push("");
+    }
+    try {
+      await navigator.clipboard.writeText(lines.join("\n").trim());
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  };
 
   if (!mounted) return <div className="mx-auto max-w-2xl"><Card className="h-40 animate-pulse" /></div>;
 
@@ -120,12 +156,44 @@ export default function ListPage() {
               <div className="flex-1">
                 <p className="text-sm font-semibold">{activeList.name}</p>
                 <p className="text-xs text-muted">{t("items", { n: entries.length })} · {t("checked", { n: checkedCount })}</p>
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button variant="soft" size="sm" onClick={copyAsText} disabled={entries.length === 0}>
+                    {copied ? <Check className="h-4 w-4 text-natural" /> : <Copy className="h-4 w-4" />} {copied ? t("copied") : t("copyList")}
+                  </Button>
                   <Button variant="ghost" size="sm" className="text-muted" onClick={() => clearList(activeList.id)}><Trash2 className="h-4 w-4" /> {t("clear")}</Button>
                   <Button variant="ghost" size="sm" className="text-score-e" onClick={() => removeList(activeList.id)}><X className="h-4 w-4" /> {t("deleteList")}</Button>
                 </div>
               </div>
             </CardContent>
+            {/* Goals respected by this list (rule-based, local) */}
+            {goalCompliance.length > 0 && entries.length > 0 && (
+              <div className="border-t border-line/70 px-5 py-3">
+                <p className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-muted">
+                  <Target className="h-3.5 w-3.5 text-natural" aria-hidden /> {t("goalsRespected")}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {goalCompliance.map((g) => {
+                    const def = GOALS.find((x) => x.id === g.goal);
+                    return (
+                      <span
+                        key={g.goal}
+                        title={`${g.matched}/${g.assessable}`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.7rem] font-medium ${
+                          g.assessable === 0
+                            ? "bg-surface-2 text-muted"
+                            : g.respected
+                              ? "bg-natural/10 text-natural"
+                              : "bg-score-d/10 text-score-d"
+                        }`}
+                      >
+                        <span aria-hidden>{def?.emoji}</span> {GOAL_LABELS[g.goal][locale]}
+                        {g.assessable > 0 && <> · {Math.round(g.ratio * 100)}%</>}
+                      </span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Add product */}

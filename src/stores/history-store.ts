@@ -1,24 +1,19 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ScanHistoryItem } from "@/types/local-data";
 
-export interface HistoryEntry {
-  barcode: string;
-  name: string;
-  imageUrl?: string;
-  score: number;
-  verdict: string;
-  scannedAt: number;
-  favorite?: boolean;
-}
+// Back-compat alias (older imports used `HistoryEntry`).
+export type HistoryEntry = ScanHistoryItem;
 
 interface HistoryState {
-  entries: HistoryEntry[];
-  add: (entry: HistoryEntry) => void;
+  entries: ScanHistoryItem[];
+  add: (entry: ScanHistoryItem) => void;
   remove: (barcode: string) => void;
   clear: () => void;
 }
 
+// Local scan history — capped at 100 entries, stored on-device only.
 export const useHistoryStore = create<HistoryState>()(
   persist(
     (set) => ({

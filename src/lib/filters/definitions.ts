@@ -4,24 +4,18 @@
  * preferences), so filtering is personalized without any backend.
  */
 import type { Product } from "@/types/product";
-import type { GreeScore } from "@/types/scoring";
+import type { SmartFilter, FilterGroup, FilterLocale } from "@/types/filters";
 
-export type FilterGroup = "diet" | "nutrition" | "smart";
-export type Locale = "fr" | "en" | "ar";
-
-export interface FilterDef {
-  id: string;
-  group: FilterGroup;
-  label: Record<Locale, string>;
-  /** True when the product passes this filter. Missing data → excluded (false). */
-  match: (p: Product, gree: GreeScore) => boolean;
-}
+// Back-compat aliases — canonical types live in types/filters.
+export type { FilterGroup };
+export type Locale = FilterLocale;
+export type FilterDef = SmartFilter;
 
 const labels = (p: Product) => (p.labels ?? []).join(" ").toLowerCase();
 const ing = (p: Product) => (p.ingredientsText ?? "").toLowerCase();
 const num = (v: number | undefined) => (v === undefined ? null : v);
 
-export const FILTER_DEFS: FilterDef[] = [
+export const FILTER_DEFS: SmartFilter[] = [
   /* ── Diet & labels ── */
   { id: "bio", group: "diet", label: { fr: "Bio", en: "Organic", ar: "عضوي" }, match: (p) => !!p.isBio },
   { id: "halal", group: "diet", label: { fr: "Halal", en: "Halal", ar: "حلال" }, match: (p) => !!p.isHalal },

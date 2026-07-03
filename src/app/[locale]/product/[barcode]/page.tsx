@@ -14,7 +14,7 @@ import { ScoreRing } from "@/components/score/score-ring";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
-import { NutritionRadar } from "@/components/radar/nutrition-radar";
+import { NutritionRadar } from "@/components/product/nutrition-radar";
 import { Alternatives } from "@/components/product/alternatives";
 import { AdSlot } from "@/components/ads/ad-slot";
 import { Skeleton } from "@/components/ui/skeleton";

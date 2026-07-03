@@ -1,11 +1,11 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { ShieldCheck, UserX, HardDrive, Database, Megaphone, EyeOff } from "lucide-react";
-import { PageHeading } from "@/components/layout/page-heading";
+import { PageHeading } from "@/components/app/page-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { useConsentStore } from "@/stores/consent-store";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 
 export default function PrivacyPage() {
   const t = useTranslations("privacy");

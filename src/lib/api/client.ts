@@ -3,7 +3,9 @@ import type { ProductResult, SearchResult } from "@/lib/api/openfoodfacts";
 import type { Product } from "@/types/product";
 import type { LocalPreferences } from "@/types/user-preferences";
 import type { GreeScore } from "@/types/scoring";
+import type { ProductAlternative } from "@/types/local-data";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
+import { nutriRank } from "@/lib/nutrition/thresholds";
 import { db, PRODUCT_TTL } from "@/lib/storage/db";
 
 /** Fetch a product through the internal proxy, with a local IndexedDB cache. */
@@ -39,14 +41,8 @@ export async function searchProductsClient(query: string, page = 1): Promise<Sea
   return (await res.json()) as SearchResult;
 }
 
-export interface Alternative {
-  product: Product;
-  gree: GreeScore;
-  /** Ordered reason tokens explaining why this beats the current product. */
-  reasons: string[];
-}
-
-const nutriRank = (g?: string) => (g ? "abcde".indexOf(g) : 9);
+// Back-compat alias — the canonical type lives in types/local-data.
+export type Alternative = ProductAlternative;
 
 /** Compare an alternative to the current product and produce ordered reason tokens. */
 function buildAltReasons(current: Product, alt: Product, altGree: GreeScore, curGree: GreeScore, prefs: LocalPreferences): string[] {
@@ -76,7 +72,7 @@ function buildAltReasons(current: Product, alt: Product, altGree: GreeScore, cur
  * (computed with the user's LOCAL preferences) and boosted for bio / halal when
  * those preferences are active. Each item carries explained reasons.
  */
-export async function getAlternatives(product: Product, prefs: LocalPreferences): Promise<Alternative[]> {
+export async function getAlternatives(product: Product, prefs: LocalPreferences): Promise<ProductAlternative[]> {
   const cat = product.categories?.length ? product.categories[product.categories.length - 1] : undefined;
   if (!cat) return [];
 

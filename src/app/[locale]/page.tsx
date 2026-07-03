@@ -3,17 +3,17 @@ import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ScanLine, Search, Swords, ShoppingBasket, ShieldCheck, ArrowRight, ChevronRight, History, ListChecks } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { Logo } from "@/components/layout/logo";
-import { InstallPrompt } from "@/components/layout/install-prompt";
+import { Logo } from "@/components/app/logo";
+import { InstallPrompt } from "@/components/app/install-prompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/components/score/score-ring";
-import { AdSlot } from "@/components/layout/ad-slot";
+import { AdSlot } from "@/components/ads/ad-slot";
 import { useHistoryStore } from "@/stores/history-store";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 
 const fade = (i = 0) => ({
   initial: { opacity: 0, y: 14 },

@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 import { Megaphone } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { useConsentStore } from "@/stores/consent-store";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/lib/utils/cn";
 
 /**

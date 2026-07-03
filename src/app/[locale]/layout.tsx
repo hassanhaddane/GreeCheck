@@ -3,9 +3,9 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing, localeMeta, type Locale } from "@/i18n/routing";
-import { ThemeProvider } from "@/components/layout/theme-provider";
-import { AppShell } from "@/components/layout/app-shell";
-import { PwaRegister } from "@/components/layout/pwa-register";
+import { ThemeProvider } from "@/components/app/theme-provider";
+import { AppShell } from "@/components/app/app-shell";
+import { PwaRegister } from "@/components/app/pwa-register";
 import "../globals.css";
 // Leaflet map styles — imported globally at the App-Router root (SSR-safe, bundled once).
 import "leaflet/dist/leaflet.css";

@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { useConsentStore } from "@/stores/consent-store";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 
 /** One-time consent gate — appears only until the user makes a choice. */
 export function ConsentBanner() {

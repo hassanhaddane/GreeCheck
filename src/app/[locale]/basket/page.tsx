@@ -14,7 +14,7 @@ import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { useBasketStore } from "@/stores/basket-store";
 import { usePreferencesStore } from "@/stores/preferences-store";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 import type { BattleEntry } from "@/lib/scoring/battle";
 
 function DistBar({ segments }: { segments: { key: string; n: number; color: string }[] }) {

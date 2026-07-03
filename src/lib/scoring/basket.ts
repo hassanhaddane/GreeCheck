@@ -2,6 +2,8 @@ import type { Product } from "@/types/product";
 import type { GreeScore, ScoreGrade } from "@/types/scoring";
 import type { LocalPreferences } from "@/types/user-preferences";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
+import { NUTRITION_THRESHOLDS, clamp, round } from "@/lib/nutrition/thresholds";
+import { detectHaram, hasAllergenConflict, hasAnyNutrition, hasIngredientsData } from "@/lib/nutrition/detectors";
 
 export type BasketLabelKey = "excellent" | "good" | "mixed" | "needsImprovement" | "poor";
 export type BasketConfidenceLevel = "high" | "medium" | "low";
@@ -124,44 +126,8 @@ export interface BasketScoreResult {
   };
 }
 
-const T = {
-  sugarLow: 5,
-  sugarHigh: 22.5,
-  saltLow: 0.3,
-  saltHigh: 1.5,
-  satFatLow: 1.5,
-  satFatHigh: 5,
-  proteinOk: 8,
-  proteinHigh: 12,
-  fiberOk: 3,
-  fiberHigh: 6
-} as const;
+const T = NUTRITION_THRESHOLDS;
 
-const HARAM_KEYWORDS = [
-  "pork",
-  "porc",
-  "lard",
-  "bacon",
-  "ham",
-  "jambon",
-  "gelatin",
-  "gelatine",
-  "gélatine",
-  "alcohol",
-  "alcool",
-  "wine",
-  "vin",
-  "beer",
-  "biere",
-  "bière",
-  "rum",
-  "rhum",
-  "vodka",
-  "ethanol"
-];
-
-const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
-const round = (n: number) => Math.round(n);
 const ratio = (part: number, total: number) => (total ? part / total : 0);
 const hasGoal = (prefs: LocalPreferences, goal: LocalPreferences["goals"][number]) => prefs.goals.includes(goal);
 
@@ -171,34 +137,6 @@ function gradeForBasket(score: number): { grade: ScoreGrade; labelKey: BasketLab
   if (score >= 50) return { grade: "C", labelKey: "mixed" };
   if (score >= 35) return { grade: "D", labelKey: "needsImprovement" };
   return { grade: "E", labelKey: "poor" };
-}
-
-function hasAnyNutrition(product: Product): boolean {
-  return Object.values(product.nutriments).some((value) => value !== undefined);
-}
-
-function hasIngredientsData(product: Product): boolean {
-  return Boolean(product.ingredientsText?.trim()) || (product.additives?.length ?? 0) > 0 || (product.allergens?.length ?? 0) > 0;
-}
-
-function includesNeedle(haystack: string, needle: string): boolean {
-  const n = needle.trim().toLowerCase();
-  return Boolean(n) && haystack.toLowerCase().includes(n);
-}
-
-function hasAllergenConflict(product: Product, prefs: LocalPreferences): boolean {
-  if (!prefs.avoidAllergens.length) return false;
-  const haystack = [
-    product.ingredientsText ?? "",
-    ...(product.allergens ?? []),
-    ...(product.traces ?? [])
-  ].join(" ");
-  return prefs.avoidAllergens.some((allergen) => includesNeedle(haystack, allergen));
-}
-
-function detectHaram(product: Product): boolean {
-  const haystack = `${product.ingredientsText ?? ""} ${(product.labels ?? []).join(" ")}`.toLowerCase();
-  return HARAM_KEYWORDS.some((keyword) => haystack.includes(keyword));
 }
 
 function addIssue(
@@ -248,7 +186,7 @@ function analyzeProduct(input: BasketInput, prefs: LocalPreferences): BasketProd
   const missingIngredients = !hasIngredientsData(product);
   const missingCriticalData = missingNutrition || missingIngredients;
 
-  if (hasAllergenConflict(product, prefs)) {
+  if (hasAllergenConflict(product, prefs.avoidAllergens)) {
     addIssue(issues, "allergenConflict", "critical", 35);
   }
   if (activeHalal && detectHaram(product)) {

@@ -34,21 +34,13 @@ import type {
   ProductWarning,
   ConfidenceLevel
 } from "@/types/scoring";
+import { NUTRITION_THRESHOLDS as T, clamp, round } from "@/lib/nutrition/thresholds";
+import { detectHaram, hasPalmOil } from "@/lib/nutrition/detectors";
 
 /* ─────────────────────────── tuning constants ──────────────────────────── */
 
 /** Nutri-Score grade → nutrition base score (0–100). */
 const NUTRI_BASE: Record<string, number> = { a: 92, b: 78, c: 60, d: 38, e: 18 };
-
-/** UK FSA-style per-100g thresholds (g, except kcal). */
-const T = {
-  sugarLow: 5, sugarHigh: 22.5,
-  saltLow: 0.3, saltHigh: 1.5,
-  satFatLow: 1.5, satFatHigh: 5,
-  fiberOk: 3, fiberHigh: 6,
-  proteinOk: 8, proteinHigh: 12,
-  kcalLow: 40, kcalMid: 120, kcalHigh: 250
-};
 
 /** Bucket weights — see header. `goal` and `ecology` are conditionally applied. */
 const WEIGHTS = {
@@ -86,12 +78,6 @@ const ADDITIVE_RISK: Record<string, "avoid" | "controversial" | "watch"> = {
 
 const ADDITIVE_PENALTY = { avoid: 16, controversial: 9, watch: 4, neutral: 1.5 } as const;
 
-/** Ingredient keywords suggesting non-halal content (heuristic). */
-const HARAM_KEYWORDS = [
-  "pork", "porc", "lard", "bacon", "ham", "jambon", "gelatin", "gélatine",
-  "alcohol", "alcool", "wine", "vin", "rhum", "rum", "vodka", "bière", "beer", "ethanol"
-];
-
 /** Grade bands (also yields the textual label). */
 const BANDS: { min: number; grade: ScoreGrade; label: ScoreLabel }[] = [
   { min: 80, grade: "A", label: "Excellent" },
@@ -102,9 +88,6 @@ const BANDS: { min: number; grade: ScoreGrade; label: ScoreLabel }[] = [
 ];
 
 /* ──────────────────────────── small helpers ────────────────────────────── */
-
-const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
-const round = (n: number) => Math.round(n);
 
 function gradeFor(score: number): { grade: ScoreGrade; label: ScoreLabel } {
   const band = BANDS.find((b) => score >= b.min) ?? BANDS[BANDS.length - 1];
@@ -297,18 +280,6 @@ export function scoreEcology(p: Product, reasons: ScoreReason[]): number | undef
   const score = NUTRI_BASE[p.greenScore];
   if (p.greenScore <= "b") reasons.push({ kind: "bonus", code: "lowEcoImpact", values: { grade: p.greenScore.toUpperCase() } });
   return score;
-}
-
-/* ───────────────────────── ingredient detectors ────────────────────────── */
-
-function hasPalmOil(p: Product): boolean {
-  const hay = `${p.ingredientsText ?? ""} ${(p.labels ?? []).join(" ")}`.toLowerCase();
-  return /palm/.test(hay) && !/sans huile de palme|palm oil free|no palm/.test(hay);
-}
-
-function detectHaram(p: Product): boolean {
-  const hay = (p.ingredientsText ?? "").toLowerCase();
-  return HARAM_KEYWORDS.some((k) => hay.includes(k));
 }
 
 /* ─────────────────────────── confidence model ──────────────────────────── */

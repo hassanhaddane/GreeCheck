@@ -3,20 +3,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "@/types/product";
 import type { GreeScore } from "@/types/scoring";
+import type { ShoppingItem, ShoppingList } from "@/types/local-data";
 
-export interface ShoppingItem {
-  product: Product;
-  score: number; // GreeScore snapshot
-  checked: boolean;
-  addedAt: number;
-}
-
-export interface ShoppingList {
-  id: string;
-  name: string;
-  createdAt: number;
-  items: ShoppingItem[];
-}
+export type { ShoppingItem, ShoppingList };
 
 export type ListAddResult = "added" | "duplicate";
 

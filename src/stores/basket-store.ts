@@ -3,12 +3,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Product } from "@/types/product";
 import type { GreeScore } from "@/types/scoring";
+import type { BasketItem } from "@/types/local-data";
 
-export interface BasketItem {
-  product: Product;
-  score: number; // GreeScore snapshot at add time
-  addedAt: number;
-}
+export type { BasketItem };
 
 export type BasketAddResult = "added" | "duplicate";
 

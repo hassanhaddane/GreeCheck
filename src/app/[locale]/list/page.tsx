@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ListChecks, Plus, Search as SearchIcon, Trash2, X, Check, Sparkles, ShoppingCart } from "lucide-react";
-import { PageHeading } from "@/components/layout/page-heading";
+import { PageHeading } from "@/components/app/page-heading";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -16,7 +16,7 @@ import { usePreferencesStore } from "@/stores/preferences-store";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { searchProductsClient } from "@/lib/api/client";
 import { classifyAisle, AISLE_ORDER, AISLE_EMOJI, type Aisle } from "@/lib/shopping/aisles";
-import { useMounted } from "@/lib/utils/use-mounted";
+import { useMounted } from "@/hooks/use-mounted";
 import type { Product } from "@/types/product";
 
 type FilterKey = "bio" | "halal" | "lowSugar" | "protein";

@@ -11,6 +11,7 @@ import type { Product } from "@/types/product";
 import type { LocalPreferences } from "@/types/user-preferences";
 import type { GreeScore } from "@/types/scoring";
 import { computeGreeScore } from "./gree-score";
+import { nutriRank } from "@/lib/nutrition/thresholds";
 
 export interface BattleEntry {
   product: Product;
@@ -27,7 +28,6 @@ export interface BattleResult {
   reasons: string[];
 }
 
-const nutriRank = (g?: string) => (g ? "abcde".indexOf(g) : 9);
 const nova = (n?: number) => n ?? 9;
 
 export function computeBattle(products: Product[], prefs: LocalPreferences): BattleResult {

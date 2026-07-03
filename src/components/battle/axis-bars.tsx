@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { buildRadarAxes } from "@/components/radar/nutrition-radar";
+import { buildRadarAxes } from "@/components/product/nutrition-radar";
 import type { BattleEntry } from "@/lib/scoring/battle";
 
 // Distinct hues per battle slot (kept on-brand: green family + accents).

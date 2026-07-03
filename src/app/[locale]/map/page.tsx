@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { Search, LocateFixed, X, MapPin, MapPinOff, RotateCw, Navigation, Store, Leaf, BadgeCheck, ShoppingCart, Tent, ShieldCheck } from "lucide-react";
-import { PageHeading } from "@/components/layout/page-heading";
+import { PageHeading } from "@/components/app/page-heading";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";

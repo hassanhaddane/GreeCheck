@@ -1,11 +1,11 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { HistoryEntry } from "./history-store";
+import type { FavoriteItem } from "@/types/local-data";
 
 interface FavoritesState {
-  items: HistoryEntry[];
-  toggle: (item: HistoryEntry) => void;
+  items: FavoriteItem[];
+  toggle: (item: FavoriteItem) => void;
   has: (barcode: string) => boolean;
   clear: () => void;
 }
@@ -25,4 +25,5 @@ export const useFavoritesStore = create<FavoritesState>()(
     }),
     { name: "greecheck.favorites" }
   )
+
 );

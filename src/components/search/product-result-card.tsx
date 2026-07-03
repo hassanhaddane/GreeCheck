@@ -1,0 +1,35 @@
+"use client";
+import { ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { Card } from "@/components/ui/card";
+import { ScoreRing } from "@/components/score/score-ring";
+import { MiniRadar } from "@/components/product/nutrition-radar";
+import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
+import { NovaBadge } from "@/components/badges/nova-badge";
+import type { Product } from "@/types/product";
+import type { GreeScore } from "@/types/scoring";
+
+/** One search result row: image, name, badges, mini radar and GreeScore. */
+export function ProductResultCard({ product: p, gree }: { product: Product; gree: GreeScore }) {
+  return (
+    <Link href={`/product/${p.barcode}`}>
+      <Card className="gc-pressable flex items-center gap-3 p-3">
+        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">{p.name}</p>
+          <p className="truncate text-xs text-muted">{p.brand || "—"}</p>
+          <div className="mt-1 flex items-center gap-1.5">
+            {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" />}
+            {p.novaGroup && <NovaBadge group={p.novaGroup} className="scale-90" />}
+          </div>
+        </div>
+        <span className="hidden shrink-0 sm:block" aria-hidden><MiniRadar product={p} size={40} /></span>
+        <ScoreRing value={gree.global} size={46} label="" />
+        <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" />
+      </Card>
+    </Link>
+  );
+}

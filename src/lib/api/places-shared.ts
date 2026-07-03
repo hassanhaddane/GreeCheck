@@ -1,20 +1,32 @@
 import type { PlaceCategory } from "@/types/place";
 
-// Overpass QL selectors for each category (applied within a radius).
-export const OVERPASS_SELECTORS: Record<PlaceCategory, string[]> = {
-  supermarket: ['nwr["shop"="supermarket"]'],
-  bio: ['nwr["shop"="organic"]', 'nwr["organic"~"only|yes"]["shop"="supermarket"]'],
-  halal: ['nwr["diet:halal"~"only|yes"]'],
-  grocery: ['nwr["shop"~"convenience|grocery|greengrocer"]'],
-  market: ['nwr["amenity"="marketplace"]']
-};
+export const OFF_UA = "GreeCheck/0.1 (contact@greecheck.app)";
 
-export const OFF_UA = "GreeCheck/0.1 (https://greecheck.app)";
+/**
+ * ONE wide Overpass query fetching every category GreeCheck cares about in a
+ * single round-trip. Filters are then applied CLIENT-SIDE — toggling a chip
+ * never triggers a new Overpass call.
+ */
+export function buildOverpassQuery(lat: number, lon: number, radius: number): string {
+  const around = `(around:${radius},${lat},${lon})`;
+  return `[out:json][timeout:6];(
+nwr["shop"~"^(supermarket|convenience|grocery|greengrocer|organic|health_food|butcher)$"]${around};
+nwr["amenity"="marketplace"]${around};
+nwr["diet:halal"~"^(only|yes)$"]["shop"]${around};
+);out center 120;`;
+}
 
-export function categoryOf(tags: Record<string, string>): PlaceCategory {
-  if (tags["diet:halal"] === "yes" || tags["diet:halal"] === "only") return "halal";
-  if (tags["shop"] === "organic" || tags["organic"] === "yes" || tags["organic"] === "only") return "bio";
-  if (tags["amenity"] === "marketplace") return "market";
-  if (["convenience", "grocery", "greengrocer"].includes(tags["shop"])) return "grocery";
-  return "supermarket";
+const HALAL_NAME_RE = /halal|hallal|boucherie\s+(orientale|musulmane)|oriental(e)?\s+market/i;
+
+/** Classify an OSM element. `inferred` = halal guessed from name/operator, not tags. */
+export function categoryOf(tags: Record<string, string>): { category: PlaceCategory; inferred: boolean } {
+  if (tags["diet:halal"] === "yes" || tags["diet:halal"] === "only") return { category: "halal", inferred: false };
+  const nameish = `${tags.name ?? ""} ${tags.operator ?? ""} ${tags.brand ?? ""}`;
+  if (HALAL_NAME_RE.test(nameish)) return { category: "halal", inferred: true };
+  if (tags["shop"] === "organic" || tags["shop"] === "health_food" || tags["organic"] === "yes" || tags["organic"] === "only")
+    return { category: "bio", inferred: false };
+  if (tags["amenity"] === "marketplace") return { category: "market", inferred: false };
+  if (["convenience", "grocery", "greengrocer"].includes(tags["shop"] ?? "")) return { category: "grocery", inferred: false };
+  if (tags["shop"] === "supermarket") return { category: "supermarket", inferred: false };
+  return { category: "unknown", inferred: false };
 }

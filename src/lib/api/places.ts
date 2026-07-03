@@ -1,18 +1,39 @@
 "use client";
-import type { Place, GeoResult, PlaceCategory } from "@/types/place";
+import type { Place, GeoResult } from "@/types/place";
 
-export async function geocodeCity(query: string, lang = "en"): Promise<GeoResult[]> {
-  const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}&lang=${lang}`);
+// Client-side cache for geocode queries already made this session.
+const geoCache = new Map<string, GeoResult[]>();
+
+/** France-only geocoding (city / postcode / address) via /api/france-geocode. */
+export async function geocodeFrance(query: string): Promise<GeoResult[]> {
+  const key = query.trim().toLowerCase();
+  const cached = geoCache.get(key);
+  if (cached) return cached;
+
+  const res = await fetch(`/api/france-geocode?q=${encodeURIComponent(query.trim())}`);
   if (!res.ok) return [];
-  const data = (await res.json()) as { results?: GeoResult[] };
-  return data.results ?? [];
+  const data = (await res.json()) as {
+    results?: { label: string; city?: string; postcode?: string; lat: number; lon: number }[];
+  };
+  const results: GeoResult[] = (data.results ?? []).map((r) => ({
+    name: r.label,
+    city: r.city,
+    postcode: r.postcode,
+    lat: r.lat,
+    lon: r.lon
+  }));
+  geoCache.set(key, results);
+  return results;
 }
 
-export async function fetchNearbyPlaces(lat: number, lon: number, categories: PlaceCategory[], radius = 3000): Promise<Place[]> {
+/**
+ * Load ALL nearby food places in one call (every category). Filtering happens
+ * client-side. Throws on failure so the UI can show a clear error state.
+ */
+export async function fetchNearbyPlaces(lat: number, lon: number, radius = 2500, signal?: AbortSignal): Promise<Place[]> {
   const params = new URLSearchParams({ lat: String(lat), lon: String(lon), radius: String(radius) });
-  if (categories.length) params.set("types", categories.join(","));
-  const res = await fetch(`/api/places?${params.toString()}`);
-  if (!res.ok) return [];
+  const res = await fetch(`/api/france-places?${params.toString()}`, { signal });
+  if (!res.ok) throw new Error(`places_failed_${res.status}`);
   const data = (await res.json()) as { places?: Place[] };
   return data.places ?? [];
 }

@@ -36,9 +36,11 @@ export default function SearchPage() {
   const [active, setActive] = useState<Set<string>>(new Set());
   const [nutriSel, setNutriSel] = useState<Set<string>>(new Set());
   const [novaSel, setNovaSel] = useState<Set<number>>(new Set());
+  const [attempt, setAttempt] = useState(0); // bump to retry the same query
   const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Debounced OFF text search (name / brand / category / keywords).
+  // 600ms debounce: never a request per keystroke, kind to the OFF rate limits.
   useEffect(() => {
     clearTimeout(debounce.current);
     if (query.trim().length < 2) {
@@ -55,9 +57,9 @@ export default function SearchPage() {
       } catch {
         setStatus("error");
       }
-    }, 400);
+    }, 600);
     return () => clearTimeout(debounce.current);
-  }, [query]);
+  }, [query, attempt]);
 
   const toggleIn = <T,>(set: Set<T>, value: T): Set<T> => {
     const next = new Set(set);
@@ -165,7 +167,7 @@ export default function SearchPage() {
       {status === "loading" && (
         <div className="space-y-2">{Array.from({ length: 6 }).map((_, i) => <ProductRowSkeleton key={i} />)}</div>
       )}
-      {status === "error" && <ErrorState onRetry={() => setQuery((q) => q + " ")} />}
+      {status === "error" && <ErrorState onRetry={() => setAttempt((a) => a + 1)} />}
       {status === "idle" && <EmptyState icon={SearchIcon} title={t("startTitle")} description={t("startBody")} />}
       {status === "ok" && visible.length === 0 && (
         <EmptyState

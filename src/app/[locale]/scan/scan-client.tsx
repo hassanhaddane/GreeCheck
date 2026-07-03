@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertTriangle,
   ArrowRight,
-  Bug,
   Camera,
   CameraOff,
   Flashlight,
@@ -27,12 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
-import {
-  SUPPORTED_FORMAT_LABELS,
-  useBarcodeScanner,
-  type CamState,
-  type ScannerDebugInfo
-} from "@/hooks/use-barcode-scanner";
+import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { getProduct } from "@/lib/api/client";
 import { parseProductCode } from "@/lib/utils/parse-scan";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
@@ -332,7 +326,6 @@ export function ScanClient() {
         </button>
       </Card>
 
-      {process.env.NODE_ENV !== "production" && <ScannerDebugPanel debug={scanner.debug} />}
     </div>
   );
 }
@@ -479,40 +472,6 @@ function ScannerControls({
           </select>
         </label>
       )}
-    </Card>
-  );
-}
-
-function ScannerDebugPanel({ debug }: { debug: ScannerDebugInfo }) {
-  const t = useTranslations("scan.debug");
-  const rows = [
-    [t("secureContext"), String(debug.secureContext)],
-    [t("mediaDevices"), String(debug.mediaDevices)],
-    [t("getUserMedia"), String(debug.getUserMedia)],
-    [t("permission"), debug.permission],
-    [t("selectedCamera"), debug.selectedCameraLabel || "-"],
-    [t("cameraCount"), String(debug.availableCamerasCount)],
-    [t("engine"), debug.scannerEngine],
-    [t("formats"), debug.supportedFormats.join(", ")],
-    [t("lastRaw"), debug.lastDetectedRaw || "-"],
-    [t("lastError"), debug.lastError || "-"],
-    [t("frames"), String(debug.framesScanned)]
-  ];
-
-  return (
-    <Card className="border-score-c/25 bg-score-c/5 p-4">
-      <p className="mb-3 flex items-center gap-2 text-sm font-bold text-score-c">
-        <Bug className="h-4 w-4" /> {t("title")}
-      </p>
-      <div className="space-y-1.5">
-        {rows.map(([label, value]) => (
-          <div key={label} className="grid grid-cols-[0.9fr_1.1fr] gap-2 text-xs">
-            <span className="font-medium text-muted">{label}</span>
-            <span className="break-all font-semibold">{value}</span>
-          </div>
-        ))}
-      </div>
-      <p className="mt-3 text-xs text-muted">{SUPPORTED_FORMAT_LABELS.join(" / ")}</p>
     </Card>
   );
 }

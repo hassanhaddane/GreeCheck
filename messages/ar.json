@@ -76,20 +76,6 @@
     "zoom": "تكبير",
     "camera": "الكاميرا",
     "cameraN": "كاميرا {n}",
-    "debug": {
-      "title": "تصحيح الماسح",
-      "secureContext": "السياق الآمن",
-      "mediaDevices": "mediaDevices",
-      "getUserMedia": "getUserMedia",
-      "permission": "إذن الكاميرا",
-      "selectedCamera": "الكاميرا المختارة",
-      "cameraCount": "عدد الكاميرات",
-      "engine": "محرك المسح",
-      "formats": "الصيغ",
-      "lastRaw": "آخر قيمة خام",
-      "lastError": "آخر خطأ",
-      "frames": "الإطارات الممسوحة"
-    },
     "searchingCode": "البحث عن الرمز…",
     "productDetected": "تم اكتشاف المنتج",
     "analyzingNutrition": "تحليل التغذية…",
@@ -405,7 +391,7 @@
   },
   "map": {
     "title": "حولي",
-    "subtitle": "اعثر على متاجر عضوية وأسواق ومحلات.",
+    "subtitle": "اعثر على متاجر عضوية وسوبرماركت وأسواق في فرنسا.",
     "searchCity": "ابحث عن مدينة",
     "nearMe": "حولي",
     "filters": {
@@ -428,7 +414,14 @@
     "viewOnMap": "عرض على الخريطة",
     "openNow": "المواعيد",
     "unavailable": "الخريطة غير متاحة",
-    "unavailableBody": "تعذّر تحميل الخريطة. تحقق من اتصالك وأعد المحاولة."
+    "unavailableBody": "تعذّر تحميل الخريطة. تحقق من اتصالك وأعد المحاولة.",
+    "searchAction": "بحث",
+    "refresh": "تحديث الأماكن",
+    "loadingPlaces": "جارٍ تحميل الأماكن…",
+    "placesError": "تعذّر تحميل الأماكن حالياً. قد تكون خدمة الخريطة مشغولة — حاول مجدداً بعد قليل.",
+    "noResultsFilters": "لا توجد أماكن تطابق الفلاتر النشطة. وسّع الفلاتر أو حدّث الأماكن.",
+    "inferred": "تطابق محتمل",
+    "franceOnly": "البحث متاح في فرنسا فقط حالياً."
   },
   "settings": {
     "title": "الإعدادات",

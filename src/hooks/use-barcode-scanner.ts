@@ -22,20 +22,6 @@ export type CamState =
 
 export type CameraPermissionState = "unknown" | "prompt" | "granted" | "denied" | "unsupported";
 
-export interface ScannerDebugInfo {
-  secureContext: boolean;
-  mediaDevices: boolean;
-  getUserMedia: boolean;
-  permission: CameraPermissionState;
-  selectedCameraLabel: string;
-  availableCamerasCount: number;
-  scannerEngine: string;
-  supportedFormats: string[];
-  lastDetectedRaw: string;
-  lastError: string;
-  framesScanned: number;
-}
-
 export interface ScannerEnvironment {
   secureContext: boolean;
   mediaDevices: boolean;
@@ -57,7 +43,6 @@ const SUPPORTED_FORMATS = [
 ];
 
 export const SUPPORTED_FORMAT_LABELS = ["EAN_13", "EAN_8", "UPC_A", "UPC_E", "CODE_128", "QR_CODE"];
-const ZXING_ENGINE = "@zxing/browser BrowserMultiFormatReader";
 const VIDEO_TRACKS = (track: MediaStreamTrack) => (track.kind === "video" ? [track] : []);
 
 type ExtendedCapabilities = MediaTrackCapabilities & {
@@ -200,9 +185,10 @@ export function useBarcodeScanner({ onDetect }: Options) {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | undefined>();
   const [selectedCameraLabel, setSelectedCameraLabel] = useState("");
-  const [lastDetectedRaw, setLastDetectedRaw] = useState("");
-  const [lastError, setLastError] = useState("");
-  const [framesScanned, setFramesScanned] = useState(0);
+  // Internal-only signals (no debug UI): values are intentionally not exposed.
+  const [, setLastDetectedRaw] = useState("");
+  const [, setLastError] = useState("");
+  const [, setFramesScanned] = useState(0);
   const [torchSupported, setTorchSupported] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const [zoomSupported, setZoomSupported] = useState(false);
@@ -452,20 +438,6 @@ export function useBarcodeScanner({ onDetect }: Options) {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, [start, stopStream]);
 
-  const debug: ScannerDebugInfo = {
-    secureContext: env.secureContext,
-    mediaDevices: env.mediaDevices,
-    getUserMedia: env.getUserMedia,
-    permission,
-    selectedCameraLabel,
-    availableCamerasCount: devices.length,
-    scannerEngine: ZXING_ENGINE,
-    supportedFormats: SUPPORTED_FORMAT_LABELS,
-    lastDetectedRaw,
-    lastError,
-    framesScanned
-  };
-
   return {
     videoRef,
     state,
@@ -478,7 +450,6 @@ export function useBarcodeScanner({ onDetect }: Options) {
     torchOn,
     zoomSupported,
     zoom,
-    debug,
     stop,
     pause,
     resume,

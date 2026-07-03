@@ -76,20 +76,6 @@
     "zoom": "Zoom",
     "camera": "Camera",
     "cameraN": "Camera {n}",
-    "debug": {
-      "title": "Scanner debug",
-      "secureContext": "Secure context",
-      "mediaDevices": "mediaDevices",
-      "getUserMedia": "getUserMedia",
-      "permission": "Permission",
-      "selectedCamera": "Selected camera",
-      "cameraCount": "Camera count",
-      "engine": "Engine",
-      "formats": "Formats",
-      "lastRaw": "Last raw value",
-      "lastError": "Last error",
-      "frames": "Frames / attempts"
-    },
     "searchingCode": "Looking for the code…",
     "productDetected": "Product detected",
     "analyzingNutrition": "Analyzing nutrition…",
@@ -405,7 +391,7 @@
   },
   "map": {
     "title": "Around me",
-    "subtitle": "Find organic stores, supermarkets and markets.",
+    "subtitle": "Find organic shops, supermarkets and markets in France.",
     "searchCity": "Search a city",
     "nearMe": "Around me",
     "filters": {
@@ -428,7 +414,14 @@
     "viewOnMap": "View on map",
     "openNow": "Hours",
     "unavailable": "Map unavailable",
-    "unavailableBody": "The map couldn't be loaded. Check your connection and try again."
+    "unavailableBody": "The map couldn't be loaded. Check your connection and try again.",
+    "searchAction": "Search",
+    "refresh": "Refresh places",
+    "loadingPlaces": "Loading places…",
+    "placesError": "Places could not be loaded right now. The map service may be busy — try again in a moment.",
+    "noResultsFilters": "No places match the active filters. Widen the filters or refresh places.",
+    "inferred": "possible match",
+    "franceOnly": "Search is available in France only for now."
   },
   "settings": {
     "title": "Settings",

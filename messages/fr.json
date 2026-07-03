@@ -76,20 +76,6 @@
     "zoom": "Zoom",
     "camera": "Caméra",
     "cameraN": "Caméra {n}",
-    "debug": {
-      "title": "Debug scanner",
-      "secureContext": "Contexte sécurisé",
-      "mediaDevices": "mediaDevices",
-      "getUserMedia": "getUserMedia",
-      "permission": "Permission caméra",
-      "selectedCamera": "Caméra sélectionnée",
-      "cameraCount": "Nombre de caméras",
-      "engine": "Moteur scanner",
-      "formats": "Formats",
-      "lastRaw": "Dernière valeur brute",
-      "lastError": "Dernière erreur",
-      "frames": "Images scannées"
-    },
     "searchingCode": "Recherche du code…",
     "productDetected": "Produit détecté",
     "analyzingNutrition": "Analyse nutritionnelle…",
@@ -405,7 +391,7 @@
   },
   "map": {
     "title": "Autour de moi",
-    "subtitle": "Trouve magasins bio, supermarchés et marchés.",
+    "subtitle": "Trouve magasins bio, supermarchés et marchés en France.",
     "searchCity": "Rechercher une ville",
     "nearMe": "Autour de moi",
     "filters": {
@@ -428,7 +414,14 @@
     "viewOnMap": "Voir sur la carte",
     "openNow": "Horaires",
     "unavailable": "Carte indisponible",
-    "unavailableBody": "Impossible de charger la carte. Vérifie ta connexion et réessaie."
+    "unavailableBody": "Impossible de charger la carte. Vérifie ta connexion et réessaie.",
+    "searchAction": "Rechercher",
+    "refresh": "Actualiser les lieux",
+    "loadingPlaces": "Chargement des lieux…",
+    "placesError": "Impossible de charger les lieux pour le moment. Le service de carte est peut-être surchargé — réessaie dans un instant.",
+    "noResultsFilters": "Aucun lieu ne correspond aux filtres actifs. Élargis les filtres ou actualise les lieux.",
+    "inferred": "détection possible",
+    "franceOnly": "Recherche disponible en France uniquement pour le moment."
   },
   "settings": {
     "title": "Réglages",

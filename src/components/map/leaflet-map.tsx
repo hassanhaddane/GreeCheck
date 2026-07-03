@@ -6,8 +6,11 @@ import type { Place, GeoPoint } from "@/types/place";
 // Leaflet itself is dynamically imported inside an effect so it NEVER runs during SSR.
 
 const CAT_COLOR: Record<string, string> = {
-  supermarket: "#2ECC71", bio: "#16A34A", halal: "#059669", grocery: "#39FF88", market: "#0B3D2E"
+  supermarket: "#2ECC71", bio: "#16A34A", halal: "#059669", grocery: "#39FF88", market: "#0B3D2E", unknown: "#66706A"
 };
+
+// France-only for now: keep the view inside metropolitan France (loose box).
+const FRANCE_BOUNDS: [[number, number], [number, number]] = [[40.5, -6.5], [52.0, 10.5]];
 
 function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
@@ -38,7 +41,12 @@ export function LeafletMap({ center, places, userPoint, onSelect, onError }: {
           try { (elRef.current as any)._leaflet_id = undefined; } catch { /* noop */ }
         }
         LRef.current = L;
-        const map = L.map(elRef.current, { zoomControl: true }).setView([center.lat, center.lon], 14);
+        const map = L.map(elRef.current, {
+          zoomControl: true,
+          maxBounds: FRANCE_BOUNDS,
+          maxBoundsViscosity: 1.0,
+          minZoom: 5
+        }).setView([center.lat, center.lon], 14);
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
           attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

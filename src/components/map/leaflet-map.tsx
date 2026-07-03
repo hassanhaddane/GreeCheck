@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
-import "leaflet/dist/leaflet.css";
 import type { Place, GeoPoint } from "@/types/place";
+
+// Leaflet's global CSS is imported once in src/app/globals.css (App-Router-safe).
+// Leaflet itself is dynamically imported inside an effect so it NEVER runs during SSR.
 
 const CAT_COLOR: Record<string, string> = {
   supermarket: "#2ECC71", bio: "#16A34A", halal: "#059669", grocery: "#39FF88", market: "#0B3D2E"
@@ -11,43 +13,58 @@ function esc(s: string) {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
 }
 
-export function LeafletMap({ center, places, userPoint, onSelect }: {
+export function LeafletMap({ center, places, userPoint, onSelect, onError }: {
   center: GeoPoint;
   places: Place[];
   userPoint?: GeoPoint | null;
   onSelect?: (id: string) => void;
+  onError?: (error: unknown) => void;
 }) {
   const elRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const layerRef = useRef<any>(null);
   const LRef = useRef<any>(null);
 
-  // init map once (leaflet imported lazily so it never runs during SSR)
+  // Init once. Leaflet is loaded lazily; failures surface via onError (never crash the page).
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const L = (await import("leaflet")).default;
-      if (cancelled || !elRef.current || mapRef.current) return;
-      LRef.current = L;
-      const map = L.map(elRef.current, { zoomControl: true }).setView([center.lat, center.lon], 14);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
-      layerRef.current = L.layerGroup().addTo(map);
-      mapRef.current = map;
-      renderMarkers();
-      setTimeout(() => map.invalidateSize(), 120);
+      try {
+        const L = (await import("leaflet")).default;
+        // Guard against React Strict Mode double-invoke / late resolution.
+        if (cancelled || !elRef.current || mapRef.current) return;
+        // If the container was previously initialized, release it first.
+        if ((elRef.current as any)._leaflet_id) {
+          try { (elRef.current as any)._leaflet_id = undefined; } catch { /* noop */ }
+        }
+        LRef.current = L;
+        const map = L.map(elRef.current, { zoomControl: true }).setView([center.lat, center.lon], 14);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        layerRef.current = L.layerGroup().addTo(map);
+        mapRef.current = map;
+        renderMarkers();
+        setTimeout(() => { try { map.invalidateSize(); } catch { /* noop */ } }, 120);
+      } catch (error) {
+        if (!cancelled) onError?.(error);
+      }
     })();
     return () => {
       cancelled = true;
-      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
+      if (mapRef.current) {
+        try { mapRef.current.remove(); } catch { /* noop */ }
+        mapRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (mapRef.current) mapRef.current.setView([center.lat, center.lon], Math.max(13, mapRef.current.getZoom()));
+    if (mapRef.current) {
+      try { mapRef.current.setView([center.lat, center.lon], Math.max(13, mapRef.current.getZoom())); } catch { /* noop */ }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center.lat, center.lon]);
 

@@ -71,14 +71,14 @@ test("excellent product scores grade A and high global", () => {
   assert.equal(r.grade, "A");
   assert.ok(r.global >= 80, `expected >=80, got ${r.global}`);
   assert.equal(r.confidenceLevel, "high");
-  assert.ok(r.reasons.some((x) => x.label.includes("Nutri-Score A")));
+  assert.ok(r.reasons.some((x) => x.code === "nutriScore" && x.values?.grade === "A"));
 });
 
 test("ultra-processed product with risky additives scores low", () => {
   const r = computeGreeScore(cola, NO_PREFS);
   assert.ok(r.global <= 40, `expected <=40, got ${r.global}`);
   assert.ok(["D", "E"].includes(r.grade));
-  assert.ok(r.reasons.some((x) => x.label.includes("Ultra-transformé")));
+  assert.ok(r.reasons.some((x) => x.code === "nova4"));
   assert.ok(r.additivesScore < 100, "additives should be penalized");
 });
 
@@ -98,7 +98,7 @@ test("personalization: reduce_sugar lowers goalScore on a sugary product", () =>
   const withGoal = computeGreeScore(sugary, { ...NO_PREFS, goals: ["reduce_sugar"] });
   assert.ok(withGoal.goalScore < 30, `goalScore should be low, got ${withGoal.goalScore}`);
   assert.ok(withGoal.goalScore !== neutral);
-  assert.ok(withGoal.reasons.some((x) => x.label.includes("réduire le sucre")));
+  assert.ok(withGoal.reasons.some((x) => x.code === "reduceSugarGoal"));
 });
 
 test("personalization: build_muscle rewards high-protein product", () => {
@@ -109,7 +109,7 @@ test("personalization: build_muscle rewards high-protein product", () => {
   });
   const r = computeGreeScore(proteinBar, { ...NO_PREFS, goals: ["build_muscle"] });
   assert.ok(r.goalScore >= 80, `expected high goalScore, got ${r.goalScore}`);
-  assert.ok(r.reasons.some((x) => x.label.toLowerCase().includes("protéines")));
+  assert.ok(r.reasons.some((x) => x.code === "muscleProtein" || x.code === "richProtein"));
 });
 
 test("halal preference flags haram ingredients with a critical warning", () => {
@@ -144,7 +144,7 @@ test("palm oil produces an info warning and lowers additives score", () => {
     product({ nutriScore: "c", novaGroup: 4, ingredientsText: "farine, huile de palme, sucre" }),
     NO_PREFS
   );
-  assert.ok(r.warnings.some((w) => w.label.toLowerCase().includes("palme")));
+  assert.ok(r.warnings.some((w) => w.code === "palmOil"));
 });
 
 test("avoided allergen yields a critical warning", () => {
@@ -152,7 +152,7 @@ test("avoided allergen yields a critical warning", () => {
     product({ allergens: ["gluten"], nutriScore: "b" }),
     { ...NO_PREFS, avoidAllergens: ["gluten"] }
   );
-  assert.ok(r.warnings.some((w) => w.level === "critical" && w.label.toLowerCase().includes("gluten")));
+  assert.ok(r.warnings.some((w) => w.level === "critical" && w.code === "allergenPresent"));
 });
 
 test("confidence is low when neither Nutri-Score nor nutriments exist", () => {

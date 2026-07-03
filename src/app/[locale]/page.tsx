@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ScanLine, Search, Swords, ShoppingBasket, ShieldCheck, ArrowRight, ChevronRight, History, ListChecks } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/layout/logo";
+import { InstallPrompt } from "@/components/layout/install-prompt";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/section-title";
@@ -47,6 +48,9 @@ export default function HomePage() {
           <p className="mt-1 text-sm font-medium text-muted">{tApp("tagline")}</p>
         </div>
       </motion.div>
+
+      {/* Install prompt (only shows when installable) */}
+      <InstallPrompt />
 
       {/* Primary scan hero */}
       <motion.div {...fade(1)}>

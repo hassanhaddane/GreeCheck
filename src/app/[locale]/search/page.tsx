@@ -251,7 +251,7 @@ export default function SearchPage() {
       {status === "loading" && (
         <div className="space-y-2">{Array.from({ length: 6 }).map((_, i) => <ProductRowSkeleton key={i} />)}</div>
       )}
-      {status === "error" && <ErrorState title="Recherche indisponible" onRetry={() => setQuery((q) => q + " ")} />}
+      {status === "error" && <ErrorState onRetry={() => setQuery((q) => q + " ")} />}
       {status === "idle" && <EmptyState icon={SearchIcon} title={t("startTitle")} description={t("startBody")} />}
       {status === "ok" && visible.length === 0 && <EmptyState icon={SlidersHorizontal} title={t("emptyTitle")} description={t("emptyBody")} action={activeCount ? <Button variant="soft" size="sm" onClick={resetAll}><RotateCcw className="h-4 w-4" /> {t("reset")}</Button> : undefined} />}
       {status === "ok" && visible.length > 0 && (

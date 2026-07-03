@@ -1,5 +1,5 @@
 "use client";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Languages } from "lucide-react";
 import { useRouter, usePathname } from "@/i18n/routing";
 import { locales, localeMeta, type Locale } from "@/i18n/routing";
@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
+  const tc = useTranslations("common");
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -14,7 +15,7 @@ export function LanguageSwitcher() {
   return (
     <div className="relative">
       <button
-        aria-label="Change language"
+        aria-label={tc("changeLanguage")}
         onClick={() => setOpen((v) => !v)}
         className="gc-pressable flex h-11 items-center gap-1.5 rounded-2xl px-3 text-sm font-semibold hover:bg-surface-2"
       >

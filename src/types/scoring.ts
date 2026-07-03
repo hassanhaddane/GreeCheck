@@ -4,25 +4,26 @@ export type ScoreLabel = "Excellent" | "Bon choix" | "Moyen" | "Ã€ limiter" | "Ã
 /** How much we trust the score given data completeness. */
 export type ConfidenceLevel = "high" | "medium" | "low";
 
+export type ScoreValues = Record<string, string | number>;
+
 export interface ScoreReason {
   kind: "bonus" | "malus" | "info";
-  /** Human-readable, transparent explanation (e.g. "Riche en fibres"). */
-  label: string;
-  /** Optional signed contribution hint for UI, in score points. */
-  impact?: number;
+  /** i18n code, resolved via the "score" namespace (reason.<code>). */
+  code: string;
+  values?: ScoreValues;
 }
 
 export interface ProductWarning {
   level: "info" | "warning" | "critical";
-  label: string;
+  /** i18n code, resolved via the "score" namespace (warning.<code>). */
+  code: string;
+  values?: ScoreValues;
 }
 
 export interface GreeScore {
-  /** Final 0-100 GreeScore. */
   global: number;
   grade: ScoreGrade;
   label: ScoreLabel;
-  /** Sub-scores, each 0-100, for transparent display. */
   healthScore: number;
   naturalityScore: number;
   processingScore: number;

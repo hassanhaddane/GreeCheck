@@ -128,7 +128,7 @@ export function scoreNutrition(p: Product, reasons: ScoreReason[], warnings: Pro
 
   if (p.nutriScore && NUTRI_BASE[p.nutriScore]) {
     score = NUTRI_BASE[p.nutriScore];
-    reasons.push({ kind: p.nutriScore <= "b" ? "bonus" : "malus", label: `Nutri-Score ${p.nutriScore.toUpperCase()}` });
+    reasons.push({ kind: p.nutriScore <= "b" ? "bonus" : "malus", code: "nutriScore", values: { grade: p.nutriScore.toUpperCase() } });
   } else {
     // Fallback model when Nutri-Score is missing.
     score = 70;
@@ -142,19 +142,19 @@ export function scoreNutrition(p: Product, reasons: ScoreReason[], warnings: Pro
   // Nutriment nudges + warnings (apply regardless of Nutri-Score availability).
   if (n.sugars !== undefined && n.sugars > T.sugarHigh) {
     score -= 4;
-    warnings.push({ level: "warning", label: `Sucre élevé (${n.sugars} g / 100 g)` });
-    reasons.push({ kind: "malus", label: "Trop de sucre" });
+    warnings.push({ level: "warning", code: "highSugar", values: { v: n.sugars! } });
+    reasons.push({ kind: "malus", code: "tooSugar" });
   }
   if (n.salt !== undefined && n.salt > T.saltHigh) {
     score -= 3;
-    warnings.push({ level: "warning", label: `Sel élevé (${n.salt} g / 100 g)` });
+    warnings.push({ level: "warning", code: "highSalt", values: { v: n.salt! } });
   }
   if (n.saturatedFat !== undefined && n.saturatedFat > T.satFatHigh) {
     score -= 3;
-    warnings.push({ level: "info", label: "Riche en gras saturés" });
+    warnings.push({ level: "info", code: "highSatFat" });
   }
-  if (n.fiber !== undefined && n.fiber >= T.fiberHigh) reasons.push({ kind: "bonus", label: "Riche en fibres" });
-  if (n.proteins !== undefined && n.proteins >= T.proteinHigh) reasons.push({ kind: "bonus", label: "Riche en protéines" });
+  if (n.fiber !== undefined && n.fiber >= T.fiberHigh) reasons.push({ kind: "bonus", code: "richFiber" });
+  if (n.proteins !== undefined && n.proteins >= T.proteinHigh) reasons.push({ kind: "bonus", code: "richProtein" });
 
   return clamp(score);
 }
@@ -162,10 +162,10 @@ export function scoreNutrition(p: Product, reasons: ScoreReason[], warnings: Pro
 /** 2) PROCESSING (20%). NOVA group is the signal. */
 export function scoreProcessing(p: Product, reasons: ScoreReason[]): number {
   switch (p.novaGroup) {
-    case 1: reasons.push({ kind: "bonus", label: "Aliment non transformé (NOVA 1)" }); return 100;
-    case 2: reasons.push({ kind: "bonus", label: "Peu transformé (NOVA 2)" }); return 80;
+    case 1: reasons.push({ kind: "bonus", code: "nova1" }); return 100;
+    case 2: reasons.push({ kind: "bonus", code: "nova2" }); return 80;
     case 3: return 50;
-    case 4: reasons.push({ kind: "malus", label: "Ultra-transformé (NOVA 4)" }); return 18;
+    case 4: reasons.push({ kind: "malus", code: "nova4" }); return 18;
     default: return 55; // unknown → neutral
   }
 }
@@ -186,19 +186,19 @@ export function scoreAdditives(
     if (sev) {
       score -= ADDITIVE_PENALTY[sev];
       flagged++;
-      if (sev === "avoid") warnings.push({ level: "warning", label: `Additif à éviter : ${raw.toUpperCase()}` });
+      if (sev === "avoid") warnings.push({ level: "warning", code: "additiveAvoid", values: { code: raw.toUpperCase() } });
     } else {
       score -= ADDITIVE_PENALTY.neutral;
     }
   }
-  if (flagged > 0) reasons.push({ kind: "malus", label: `${flagged} additif(s) à surveiller` });
-  else if ((p.additives?.length ?? 0) === 0) reasons.push({ kind: "bonus", label: "Sans additif" });
+  if (flagged > 0) reasons.push({ kind: "malus", code: "additivesWatch", values: { n: flagged } });
+  else if ((p.additives?.length ?? 0) === 0) reasons.push({ kind: "bonus", code: "noAdditive" });
 
   // Palm oil
   if (hasPalmOil(p)) {
     score -= 10;
-    warnings.push({ level: "info", label: "Contient de l'huile de palme" });
-    reasons.push({ kind: "malus", label: "Huile de palme" });
+    warnings.push({ level: "info", code: "palmOil" });
+    reasons.push({ kind: "malus", code: "palmOilReason" });
   }
 
   // Allergens the user explicitly avoids → hard warning + penalty.
@@ -206,7 +206,7 @@ export function scoreAdditives(
   const hit = (p.allergens ?? []).find((a) => userAllergens.some((u) => a.toLowerCase().includes(u)));
   if (hit) {
     score -= 15;
-    warnings.push({ level: "critical", label: `Allergène présent : ${hit}` });
+    warnings.push({ level: "critical", code: "allergenPresent", values: { name: hit } });
   }
 
   return clamp(score);
@@ -217,12 +217,12 @@ export function scoreLabels(p: Product, prefs: LocalPreferences, reasons: ScoreR
   let score = 50;
   const labels = (p.labels ?? []).join("|").toLowerCase();
 
-  if (p.isBio) { score += 22; reasons.push({ kind: "bonus", label: "Produit bio" }); }
-  if (labels.includes("fair") || labels.includes("équitable")) { score += 10; reasons.push({ kind: "bonus", label: "Commerce équitable" }); }
+  if (p.isBio) { score += 22; reasons.push({ kind: "bonus", code: "bio" }); }
+  if (labels.includes("fair") || labels.includes("équitable")) { score += 10; reasons.push({ kind: "bonus", code: "fairTrade" }); }
   if (!hasPalmOil(p) && (labels.includes("palm") || (p.additives?.length ?? 0) === 0)) score += 8;
   if ((p.additives?.length ?? 0) === 0) score += 8; // clean label
-  if (prefs.preferHalal && p.isHalal) { score += 8; reasons.push({ kind: "bonus", label: "Compatible halal" }); }
-  if (prefs.preferVegan && p.isVegan) { score += 6; reasons.push({ kind: "bonus", label: "Vegan" }); }
+  if (prefs.preferHalal && p.isHalal) { score += 8; reasons.push({ kind: "bonus", code: "halalOk" }); }
+  if (prefs.preferVegan && p.isVegan) { score += 6; reasons.push({ kind: "bonus", code: "vegan" }); }
   if (prefs.preferVegetarian && p.isVegetarian) score += 4;
 
   return clamp(score);
@@ -282,11 +282,11 @@ export function scoreGoals(
 
     // A couple of high-signal, personalized explanations.
     if (g === "build_muscle" && (n.proteins ?? 0) >= T.proteinHigh)
-      reasons.push({ kind: "bonus", label: "Bon apport en protéines pour ta prise de muscle" });
+      reasons.push({ kind: "bonus", code: "muscleProtein" });
     if (g === "reduce_sugar" && (n.sugars ?? 0) > T.sugarHigh)
-      reasons.push({ kind: "malus", label: "Trop sucré pour ton objectif « réduire le sucre »" });
+      reasons.push({ kind: "malus", code: "reduceSugarGoal" });
     if (g === "halal" && detectHaram(p))
-      warnings.push({ level: "critical", label: "Ingrédient potentiellement non halal détecté" });
+      warnings.push({ level: "critical", code: "haramIngredient" });
   }
   return count ? round(sum / count) : 50;
 }
@@ -295,7 +295,7 @@ export function scoreGoals(
 export function scoreEcology(p: Product, reasons: ScoreReason[]): number | undefined {
   if (!p.greenScore || !NUTRI_BASE[p.greenScore]) return undefined;
   const score = NUTRI_BASE[p.greenScore];
-  if (p.greenScore <= "b") reasons.push({ kind: "bonus", label: `Faible impact environnemental (${p.greenScore.toUpperCase()})` });
+  if (p.greenScore <= "b") reasons.push({ kind: "bonus", code: "lowEcoImpact", values: { grade: p.greenScore.toUpperCase() } });
   return score;
 }
 
@@ -365,7 +365,7 @@ export function computeGreeScore(product: Product, preferences: LocalPreferences
   const { grade, label } = gradeFor(global);
   const confidenceLevel = computeConfidence(product);
   if (confidenceLevel !== "high") {
-    warnings.push({ level: "info", label: "Score calculé avec des données partielles" });
+    warnings.push({ level: "info", code: "partialData" });
   }
 
   // Keep the most relevant explanations first (bonuses & maluses before info),

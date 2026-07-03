@@ -26,6 +26,7 @@ export function BattleCard({
   onAddBasket?: () => void;
 }) {
   const t = useTranslations("battle");
+  const tScore = useTranslations("score");
   const { product: p, gree } = entry;
   const warning = gree.warnings.find((w) => w.level !== "info");
 
@@ -64,7 +65,7 @@ export function BattleCard({
 
       {warning && (
         <p className="flex items-center gap-1 rounded-lg bg-score-d/10 px-2 py-1 text-[0.6rem] font-medium text-score-d">
-          <AlertTriangle className="h-3 w-3 shrink-0" /> {warning.label}
+          <AlertTriangle className="h-3 w-3 shrink-0" /> {tScore(`warning.${warning.code}`, warning.values)}
         </p>
       )}
 

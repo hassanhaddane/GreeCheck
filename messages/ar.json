@@ -145,7 +145,29 @@
       "moreProtein": "بروتين أكثر",
       "bio": "عضوي",
       "halal": "متوافق حلال"
-    }
+    },
+    "confidenceMedium": "ثقة متوسطة",
+    "dataMissing": "تنقص بعض البيانات، قد يتغير التقييم.",
+    "subHealth": "الصحة",
+    "subNaturality": "الطبيعية",
+    "subProcessing": "المعالجة",
+    "subAdditives": "الإضافات",
+    "subGoal": "الهدف",
+    "subEcology": "البيئة",
+    "nutEnergy": "الطاقة",
+    "nutSugars": "السكريات",
+    "nutSatFat": "دهون مشبعة",
+    "nutSalt": "ملح",
+    "nutFiber": "ألياف",
+    "nutProteins": "بروتين",
+    "errorTitle": "تعذّر تحميل المنتج",
+    "errorBody": "Open Food Facts غير متاح مؤقتاً.",
+    "notFoundBody": "Open Food Facts قاعدة بيانات تعاونية. يمكنك إضافة هذا المنتج لمساعدة المجتمع.",
+    "verdictBody": "GreeScore {score} — {label}. محسوب محلياً (التغذية، المعالجة، الإضافات، العلامات).",
+    "notProvided": "غير مذكورة",
+    "noAdditives": "لم تُكتشف إضافات",
+    "noAllergens": "لا مسبب حساسية رئيسي",
+    "per100": "لكل 100 غ / 100 مل"
   },
   "battle": {
     "title": "Scan Battle",
@@ -279,7 +301,9 @@
     "unsupported": "تحديد الموقع غير متاح.",
     "searchHint": "ابحث عن مدينة أو استخدم موقعك.",
     "viewOnMap": "عرض على الخريطة",
-    "openNow": "المواعيد"
+    "openNow": "المواعيد",
+    "unavailable": "الخريطة غير متاحة",
+    "unavailableBody": "تعذّر تحميل الخريطة. تحقق من اتصالك وأعد المحاولة."
   },
   "settings": {
     "title": "الإعدادات",
@@ -321,7 +345,12 @@
     "back": "رجوع",
     "soon": "قريباً",
     "loading": "جارٍ التحميل…",
-    "comingSoon": "هذا القسم قادم قريباً."
+    "comingSoon": "هذا القسم قادم قريباً.",
+    "error": "حدث خطأ",
+    "retry": "إعادة المحاولة",
+    "changeLanguage": "تغيير اللغة",
+    "toggleTheme": "تبديل المظهر",
+    "unavailable": "غير متاح"
   },
   "radar": {
     "title": "الملف الغذائي",
@@ -396,5 +425,49 @@
     "acceptPersonalized": "قبول المخصصة",
     "settingsTitle": "الإعلانات",
     "settingsBody": "اختر نوع الإعلانات المعروضة."
+  },
+  "pwa": {
+    "install": "تثبيت",
+    "installTitle": "ثبّت GreeCheck",
+    "installBody": "أضف التطبيق إلى شاشتك الرئيسية لتجربة ملء الشاشة.",
+    "offline": "غير متصل"
+  },
+  "score": {
+    "grade": {
+      "A": "ممتاز",
+      "B": "خيار جيد",
+      "C": "متوسط",
+      "D": "محدود",
+      "E": "تجنّب"
+    },
+    "reason": {
+      "nutriScore": "Nutri-Score {grade}",
+      "tooSugar": "سكر زائد",
+      "richFiber": "غني بالألياف",
+      "richProtein": "غني بالبروتين",
+      "nova1": "غير معالج (NOVA 1)",
+      "nova2": "معالجة خفيفة (NOVA 2)",
+      "nova4": "معالج جداً (NOVA 4)",
+      "additivesWatch": "{n} إضافة للمراقبة",
+      "noAdditive": "بدون إضافات",
+      "palmOilReason": "زيت النخيل",
+      "bio": "منتج عضوي",
+      "fairTrade": "تجارة عادلة",
+      "halalOk": "متوافق مع الحلال",
+      "vegan": "نباتي صرف",
+      "muscleProtein": "مناسب لبناء العضلات",
+      "reduceSugarGoal": "سكري جداً بالنسبة لهدفك",
+      "lowEcoImpact": "أثر بيئي منخفض ({grade})"
+    },
+    "warning": {
+      "highSugar": "سكر مرتفع ({v} غ / 100 غ)",
+      "highSalt": "ملح مرتفع ({v} غ / 100 غ)",
+      "highSatFat": "غني بالدهون المشبعة",
+      "additiveAvoid": "إضافة يُنصح بتجنبها: {code}",
+      "palmOil": "يحتوي زيت النخيل",
+      "allergenPresent": "مسبب حساسية موجود: {name}",
+      "haramIngredient": "مكوّن قد يكون غير حلال",
+      "partialData": "التقييم مبني على بيانات جزئية"
+    }
   }
 }

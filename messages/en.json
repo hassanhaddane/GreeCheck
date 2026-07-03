@@ -145,7 +145,29 @@
       "moreProtein": "more protein",
       "bio": "organic",
       "halal": "halal-friendly"
-    }
+    },
+    "confidenceMedium": "Medium confidence",
+    "dataMissing": "some data is missing, the score may change.",
+    "subHealth": "Health",
+    "subNaturality": "Naturalness",
+    "subProcessing": "Processing",
+    "subAdditives": "Additives",
+    "subGoal": "Goal",
+    "subEcology": "Ecology",
+    "nutEnergy": "Energy",
+    "nutSugars": "Sugars",
+    "nutSatFat": "Sat. fat",
+    "nutSalt": "Salt",
+    "nutFiber": "Fiber",
+    "nutProteins": "Protein",
+    "errorTitle": "Couldn't load the product",
+    "errorBody": "Open Food Facts is temporarily unavailable.",
+    "notFoundBody": "Open Food Facts is a collaborative database. You can add this product to help the community.",
+    "verdictBody": "GreeScore {score} — {label}. Computed locally (nutrition, processing, additives, labels).",
+    "notProvided": "Not provided",
+    "noAdditives": "No additives detected",
+    "noAllergens": "No major allergen reported",
+    "per100": "Per 100 g / 100 ml"
   },
   "battle": {
     "title": "Scan Battle",
@@ -279,7 +301,9 @@
     "unsupported": "Geolocation unavailable.",
     "searchHint": "Search a city or use your location.",
     "viewOnMap": "View on map",
-    "openNow": "Hours"
+    "openNow": "Hours",
+    "unavailable": "Map unavailable",
+    "unavailableBody": "The map couldn't be loaded. Check your connection and try again."
   },
   "settings": {
     "title": "Settings",
@@ -321,7 +345,12 @@
     "back": "Back",
     "soon": "Soon",
     "loading": "Loading…",
-    "comingSoon": "This section is coming soon."
+    "comingSoon": "This section is coming soon.",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "changeLanguage": "Change language",
+    "toggleTheme": "Toggle theme",
+    "unavailable": "Unavailable"
   },
   "radar": {
     "title": "Nutritional profile",
@@ -396,5 +425,49 @@
     "acceptPersonalized": "Accept personalized",
     "settingsTitle": "Ads",
     "settingsBody": "Choose the type of ads shown."
+  },
+  "pwa": {
+    "install": "Install",
+    "installTitle": "Install GreeCheck",
+    "installBody": "Add the app to your home screen for a full-screen experience.",
+    "offline": "Offline"
+  },
+  "score": {
+    "grade": {
+      "A": "Excellent",
+      "B": "Good choice",
+      "C": "Average",
+      "D": "Limit",
+      "E": "Avoid"
+    },
+    "reason": {
+      "nutriScore": "Nutri-Score {grade}",
+      "tooSugar": "Too much sugar",
+      "richFiber": "High in fiber",
+      "richProtein": "High in protein",
+      "nova1": "Unprocessed (NOVA 1)",
+      "nova2": "Lightly processed (NOVA 2)",
+      "nova4": "Ultra-processed (NOVA 4)",
+      "additivesWatch": "{n} additive(s) to watch",
+      "noAdditive": "No additives",
+      "palmOilReason": "Palm oil",
+      "bio": "Organic product",
+      "fairTrade": "Fair trade",
+      "halalOk": "Halal-friendly",
+      "vegan": "Vegan",
+      "muscleProtein": "Good for muscle building",
+      "reduceSugarGoal": "Too sugary for your goal",
+      "lowEcoImpact": "Low environmental impact ({grade})"
+    },
+    "warning": {
+      "highSugar": "High sugar ({v} g / 100 g)",
+      "highSalt": "High salt ({v} g / 100 g)",
+      "highSatFat": "High in saturated fat",
+      "additiveAvoid": "Additive to avoid: {code}",
+      "palmOil": "Contains palm oil",
+      "allergenPresent": "Allergen present: {name}",
+      "haramIngredient": "Potentially non-halal ingredient",
+      "partialData": "Score based on partial data"
+    }
   }
 }

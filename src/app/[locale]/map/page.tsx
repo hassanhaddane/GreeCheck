@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
-import { Search, LocateFixed, X, MapPin, Navigation, Store, Leaf, BadgeCheck, ShoppingCart, Tent, ShieldCheck } from "lucide-react";
+import { Search, LocateFixed, X, MapPin, MapPinOff, RotateCw, Navigation, Store, Leaf, BadgeCheck, ShoppingCart, Tent, ShieldCheck } from "lucide-react";
 import { PageHeading } from "@/components/layout/page-heading";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
@@ -29,6 +29,7 @@ const DEFAULT_CENTER: GeoPoint = { lat: 48.8566, lon: 2.3522 }; // Paris — jus
 
 export default function MapPage() {
   const t = useTranslations("map");
+  const tc = useTranslations("common");
   const locale = useLocale();
 
   const [center, setCenter] = useState<GeoPoint>(DEFAULT_CENTER);
@@ -37,6 +38,9 @@ export default function MapPage() {
   const [active, setActive] = useState<Set<PlaceCategory>>(new Set(CATS.map((c) => c.id)));
   const [status, setStatus] = useState<"idle" | "loading" | "ok">("idle");
   const [geoMsg, setGeoMsg] = useState<string | null>(null);
+  const [mapError, setMapError] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
+  const retryMap = () => { setMapError(false); setMapKey((k) => k + 1); };
 
   // City search
   const [query, setQuery] = useState("");
@@ -141,9 +145,24 @@ export default function MapPage() {
         ))}
       </div>
 
-      {/* Map */}
-      <Card className="relative aspect-square overflow-hidden p-0 sm:aspect-video">
-        <LeafletMap center={center} places={places} userPoint={userPoint} />
+      {/* Map (with a premium fallback if Leaflet fails to load) */}
+      <Card className="relative aspect-square overflow-hidden bg-surface-2 p-0 shadow-soft sm:aspect-video">
+        {mapError ? (
+          <div className="grid h-full w-full place-items-center p-6 text-center">
+            <div className="flex flex-col items-center gap-3">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-surface text-muted">
+                <MapPinOff className="h-6 w-6" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold">{t("unavailable")}</p>
+                <p className="mx-auto mt-1 max-w-xs text-xs text-muted">{t("unavailableBody")}</p>
+              </div>
+              <Button variant="soft" size="sm" onClick={retryMap}><RotateCw className="h-4 w-4" /> {tc("retry")}</Button>
+            </div>
+          </div>
+        ) : (
+          <LeafletMap key={mapKey} center={center} places={places} userPoint={userPoint} onError={() => setMapError(true)} />
+        )}
       </Card>
 
       {/* Privacy note */}

@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Globe, Sun, Moon, Monitor, Target, Trash2, Shield, History, Heart, ShoppingBasket, Database, RotateCcw, Check } from "lucide-react";
 import { useRouter, usePathname, Link, locales, localeMeta, type Locale } from "@/i18n/routing";
 import { PageHeading } from "@/components/layout/page-heading";
+import { InstallPrompt } from "@/components/layout/install-prompt";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { Chip } from "@/components/ui/chip";
@@ -96,6 +97,7 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-7">
       <PageHeading title={t("title")} />
+      <InstallPrompt />
 
       {/* Language */}
       <section>

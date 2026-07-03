@@ -22,7 +22,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import { getProduct } from "@/lib/api/client";
 import type { ProductResult } from "@/lib/api/openfoodfacts";
-import type { Product, Confidence } from "@/types/product";
+import type { Product } from "@/types/product";
 import { computeGreeScore } from "@/lib/scoring/gree-score";
 import { useFavoritesStore } from "@/stores/favorites-store";
 import { useBasketStore } from "@/stores/basket-store";
@@ -31,29 +31,24 @@ import { useBattleStore } from "@/stores/battle-store";
 import { usePreferencesStore } from "@/stores/preferences-store";
 import { useShoppingListStore } from "@/stores/shopping-list-store";
 
-const CONFIDENCE_LABEL: Record<Confidence, string> = {
-  high: "Confiance élevée",
-  medium: "Confiance moyenne",
-  low: "Confiance faible"
-};
-
 const GRADE_BG: Record<string, string> = {
   A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e"
 };
 
-const NUTRI_ROWS: { key: keyof Product["nutriments"]; label: string; unit: string }[] = [
-  { key: "energyKcal", label: "Énergie", unit: "kcal" },
-  { key: "sugars", label: "Sucres", unit: "g" },
-  { key: "saturatedFat", label: "Gras saturés", unit: "g" },
-  { key: "salt", label: "Sel", unit: "g" },
-  { key: "fiber", label: "Fibres", unit: "g" },
-  { key: "proteins", label: "Protéines", unit: "g" }
+const NUTRI_ROWS: { key: keyof Product["nutriments"]; labelKey: string; unit: string }[] = [
+  { key: "energyKcal", labelKey: "nutEnergy", unit: "kcal" },
+  { key: "sugars", labelKey: "nutSugars", unit: "g" },
+  { key: "saturatedFat", labelKey: "nutSatFat", unit: "g" },
+  { key: "salt", labelKey: "nutSalt", unit: "g" },
+  { key: "fiber", labelKey: "nutFiber", unit: "g" },
+  { key: "proteins", labelKey: "nutProteins", unit: "g" }
 ];
 
 export default function ProductPage({ params }: { params: Promise<{ barcode: string }> }) {
   const { barcode } = use(params);
   const t = useTranslations("product");
   const tList = useTranslations("list");
+  const tScore = useTranslations("score");
   const router = useRouter();
 
   const [state, setState] = useState<"loading" | "error" | ProductResult["status"]>("loading");
@@ -88,7 +83,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           name: result.product.name,
           imageUrl: result.product.imageUrl,
           score: gree.global,
-          verdict: gree.label,
+          verdict: tScore(`grade.${gree.grade}`),
           scannedAt: Date.now()
         });
       }
@@ -116,7 +111,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   if (state === "error") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
-        <ErrorState title="Impossible de charger le produit" description="Open Food Facts est momentanément indisponible." onRetry={load} />
+        <ErrorState title={t("errorTitle")} description={t("errorBody")} onRetry={load} />
       </div>
     );
   }
@@ -128,7 +123,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         <EmptyState
           icon={ScanLine}
           title={t("notFound")}
-          description="Open Food Facts est une base collaborative. Tu peux ajouter ce produit pour aider la communauté."
+          description={t("notFoundBody")}
           action={
             <a href={`https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${barcode}`} target="_blank" rel="noreferrer">
               <Button variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</Button>
@@ -147,12 +142,12 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const item = { barcode: p.barcode, name: p.name, imageUrl: p.imageUrl, score };
 
   const subScores = [
-    { label: "Santé", value: gree.healthScore },
-    { label: "Naturalité", value: gree.naturalityScore },
-    { label: "Transfo.", value: gree.processingScore },
-    { label: "Additifs", value: gree.additivesScore },
-    ...(prefs.goals.length ? [{ label: "Objectif", value: gree.goalScore }] : []),
-    ...(gree.ecologyScore !== undefined ? [{ label: "Écologie", value: gree.ecologyScore }] : [])
+    { label: t("subHealth"), value: gree.healthScore },
+    { label: t("subNaturality"), value: gree.naturalityScore },
+    { label: t("subProcessing"), value: gree.processingScore },
+    { label: t("subAdditives"), value: gree.additivesScore },
+    ...(prefs.goals.length ? [{ label: t("subGoal"), value: gree.goalScore }] : []),
+    ...(gree.ecologyScore !== undefined ? [{ label: t("subEcology"), value: gree.ecologyScore }] : [])
   ];
   const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
 
@@ -195,7 +190,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         <Card className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
           <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c" />
           <p className="text-sm font-medium">
-            {data.confidence === "low" ? t("incomplete") : CONFIDENCE_LABEL[data.confidence]} — certaines données manquent, le score peut évoluer.
+            {data.confidence === "low" ? t("incomplete") : t("confidenceMedium")} — {t("dataMissing")}
           </p>
         </Card>
       )}
@@ -225,14 +220,14 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
                   <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
                     r.kind === "bonus" ? "bg-natural/10 text-natural" : r.kind === "malus" ? "bg-score-d/10 text-score-d" : "bg-surface-2 text-muted"
                   }`}>
-                    {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {r.label}
+                    {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {tScore(`reason.${r.code}`, r.values)}
                   </span>
                 ))}
               </div>
             )}
             <p className="rounded-2xl bg-surface-2 p-3 text-sm leading-relaxed">
               <Sparkles className="me-1 inline h-4 w-4 text-natural" />
-              <strong>{t("verdict")} :</strong> GreeScore {gree.global} — {gree.label}. Calculé localement (nutrition, transformation, additifs, labels{prefs.goals.length ? ", objectifs" : ""}).
+              <strong>{t("verdict")} :</strong> {t("verdictBody", { score: gree.global, label: tScore(`grade.${gree.grade}`) })}
             </p>
           </div>
         </CardContent>
@@ -254,7 +249,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           {blockingWarnings.map((w, i) => (
             <Card key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
               <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e" : "text-score-d"}`} />
-              <p className="text-sm font-medium">{w.label}</p>
+              <p className="text-sm font-medium">{tScore(`warning.${w.code}`, w.values)}</p>
             </Card>
           ))}
         </div>
@@ -270,7 +265,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {/* ── Collapsible details ── */}
       <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />} defaultOpen>
-        <p className="text-sm leading-relaxed text-ink/90">{p.ingredientsText || <span className="text-muted">Non renseignés</span>}</p>
+        <p className="text-sm leading-relaxed text-ink/90">{p.ingredientsText || <span className="text-muted">{t("notProvided")}</span>}</p>
       </CollapsibleSection>
 
       <CollapsibleSection
@@ -282,7 +277,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <div className="flex flex-wrap gap-1.5">
             {p.additives.map((a) => <span key={a} className="gc-chip text-xs">{a.toUpperCase()}</span>)}
           </div>
-        ) : <p className="text-sm text-muted">Aucun additif détecté</p>}
+        ) : <p className="text-sm text-muted">{t("noAdditives")}</p>}
       </CollapsibleSection>
 
       <CollapsibleSection
@@ -294,17 +289,17 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <div className="flex flex-wrap gap-1.5">
             {p.allergens.map((a) => <span key={a} className="gc-chip text-xs capitalize">{a}</span>)}
           </div>
-        ) : <p className="text-sm text-muted">Aucun allergène majeur signalé</p>}
+        ) : <p className="text-sm text-muted">{t("noAllergens")}</p>}
       </CollapsibleSection>
 
       <CollapsibleSection title={t("nutrition")} icon={<BarChart3 className="h-5 w-5" />} defaultOpen>
-        <p className="mb-2 text-xs text-muted">Pour 100 g / 100 ml</p>
+        <p className="mb-2 text-xs text-muted">{t("per100")}</p>
         <div className="divide-y divide-line">
           {NUTRI_ROWS.map((row) => {
             const v = p.nutriments[row.key];
             return (
               <div key={row.key} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="text-muted">{row.label}</span>
+                <span className="text-muted">{t(row.labelKey)}</span>
                 <span className="font-semibold tabular-nums">{v !== undefined ? `${v} ${row.unit}` : "—"}</span>
               </div>
             );
@@ -331,7 +326,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         )}
         <div className="flex gap-2">
           <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
-            onClick={() => favorites.toggle({ ...item, verdict: gree.label, scannedAt: Date.now() })}>
+            onClick={() => favorites.toggle({ ...item, verdict: tScore(`grade.${gree.grade}`), scannedAt: Date.now() })}>
             <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
           </Button>
           <Button variant={inList ? "neon" : "soft"} size="icon" aria-label={tList("addProduct")} onClick={() => addToList(p, gree)}>

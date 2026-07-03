@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppShell } from "@/components/layout/app-shell";
 import { PwaRegister } from "@/components/layout/pwa-register";
 import "../globals.css";
+// Leaflet map styles — imported globally at the App-Router root (SSR-safe, bundled once).
+import "leaflet/dist/leaflet.css";
 
 export const metadata: Metadata = {
   title: "GreeCheck — Scanne. Comprends. Choisis mieux.",
@@ -15,7 +17,13 @@ export const metadata: Metadata = {
   applicationName: "GreeCheck",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "GreeCheck" },
-  icons: { icon: "/icons/icon.svg", apple: "/icons/icon.svg" }
+  icons: {
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon.svg", type: "image/svg+xml" }
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }]
+  }
 };
 
 export const viewport: Viewport = {
@@ -50,6 +58,8 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

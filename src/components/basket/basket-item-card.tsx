@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { X, AlertTriangle } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import type { BattleEntry } from "@/lib/scoring/battle";
 
 /** Compact basket row. `priority` flags an item that should be replaced. */
 export function BasketItemCard({ entry, onRemove, priority }: { entry: BattleEntry; onRemove: () => void; priority?: boolean }) {
+  const tScore = useTranslations("score");
   const { product: p, gree } = entry;
   const warning = gree.warnings.find((w) => w.level !== "info");
   return (
@@ -24,7 +26,7 @@ export function BasketItemCard({ entry, onRemove, priority }: { entry: BattleEnt
           <div className="mt-0.5 flex items-center gap-1.5">
             {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-4 w-4 rounded text-[0.55rem]" />}
             {p.novaGroup && <NovaBadge group={p.novaGroup} className="scale-[0.8]" />}
-            {warning && <span className="flex items-center gap-0.5 text-[0.65rem] font-medium text-score-d"><AlertTriangle className="h-3 w-3" />{warning.label}</span>}
+            {warning && <span className="flex items-center gap-0.5 text-[0.65rem] font-medium text-score-d"><AlertTriangle className="h-3 w-3" />{tScore(`warning.${warning.code}`, warning.values)}</span>}
           </div>
         </div>
       </Link>

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Plus, Swords, ScanLine, Search, Trash2, RotateCcw, ShoppingBasket, Trophy, ShieldQuestion, Sparkles } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BattleCard } from "@/components/battle/battle-card";
@@ -146,7 +147,7 @@ export default function BattlePage() {
               </Card>
 
               {/* Verdict */}
-              <Card className="overflow-hidden bg-deep-grad text-white">
+              <PremiumCard variant="deep" glow className="gc-shine">
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-neon">
                     {result.closeness === "close" ? <Sparkles className="h-4 w-4" /> : <Trophy className="h-4 w-4" />}
@@ -160,7 +161,7 @@ export default function BattlePage() {
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
+              </PremiumCard>
 
               {/* Comparison table */}
               <Card>

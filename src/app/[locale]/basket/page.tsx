@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { ShoppingBasket, ScanLine, Search, Trash2, AlertTriangle, Leaf, BadgeCheck } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { AdSlot } from "@/components/ads/ad-slot";
@@ -100,7 +101,8 @@ export default function BasketPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-6">
       {/* Score header */}
-      <Card>
+      <PremiumCard variant="glass" className="relative overflow-hidden">
+        <span aria-hidden className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-neon/15 blur-3xl" />
         <CardContent className="flex items-center gap-5">
           <ScoreRing value={stats!.avg} size={116} label={level(stats!.avg)} tone="neon" />
           <div className="flex-1">
@@ -109,7 +111,7 @@ export default function BasketPage() {
             <Button variant="ghost" size="sm" className="mt-2 text-score-e" onClick={clear}><Trash2 className="h-4 w-4" /> {t("clear")}</Button>
           </div>
         </CardContent>
-      </Card>
+      </PremiumCard>
 
       {/* Distribution */}
       <Card>

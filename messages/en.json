@@ -24,7 +24,17 @@
     "today": "Today",
     "recent": "Recent scans",
     "emptyRecent": "No scans yet. Start by scanning a product.",
-    "discover": "Discover what you really consume"
+    "discover": "Discover what you really consume",
+    "modeTitle": "Your current mode",
+    "noGoals": "No goals set — your GreeScore stays neutral.",
+    "setGoals": "Pick my goals",
+    "seeAll": "See all",
+    "hintSearch": "Smart filters",
+    "hintBattle": "Compare up to 3",
+    "hintBasket": "Rate your basket",
+    "hintList": "Shopping list",
+    "greeLens": "GreeLens",
+    "greeLensHint": "Futuristic scan with instant analysis"
   },
   "scan": {
     "title": "GreeLens",

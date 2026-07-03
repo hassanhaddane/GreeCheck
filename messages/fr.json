@@ -24,7 +24,17 @@
     "today": "Aujourd'hui",
     "recent": "Scans récents",
     "emptyRecent": "Aucun scan pour le moment. Commence par scanner un produit.",
-    "discover": "Découvre mieux ce que tu consommes"
+    "discover": "Découvre mieux ce que tu consommes",
+    "modeTitle": "Ton mode actuel",
+    "noGoals": "Aucun objectif défini — le GreeScore reste neutre.",
+    "setGoals": "Choisir mes objectifs",
+    "seeAll": "Tout voir",
+    "hintSearch": "Filtres intelligents",
+    "hintBattle": "Compare jusqu'à 3",
+    "hintBasket": "Note ton panier",
+    "hintList": "Liste de courses",
+    "greeLens": "GreeLens",
+    "greeLensHint": "Scan futuriste avec analyse instantanée"
   },
   "scan": {
     "title": "GreeLens",

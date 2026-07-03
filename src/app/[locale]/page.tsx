@@ -1,18 +1,24 @@
 "use client";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { ScanLine, Search, Swords, ShoppingBasket, ShieldCheck, ArrowRight, ChevronRight, History, ListChecks } from "lucide-react";
+import {
+  ScanLine, Search, Swords, ShoppingBasket, ArrowRight, ChevronRight,
+  History, ListChecks, Target, Sparkles
+} from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/app/logo";
 import { InstallPrompt } from "@/components/app/install-prompt";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { PrivacyPill } from "@/components/ui/privacy-pill";
 import { SectionTitle } from "@/components/ui/section-title";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/components/score/score-ring";
 import { AdSlot } from "@/components/ads/ad-slot";
+import { GOALS, GOAL_LABELS } from "@/lib/constants/goals";
 import { useHistoryStore } from "@/stores/history-store";
+import { usePreferencesStore } from "@/stores/preferences-store";
 import { useMounted } from "@/hooks/use-mounted";
 
 const fade = (i = 0) => ({
@@ -26,72 +32,79 @@ export default function HomePage() {
   const tn = useTranslations("nav");
   const tApp = useTranslations("app");
   const tb = useTranslations("battle");
+  const tSettings = useTranslations("settings");
+  const locale = useLocale() as "fr" | "en" | "ar";
   const mounted = useMounted();
   const entries = useHistoryStore((s) => s.entries);
+  const goals = usePreferencesStore((s) => s.goals);
 
   const actions = [
-    { key: "search", href: "/search", icon: Search, hint: "Filtres intelligents" },
-    { key: "battle", href: "/battle", icon: Swords, hint: "Compare jusqu'à 3" },
-    { key: "basket", href: "/basket", icon: ShoppingBasket, hint: "Note ton panier" },
-    { key: "list", href: "/list", icon: ListChecks, hint: "Liste de courses" }
+    { key: "search", href: "/search", icon: Search, hint: t("hintSearch") },
+    { key: "battle", href: "/battle", icon: Swords, hint: t("hintBattle") },
+    { key: "basket", href: "/basket", icon: ShoppingBasket, hint: t("hintBasket") },
+    { key: "list", href: "/list", icon: ListChecks, hint: t("hintList") }
   ];
 
   return (
     <div className="mx-auto max-w-2xl space-y-7">
-      {/* Brand + slogan */}
-      <motion.div {...fade(0)} className="flex flex-col items-center gap-3 pt-3 text-center">
-        <Logo size={56} />
+      {/* ── Compact hero: brand + slogan + privacy ── */}
+      <motion.div {...fade(0)} className="flex flex-col items-center gap-2.5 pt-2 text-center">
+        <Logo size={52} />
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">
-            Gree<span className="text-natural">Check</span>
+            Gree<span className="gc-gradient-text">Check</span>
           </h1>
           <p className="mt-1 text-sm font-medium text-muted">{tApp("tagline")}</p>
         </div>
+        <PrivacyPill className="sm:hidden" />
       </motion.div>
 
-      {/* Install prompt (only shows when installable) */}
       <InstallPrompt />
 
-      {/* Primary scan hero */}
+      {/* ── GreeLens scan hero — the dominant action ── */}
       <motion.div {...fade(1)}>
         <Link href="/scan" className="block">
-          <Card className="gc-pressable relative overflow-hidden bg-deep-grad p-6 text-white shadow-glass">
-            <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-neon/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-natural/20 blur-3xl" />
+          <PremiumCard variant="deep" interactive glow className="gc-shine p-6">
             <div className="relative flex items-center gap-5">
-              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-neon-grad shadow-glow">
+              <span className="relative grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-neon-grad shadow-glow">
+                <span aria-hidden className="absolute inset-0 animate-radar-sweep rounded-2xl bg-[conic-gradient(from_0deg,transparent_75%,rgba(255,255,255,0.35))]" />
                 <ScanLine className="h-8 w-8 text-deep" strokeWidth={2.4} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="text-lg font-bold leading-tight">{t("scanCta")}</p>
-                <p className="mt-0.5 text-sm text-white/65">{t("heroSubtitle")}</p>
+                <p className="flex items-center gap-2 text-lg font-bold leading-tight">
+                  {t("scanCta")}
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-neon">
+                    {t("greeLens")}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-sm text-white/65">{t("greeLensHint")}</p>
               </div>
-              <ArrowRight className="h-5 w-5 text-neon rtl:rotate-180" />
+              <ArrowRight className="h-5 w-5 shrink-0 text-neon rtl:rotate-180" />
             </div>
-          </Card>
+          </PremiumCard>
         </Link>
       </motion.div>
 
-      {/* Scan Battle — star feature */}
+      {/* ── Scan Battle — star feature ── */}
       <motion.div {...fade(2)}>
         <Link href="/battle" className="block">
-          <Card className="gc-pressable relative flex items-center gap-4 overflow-hidden border-natural/30 bg-natural/5 p-4">
+          <PremiumCard variant="tinted" interactive className="flex items-center gap-4 p-4">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neon-grad text-deep shadow-glow">
               <Swords className="h-6 w-6" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 text-sm font-bold">
                 {tb("title")}
-                <span className="rounded-full bg-neon-grad px-1.5 py-0.5 text-[0.55rem] font-bold uppercase text-deep">★</span>
+                <Sparkles className="h-3.5 w-3.5 text-natural" aria-hidden />
               </p>
               <p className="mt-0.5 line-clamp-2 text-xs text-muted">{tb("subtitle")}</p>
             </div>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted rtl:rotate-180" />
-          </Card>
+          </PremiumCard>
         </Link>
       </motion.div>
 
-      {/* Named actions */}
+      {/* ── Quick actions ── */}
       <section>
         <SectionTitle>{t("quickActions")}</SectionTitle>
         <div className="grid grid-cols-2 gap-3">
@@ -99,16 +112,16 @@ export default function HomePage() {
             const Icon = a.icon;
             return (
               <motion.div key={a.key} {...fade(2 + i)}>
-                <Link href={a.href}>
-                  <Card className="gc-pressable flex h-full flex-col gap-3 p-4 hover:shadow-glass">
-                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-surface-2 text-natural">
+                <Link href={a.href} className="block h-full">
+                  <PremiumCard interactive className="flex h-full flex-col gap-3 p-4">
+                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-natural/10 text-natural">
                       <Icon className="h-5 w-5" strokeWidth={2.2} />
                     </span>
                     <div>
                       <p className="text-sm font-semibold leading-tight">{tn(a.key)}</p>
                       <p className="mt-0.5 text-[0.7rem] leading-tight text-muted">{a.hint}</p>
                     </div>
-                  </Card>
+                  </PremiumCard>
                 </Link>
               </motion.div>
             );
@@ -116,13 +129,49 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Recent history */}
+      {/* ── Current mode (local goals) ── */}
       <motion.section {...fade(5)}>
+        <SectionTitle>{t("modeTitle")}</SectionTitle>
+        <PremiumCard variant="glass" className="p-4">
+          {!mounted ? (
+            <ProductRowSkeleton />
+          ) : goals.length === 0 ? (
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-muted">
+                <Target className="h-5 w-5" />
+              </span>
+              <p className="flex-1 text-sm text-muted">{t("noGoals")}</p>
+              <Link href="/settings">
+                <Button variant="soft" size="sm">{t("setGoals")}</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                {goals.map((g) => {
+                  const def = GOALS.find((x) => x.id === g);
+                  return (
+                    <span key={g} className="gc-chip px-2.5 py-1 text-xs" data-active="true">
+                      <span aria-hidden>{def?.emoji}</span> {GOAL_LABELS[g][locale]}
+                    </span>
+                  );
+                })}
+              </div>
+              <Link href="/settings" className="flex items-center gap-1 text-xs font-medium text-natural">
+                <Target className="h-3.5 w-3.5" /> {tSettings("goals")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
+              </Link>
+            </div>
+          )}
+        </PremiumCard>
+      </motion.section>
+
+      {/* ── Recent choices ── */}
+      <motion.section {...fade(6)}>
         <div className="mb-3 flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("recent")}</h2>
           {mounted && entries.length > 0 && (
             <Link href="/settings" className="flex items-center gap-0.5 text-xs font-medium text-natural">
-              <History className="h-3.5 w-3.5" /> Tout
+              <History className="h-3.5 w-3.5" /> {t("seeAll")}
             </Link>
           )}
         </div>
@@ -136,41 +185,34 @@ export default function HomePage() {
           <EmptyState
             icon={ScanLine}
             title={t("emptyRecent")}
-            action={<Link href="/scan"><Button variant="soft" size="sm">{t("scanCta")}</Button></Link>}
+            action={<Link href="/scan"><Button variant="neon" size="sm">{t("scanCta")}</Button></Link>}
           />
         ) : (
           <div className="space-y-2">
             {entries.slice(0, 5).map((e) => (
-              <Link key={e.barcode} href={`/product/${e.barcode}`}>
-                <Card className="gc-pressable flex items-center gap-3 p-3">
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-2" />
+              <Link key={e.barcode} href={`/product/${e.barcode}`} className="block">
+                <PremiumCard interactive className="flex items-center gap-3 p-3">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {e.imageUrl ? <img src={e.imageUrl} alt="" className="h-full w-full object-contain" loading="lazy" /> : null}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{e.name}</p>
                     <p className="truncate text-xs text-muted">{e.verdict}</p>
                   </div>
                   <ScoreRing value={e.score} size={46} label="" />
                   <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" />
-                </Card>
+                </PremiumCard>
               </Link>
             ))}
           </div>
         )}
       </motion.section>
 
-      {/* Privacy-first message */}
-      <motion.div {...fade(6)}>
-        <Link href="/privacy">
-          <Card className="gc-pressable flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-natural/10 text-natural">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <p className="flex-1 text-sm font-medium leading-snug">{tApp("privacyBadge")}</p>
-            <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" />
-          </Card>
-        </Link>
+      {/* ── Discreet ad ── */}
+      <motion.div {...fade(7)}>
+        <AdSlot />
       </motion.div>
-
-      <AdSlot />
     </div>
   );
 }

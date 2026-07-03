@@ -58,15 +58,52 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  /* subtle premium ambient gradient */
-  background-image:
-    radial-gradient(60rem 60rem at 110% -10%, rgba(57,255,136,0.06), transparent 60%),
-    radial-gradient(50rem 50rem at -10% 10%, rgba(46,204,113,0.05), transparent 55%);
-  background-attachment: fixed;
 }
 
 /* RTL niceties */
 [dir="rtl"] body { font-feature-settings: normal; }
+
+/* ============================================================
+   Ambient premium background (rendered by <AppBackground/>)
+   Layered: soft halos → organic orbs → faint grid. All fixed,
+   pointer-events none, behind the app. Clean, not busy.
+   ============================================================ */
+.gc-bg-halos {
+  background-image:
+    radial-gradient(52rem 52rem at 112% -12%, rgb(var(--gc-neon) / 0.075), transparent 62%),
+    radial-gradient(46rem 46rem at -12% 6%, rgb(var(--gc-natural) / 0.065), transparent 58%),
+    radial-gradient(60rem 44rem at 50% 118%, rgb(var(--gc-deep) / 0.05), transparent 60%);
+}
+.dark .gc-bg-halos {
+  background-image:
+    radial-gradient(52rem 52rem at 112% -12%, rgb(var(--gc-neon) / 0.06), transparent 62%),
+    radial-gradient(46rem 46rem at -12% 6%, rgb(var(--gc-natural) / 0.05), transparent 58%);
+}
+.gc-bg-grid {
+  background-image:
+    linear-gradient(rgb(var(--gc-ink) / 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--gc-ink) / 0.028) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
+}
+.gc-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.55;
+  will-change: transform;
+}
+@keyframes gc-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(4%, 6%, 0) scale(1.08); }
+}
+@keyframes gc-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-5%, -4%, 0) scale(0.94); }
+}
+.gc-orb-a { animation: gc-drift-a 26s ease-in-out infinite; }
+.gc-orb-b { animation: gc-drift-b 32s ease-in-out infinite; }
 
 @layer components {
   .gc-glass {
@@ -78,6 +115,13 @@ body {
   .gc-card {
     @apply rounded-2xl bg-surface border border-line shadow-soft;
   }
+  /* Premium hover lift for interactive cards (desktop) */
+  .gc-lift {
+    @apply transition-all duration-300;
+  }
+  @media (hover: hover) {
+    .gc-lift:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(16,19,18,0.04), 0 18px 40px -18px rgba(11,61,46,0.28); }
+  }
   .gc-chip {
     @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition;
   }
@@ -88,6 +132,43 @@ body {
   .gc-gradient-text {
     @apply bg-neon-grad bg-clip-text text-transparent;
   }
+  /* Soft top edge highlight for glass/deep cards */
+  .gc-edge {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+}
+
+/* Diagonal shine sweep (used on hero / neon buttons) */
+.gc-shine { position: relative; overflow: hidden; }
+.gc-shine::after {
+  content: "";
+  position: absolute;
+  inset: -150% auto auto -60%;
+  height: 400%;
+  width: 40%;
+  transform: rotate(24deg) translateX(0);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.14), transparent);
+  animation: gc-shine 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes gc-shine {
+  0%, 60%, 100% { transform: rotate(24deg) translateX(-140%); }
+  80% { transform: rotate(24deg) translateX(420%); }
+}
+
+/* Soft pulsing halo behind the scan FAB */
+@keyframes gc-pulse-ring {
+  0% { transform: scale(1); opacity: 0.45; }
+  70%, 100% { transform: scale(1.55); opacity: 0; }
+}
+.gc-pulse-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgb(var(--gc-neon) / 0.35);
+  animation: gc-pulse-ring 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  z-index: -1;
 }
 
 /* premium scrollbar */

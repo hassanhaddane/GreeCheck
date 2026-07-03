@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { FloatingAction } from "@/components/ui/floating-action";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/section-title";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
@@ -196,7 +198,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       )}
 
       {/* ── GreeScore (immediately visible) ── */}
-      <Card className="overflow-hidden">
+      <PremiumCard variant="glass" className="overflow-hidden">
         <CardContent className="flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
           <div className="relative shrink-0">
             <ScoreRing value={score} size={144} tone="neon" />
@@ -231,7 +233,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             </p>
           </div>
         </CardContent>
-      </Card>
+      </PremiumCard>
 
       {/* ── Sub-scores ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -313,10 +315,10 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       {/* ── Alternatives (only when the product is medium or poor) ── */}
       {score < 65 && <Alternatives product={p} prefs={prefs} />}
 
-      {/* ── Sticky actions ── */}
-      <div className="sticky bottom-24 z-30 space-y-2 md:bottom-4">
+      {/* ── Floating actions dock ── */}
+      <FloatingAction>
         {basketNotice && (
-          <div className="flex items-center gap-2 rounded-2xl border border-natural/25 bg-surface/95 p-2.5 text-sm font-semibold text-natural shadow-glass backdrop-blur">
+          <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural">
             <ShoppingBasket className="h-4 w-4" />
             <span className="min-w-0 flex-1">{t(basketNotice === "added" ? "addedToBasket" : "alreadyInBasket")}</span>
             <Button variant="ghost" size="sm" onClick={() => router.push("/basket")}>
@@ -336,7 +338,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
           </Button>
         </div>
-        <div className="flex gap-2">
+        <div className="mt-2 flex gap-2">
           <Button variant="primary" className="flex-1" onClick={goToBattle}>
             <Swords className="h-5 w-5" /> {inBattle ? t("alreadyInBattle") : battleFull ? t("battleFull") : t("scanBattle")}
           </Button>
@@ -344,7 +346,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             <GitCompareArrows className="h-5 w-5" /> {t("compare")}
           </Button>
         </div>
-      </div>
+      </FloatingAction>
     </div>
   );
 }

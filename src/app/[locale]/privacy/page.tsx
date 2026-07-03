@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { ShieldCheck, UserX, HardDrive, Database, Megaphone, EyeOff } from "lucide-react";
 import { PageHeading } from "@/components/app/page-heading";
 import { Card, CardContent } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
 import { Chip } from "@/components/ui/chip";
 import { useConsentStore } from "@/stores/consent-store";
 import { useMounted } from "@/hooks/use-mounted";
@@ -25,14 +26,14 @@ export default function PrivacyPage() {
       <PageHeading title={t("title")} />
 
       {/* Statement */}
-      <Card className="bg-deep-grad text-white">
-        <CardContent className="flex flex-col items-center gap-4 py-8 text-center">
+      <PremiumCard variant="deep" glow className="gc-shine">
+        <CardContent className="relative flex flex-col items-center gap-4 py-8 text-center">
           <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/10 backdrop-blur">
             <ShieldCheck className="h-7 w-7 text-neon" />
           </span>
           <p className="max-w-md text-sm leading-relaxed text-white/85">{t("statement")}</p>
         </CardContent>
-      </Card>
+      </PremiumCard>
 
       {/* Key points */}
       <div className="grid gap-3 sm:grid-cols-3">

@@ -24,7 +24,17 @@
     "today": "اليوم",
     "recent": "عمليات المسح الأخيرة",
     "emptyRecent": "لا توجد عمليات مسح بعد. ابدأ بمسح منتج.",
-    "discover": "اكتشف ما تستهلكه حقاً"
+    "discover": "اكتشف ما تستهلكه حقاً",
+    "modeTitle": "وضعك الحالي",
+    "noGoals": "لا أهداف محددة — يبقى GreeScore محايداً.",
+    "setGoals": "اختيار أهدافي",
+    "seeAll": "عرض الكل",
+    "hintSearch": "فلاتر ذكية",
+    "hintBattle": "قارن حتى 3 منتجات",
+    "hintBasket": "قيّم سلتك",
+    "hintList": "قائمة التسوق",
+    "greeLens": "GreeLens",
+    "greeLensHint": "مسح مستقبلي بتحليل فوري"
   },
   "scan": {
     "title": "GreeLens",

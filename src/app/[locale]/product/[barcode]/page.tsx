@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/section-title";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { ScoreRing } from "@/components/score/score-ring";
+import { ScoreBreakdown } from "@/components/score/score-breakdown";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
@@ -143,14 +144,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const score = gree.global;
   const item = { barcode: p.barcode, name: p.name, imageUrl: p.imageUrl, score };
 
-  const subScores = [
-    { label: t("subHealth"), value: gree.healthScore },
-    { label: t("subNaturality"), value: gree.naturalityScore },
-    { label: t("subProcessing"), value: gree.processingScore },
-    { label: t("subAdditives"), value: gree.additivesScore },
-    ...(prefs.goals.length ? [{ label: t("subGoal"), value: gree.goalScore }] : []),
-    ...(gree.ecologyScore !== undefined ? [{ label: t("subEcology"), value: gree.ecologyScore }] : [])
-  ];
   const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
 
   const goToBattle = () => {
@@ -235,15 +228,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </CardContent>
       </PremiumCard>
 
-      {/* ── Sub-scores ── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {subScores.map((s) => (
-          <Card key={s.label} className="p-4 text-center">
-            <p className="text-2xl font-bold tabular-nums">{s.value}</p>
-            <p className="mt-1 text-xs text-muted">{s.label}</p>
-          </Card>
-        ))}
-      </div>
+      {/* ── GreeScore breakdown: "Why this score?" ── */}
+      <ScoreBreakdown gree={gree} hasGoals={prefs.goals.length > 0} />
 
       {/* ── Important alerts ── */}
       {blockingWarnings.length > 0 && (

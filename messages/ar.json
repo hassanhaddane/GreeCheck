@@ -89,7 +89,11 @@
       "lastRaw": "آخر قيمة خام",
       "lastError": "آخر خطأ",
       "frames": "الإطارات الممسوحة"
-    }
+    },
+    "searchingCode": "البحث عن الرمز…",
+    "productDetected": "تم اكتشاف المنتج",
+    "analyzingNutrition": "تحليل التغذية…",
+    "enterBarcode": "إدخال الباركود"
   },
   "search": {
     "title": "بحث",
@@ -112,7 +116,11 @@
     "emptyTitle": "لا يوجد منتج مطابق",
     "emptyBody": "حاول توسيع البحث أو إزالة بعض الفلاتر.",
     "startTitle": "ابحث عن منتج",
-    "startBody": "اسم، علامة، فئة أو حاجة. حرفان على الأقل."
+    "startBody": "اسم، علامة، فئة أو حاجة. حرفان على الأقل.",
+    "bestChoice": "الخيار الأفضل",
+    "betterAvailable": "خيار أفضل أعلى القائمة",
+    "lowScoreWarning": "نتيجة منخفضة — قلّل منه",
+    "whyLabel": "لماذا:"
   },
   "product": {
     "title": "المنتج",
@@ -177,7 +185,14 @@
     "notProvided": "غير مذكورة",
     "noAdditives": "لم تُكتشف إضافات",
     "noAllergens": "لا مسبب حساسية رئيسي",
-    "per100": "لكل 100 غ / 100 مل"
+    "per100": "لكل 100 غ / 100 مل",
+    "breakdownTitle": "لماذا هذه النتيجة؟",
+    "breakdownConfidence": "موثوقية البيانات:",
+    "confidence": {
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    }
   },
   "battle": {
     "title": "Scan Battle",
@@ -252,7 +267,11 @@
       "yes": "نعم",
       "no": "لا",
       "none": "لا شيء"
-    }
+    },
+    "goalFit": "التوافق مع الهدف",
+    "replaceInBasket": "استبدال في سلتي",
+    "replacedInBasket": "تم استبدال {name} بالفائز",
+    "noWorseInBasket": "لا شيء في سلتك أقل تقييماً"
   },
   "basket": {
     "title": "السلة الذكية",
@@ -376,7 +395,10 @@
     "strength": "نقطة قوة: {axis}",
     "balanced": "ملف متوازن",
     "partial": "بيانات جزئية ({n} محاور ناقصة)",
-    "noData": "لا تتوفر بيانات غذائية"
+    "noData": "لا تتوفر بيانات غذائية",
+    "strengths": "نقاط القوة",
+    "weaknesses": "نقاط الضعف",
+    "lowIntake": "منخفض"
   },
   "list": {
     "title": "قائمة التسوق",
@@ -478,6 +500,9 @@
       "allergenPresent": "مسبب حساسية موجود: {name}",
       "haramIngredient": "مكوّن قد يكون غير حلال",
       "partialData": "التقييم مبني على بيانات جزئية"
-    }
+    },
+    "bestChoice": "الخيار الأفضل",
+    "lowScoreWarning": "نتيجة منخفضة — قلّل منه",
+    "betterAvailable": "خيار أفضل أعلى القائمة"
   }
 }

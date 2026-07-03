@@ -51,6 +51,10 @@ export function NutritionRadar({ product, size = 240 }: { product: Product; size
   const withData = axes.filter((a) => a.hasData);
   const missing = axes.length - withData.length;
 
+  // Strengths: high "good" axes, or very low "bad" axes. Weak points: high "bad" axes.
+  const strengths = withData.filter((a) => (a.tone === "good" && a.value >= 55) || (a.tone === "bad" && a.value <= 20)).slice(0, 3);
+  const weaknesses = withData.filter((a) => a.tone === "bad" && a.value >= 55).slice(0, 3);
+
   const cx = size / 2;
   const cy = size / 2;
   const r = size * 0.34;
@@ -143,6 +147,32 @@ export function NutritionRadar({ product, size = 240 }: { product: Product; size
       <figcaption className="mt-1 max-w-[34ch] text-center text-xs leading-snug text-muted">
         {explain()}
       </figcaption>
+
+      {/* Radar 2.0 — strengths & weak points derived from actual data */}
+      {(strengths.length > 0 || weaknesses.length > 0) && (
+        <div className="mt-3 w-full space-y-2">
+          {strengths.length > 0 && (
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-natural">{t("strengths")}</span>
+              {strengths.map((a) => (
+                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-natural/10 px-2 py-0.5 text-[0.7rem] font-medium text-natural">
+                  + {t(a.key)}{a.tone === "bad" ? ` ${t("lowIntake")}` : ""}
+                </span>
+              ))}
+            </div>
+          )}
+          {weaknesses.length > 0 && (
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-score-d">{t("weaknesses")}</span>
+              {weaknesses.map((a) => (
+                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-score-d/10 px-2 py-0.5 text-[0.7rem] font-medium text-score-d">
+                  – {t(a.key)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </figure>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,11 @@ interface FilterPanelProps extends FilterSelection {
   onReset: () => void;
 }
 
-/** Visual filter panel: Nutri-Score / NOVA allow-lists + grouped smart chips. */
+/**
+ * Smart Filters 2.0 panel — Nutri-Score / NOVA allow-lists plus grouped
+ * smart chips with icons. Active smart filters explain themselves in a
+ * summary strip so their impact is understandable at a glance.
+ */
 export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggleNutri, onToggleNova, onReset }: FilterPanelProps) {
   const t = useTranslations("search");
   const locale = useLocale() as FilterLocale;
@@ -36,6 +40,8 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
     }),
     []
   );
+
+  const activeDefs = FILTER_DEFS.filter((f) => active.has(f.id));
 
   return (
     <Card className="space-y-4 p-4">
@@ -83,26 +89,43 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
         </div>
       </div>
 
-      {/* Grouped chips */}
+      {/* Grouped smart chips with icons */}
       {(["diet", "nutrition", "smart"] as const).map((g) => (
         <div key={g}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
             {t(g === "diet" ? "groupDiet" : g === "nutrition" ? "groupNutrition" : "groupSmart")}
           </p>
           <div className="flex flex-wrap gap-2">
-            {groups[g].map((f) => (
-              <Chip
-                key={f.id}
-                active={active.has(f.id)}
-                onClick={() => onToggleFilter(f.id)}
-                className={g === "smart" ? "data-[active=true]:bg-neon-grad data-[active=true]:text-deep" : ""}
-              >
-                {f.label[locale]}
-              </Chip>
-            ))}
+            {groups[g].map((f) => {
+              const Icon = f.icon;
+              return (
+                <Chip
+                  key={f.id}
+                  active={active.has(f.id)}
+                  onClick={() => onToggleFilter(f.id)}
+                  title={f.description[locale]}
+                  className={g === "smart" ? "data-[active=true]:bg-neon-grad data-[active=true]:text-deep" : ""}
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  {f.label[locale]}
+                </Chip>
+              );
+            })}
           </div>
         </div>
       ))}
+
+      {/* Active filter explanations */}
+      {activeDefs.length > 0 && (
+        <div className="space-y-1.5 rounded-2xl bg-surface-2 p-3">
+          {activeDefs.map((f) => (
+            <p key={f.id} className="flex items-start gap-1.5 text-xs text-muted">
+              <Info className="mt-0.5 h-3 w-3 shrink-0 text-natural" aria-hidden />
+              <span><strong className="text-ink">{f.label[locale]}</strong> — {f.description[locale]}</span>
+            </p>
+          ))}
+        </div>
+      )}
 
       {activeCount > 0 && (
         <Button variant="ghost" size="sm" className="text-score-e" onClick={onReset}>

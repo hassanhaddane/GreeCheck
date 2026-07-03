@@ -89,7 +89,11 @@
       "lastRaw": "Dernière valeur brute",
       "lastError": "Dernière erreur",
       "frames": "Images scannées"
-    }
+    },
+    "searchingCode": "Recherche du code…",
+    "productDetected": "Produit détecté",
+    "analyzingNutrition": "Analyse nutritionnelle…",
+    "enterBarcode": "Entrer le code-barres"
   },
   "search": {
     "title": "Rechercher",
@@ -112,7 +116,11 @@
     "emptyTitle": "Aucun produit ne correspond",
     "emptyBody": "Essaie d'élargir ta recherche ou de retirer des filtres.",
     "startTitle": "Recherche un produit",
-    "startBody": "Nom, marque, catégorie ou besoin. Au moins 2 caractères."
+    "startBody": "Nom, marque, catégorie ou besoin. Au moins 2 caractères.",
+    "bestChoice": "Meilleur choix",
+    "betterAvailable": "Meilleure option plus haut dans la liste",
+    "lowScoreWarning": "Score faible — à limiter",
+    "whyLabel": "Pourquoi :"
   },
   "product": {
     "title": "Fiche produit",
@@ -177,7 +185,14 @@
     "notProvided": "Non renseignés",
     "noAdditives": "Aucun additif détecté",
     "noAllergens": "Aucun allergène majeur signalé",
-    "per100": "Pour 100 g / 100 ml"
+    "per100": "Pour 100 g / 100 ml",
+    "breakdownTitle": "Pourquoi ce score ?",
+    "breakdownConfidence": "Confiance des données :",
+    "confidence": {
+      "high": "élevée",
+      "medium": "moyenne",
+      "low": "faible"
+    }
   },
   "battle": {
     "title": "Scan Battle",
@@ -252,7 +267,11 @@
       "yes": "Oui",
       "no": "Non",
       "none": "Aucun"
-    }
+    },
+    "goalFit": "Compatibilité objectif",
+    "replaceInBasket": "Remplacer dans mon panier",
+    "replacedInBasket": "{name} remplacé par le gagnant",
+    "noWorseInBasket": "Ton panier ne contient rien de moins bon"
   },
   "basket": {
     "title": "Panier intelligent",
@@ -376,7 +395,10 @@
     "strength": "Point fort : {axis}",
     "balanced": "Profil équilibré",
     "partial": "Données partielles ({n} axe(s) manquant(s))",
-    "noData": "Données nutritionnelles indisponibles"
+    "noData": "Données nutritionnelles indisponibles",
+    "strengths": "Points forts",
+    "weaknesses": "Points faibles",
+    "lowIntake": "faible"
   },
   "list": {
     "title": "Liste de courses",
@@ -478,6 +500,9 @@
       "allergenPresent": "Allergène présent : {name}",
       "haramIngredient": "Ingrédient potentiellement non halal",
       "partialData": "Score calculé avec des données partielles"
-    }
+    },
+    "bestChoice": "Meilleur choix",
+    "lowScoreWarning": "Score faible — à limiter",
+    "betterAvailable": "Meilleure option plus haut dans la liste"
   }
 }

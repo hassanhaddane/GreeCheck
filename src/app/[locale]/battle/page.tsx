@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { Plus, Swords, ScanLine, Search, Trash2, RotateCcw, ShoppingBasket, Trophy, ShieldQuestion, Sparkles } from "lucide-react";
+import { Plus, Swords, ScanLine, Search, Trash2, RotateCcw, ShoppingBasket, Trophy, ShieldQuestion, Sparkles, Repeat, Target } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
 import { PremiumCard } from "@/components/ui/premium-card";
@@ -28,6 +28,7 @@ export default function BattlePage() {
   const prefs = usePreferencesStore();
 
   const [sheet, setSheet] = useState<null | "search" | "scan">(null);
+  const [replaceNotice, setReplaceNotice] = useState<string | null>(null);
 
   const result = useMemo(() => (items.length ? computeBattle(items, prefs) : null), [items, prefs]);
   const winnerBarcode = result?.winner?.product.barcode;
@@ -48,6 +49,23 @@ export default function BattlePage() {
     const w = result.winner;
     basket.addProduct(w.product, w.gree);
     router.push("/basket");
+  };
+
+  /** Swap the weakest (lower-scored) basket product for the battle winner. */
+  const replaceInBasket = () => {
+    if (!result?.winner) return;
+    const w = result.winner;
+    const candidates = basket.items
+      .filter((i) => i.product.barcode !== w.product.barcode && i.score < w.gree.global)
+      .sort((a, b) => a.score - b.score);
+    const worst = candidates[0];
+    if (!worst) {
+      setReplaceNotice(t("noWorseInBasket"));
+      return;
+    }
+    basket.remove(worst.product.barcode);
+    basket.addProduct(w.product, w.gree);
+    setReplaceNotice(t("replacedInBasket", { name: worst.product.name }));
   };
 
   const addEntryToBasket = (entry: NonNullable<typeof result>["ranking"][number]) => {
@@ -155,11 +173,35 @@ export default function BattlePage() {
                   </div>
                   <p className="text-base font-bold leading-tight">{result.winner.product.name}</p>
                   <p className="text-sm leading-relaxed text-white/85">{verdict}</p>
+                  {prefs.goals.length > 0 && (
+                    <div className="space-y-1.5 rounded-2xl bg-white/10 p-3">
+                      <p className="flex items-center gap-1.5 text-xs font-semibold text-white/85">
+                        <Target className="h-3.5 w-3.5 text-neon" /> {t("goalFit")}
+                      </p>
+                      {ranking.map((e) => (
+                        <div key={e.product.barcode} className="flex items-center gap-2">
+                          <span className="w-28 shrink-0 truncate text-[0.7rem] text-white/75">{e.product.name}</span>
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
+                            <div className="h-full rounded-full bg-neon-grad" style={{ width: `${e.gree.goalScore}%` }} />
+                          </div>
+                          <span className="w-7 shrink-0 text-end text-[0.7rem] font-bold tabular-nums text-neon">{e.gree.goalScore}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Button variant="neon" size="sm" onClick={addWinnerToBasket}>
                       <ShoppingBasket className="h-4 w-4" /> {t("addWinnerBasket")}
                     </Button>
+                    {basket.items.length > 0 && (
+                      <Button variant="soft" size="sm" className="bg-white/10 text-white hover:bg-white/20" onClick={replaceInBasket}>
+                        <Repeat className="h-4 w-4" /> {t("replaceInBasket")}
+                      </Button>
+                    )}
                   </div>
+                  {replaceNotice && (
+                    <p className="rounded-xl bg-white/10 px-3 py-2 text-xs font-medium text-neon">{replaceNotice}</p>
+                  )}
                 </CardContent>
               </PremiumCard>
 

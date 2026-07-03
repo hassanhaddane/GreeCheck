@@ -89,7 +89,11 @@
       "lastRaw": "Last raw value",
       "lastError": "Last error",
       "frames": "Frames / attempts"
-    }
+    },
+    "searchingCode": "Looking for the code…",
+    "productDetected": "Product detected",
+    "analyzingNutrition": "Analyzing nutrition…",
+    "enterBarcode": "Enter barcode"
   },
   "search": {
     "title": "Search",
@@ -112,7 +116,11 @@
     "emptyTitle": "No product matches",
     "emptyBody": "Try widening your search or removing filters.",
     "startTitle": "Search a product",
-    "startBody": "Name, brand, category or need. At least 2 characters."
+    "startBody": "Name, brand, category or need. At least 2 characters.",
+    "bestChoice": "Best choice",
+    "betterAvailable": "Better option higher in the list",
+    "lowScoreWarning": "Low score — limit",
+    "whyLabel": "Why:"
   },
   "product": {
     "title": "Product",
@@ -177,7 +185,14 @@
     "notProvided": "Not provided",
     "noAdditives": "No additives detected",
     "noAllergens": "No major allergen reported",
-    "per100": "Per 100 g / 100 ml"
+    "per100": "Per 100 g / 100 ml",
+    "breakdownTitle": "Why this score?",
+    "breakdownConfidence": "Data confidence:",
+    "confidence": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low"
+    }
   },
   "battle": {
     "title": "Scan Battle",
@@ -252,7 +267,11 @@
       "yes": "Yes",
       "no": "No",
       "none": "None"
-    }
+    },
+    "goalFit": "Goal fit",
+    "replaceInBasket": "Replace in my basket",
+    "replacedInBasket": "{name} replaced by the winner",
+    "noWorseInBasket": "Nothing in your basket scores lower"
   },
   "basket": {
     "title": "Smart basket",
@@ -376,7 +395,10 @@
     "strength": "Strength: {axis}",
     "balanced": "Balanced profile",
     "partial": "Partial data ({n} axis/axes missing)",
-    "noData": "No nutrition data available"
+    "noData": "No nutrition data available",
+    "strengths": "Strengths",
+    "weaknesses": "Weak points",
+    "lowIntake": "low"
   },
   "list": {
     "title": "Shopping list",
@@ -478,6 +500,9 @@
       "allergenPresent": "Allergen present: {name}",
       "haramIngredient": "Potentially non-halal ingredient",
       "partialData": "Score based on partial data"
-    }
+    },
+    "bestChoice": "Best choice",
+    "lowScoreWarning": "Low score — limit",
+    "betterAvailable": "Better option higher in the list"
   }
 }

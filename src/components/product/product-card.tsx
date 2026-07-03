@@ -1,7 +1,7 @@
 "use client";
 import type * as React from "react";
 import { useTranslations } from "next-intl";
-import { ChevronRight, Swords, ShoppingBasket, Check } from "lucide-react";
+import { ChevronRight, Swords, ShoppingBasket, Check, Trophy, AlertTriangle, ArrowUp, Sparkles } from "lucide-react";
 import { useRouter, Link } from "@/i18n/routing";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { ScoreRing } from "@/components/score/score-ring";
@@ -19,13 +19,28 @@ import type { GreeScore } from "@/types/scoring";
  * Image, name/brand, Nutri/NOVA/Bio/Halal badges, short verdict,
  * GreeScore ring and quick actions (compare, basket).
  */
-export function ProductCard({ product: p, gree, showActions = true }: { product: Product; gree: GreeScore; showActions?: boolean }) {
+export interface ProductCardProps {
+  product: Product;
+  gree: GreeScore;
+  showActions?: boolean;
+  /** Ribbon marking the best personalized choice in a result list. */
+  bestChoice?: boolean;
+  /** Hint that a better-scored option exists higher in the list. */
+  betterAvailable?: boolean;
+}
+
+export function ProductCard({ product: p, gree, showActions = true, bestChoice, betterAvailable }: ProductCardProps) {
   const tScore = useTranslations("score");
   const tp = useTranslations("product");
   const router = useRouter();
   const basket = useBasketStore();
   const battle = useBattleStore();
   const inBasket = basket.has(p.barcode);
+
+  // Search-result intelligence: real signals from the scoring engine.
+  const topReason = gree.reasons.find((r) => r.kind === "bonus");
+  const blockingWarning = gree.warnings.find((w) => w.level !== "info");
+  const lowScore = gree.global < 45;
 
   const addToBattle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,7 +55,12 @@ export function ProductCard({ product: p, gree, showActions = true }: { product:
   };
 
   return (
-    <PremiumCard interactive className="p-0">
+    <PremiumCard interactive className={`p-0 ${bestChoice ? "border-natural/40 ring-1 ring-natural/25" : ""}`}>
+      {bestChoice && (
+        <div className="flex items-center gap-1.5 rounded-t-2xl bg-neon-grad px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-deep">
+          <Trophy className="h-3 w-3" aria-hidden /> {tScore("bestChoice")}
+        </div>
+      )}
       <div className="flex items-center gap-3 p-3">
         <Link href={`/product/${p.barcode}`} className="flex min-w-0 flex-1 items-center gap-3">
           <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
@@ -87,6 +107,35 @@ export function ProductCard({ product: p, gree, showActions = true }: { product:
           </div>
         )}
       </div>
+
+      {(topReason || blockingWarning || lowScore || betterAvailable) && (
+        <div className="space-y-1 border-t border-line/70 px-3 py-2">
+          {topReason && !lowScore && (
+            <p className="flex items-center gap-1.5 text-[0.7rem] text-natural">
+              <Sparkles className="h-3 w-3 shrink-0" aria-hidden />
+              {tScore(`reason.${topReason.code}`, topReason.values)}
+            </p>
+          )}
+          {blockingWarning && (
+            <p className={`flex items-center gap-1.5 text-[0.7rem] ${blockingWarning.level === "critical" ? "text-score-e" : "text-score-d"}`}>
+              <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
+              {tScore(`warning.${blockingWarning.code}`, blockingWarning.values)}
+            </p>
+          )}
+          {lowScore && !blockingWarning && (
+            <p className="flex items-center gap-1.5 text-[0.7rem] text-score-d">
+              <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
+              {tScore("lowScoreWarning")}
+            </p>
+          )}
+          {betterAvailable && (
+            <p className="flex items-center gap-1.5 text-[0.7rem] font-medium text-muted">
+              <ArrowUp className="h-3 w-3 shrink-0 text-natural" aria-hidden />
+              {tScore("betterAvailable")}
+            </p>
+          )}
+        </div>
+      )}
     </PremiumCard>
   );
 }

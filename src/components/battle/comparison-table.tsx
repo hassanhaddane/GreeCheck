@@ -72,7 +72,7 @@ export function ComparisonTable({ entries }: { entries: BattleEntry[] }) {
                     className={cn(
                       "flex items-center justify-center px-2 py-2 text-center text-xs tabular-nums",
                       ri % 2 && "bg-surface-2/40",
-                      (isBest || boolBest) && "rounded-lg bg-natural/12 font-bold text-natural"
+                      (isBest || boolBest) && "rounded-lg bg-natural/10 font-bold text-natural"
                     )}
                   >
                     {row.dir === "bool"

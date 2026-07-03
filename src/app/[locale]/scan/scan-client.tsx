@@ -57,7 +57,8 @@ export function ScanClient() {
   const prefs = usePreferencesStore();
 
   const [mode, setMode] = useState<ScanMode>("barcode");
-  const [detected, setDetected] = useState(false);
+  const [phase, setPhase] = useState<"idle" | "detected" | "analyzing">("idle");
+  const detected = phase !== "idle";
   const [lookup, setLookup] = useState<LookupState>("idle");
   const [lastCode, setLastCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
@@ -72,14 +73,17 @@ export function ScanClient() {
 
   const resolveProduct = useCallback(
     async (code: string) => {
-      setDetected(true);
+      // GreeLens staged feedback: detected → analyzing → navigate.
+      setPhase("detected");
       setLookup("loading");
       setLastCode(code);
+      await new Promise((r) => setTimeout(r, 550));
+      setPhase("analyzing");
 
       try {
         const result = await getProduct(code);
         if (result.status === "not_found") {
-          setDetected(false);
+          setPhase("idle");
           setLookup("not_found");
           return;
         }
@@ -97,7 +101,7 @@ export function ScanClient() {
 
         router.push(`/product/${result.product.barcode}`);
       } catch {
-        setDetected(false);
+        setPhase("idle");
         setLookup("network_error");
       }
     },
@@ -132,7 +136,7 @@ export function ScanClient() {
   };
 
   const retryAll = () => {
-    setDetected(false);
+    setPhase("idle");
     setLookup("idle");
     setLastCode("");
     scanner.retry();
@@ -157,7 +161,8 @@ export function ScanClient() {
     error: t("cameraUnsupported"),
     detected: t("analyzing")
   };
-  const liveStatus = detected ? statusText.detected : statusText[scanner.state];
+  const phaseText = phase === "detected" ? t("productDetected") : phase === "analyzing" ? t("analyzingNutrition") : "";
+  const liveStatus = detected ? phaseText : statusText[scanner.state];
 
   return (
     <div className="mx-auto max-w-md space-y-5 pb-4">
@@ -185,22 +190,25 @@ export function ScanClient() {
 
         {scanner.state === "active" && !detected && (
           <div className="absolute inset-x-4 bottom-4 space-y-2 text-center text-white">
-            <p className="text-sm font-semibold">{t("instruction")}</p>
+            <p className="text-sm font-semibold">{t("searchingCode")}</p>
             <p className="rounded-2xl bg-black/35 px-3 py-2 text-xs leading-relaxed text-white/78 backdrop-blur">
               {t("scanGuidance")}
             </p>
           </div>
         )}
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {detected && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              key={phase}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
               className="absolute inset-x-0 bottom-6 flex items-center justify-center gap-2 text-sm font-semibold text-neon"
             >
               <span className="h-2 w-2 animate-ping rounded-full bg-neon" aria-hidden />
-              {t("analyzing")}
+              {phaseText}
             </motion.div>
           )}
         </AnimatePresence>
@@ -331,6 +339,13 @@ export function ScanClient() {
 
 function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void }) {
   const t = useTranslations("scan");
+  const router = useRouter();
+  const fallbackStates = ["denied", "no-camera", "in-use", "unsupported", "error", "insecure"];
+  const focusManual = () => {
+    const el = document.getElementById("manual-barcode") as HTMLInputElement | null;
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    el?.focus({ preventScroll: true });
+  };
   if (!["insecure", "denied", "no-camera", "in-use", "unsupported", "error", "paused"].includes(state)) return null;
 
   const copy: Record<string, { title: string; body: string; icon: ReactNode; retry?: boolean }> = {
@@ -390,6 +405,16 @@ function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void
           <Button variant="neon" size="sm" onClick={retry}>
             <RotateCw className="h-4 w-4" aria-hidden /> {t("retry")}
           </Button>
+        )}
+        {fallbackStates.includes(state) && (
+          <div className="flex flex-wrap justify-center gap-2 pt-1">
+            <Button variant="soft" size="sm" onClick={() => router.push("/search")}>
+              <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
+            </Button>
+            <Button variant="soft" size="sm" onClick={focusManual}>
+              <Keyboard className="h-4 w-4" aria-hidden /> {t("enterBarcode")}
+            </Button>
+          </div>
         )}
       </div>
     </div>

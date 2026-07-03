@@ -178,7 +178,15 @@ export default function SearchPage() {
       )}
       {status === "ok" && visible.length > 0 && (
         <div className="space-y-2">
-          {visible.map(({ p, gree }) => <ProductResultCard key={p.barcode} product={p} gree={gree} />)}
+          {visible.map(({ p, gree }, i) => (
+            <ProductResultCard
+              key={p.barcode}
+              product={p}
+              gree={gree}
+              bestChoice={sort === "gree" && i === 0 && gree.global >= 65 && visible.length > 1}
+              betterAvailable={gree.global < 50 && visible.some((x) => x.gree.global >= 65)}
+            />
+          ))}
         </div>
       )}
     </div>

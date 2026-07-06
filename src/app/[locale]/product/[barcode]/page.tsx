@@ -71,7 +71,10 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
   const prefs = usePreferencesStore();
   const prefsRef = useRef(prefs);
-  prefsRef.current = prefs;
+  // Keep latest prefs without writing a ref during render (react-hooks/refs).
+  useEffect(() => {
+    prefsRef.current = prefs;
+  });
 
   const load = useCallback(async () => {
     setState("loading");
@@ -93,10 +96,11 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     } catch {
       setState("error");
     }
-  }, [barcode, addHistory]);
+  }, [barcode, addHistory, tScore]);
 
   useEffect(() => {
-    load();
+    const id = setTimeout(load, 0);
+    return () => clearTimeout(id);
   }, [load]);
 
   /* ----------------------------- loading ----------------------------- */

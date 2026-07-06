@@ -10,7 +10,14 @@ type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ out
 export function InstallPrompt({ variant = "card" }: { variant?: "card" | "button" }) {
   const t = useTranslations("pwa");
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+  // Read the standalone flag lazily during init instead of via setState-in-effect.
+  // Safe: the component always renders null on the first pass (deferred is null).
+  const [installed, setInstalled] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(display-mode: standalone)").matches
+  );
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
@@ -18,7 +25,6 @@ export function InstallPrompt({ variant = "card" }: { variant?: "card" | "button
     const onInstalled = () => { setInstalled(true); setDeferred(null); };
     window.addEventListener("beforeinstallprompt", onBIP);
     window.addEventListener("appinstalled", onInstalled);
-    if (window.matchMedia("(display-mode: standalone)").matches) setInstalled(true);
     return () => {
       window.removeEventListener("beforeinstallprompt", onBIP);
       window.removeEventListener("appinstalled", onInstalled);

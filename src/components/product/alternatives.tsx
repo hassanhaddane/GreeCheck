@@ -31,12 +31,16 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
 
   useEffect(() => {
     let alive = true;
-    setLoading(true);
-    getAlternatives(product, prefs)
-      .then((r) => alive && (setItems(r), setLoading(false)))
-      .catch(() => alive && (setItems([]), setLoading(false)));
+    // Defer state updates out of the synchronous effect body.
+    const timer = setTimeout(() => {
+      setLoading(true);
+      getAlternatives(product, prefs)
+        .then((r) => alive && (setItems(r), setLoading(false)))
+        .catch(() => alive && (setItems([]), setLoading(false)));
+    }, 0);
     return () => {
       alive = false;
+      clearTimeout(timer);
     };
   }, [product, prefs]);
 

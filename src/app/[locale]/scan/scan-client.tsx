@@ -116,7 +116,21 @@ export function ScanClient() {
     [flashNotice, resolveProduct, t]
   );
 
-  const scanner = useBarcodeScanner({ onDetect: handleDetect });
+  const {
+    videoRef,
+    state,
+    devices,
+    selectedDeviceId,
+    torchSupported,
+    torchOn,
+    zoomSupported,
+    zoom,
+    switchCamera,
+    toggleTorch,
+    setZoom,
+    retry,
+    stop
+  } = useBarcodeScanner({ onDetect: handleDetect });
 
   const manualCode = parseProductCode(manual);
   const manualValid = Boolean(manualCode);
@@ -125,7 +139,7 @@ export function ScanClient() {
       setLookup("unsupported");
       return;
     }
-    scanner.stop();
+    stop();
     void resolveProduct(manualCode);
   };
 
@@ -133,7 +147,7 @@ export function ScanClient() {
     setPhase("idle");
     setLookup("idle");
     setLastCode("");
-    scanner.retry();
+    retry();
   };
 
   const modes: { id: ScanMode; icon: typeof ScanLine }[] = [
@@ -156,7 +170,7 @@ export function ScanClient() {
     detected: t("analyzing")
   };
   const phaseText = phase === "detected" ? t("productDetected") : phase === "analyzing" ? t("analyzingNutrition") : "";
-  const liveStatus = detected ? phaseText : statusText[scanner.state];
+  const liveStatus = detected ? phaseText : statusText[state];
 
   return (
     <div className="mx-auto max-w-md space-y-5 pb-4">
@@ -171,8 +185,8 @@ export function ScanClient() {
 
       <Card className="relative aspect-[3/4] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
         <video
-          ref={scanner.videoRef}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${scanner.state === "active" ? "opacity-100" : "opacity-0"}`}
+          ref={videoRef}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${state === "active" ? "opacity-100" : "opacity-0"}`}
           muted
           playsInline
           autoPlay
@@ -180,9 +194,9 @@ export function ScanClient() {
         />
         <div className="absolute inset-0 bg-deep/30" aria-hidden />
 
-        {(scanner.state === "active" || scanner.state === "requesting") && <ScanOverlay mode={mode} detected={detected} />}
+        {(state === "active" || state === "requesting") && <ScanOverlay mode={mode} detected={detected} />}
 
-        {scanner.state === "active" && !detected && (
+        {state === "active" && !detected && (
           <div className="absolute inset-x-4 bottom-4 space-y-2 text-center text-white">
             <p className="text-sm font-semibold">{t("searchingCode")}</p>
             <p className="rounded-2xl bg-black/35 px-3 py-2 text-xs leading-relaxed text-white/78 backdrop-blur">
@@ -207,16 +221,16 @@ export function ScanClient() {
           )}
         </AnimatePresence>
 
-        {(scanner.state === "checking" || scanner.state === "requesting") && (
+        {(state === "checking" || state === "requesting") && (
           <div className="absolute inset-0 grid place-items-center text-white/75">
             <div className="flex flex-col items-center gap-2">
               <Camera className="h-6 w-6 animate-pulse" aria-hidden />
-              <span className="text-sm">{scanner.state === "checking" ? t("checkingEnvironment") : t("requesting")}</span>
+              <span className="text-sm">{state === "checking" ? t("checkingEnvironment") : t("requesting")}</span>
             </div>
           </div>
         )}
 
-        <CameraStatePanel state={scanner.state} retry={retryAll} />
+        <CameraStatePanel state={state} retry={retryAll} />
 
         <AnimatePresence>
           {notice && (
@@ -233,17 +247,17 @@ export function ScanClient() {
         </AnimatePresence>
       </Card>
 
-      {scanner.state === "active" && (
+      {state === "active" && (
         <ScannerControls
-          devices={scanner.devices}
-          selectedDeviceId={scanner.selectedDeviceId}
-          torchSupported={scanner.torchSupported}
-          torchOn={scanner.torchOn}
-          zoomSupported={scanner.zoomSupported}
-          zoom={scanner.zoom}
-          onSwitchCamera={scanner.switchCamera}
-          onToggleTorch={scanner.toggleTorch}
-          onZoom={scanner.setZoom}
+          devices={devices}
+          selectedDeviceId={selectedDeviceId}
+          torchSupported={torchSupported}
+          torchOn={torchOn}
+          zoomSupported={zoomSupported}
+          zoom={zoom}
+          onSwitchCamera={switchCamera}
+          onToggleTorch={toggleTorch}
+          onZoom={setZoom}
         />
       )}
 
@@ -317,7 +331,7 @@ export function ScanClient() {
         <button
           type="button"
           onClick={() => {
-            scanner.stop();
+            stop();
             router.push("/search");
           }}
           className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-1 text-sm font-medium text-natural focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60"

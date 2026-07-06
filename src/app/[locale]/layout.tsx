@@ -62,6 +62,13 @@ export default async function LocaleLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/*
+          App Router has no pages/_document. Inter is loaded here with preconnect
+          + display=swap. next/font is the usual alternative but requires build-time
+          network access to Google Fonts, which is not available in every build
+          environment; this <link> keeps the build hermetic.
+        */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
           rel="stylesheet"

@@ -96,10 +96,16 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
 
   useEffect(() => {
     clearTimeout(debounce.current);
-    if (q.trim().length < 2) { setItems([]); setStatus("idle"); return; }
-    setStatus("loading");
+    const query = q.trim();
+    // Defer all state updates into timers so none run synchronously in the
+    // effect body (react-hooks/set-state-in-effect).
+    if (query.length < 2) {
+      debounce.current = setTimeout(() => { setItems([]); setStatus("idle"); }, 0);
+      return () => clearTimeout(debounce.current);
+    }
     debounce.current = setTimeout(async () => {
-      try { const d = await searchProductsClient(q.trim()); setItems(d.products); setStatus("ok"); }
+      setStatus("loading");
+      try { const d = await searchProductsClient(query); setItems(d.products); setStatus("ok"); }
       catch { setItems([]); setStatus("ok"); }
     }, 400);
     return () => clearTimeout(debounce.current);
@@ -181,7 +187,7 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
   const [err, setErr] = useState<string | null>(null);
   const blockedStates: CamState[] = ["insecure", "denied", "no-camera", "in-use", "unsupported", "error"];
 
-  const scanner = useBarcodeScanner({
+  const { videoRef, state, devices, retry, switchCamera } = useBarcodeScanner({
     onDetect: (raw) => {
       const code = parseProductCode(raw);
       if (!code) {
@@ -204,29 +210,29 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
   return (
     <div className="space-y-3">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-deep-grad">
-        <video ref={scanner.videoRef} className={`absolute inset-0 h-full w-full object-cover ${scanner.state === "active" ? "opacity-100" : "opacity-0"}`} muted playsInline autoPlay aria-hidden />
-        {scanner.state === "active" && <div className="pointer-events-none absolute inset-8 rounded-2xl border-2 border-neon/60 shadow-glow" />}
-        {scanner.state === "active" && (
+        <video ref={videoRef} className={`absolute inset-0 h-full w-full object-cover ${state === "active" ? "opacity-100" : "opacity-0"}`} muted playsInline autoPlay aria-hidden />
+        {state === "active" && <div className="pointer-events-none absolute inset-8 rounded-2xl border-2 border-neon/60 shadow-glow" />}
+        {state === "active" && (
           <p className="absolute inset-x-4 bottom-4 rounded-2xl bg-black/45 px-3 py-2 text-center text-xs font-medium text-white/80 backdrop-blur">
             {scanT("scanGuidance")}
           </p>
         )}
-        {blockedStates.includes(scanner.state) && (
+        {blockedStates.includes(state) && (
           <div className="absolute inset-0 grid place-items-center p-4 text-center text-white/80">
             <div className="flex flex-col items-center gap-2">
               <CameraOff className="h-7 w-7" />
               <span className="text-sm">
-                {scanner.state === "insecure"
+                {state === "insecure"
                   ? scanT("httpsRequiredTitle")
-                  : scanner.state === "denied"
+                  : state === "denied"
                     ? scanT("cameraDenied")
-                    : scanner.state === "no-camera"
+                    : state === "no-camera"
                       ? scanT("noCameraFound")
-                      : scanner.state === "in-use"
+                      : state === "in-use"
                         ? scanT("cameraInUse")
                         : scanT("cameraUnsupported")}
               </span>
-              <Button variant="neon" size="sm" onClick={scanner.retry}>
+              <Button variant="neon" size="sm" onClick={retry}>
                 {scanT("retry")}
               </Button>
             </div>
@@ -234,8 +240,8 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
         )}
         {busy && <div className="absolute inset-0 grid place-items-center bg-deep/40"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>}
       </div>
-      {scanner.devices.length > 1 && (
-        <Button variant="soft" size="sm" className="w-full" onClick={() => scanner.switchCamera()}>
+      {devices.length > 1 && (
+        <Button variant="soft" size="sm" className="w-full" onClick={() => switchCamera()}>
           {scanT("switchCamera")}
         </Button>
       )}

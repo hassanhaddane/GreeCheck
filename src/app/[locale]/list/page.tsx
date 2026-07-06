@@ -51,10 +51,15 @@ export default function ListPage() {
   // inline product search
   useEffect(() => {
     clearTimeout(debounce.current);
-    if (q.trim().length < 2) { setResults([]); return; }
-    setSearching(true);
+    const query = q.trim();
+    // State updates run inside timers, never synchronously in the effect body.
+    if (query.length < 2) {
+      debounce.current = setTimeout(() => setResults([]), 0);
+      return () => clearTimeout(debounce.current);
+    }
     debounce.current = setTimeout(async () => {
-      try { const d = await searchProductsClient(q.trim()); setResults(d.products); }
+      setSearching(true);
+      try { const d = await searchProductsClient(query); setResults(d.products); }
       catch { setResults([]); }
       setSearching(false);
     }, 400);

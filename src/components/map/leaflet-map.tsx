@@ -28,6 +28,33 @@ export function LeafletMap({ center, places, userPoint, onSelect, onError }: {
   const layerRef = useRef<any>(null);
   const LRef = useRef<any>(null);
 
+  function renderMarkers() {
+    const L = LRef.current;
+    if (!L || !layerRef.current) return;
+    layerRef.current.clearLayers();
+
+    if (userPoint) {
+      const uIcon = L.divIcon({
+        className: "",
+        html: `<span style="display:block;width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid white;box-shadow:0 0 0 2px rgba(37,99,235,.4)"></span>`,
+        iconSize: [16, 16], iconAnchor: [8, 8]
+      });
+      L.marker([userPoint.lat, userPoint.lon], { icon: uIcon }).addTo(layerRef.current);
+    }
+
+    places.forEach((p) => {
+      const color = CAT_COLOR[p.category] ?? "#2ECC71";
+      const icon = L.divIcon({
+        className: "",
+        html: `<span style="display:block;width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></span>`,
+        iconSize: [24, 24], iconAnchor: [12, 24]
+      });
+      const m = L.marker([p.lat, p.lon], { icon }).addTo(layerRef.current);
+      m.bindPopup(`<strong>${esc(p.name)}</strong>${p.address ? `<br>${esc(p.address)}` : ""}`);
+      if (onSelect) m.on("click", () => onSelect(p.id));
+    });
+  }
+
   // Init once. Leaflet is loaded lazily; failures surface via onError (never crash the page).
   useEffect(() => {
     let cancelled = false;
@@ -73,40 +100,13 @@ export function LeafletMap({ center, places, userPoint, onSelect, onError }: {
     if (mapRef.current) {
       try { mapRef.current.setView([center.lat, center.lon], Math.max(13, mapRef.current.getZoom())); } catch { /* noop */ }
     }
-     
+
   }, [center.lat, center.lon]);
 
   useEffect(() => {
     renderMarkers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [places, userPoint]);
-
-  function renderMarkers() {
-    const L = LRef.current;
-    if (!L || !layerRef.current) return;
-    layerRef.current.clearLayers();
-
-    if (userPoint) {
-      const uIcon = L.divIcon({
-        className: "",
-        html: `<span style="display:block;width:16px;height:16px;border-radius:50%;background:#2563EB;border:3px solid white;box-shadow:0 0 0 2px rgba(37,99,235,.4)"></span>`,
-        iconSize: [16, 16], iconAnchor: [8, 8]
-      });
-      L.marker([userPoint.lat, userPoint.lon], { icon: uIcon }).addTo(layerRef.current);
-    }
-
-    places.forEach((p) => {
-      const color = CAT_COLOR[p.category] ?? "#2ECC71";
-      const icon = L.divIcon({
-        className: "",
-        html: `<span style="display:block;width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.3)"></span>`,
-        iconSize: [24, 24], iconAnchor: [12, 24]
-      });
-      const m = L.marker([p.lat, p.lon], { icon }).addTo(layerRef.current);
-      m.bindPopup(`<strong>${esc(p.name)}</strong>${p.address ? `<br>${esc(p.address)}` : ""}`);
-      if (onSelect) m.on("click", () => onSelect(p.id));
-    });
-  }
 
   return <div ref={elRef} className="h-full w-full" aria-label="map" role="application" />;
 }

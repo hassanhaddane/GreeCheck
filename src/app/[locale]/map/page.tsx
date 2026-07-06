@@ -76,15 +76,21 @@ export default function MapPage() {
 
   // Reload only when the CENTER changes — never on filter toggles.
   useEffect(() => {
-    loadPlaces(center);
+    // Defer so loadPlaces' initial setState isn't synchronous in the effect body.
+    const id = setTimeout(() => loadPlaces(center), 0);
+    return () => clearTimeout(id);
   }, [center, loadPlaces]);
 
   // Long-debounced (800ms) suggestions; a submit triggers the search instantly.
   useEffect(() => {
     clearTimeout(searchDebounce.current);
-    if (query.trim().length < 2) { setSuggestions([]); return; }
+    const q = query.trim();
+    if (q.length < 2) {
+      searchDebounce.current = setTimeout(() => setSuggestions([]), 0);
+      return () => clearTimeout(searchDebounce.current);
+    }
     searchDebounce.current = setTimeout(async () => {
-      setSuggestions(await geocodeFrance(query.trim()));
+      setSuggestions(await geocodeFrance(q));
     }, 800);
     return () => clearTimeout(searchDebounce.current);
   }, [query]);

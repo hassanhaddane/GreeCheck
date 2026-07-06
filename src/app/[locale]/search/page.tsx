@@ -43,15 +43,20 @@ export default function SearchPage() {
   // 600ms debounce: never a request per keystroke, kind to the OFF rate limits.
   useEffect(() => {
     clearTimeout(debounce.current);
-    if (query.trim().length < 2) {
-      setStatus("idle");
-      setResults([]);
-      return;
+    const q = query.trim();
+    // State updates run inside timers (never synchronously in the effect body)
+    // to avoid react-hooks/set-state-in-effect cascades.
+    if (q.length < 2) {
+      debounce.current = setTimeout(() => {
+        setStatus("idle");
+        setResults([]);
+      }, 0);
+      return () => clearTimeout(debounce.current);
     }
-    setStatus("loading");
     debounce.current = setTimeout(async () => {
+      setStatus("loading");
       try {
-        const data = await searchProductsClient(query.trim());
+        const data = await searchProductsClient(q);
         setResults(data.products);
         setStatus("ok");
       } catch {

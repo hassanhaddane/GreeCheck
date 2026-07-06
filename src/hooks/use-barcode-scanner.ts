@@ -177,9 +177,18 @@ export function useBarcodeScanner({ onDetect }: Options) {
   const selectedDeviceRef = useRef<string | undefined>(undefined);
 
   const onDetectRef = useRef(onDetect);
-  onDetectRef.current = onDetect;
+  // Keep the latest callback without writing a ref during render (react-hooks/refs).
+  useEffect(() => {
+    onDetectRef.current = onDetect;
+  });
 
-  const env = useMemo(environment, []);
+  // Stable callback ref: exposes the <video> element to the hook without
+  // returning a mutable ref object (which would trip react-hooks/refs in consumers).
+  const setVideoEl = useCallback((el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+  }, []);
+
+  const env = useMemo(() => environment(), []);
   const [state, setState] = useState<CamState>("idle");
   const [permission, setPermission] = useState<CameraPermissionState>("unknown");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -410,9 +419,12 @@ export function useBarcodeScanner({ onDetect }: Options) {
 
   useEffect(() => {
     mountedRef.current = true;
-    start();
+    // Defer to a macrotask so the initial setState in start() doesn't run
+    // synchronously inside the effect body (react-hooks/set-state-in-effect).
+    const startTimer = setTimeout(() => start(), 0);
     return () => {
       mountedRef.current = false;
+      clearTimeout(startTimer);
       stopStream();
     };
   }, [start, stopStream]);
@@ -439,7 +451,7 @@ export function useBarcodeScanner({ onDetect }: Options) {
   }, [start, stopStream]);
 
   return {
-    videoRef,
+    videoRef: setVideoEl,
     state,
     env,
     permission,

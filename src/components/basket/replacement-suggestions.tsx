@@ -38,45 +38,48 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
   useEffect(() => {
     let alive = true;
 
-    if (!candidates.length) {
-      setSuggestions([]);
-      return () => {
-        alive = false;
-      };
-    }
+    // Run all state updates inside a timer so nothing executes synchronously in
+    // the effect body (react-hooks/set-state-in-effect).
+    const timer = setTimeout(() => {
+      if (!candidates.length) {
+        setSuggestions([]);
+        return;
+      }
 
-    setSuggestions(candidates.map((candidate) => ({ candidate, status: "loading" })));
+      setSuggestions(candidates.map((candidate) => ({ candidate, status: "loading" })));
 
-    Promise.all(
-      candidates.map(async (candidate): Promise<Suggestion> => {
-        try {
-          const alternatives = await getAlternatives(candidate.product, prefs);
-          const alternative = alternatives[0];
-          if (!alternative) return { candidate, status: "empty" };
+      Promise.all(
+        candidates.map(async (candidate): Promise<Suggestion> => {
+          try {
+            const alternatives = await getAlternatives(candidate.product, prefs);
+            const alternative = alternatives[0];
+            if (!alternative) return { candidate, status: "empty" };
 
-          const replacedProducts = products.map((product) =>
-            product.barcode === candidate.product.barcode ? alternative.product : product
-          );
-          const nextScore = computeBasketScore(
-            replacedProducts.map((product) => ({ product })),
-            prefs
-          ).global;
-          return {
-            candidate,
-            status: "ok",
-            alternative,
-            expectedGain: Math.max(0, nextScore - result.global)
-          };
-        } catch {
-          return { candidate, status: "error" };
-        }
-      })
-    ).then((next) => {
-      if (alive) setSuggestions(next);
-    });
+            const replacedProducts = products.map((product) =>
+              product.barcode === candidate.product.barcode ? alternative.product : product
+            );
+            const nextScore = computeBasketScore(
+              replacedProducts.map((product) => ({ product })),
+              prefs
+            ).global;
+            return {
+              candidate,
+              status: "ok",
+              alternative,
+              expectedGain: Math.max(0, nextScore - result.global)
+            };
+          } catch {
+            return { candidate, status: "error" };
+          }
+        })
+      ).then((next) => {
+        if (alive) setSuggestions(next);
+      });
+    }, 0);
 
     return () => {
       alive = false;
+      clearTimeout(timer);
     };
   }, [candidateKey, productKey, result.global, prefs, candidates, products]);
 
@@ -132,7 +135,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                     <div className="flex items-center gap-3">
                       <div className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface">
                         {alternative.product.imageUrl ? (
-                           
+
                           <img
                             src={alternative.product.imageUrl}
                             alt={alternative.product.name}

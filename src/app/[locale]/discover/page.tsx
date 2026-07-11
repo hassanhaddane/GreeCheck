@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
 import { PageHeading } from "@/components/app/page-heading";
-import { Card } from "@/components/ui/card";
+import { GreeCard } from "@/components/system/gree-card";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -23,7 +23,7 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeading title={t("title")} />
       <p className="flex items-start gap-2 px-1 text-sm leading-relaxed text-muted">
-        <Compass className="mt-0.5 h-4 w-4 shrink-0 text-natural" aria-hidden />
+        <Compass className="mt-0.5 h-4 w-4 shrink-0 text-natural-strong" aria-hidden />
         {t("intro")}
       </p>
 
@@ -32,23 +32,23 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
         <div className="grid grid-cols-2 gap-3">
           {CATEGORY_KEYS.map((key) => (
             <Link key={key} href={`/search?q=${encodeURIComponent(t(`categories.${key}`))}`} className="block">
-              <Card className="gc-pressable flex items-center justify-between p-4">
+              <GreeCard className="gc-pressable flex items-center justify-between p-4">
                 <span className="text-sm font-semibold">{t(`categories.${key}`)}</span>
                 <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" aria-hidden />
-              </Card>
+              </GreeCard>
             </Link>
           ))}
         </div>
       </section>
 
       <Link href="/methodology" className="block">
-        <Card className="gc-pressable flex items-center gap-3 p-4">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-natural/10 text-natural">
+        <GreeCard className="gc-pressable flex items-center gap-3 p-4">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-natural/10 text-natural-strong">
             <BookOpenText className="h-5 w-5" aria-hidden />
           </span>
           <span className="flex-1 text-sm font-semibold">{t("methodologyCta")}</span>
           <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" aria-hidden />
-        </Card>
+        </GreeCard>
       </Link>
     </div>
   );

@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Search as SearchIcon, SlidersHorizontal, X, RotateCcw, ArrowDownWideNarrow } from "lucide-react";
 import { PageHeading } from "@/components/app/page-heading";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
-import { ProductRowSkeleton } from "@/components/ui/skeleton";
+import { GreeButton } from "@/components/system/gree-button";
+import { EmptyState } from "@/components/system/empty-state";
+import { ErrorState } from "@/components/system/error-state";
+import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { FilterPanel } from "@/components/search/filter-panel";
 import { ProductResultCard } from "@/components/search/product-result-card";
 import { FILTER_DEFS } from "@/lib/filters/definitions";
@@ -129,10 +129,10 @@ export function SearchClient() {
 
       {/* Toolbar: filters toggle + sort */}
       <div className="flex items-center gap-2">
-        <Button variant={panelOpen || activeCount ? "primary" : "soft"} size="sm" onClick={() => setPanelOpen((o) => !o)}>
+        <GreeButton variant={panelOpen || activeCount ? "primary" : "soft"} size="sm" onClick={() => setPanelOpen((o) => !o)}>
           <SlidersHorizontal className="h-4 w-4" /> {t("filters")}
           {activeCount > 0 && <span className="ms-1 rounded-full bg-white/25 px-1.5 text-xs">{activeCount}</span>}
-        </Button>
+        </GreeButton>
         <div className="ms-auto flex items-center gap-1 rounded-2xl border border-line bg-surface p-1">
           <ArrowDownWideNarrow className="ms-1 h-4 w-4 text-muted" aria-hidden />
           {sorts.map((s) => (
@@ -177,7 +177,7 @@ export function SearchClient() {
           icon={SlidersHorizontal}
           title={t("emptyTitle")}
           description={t("emptyBody")}
-          action={activeCount ? <Button variant="soft" size="sm" onClick={resetAll}><RotateCcw className="h-4 w-4" /> {t("reset")}</Button> : undefined}
+          action={activeCount ? <GreeButton variant="soft" size="sm" onClick={resetAll}><RotateCcw className="h-4 w-4" /> {t("reset")}</GreeButton> : undefined}
         />
       )}
       {status === "ok" && visible.length > 0 && (

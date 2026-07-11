@@ -72,11 +72,11 @@ export function ComparisonTable({ entries }: { entries: BattleEntry[] }) {
                     className={cn(
                       "flex items-center justify-center px-2 py-2 text-center text-xs tabular-nums",
                       ri % 2 && "bg-surface-2/40",
-                      (isBest || boolBest) && "rounded-lg bg-natural/10 font-bold text-natural"
+                      (isBest || boolBest) && "rounded-lg bg-natural/10 font-bold text-natural-strong"
                     )}
                   >
                     {row.dir === "bool"
-                      ? (v ? <Check className="h-4 w-4 text-natural" /> : <Minus className="h-3.5 w-3.5 text-muted/50" />)
+                      ? (v ? <Check className="h-4 w-4 text-natural-strong" /> : <Minus className="h-3.5 w-3.5 text-muted/50" />)
                       : v === null
                         ? <span className="text-muted/50">—</span>
                         : row.fmt ? row.fmt(v as number) : String(v)}

@@ -8,13 +8,14 @@ import {
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/app/logo";
 import { InstallPrompt } from "@/components/app/install-prompt";
-import { Button } from "@/components/ui/button";
-import { PremiumCard } from "@/components/ui/premium-card";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreeCard } from "@/components/system/gree-card";
 import { PrivacyPill } from "@/components/ui/privacy-pill";
 import { SectionTitle } from "@/components/ui/section-title";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ProductRowSkeleton } from "@/components/ui/skeleton";
-import { ScoreRing } from "@/components/score/score-ring";
+import { EmptyState } from "@/components/system/empty-state";
+import { ProductRowSkeleton } from "@/components/system/loading-state";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { GOALS, GOAL_LABELS } from "@/domains/criteria/goals";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { usePreferencesStore } from "@/domains/criteria/store";
@@ -63,9 +64,9 @@ export default function HomePage() {
       {/* ── GreeLens scan hero — the dominant action ── */}
       <motion.div {...fade(1)}>
         <Link href="/scan" className="block">
-          <PremiumCard variant="deep" interactive glow className="gc-shine p-6">
+          <GreeCard variant="deep" interactive glow className="gc-shine p-6">
             <div className="relative flex items-center gap-5">
-              <span className="relative grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-neon-grad shadow-glow">
+              <span className="relative grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-natural-grad shadow-raised">
                 <span aria-hidden className="absolute inset-0 animate-radar-sweep rounded-2xl bg-[conic-gradient(from_0deg,transparent_75%,rgba(255,255,255,0.35))]" />
                 <ScanLine className="h-8 w-8 text-deep" strokeWidth={2.4} />
               </span>
@@ -80,26 +81,26 @@ export default function HomePage() {
               </div>
               <ArrowRight className="h-5 w-5 shrink-0 text-neon rtl:rotate-180" />
             </div>
-          </PremiumCard>
+          </GreeCard>
         </Link>
       </motion.div>
 
       {/* ── Scan Battle — star feature ── */}
       <motion.div {...fade(2)}>
         <Link href="/battle" className="block">
-          <PremiumCard variant="tinted" interactive className="flex items-center gap-4 p-4">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-neon-grad text-deep shadow-glow">
+          <GreeCard variant="tinted" interactive className="flex items-center gap-4 p-4">
+            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-natural-grad text-white shadow-raised">
               <Swords className="h-6 w-6" strokeWidth={2.2} />
             </span>
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 text-sm font-bold">
                 {tb("title")}
-                <Sparkles className="h-3.5 w-3.5 text-natural" aria-hidden />
+                <Sparkles className="h-3.5 w-3.5 text-natural-strong" aria-hidden />
               </p>
               <p className="mt-0.5 line-clamp-2 text-xs text-muted">{tb("subtitle")}</p>
             </div>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted rtl:rotate-180" />
-          </PremiumCard>
+          </GreeCard>
         </Link>
       </motion.div>
 
@@ -112,15 +113,15 @@ export default function HomePage() {
             return (
               <motion.div key={a.key} {...fade(2 + i)}>
                 <Link href={a.href} className="block h-full">
-                  <PremiumCard interactive className="flex h-full flex-col gap-3 p-4">
-                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-natural/10 text-natural">
+                  <GreeCard interactive className="flex h-full flex-col gap-3 p-4">
+                    <span className="grid h-11 w-11 place-items-center rounded-2xl bg-natural/10 text-natural-strong">
                       <Icon className="h-5 w-5" strokeWidth={2.2} />
                     </span>
                     <div>
                       <p className="text-sm font-semibold leading-tight">{tn(a.key)}</p>
                       <p className="mt-0.5 text-[0.7rem] leading-tight text-muted">{a.hint}</p>
                     </div>
-                  </PremiumCard>
+                  </GreeCard>
                 </Link>
               </motion.div>
             );
@@ -131,7 +132,7 @@ export default function HomePage() {
       {/* ── Current mode (local goals) ── */}
       <motion.section {...fade(5)}>
         <SectionTitle>{t("modeTitle")}</SectionTitle>
-        <PremiumCard variant="glass" className="p-4">
+        <GreeCard variant="glass" className="p-4">
           {!mounted ? (
             <ProductRowSkeleton />
           ) : goals.length === 0 ? (
@@ -141,7 +142,7 @@ export default function HomePage() {
               </span>
               <p className="flex-1 text-sm text-muted">{t("noGoals")}</p>
               <Link href="/criteria">
-                <Button variant="soft" size="sm">{t("setGoals")}</Button>
+                <GreeButton variant="soft" size="sm">{t("setGoals")}</GreeButton>
               </Link>
             </div>
           ) : (
@@ -156,12 +157,12 @@ export default function HomePage() {
                   );
                 })}
               </div>
-              <Link href="/criteria" className="flex items-center gap-1 text-xs font-medium text-natural">
+              <Link href="/criteria" className="flex items-center gap-1 text-xs font-medium text-natural-strong">
                 <Target className="h-3.5 w-3.5" /> {tCriteria("title")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
               </Link>
             </div>
           )}
-        </PremiumCard>
+        </GreeCard>
       </motion.section>
 
       {/* ── Recent choices ── */}
@@ -169,7 +170,7 @@ export default function HomePage() {
         <div className="mb-3 flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("recent")}</h2>
           {mounted && entries.length > 0 && (
-            <Link href="/history" className="flex items-center gap-0.5 text-xs font-medium text-natural">
+            <Link href="/history" className="flex items-center gap-0.5 text-xs font-medium text-natural-strong">
               <History className="h-3.5 w-3.5" /> {t("seeAll")}
             </Link>
           )}
@@ -184,24 +185,21 @@ export default function HomePage() {
           <EmptyState
             icon={ScanLine}
             title={t("emptyRecent")}
-            action={<Link href="/scan"><Button variant="neon" size="sm">{t("scanCta")}</Button></Link>}
+            action={<Link href="/scan"><GreeButton variant="neon" size="sm">{t("scanCta")}</GreeButton></Link>}
           />
         ) : (
           <div className="space-y-2">
             {entries.slice(0, 5).map((e) => (
               <Link key={e.barcode} href={`/product/${e.barcode}`} className="block">
-                <PremiumCard interactive className="flex items-center gap-3 p-3">
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                    { }
-                    {e.imageUrl ? <img src={e.imageUrl} alt="" className="h-full w-full object-contain" loading="lazy" /> : null}
-                  </div>
+                <GreeCard interactive className="flex items-center gap-3 p-3">
+                  <ProductThumbnail src={e.imageUrl} size="md" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{e.name}</p>
                     <p className="truncate text-xs text-muted">{e.verdict}</p>
                   </div>
-                  <ScoreRing value={e.score} size={46} label="" />
+                  <GreeScoreRing value={e.score} size={46} label="" />
                   <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" />
-                </PremiumCard>
+                </GreeCard>
               </Link>
             ))}
           </div>

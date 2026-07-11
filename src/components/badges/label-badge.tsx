@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 type LabelKind = "bio" | "halal" | "vegan" | "vegetarian" | "gluten_free";
 
 const MAP: Record<LabelKind, { icon: typeof Leaf; label: string; tone: string }> = {
-  bio: { icon: Leaf, label: "Bio", tone: "text-natural bg-natural/10 border-natural/25" },
+  bio: { icon: Leaf, label: "Bio", tone: "text-natural-strong bg-natural/10 border-natural/25" },
   halal: { icon: BadgeCheck, label: "Halal", tone: "text-emerald-600 bg-emerald-500/10 border-emerald-500/25" },
   vegan: { icon: Sprout, label: "Vegan", tone: "text-teal-600 bg-teal-500/10 border-teal-500/25" },
   vegetarian: { icon: Salad, label: "Végé", tone: "text-lime-600 bg-lime-500/10 border-lime-500/25" },

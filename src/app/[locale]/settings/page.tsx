@@ -5,10 +5,10 @@ import { Globe, Sun, Moon, Monitor, Target, Trash2, Shield, History, Heart, Shop
 import { useRouter, usePathname, Link, locales, localeMeta, type Locale } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
 import { InstallPrompt } from "@/components/app/install-prompt";
-import { Card, CardContent } from "@/components/ui/card";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { Chip } from "@/components/ui/chip";
-import { Button } from "@/components/ui/button";
+import { GreeButton } from "@/components/system/gree-button";
 import { useTheme } from "@/components/app/theme-provider";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
@@ -31,7 +31,7 @@ function ConfirmButton({ label, icon, onConfirm, className }: { label: string; i
   return (
     <button
       onClick={click}
-      className={cn("gc-pressable flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition", armed ? "bg-score-e text-white" : "bg-surface-2 text-score-e", className)}
+      className={cn("gc-pressable flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition", armed ? "bg-score-e text-white" : "bg-surface-2 text-score-e-ink", className)}
     >
       {armed ? <Check className="h-3.5 w-3.5" /> : icon}
       {armed ? t("confirm") : label}
@@ -108,10 +108,10 @@ export default function SettingsPage() {
       <section>
         <SectionTitle><Target className="me-1 inline h-4 w-4" />{t("criteriaTitle")}</SectionTitle>
         <Link href="/criteria" className="block">
-          <Card className="gc-pressable flex items-center gap-3 p-4">
+          <GreeCard className="gc-pressable flex items-center gap-3 p-4">
             <p className="flex-1 text-sm text-muted">{t("criteriaHint")}</p>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted rtl:rotate-180" aria-hidden />
-          </Card>
+          </GreeCard>
         </Link>
       </section>
 
@@ -120,17 +120,17 @@ export default function SettingsPage() {
         <SectionTitle><Shield className="me-1 inline h-4 w-4" />{t("storage")}</SectionTitle>
 
         {/* On-device message */}
-        <Card className="border-natural/30 bg-natural/5">
-          <CardContent className="flex items-start gap-3">
-            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-natural" />
+        <GreeCard className="border-natural/30 bg-natural/5">
+          <GreeCardContent className="flex items-start gap-3">
+            <Shield className="mt-0.5 h-5 w-5 shrink-0 text-natural-strong" />
             <p className="flex-1 text-sm leading-relaxed">{t("onDevice")}</p>
-            <Link href="/privacy"><Button variant="ghost" size="sm">→</Button></Link>
-          </CardContent>
-        </Card>
+            <Link href="/privacy"><GreeButton variant="ghost" size="sm">→</GreeButton></Link>
+          </GreeCardContent>
+        </GreeCard>
 
         {/* Per-store controls */}
-        <Card className="mt-3">
-          <CardContent className="divide-y divide-line p-0">
+        <GreeCard className="mt-3">
+          <GreeCardContent className="divide-y divide-line p-0">
             {rows.map((r) => {
               const Icon = r.icon;
               return (
@@ -146,20 +146,20 @@ export default function SettingsPage() {
                 </div>
               );
             })}
-          </CardContent>
-        </Card>
+          </GreeCardContent>
+        </GreeCard>
 
         {/* Full reset */}
-        <Card className="mt-3 border-score-e/25 bg-score-e/5">
-          <CardContent className="flex items-center gap-3">
-            <RotateCcw className="h-5 w-5 shrink-0 text-score-e" />
+        <GreeCard className="mt-3 border-score-e/25 bg-score-e/5">
+          <GreeCardContent className="flex items-center gap-3">
+            <RotateCcw className="h-5 w-5 shrink-0 text-score-e-ink" />
             <div className="flex-1">
               <p className="text-sm font-semibold">{t("resetApp")}</p>
               <p className="text-xs text-muted">{t("resetHint")}</p>
             </div>
             <ConfirmButton label={t("resetApp")} icon={<RotateCcw className="h-3.5 w-3.5" />} onConfirm={doReset} className="bg-score-e/15" />
-          </CardContent>
-        </Card>
+          </GreeCardContent>
+        </GreeCard>
       </section>
 
 

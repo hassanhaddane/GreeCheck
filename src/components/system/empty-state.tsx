@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { GreeIcon } from "./gree-icon";
 import { cn } from "@/lib/utils/cn";
 
 interface EmptyStateProps {
@@ -9,15 +10,14 @@ interface EmptyStateProps {
   className?: string;
 }
 
-export function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
+/** Calm empty state: quiet brand tile, one clear next step. Never an error look. */
+export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
   return (
     <div className={cn("gc-card flex flex-col items-center gap-3 px-6 py-12 text-center", className)}>
-      <span className="grid h-16 w-16 place-items-center rounded-3xl bg-surface-2 text-natural">
-        <Icon className="h-7 w-7" strokeWidth={2} />
-      </span>
+      <GreeIcon icon={icon} tone="brand" size="lg" className="h-16 w-16 rounded-3xl" />
       <div className="space-y-1">
-        <p className="font-semibold">{title}</p>
-        {description && <p className="mx-auto max-w-xs text-sm text-muted">{description}</p>}
+        <p className="gc-heading">{title}</p>
+        {description && <p className="gc-body mx-auto max-w-xs text-muted">{description}</p>}
       </div>
       {action && <div className="mt-1">{action}</div>}
     </div>

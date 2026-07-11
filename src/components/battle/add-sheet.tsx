@@ -2,9 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, Loader2, CameraOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProductRowSkeleton } from "@/components/ui/skeleton";
+import { ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, Loader2, CameraOff } from "lucide-react";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
+import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { parseProductCode } from "@/lib/utils/parse-scan";
@@ -40,20 +41,7 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="relative z-10 w-full max-w-md gc-glass max-h-[88vh] overflow-y-auto rounded-t-3xl p-5 shadow-glass sm:rounded-3xl"
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold tracking-tight">{t("addProduct")}</h2>
-          <button onClick={onClose} aria-label="close" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 text-muted gc-pressable">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
+    <GreeBottomSheet open onClose={onClose} title={t("addProduct")}>
         {/* mode tabs */}
         <div className="mb-4 grid grid-cols-3 gap-2">
           {modes.map((m) => {
@@ -71,7 +59,7 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
           {notice && (
             <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               role="status"
-              className={`mb-3 rounded-xl px-3 py-2 text-center text-sm font-medium ${notice.kind === "ok" ? "bg-natural/10 text-natural" : "bg-score-d/10 text-score-d"}`}>
+              className={`mb-3 rounded-xl px-3 py-2 text-center text-sm font-medium ${notice.kind === "ok" ? "bg-natural/10 text-natural-strong" : "bg-score-d/10 text-score-d-ink"}`}>
               {notice.kind === "ok" ? `✓ ${notice.text}` : notice.text}
             </motion.p>
           )}
@@ -80,8 +68,7 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
         {mode === "search" && <SearchTab onAdd={addProduct} />}
         {mode === "manual" && <ManualTab onResolve={(r, n) => handleResult(r, n)} add={add} />}
         {mode === "scan" && <ScanTab onResolve={(r, n) => handleResult(r, n)} add={add} />}
-      </motion.div>
-    </div>
+    </GreeBottomSheet>
   );
 }
 
@@ -135,9 +122,9 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
                   <span className="truncate text-xs text-muted">{p.brand || "—"}</span>
                 </div>
               </div>
-              <Button size="icon" variant={inBattle ? "soft" : "neon"} aria-label="add" onClick={() => onAdd(p)} disabled={inBattle}>
+              <GreeButton size="icon" variant={inBattle ? "soft" : "neon"} aria-label="add" onClick={() => onAdd(p)} disabled={inBattle}>
                 {inBattle ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              </Button>
+              </GreeButton>
             </div>
           );
         })}
@@ -170,11 +157,11 @@ function ManualTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) =
       <div className="flex gap-2">
         <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 14))} onKeyDown={(e) => e.key === "Enter" && submit()}
           inputMode="numeric" placeholder={t("manualPlaceholder")} className="h-11 flex-1 rounded-2xl border border-line bg-surface px-4 text-sm outline-none focus:ring-2 focus:ring-neon/50" />
-        <Button variant="neon" size="icon" disabled={code.replace(/\D/g, "").length < 8 || busy} onClick={submit} aria-label={t("add")}>
+        <GreeButton variant="neon" size="icon" disabled={code.replace(/\D/g, "").length < 8 || busy} onClick={submit} aria-label={t("add")}>
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5 rtl:rotate-180" />}
-        </Button>
+        </GreeButton>
       </div>
-      {err && <p className="text-center text-sm font-medium text-score-d">{err}</p>}
+      {err && <p className="text-center text-sm font-medium text-score-d-ink">{err}</p>}
     </div>
   );
 }
@@ -232,20 +219,20 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
                         ? scanT("cameraInUse")
                         : scanT("cameraUnsupported")}
               </span>
-              <Button variant="neon" size="sm" onClick={retry}>
+              <GreeButton variant="neon" size="sm" onClick={retry}>
                 {scanT("retry")}
-              </Button>
+              </GreeButton>
             </div>
           </div>
         )}
         {busy && <div className="absolute inset-0 grid place-items-center bg-deep/40"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>}
       </div>
       {devices.length > 1 && (
-        <Button variant="soft" size="sm" className="w-full" onClick={() => switchCamera()}>
+        <GreeButton variant="soft" size="sm" className="w-full" onClick={() => switchCamera()}>
           {scanT("switchCamera")}
-        </Button>
+        </GreeButton>
       )}
-      {err && <p className="text-center text-sm font-medium text-score-d">{err}</p>}
+      {err && <p className="text-center text-sm font-medium text-score-d-ink">{err}</p>}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { Calculator, ShieldQuestion, Scale, Database, Lock, ExternalLink } from 
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
 import { PageHeading } from "@/components/app/page-heading";
-import { Card, CardContent } from "@/components/ui/card";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -25,10 +25,10 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
       <p className="px-1 text-sm leading-relaxed text-muted">{t("intro")}</p>
 
       {/* Score composition */}
-      <Card>
-        <CardContent className="space-y-3">
+      <GreeCard>
+        <GreeCardContent className="space-y-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Calculator className="h-4 w-4 text-natural" aria-hidden /> {t("scoreTitle")}
+            <Calculator className="h-4 w-4 text-natural-strong" aria-hidden /> {t("scoreTitle")}
           </h2>
           <p className="text-sm leading-relaxed text-muted">{t("scoreBody")}</p>
           <ul className="space-y-2">
@@ -39,14 +39,14 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
               </li>
             ))}
           </ul>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* Fairness rules */}
-      <Card>
-        <CardContent className="space-y-3">
+      <GreeCard>
+        <GreeCardContent className="space-y-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Scale className="h-4 w-4 text-natural" aria-hidden /> {t("rulesTitle")}
+            <Scale className="h-4 w-4 text-natural-strong" aria-hidden /> {t("rulesTitle")}
           </h2>
           <ul className="space-y-2">
             {RULE_KEYS.map((key) => (
@@ -56,44 +56,44 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
               </li>
             ))}
           </ul>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* Confidence */}
-      <Card>
-        <CardContent className="space-y-2">
+      <GreeCard>
+        <GreeCardContent className="space-y-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <ShieldQuestion className="h-4 w-4 text-natural" aria-hidden /> {t("confidenceTitle")}
+            <ShieldQuestion className="h-4 w-4 text-natural-strong" aria-hidden /> {t("confidenceTitle")}
           </h2>
           <p className="text-sm leading-relaxed text-muted">{t("confidenceBody")}</p>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* Sources */}
-      <Card>
-        <CardContent className="space-y-2">
+      <GreeCard>
+        <GreeCardContent className="space-y-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Database className="h-4 w-4 text-natural" aria-hidden /> {t("sourcesTitle")}
+            <Database className="h-4 w-4 text-natural-strong" aria-hidden /> {t("sourcesTitle")}
           </h2>
           <p className="text-sm leading-relaxed text-muted">{t("sourcesBody")}</p>
           <a
             href="https://world.openfoodfacts.org"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-natural underline underline-offset-2"
+            className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline underline-offset-2"
           >
             Open Food Facts <ExternalLink className="h-3.5 w-3.5" aria-hidden />
           </a>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* Privacy note */}
-      <Card className="border-natural/25 bg-natural/5">
-        <CardContent className="flex items-start gap-3">
-          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-natural" aria-hidden />
+      <GreeCard className="border-natural/25 bg-natural/5">
+        <GreeCardContent className="flex items-start gap-3">
+          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-natural-strong" aria-hidden />
           <p className="text-sm leading-relaxed">{t("privacyBody")}</p>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
     </div>
   );
 }

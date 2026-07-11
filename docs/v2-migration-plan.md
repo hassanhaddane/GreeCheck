@@ -2,6 +2,21 @@
 
 Ordered so the app **builds and works after every phase**, no two concurrent implementations, V1 code deleted as soon as its replacement lands.
 
+## Execution-prompt mapping (authoritative)
+
+The numbered phases below are INTERNAL work packages, not the client's prompt
+numbers. Actual mapping so far:
+
+| Execution prompt | Internal work packages | Status |
+|---|---|---|
+| Prompt 01 | Phase 0 — audit + architecture docs | ✅ |
+| Prompt 02 (+validation) | Phases 1–2 — purge, domains, storage, routes, PWA start | ✅ |
+| Prompt 03 (+validation) | Design system & living brand (tokens, system primitives, GreePulse) | ✅ |
+| Prompt 04 (next) | **Adaptive marketing site, app entry & navigation** | ⏳ |
+| Later prompts | Scoring V2 + Trust Halo · product page (GreeDNA) · GreeLens · GreeSwap · library · Battle/GreeCart V2 · criteria · SEO/i18n finalization | planned |
+
+Do not pre-implement a later prompt's scope inside an earlier one.
+
 ## Phase 0 — Architectural preparation ✅ (this phase)
 - Forensic audit + these 5 docs.
 - Remove confirmed dead code (`lib/constants/filters.ts`).

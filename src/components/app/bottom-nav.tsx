@@ -26,9 +26,9 @@ export function BottomNav() {
                 key={item.key}
                 href={item.href}
                 aria-label={t(item.key)}
-                className="gc-pressable gc-pulse-ring relative -mt-8 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-neon-grad shadow-glow ring-4 ring-bg"
+                className="gc-pressable gc-pulse-ring relative -mt-8 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-natural-grad shadow-raised ring-4 ring-bg"
               >
-                <Icon className="h-7 w-7 text-deep" strokeWidth={2.4} />
+                <Icon className="h-7 w-7 text-white" strokeWidth={2.4} />
               </Link>
             );
           }
@@ -39,7 +39,7 @@ export function BottomNav() {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "gc-pressable relative flex flex-1 flex-col items-center gap-1 rounded-2xl py-2 text-[0.65rem] font-medium",
-                active ? "text-deep dark:text-neon" : "text-muted"
+                active ? "text-deep dark:text-natural-strong" : "text-muted"
               )}
             >
               {active && (

@@ -1,13 +1,12 @@
 "use client";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Plus, Swords, ScanLine, Search, Trash2, RotateCcw, ShoppingBasket, Trophy, ShieldQuestion, Sparkles, Repeat, Target } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
-import { Card, CardContent } from "@/components/ui/card";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
+import { GreeButton } from "@/components/system/gree-button";
+import { EmptyState } from "@/components/system/empty-state";
 import { BattleCard } from "@/components/battle/battle-card";
 import { ComparisonTable } from "@/components/battle/comparison-table";
 import { AxisBars } from "@/components/battle/axis-bars";
@@ -77,7 +76,7 @@ export default function BattlePage() {
     <div className="mx-auto max-w-2xl space-y-6 pb-6">
       {/* Hero */}
       <div className="flex flex-col items-center gap-2 pt-2 text-center">
-        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-neon-grad text-deep shadow-glow">
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-natural-grad text-white shadow-raised">
           <Swords className="h-5 w-5" />
         </span>
         <h1 className="text-2xl font-extrabold tracking-tight gc-gradient-text">{t("title")}</h1>
@@ -91,8 +90,8 @@ export default function BattlePage() {
           description={t("emptyBody")}
           action={
             <div className="flex gap-2">
-              <Button variant="neon" size="sm" onClick={() => setSheet("scan")}><ScanLine className="h-4 w-4" /> {t("scanProduct")}</Button>
-              <Button variant="soft" size="sm" onClick={() => setSheet("search")}><Search className="h-4 w-4" /> {t("searchProduct")}</Button>
+              <GreeButton variant="neon" size="sm" onClick={() => setSheet("scan")}><ScanLine className="h-4 w-4" /> {t("scanProduct")}</GreeButton>
+              <GreeButton variant="soft" size="sm" onClick={() => setSheet("search")}><Search className="h-4 w-4" /> {t("searchProduct")}</GreeButton>
             </div>
           }
         />
@@ -118,7 +117,7 @@ export default function BattlePage() {
               <button
                 key={i}
                 onClick={() => setSheet("search")}
-                className="gc-pressable flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line text-muted hover:border-natural/40 hover:text-natural"
+                className="gc-pressable flex aspect-[3/4] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line text-muted hover:border-natural/40 hover:text-natural-strong"
               >
                 <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-dashed border-current">
                   <Plus className="h-5 w-5" />
@@ -132,17 +131,17 @@ export default function BattlePage() {
 
           {/* Quick actions */}
           <div className="flex flex-wrap gap-2">
-            <Button variant="primary" size="sm" onClick={() => setSheet("scan")}><ScanLine className="h-4 w-4" /> {t("scanProduct")}</Button>
-            <Button variant="soft" size="sm" onClick={() => setSheet("search")}><Search className="h-4 w-4" /> {t("searchProduct")}</Button>
-            <Button variant="ghost" size="sm" className="ms-auto text-score-e" onClick={clear}><Trash2 className="h-4 w-4" /> {t("clear")}</Button>
+            <GreeButton variant="primary" size="sm" onClick={() => setSheet("scan")}><ScanLine className="h-4 w-4" /> {t("scanProduct")}</GreeButton>
+            <GreeButton variant="soft" size="sm" onClick={() => setSheet("search")}><Search className="h-4 w-4" /> {t("searchProduct")}</GreeButton>
+            <GreeButton variant="ghost" size="sm" className="ms-auto text-score-e-ink" onClick={clear}><Trash2 className="h-4 w-4" /> {t("clear")}</GreeButton>
           </div>
 
           {/* Needs a second product */}
           {items.length === 1 && (
-            <Card className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
-              <Sparkles className="h-5 w-5 shrink-0 text-natural" />
+            <GreeCard className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
+              <Sparkles className="h-5 w-5 shrink-0 text-natural-strong" />
               <p className="text-sm font-medium">{t("addAnother")}</p>
-            </Card>
+            </GreeCard>
           )}
 
           {/* Verdict + comparison (2+ products) */}
@@ -150,23 +149,23 @@ export default function BattlePage() {
             <>
               {/* Partial-data notice */}
               {result.confidence === "partial" && (
-                <Card className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
-                  <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c" />
+                <GreeCard className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
+                  <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c-ink" />
                   <p className="text-sm font-medium">{t("partial")} — {t("missingData")}.</p>
-                </Card>
+                </GreeCard>
               )}
 
               {/* Podium */}
-              <Card>
-                <CardContent>
+              <GreeCard>
+                <GreeCardContent>
                   <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-muted">{t("podium")}</h2>
                   <Podium ranking={ranking} />
-                </CardContent>
-              </Card>
+                </GreeCardContent>
+              </GreeCard>
 
               {/* Verdict */}
-              <PremiumCard variant="deep" glow className="gc-shine">
-                <CardContent className="space-y-3">
+              <GreeCard variant="deep" glow className="gc-shine">
+                <GreeCardContent className="space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-neon">
                     {result.closeness === "close" ? <Sparkles className="h-4 w-4" /> : <Trophy className="h-4 w-4" />}
                     {result.closeness === "close" ? t("veryClose") : t("verdictTitle")}
@@ -182,7 +181,7 @@ export default function BattlePage() {
                         <div key={e.product.barcode} className="flex items-center gap-2">
                           <span className="w-28 shrink-0 truncate text-[0.7rem] text-white/75">{e.product.name}</span>
                           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
-                            <div className="h-full rounded-full bg-neon-grad" style={{ width: `${e.gree.goalScore}%` }} />
+                            <div className="h-full rounded-full bg-natural" style={{ width: `${e.gree.goalScore}%` }} />
                           </div>
                           <span className="w-7 shrink-0 text-end text-[0.7rem] font-bold tabular-nums text-neon">{e.gree.goalScore}</span>
                         </div>
@@ -190,40 +189,40 @@ export default function BattlePage() {
                     </div>
                   )}
                   <div className="flex flex-wrap gap-2 pt-1">
-                    <Button variant="neon" size="sm" onClick={addWinnerToBasket}>
+                    <GreeButton variant="neon" size="sm" onClick={addWinnerToBasket}>
                       <ShoppingBasket className="h-4 w-4" /> {t("addWinnerBasket")}
-                    </Button>
+                    </GreeButton>
                     {basket.items.length > 0 && (
-                      <Button variant="soft" size="sm" className="bg-white/10 text-white hover:bg-white/20" onClick={replaceInBasket}>
+                      <GreeButton variant="soft" size="sm" className="bg-white/10 text-white hover:bg-white/20" onClick={replaceInBasket}>
                         <Repeat className="h-4 w-4" /> {t("replaceInBasket")}
-                      </Button>
+                      </GreeButton>
                     )}
                   </div>
                   {replaceNotice && (
                     <p className="rounded-xl bg-white/10 px-3 py-2 text-xs font-medium text-neon">{replaceNotice}</p>
                   )}
-                </CardContent>
-              </PremiumCard>
+                </GreeCardContent>
+              </GreeCard>
 
               {/* Comparison table */}
-              <Card>
-                <CardContent>
+              <GreeCard>
+                <GreeCardContent>
                   <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t("compareTitle")}</h2>
                   <ComparisonTable entries={ranking} />
-                </CardContent>
-              </Card>
+                </GreeCardContent>
+              </GreeCard>
 
               {/* Radar comparison (bars) */}
-              <Card>
-                <CardContent>
+              <GreeCard>
+                <GreeCardContent>
                   <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t("radarTitle")}</h2>
                   <AxisBars entries={ranking} />
-                </CardContent>
-              </Card>
+                </GreeCardContent>
+              </GreeCard>
 
-              <Button variant="outline" className="w-full" onClick={clear}>
+              <GreeButton variant="outline" className="w-full" onClick={clear}>
                 <RotateCcw className="h-4 w-4" /> {t("restart")}
-              </Button>
+              </GreeButton>
             </>
           )}
         </>

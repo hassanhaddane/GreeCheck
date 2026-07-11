@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils/cn";
 
+/** Shimmer block — the atom of every loading composition. */
 export function Skeleton({ className }: { className?: string }) {
   return (
     <div
@@ -30,4 +31,19 @@ export function ProductRowSkeleton() {
 
 export function CardSkeleton({ className }: { className?: string }) {
   return <Skeleton className={cn("h-40 w-full rounded-2xl", className)} />;
+}
+
+/**
+ * LoadingState — a full-surface loading composition (hero + rows),
+ * used while a page's real data resolves. Never blocks interaction elsewhere.
+ */
+export function LoadingState({ rows = 3, hero = false, className }: { rows?: number; hero?: boolean; className?: string }) {
+  return (
+    <div className={cn("space-y-3", className)} aria-busy="true" aria-live="polite">
+      {hero && <CardSkeleton />}
+      {Array.from({ length: rows }).map((_, i) => (
+        <ProductRowSkeleton key={i} />
+      ))}
+    </div>
+  );
 }

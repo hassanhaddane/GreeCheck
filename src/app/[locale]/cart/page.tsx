@@ -1,4 +1,5 @@
 "use client";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -6,11 +7,9 @@ import {
   ThumbsUp, Wand2, ShieldQuestion, Sparkles
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
-import { Card, CardContent } from "@/components/ui/card";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeButton } from "@/components/system/gree-button";
+import { EmptyState } from "@/components/system/empty-state";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { CartItemCard } from "@/components/cart/cart-item-card";
 import { ReplacementSuggestions } from "@/components/cart/replacement-suggestions";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
@@ -124,7 +123,7 @@ export default function CartPage() {
     }
   };
 
-  if (!mounted) return <div className="mx-auto max-w-2xl"><Card className="h-40 animate-pulse" /></div>;
+  if (!mounted) return <div className="mx-auto max-w-2xl"><GreeCard className="h-40 animate-pulse" /></div>;
 
   if (!items.length) {
     return (
@@ -135,8 +134,8 @@ export default function CartPage() {
           description={t("emptyBody")}
           action={
             <div className="flex gap-2">
-              <Button variant="neon" size="sm" onClick={() => router.push("/scan?source=cart")}><ScanLine className="h-4 w-4" /> {t("scanAnother")}</Button>
-              <Button variant="soft" size="sm" onClick={() => router.push("/search")}><Search className="h-4 w-4" /> {t("searchProduct")}</Button>
+              <GreeButton variant="neon" size="sm" onClick={() => router.push("/scan?source=cart")}><ScanLine className="h-4 w-4" /> {t("scanAnother")}</GreeButton>
+              <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}><Search className="h-4 w-4" /> {t("searchProduct")}</GreeButton>
             </div>
           }
         />
@@ -147,11 +146,11 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-6">
       {/* ── Score hero ── */}
-      <PremiumCard variant="glass" className="relative overflow-hidden">
+      <GreeCard variant="glass" className="relative overflow-hidden">
         <span aria-hidden className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-neon/15 blur-3xl" />
-        <CardContent className="space-y-3">
+        <GreeCardContent className="space-y-3">
           <div className="flex items-center gap-5">
-            <ScoreRing value={result.global} size={116} label={t(`gradeLabel.${result.labelKey}`)} tone="neon" />
+            <GreeScoreRing value={result.global} size={116} label={t(`gradeLabel.${result.labelKey}`)} tone="brand" />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">{t("score")}</p>
               <p className="text-sm text-muted">{t("itemsCount", { n: result.metrics.productCount })}</p>
@@ -159,24 +158,24 @@ export default function CartPage() {
                 <ShieldQuestion className="h-3.5 w-3.5 shrink-0" aria-hidden />
                 {t("confidence.label")} : <strong>{t(`confidence.${result.confidenceLevel}`)}</strong>
               </p>
-              <Button variant="ghost" size="sm" className="mt-1.5 text-score-e" onClick={clear}><Trash2 className="h-4 w-4" /> {t("clear")}</Button>
+              <GreeButton variant="ghost" size="sm" className="mt-1.5 text-score-e-ink" onClick={clear}><Trash2 className="h-4 w-4" /> {t("clear")}</GreeButton>
             </div>
           </div>
           {/* Verdict */}
           <p className="rounded-2xl bg-surface-2/80 p-3 text-sm leading-relaxed">
-            <Sparkles className="me-1 inline h-4 w-4 text-natural" aria-hidden />
+            <Sparkles className="me-1 inline h-4 w-4 text-natural-strong" aria-hidden />
             {t(`verdict.${result.verdict.key}`, result.verdict.values)}
           </p>
-        </CardContent>
-      </PremiumCard>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* ── What's good ── */}
-      <PremiumCard variant="tinted" className="p-4">
-        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-natural">
+      <GreeCard variant="tinted" className="p-4">
+        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-natural-strong">
           <ThumbsUp className="h-4 w-4" aria-hidden /> {t("whatIsGood")}
         </h2>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-natural/15 px-3 py-1 text-xs font-semibold text-natural">
+          <span className="rounded-full bg-natural/15 px-3 py-1 text-xs font-semibold text-natural-strong">
             {t(`strength.${result.mainStrength.key}`, result.mainStrength.values)}
           </span>
           {result.positiveInsights.map((m, i) => (
@@ -185,13 +184,13 @@ export default function CartPage() {
             </span>
           ))}
         </div>
-      </PremiumCard>
+      </GreeCard>
 
       {/* ── Cumulative alerts / main risk ── */}
       {(result.warnings.length > 0 || result.mainRisk.key !== "none") && (
-        <Card className="border-score-d/25 bg-score-d/5">
-          <CardContent className="space-y-2">
-            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-score-d">
+        <GreeCard className="border-score-d/25 bg-score-d/5">
+          <GreeCardContent className="space-y-2">
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-score-d-ink">
               <AlertTriangle className="h-4 w-4" aria-hidden /> {t("mainRisk")} : {t(`risk.${result.mainRisk.key}`, result.mainRisk.values)}
             </h2>
             {result.warnings.length > 0 && (
@@ -203,13 +202,13 @@ export default function CartPage() {
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </GreeCardContent>
+        </GreeCard>
       )}
 
       {/* ── Distribution ── */}
-      <Card>
-        <CardContent className="space-y-4">
+      <GreeCard>
+        <GreeCardContent className="space-y-4">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("distribution")}</h2>
           <div>
             <p className="mb-1.5 text-xs font-medium">{t("nutriDist")}</p>
@@ -221,7 +220,7 @@ export default function CartPage() {
           </div>
           <div className="grid grid-cols-2 gap-3 pt-1">
             <div className="flex items-center gap-2 rounded-2xl bg-surface-2 p-3">
-              <Leaf className="h-5 w-5 text-natural" aria-hidden />
+              <Leaf className="h-5 w-5 text-natural-strong" aria-hidden />
               <div><p className="text-lg font-bold tabular-nums">{bioPct}%</p><p className="text-[0.65rem] text-muted">{t("bioScore")}</p></div>
             </div>
             {(prefs.preferHalal || prefs.goals.includes("halal")) && (
@@ -231,26 +230,26 @@ export default function CartPage() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* ── Actions: scan / search / optimize ── */}
       <div className="flex flex-wrap gap-2">
-        <Button variant="primary" size="sm" onClick={() => router.push("/scan?source=cart")}><ScanLine className="h-4 w-4" /> {t("scanAnother")}</Button>
-        <Button variant="soft" size="sm" onClick={() => router.push("/search")}><Search className="h-4 w-4" /> {t("searchProduct")}</Button>
+        <GreeButton variant="primary" size="sm" onClick={() => router.push("/scan?source=cart")}><ScanLine className="h-4 w-4" /> {t("scanAnother")}</GreeButton>
+        <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}><Search className="h-4 w-4" /> {t("searchProduct")}</GreeButton>
         {result.recommendedReplacements.length > 0 && (
-          <Button variant="neon" size="sm" className="ms-auto" onClick={optimize} disabled={optState === "running"}>
+          <GreeButton variant="neon" size="sm" className="ms-auto" onClick={optimize} disabled={optState === "running"}>
             <Wand2 className="h-4 w-4" /> {optState === "running" ? t("optimizing") : t("optimize")}
-          </Button>
+          </GreeButton>
         )}
       </div>
       {optState !== null && optState !== "running" && (
-        <Card className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
-          <Sparkles className="h-5 w-5 shrink-0 text-natural" aria-hidden />
+        <GreeCard className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
+          <Sparkles className="h-5 w-5 shrink-0 text-natural-strong" aria-hidden />
           <p className="text-sm font-medium">
             {optState === "none" ? t("optimizeNone") : t("optimizeDone", { count: optState.replaced, score: optState.score })}
           </p>
-        </Card>
+        </GreeCard>
       )}
 
       {/* ── Recommended swaps (rule-based, explained) ── */}
@@ -266,7 +265,7 @@ export default function CartPage() {
       {result.productsDraggingScore.length > 0 && (
         <section className="space-y-2">
           <div className="px-1">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-score-d">{t("toImprove")}</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-score-d-ink">{t("toImprove")}</h2>
             <p className="text-xs text-muted">{t("toImproveHint")}</p>
           </div>
           {result.productsDraggingScore.map((a) => (
@@ -278,7 +277,7 @@ export default function CartPage() {
       {/* ── Best choices ── */}
       {result.productsImprovingCart.length > 0 && (
         <section className="space-y-2">
-          <h2 className="px-1 text-sm font-semibold uppercase tracking-wide text-natural">{t("bestChoices")}</h2>
+          <h2 className="px-1 text-sm font-semibold uppercase tracking-wide text-natural-strong">{t("bestChoices")}</h2>
           {result.productsImprovingCart.map((a) => (
             <CartItemCard key={a.product.barcode} entry={{ product: a.product, gree: a.gree }} onRemove={() => remove(a.product.barcode)} />
           ))}

@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Target, ShieldCheck } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
-import { Card, CardContent } from "@/components/ui/card";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { Chip } from "@/components/ui/chip";
 import { usePreferencesStore } from "@/domains/criteria/store";
@@ -21,12 +21,12 @@ export function CriteriaClient() {
     <div className="mx-auto max-w-2xl space-y-7">
       <PageHeading title={t("title")} />
 
-      <Card className="border-natural/25 bg-natural/5">
-        <CardContent className="flex items-start gap-3">
-          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-natural" aria-hidden />
+      <GreeCard className="border-natural/25 bg-natural/5">
+        <GreeCardContent className="flex items-start gap-3">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-natural-strong" aria-hidden />
           <p className="text-sm leading-relaxed">{t("hint")}</p>
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* Goals */}
       <section>
@@ -43,8 +43,8 @@ export function CriteriaClient() {
       {/* Preference toggles */}
       <section>
         <SectionTitle>{t("preferences")}</SectionTitle>
-        <Card>
-          <CardContent className="divide-y divide-line p-0">
+        <GreeCard>
+          <GreeCardContent className="divide-y divide-line p-0">
             {PREF_KEYS.map((k) => (
               <label key={k} className="flex cursor-pointer items-center justify-between px-5 py-3.5">
                 <span className="text-sm font-medium">{PREF_LABELS[k][locale]}</span>
@@ -52,12 +52,12 @@ export function CriteriaClient() {
                   type="checkbox"
                   checked={mounted && Boolean(prefs[k])}
                   onChange={(e) => prefs.setPreferences({ [k]: e.target.checked })}
-                  className="relative h-5 w-9 cursor-pointer appearance-none rounded-full bg-line transition before:absolute before:left-0.5 before:top-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition checked:bg-natural checked:before:translate-x-4"
+                  className="relative h-5 w-9 cursor-pointer appearance-none rounded-full bg-line transition before:absolute before:start-0.5 before:top-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition checked:bg-natural checked:before:translate-x-4 rtl:checked:before:-translate-x-4"
                 />
               </label>
             ))}
-          </CardContent>
-        </Card>
+          </GreeCardContent>
+        </GreeCard>
       </section>
     </div>
   );

@@ -6,7 +6,7 @@ import {
   Plus, Minus, CircleHelp, ShieldQuestion
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import type { GreeScore, ScoreReason } from "@/domains/scoring/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -43,7 +43,7 @@ function ReasonLine({ reason }: { reason: ScoreReason }) {
   return (
     <p className={cn(
       "flex items-start gap-1.5 text-xs",
-      reason.kind === "bonus" ? "text-natural" : reason.kind === "malus" ? "text-score-d" : "text-muted"
+      reason.kind === "bonus" ? "text-natural-strong" : reason.kind === "malus" ? "text-score-d-ink" : "text-muted"
     )}>
       <Icon className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
       {tScore(`reason.${reason.code}`, reason.values)}
@@ -69,11 +69,11 @@ export function ScoreBreakdown({ gree, hasGoals }: { gree: GreeScore; hasGoals: 
   ];
 
   const confidenceTone =
-    gree.confidenceLevel === "high" ? "text-natural" : gree.confidenceLevel === "medium" ? "text-score-c" : "text-score-d";
+    gree.confidenceLevel === "high" ? "text-natural-strong" : gree.confidenceLevel === "medium" ? "text-score-c-ink" : "text-score-d-ink";
 
   return (
-    <Card>
-      <CardContent className="space-y-4">
+    <GreeCard>
+      <GreeCardContent className="space-y-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("breakdownTitle")}</h2>
 
         {rows.map((row, i) => {
@@ -107,7 +107,7 @@ export function ScoreBreakdown({ gree, hasGoals }: { gree: GreeScore; hasGoals: 
             {gree.confidenceLevel !== "high" && <> — {t("dataMissing")}</>}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </GreeCardContent>
+    </GreeCard>
   );
 }

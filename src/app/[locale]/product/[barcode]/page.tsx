@@ -1,4 +1,5 @@
 "use client";
+import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -6,22 +7,22 @@ import {
   ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
-import { Card, CardContent } from "@/components/ui/card";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { FloatingAction } from "@/components/ui/floating-action";
-import { Button } from "@/components/ui/button";
+import { ActionDock } from "@/components/system/action-dock";
+import { GreeButton } from "@/components/system/gree-button";
 import { SectionTitle } from "@/components/ui/section-title";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
+import { VerdictCard } from "@/components/system/verdict-card";
+import { GreeBadge } from "@/components/system/gree-badge";
 import { ScoreBreakdown } from "@/components/score/score-breakdown";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { NutritionRadar } from "@/components/product/nutrition-radar";
 import { Alternatives } from "@/components/product/alternatives";
-import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/error-state";
+import { Skeleton } from "@/components/system/loading-state";
+import { EmptyState } from "@/components/system/empty-state";
+import { ErrorState } from "@/components/system/error-state";
 import { getProduct } from "@/domains/product/repository";
 import type { ProductResult } from "@/services/api/openfoodfacts";
 import type { Product } from "@/domains/product/model";
@@ -33,7 +34,7 @@ import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 
 const GRADE_BG: Record<string, string> = {
-  A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e"
+  A: "bg-score-a-ink", B: "bg-score-b-ink", C: "bg-score-c-ink", D: "bg-score-d-ink", E: "bg-score-e-ink"
 };
 
 const NUTRI_ROWS: { key: keyof Product["nutriments"]; labelKey: string; unit: string }[] = [
@@ -102,8 +103,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   if (state === "loading") {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
-        <Card><CardContent className="flex gap-4"><Skeleton className="h-28 w-28 rounded-2xl" /><div className="flex-1 space-y-3 pt-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-3 w-1/2" /></div></CardContent></Card>
-        <Card><CardContent className="flex items-center gap-6"><Skeleton className="h-36 w-36 rounded-full" /><div className="flex-1 space-y-3"><Skeleton className="h-8 w-40" /><Skeleton className="h-16 w-full rounded-2xl" /></div></CardContent></Card>
+        <GreeCard><GreeCardContent className="flex gap-4"><Skeleton className="h-28 w-28 rounded-2xl" /><div className="flex-1 space-y-3 pt-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-3 w-1/2" /></div></GreeCardContent></GreeCard>
+        <GreeCard><GreeCardContent className="flex items-center gap-6"><Skeleton className="h-36 w-36 rounded-full" /><div className="flex-1 space-y-3"><Skeleton className="h-8 w-40" /><Skeleton className="h-16 w-full rounded-2xl" /></div></GreeCardContent></GreeCard>
         <Skeleton className="h-40 w-full rounded-2xl" />
       </div>
     );
@@ -128,7 +129,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           description={t("notFoundBody")}
           action={
             <a href={`https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${barcode}`} target="_blank" rel="noreferrer">
-              <Button variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</Button>
+              <GreeButton variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</GreeButton>
             </a>
           }
         />
@@ -159,7 +160,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-4">
       {/* ── Header ── */}
-      <Card className="overflow-hidden">
+      <GreeCard className="overflow-hidden">
         <div className="grid gap-4 p-5 sm:grid-cols-[120px_1fr] sm:items-center">
           <div className="aspect-square w-28 justify-self-center overflow-hidden rounded-2xl bg-surface-2 sm:w-full">
             { }
@@ -177,55 +178,43 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             <p className="mt-0.5 text-xs text-muted">{p.barcode}</p>
           </div>
         </div>
-      </Card>
+      </GreeCard>
 
       {/* ── Incomplete / confidence state ── */}
       {data.confidence !== "high" && (
-        <Card className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
-          <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c" />
+        <GreeCard className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
+          <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c-ink" />
           <p className="text-sm font-medium">
             {data.confidence === "low" ? t("incomplete") : t("confidenceMedium")} — {t("dataMissing")}
           </p>
-        </Card>
+        </GreeCard>
       )}
 
-      {/* ── GreeScore (immediately visible) ── */}
-      <PremiumCard variant="glass" className="overflow-hidden">
-        <CardContent className="flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
-          <div className="relative shrink-0">
-            <ScoreRing value={score} size={144} tone="neon" />
-            <span className={`absolute -right-1 -top-1 grid h-9 w-9 place-items-center rounded-xl text-base font-extrabold text-white shadow-soft ${GRADE_BG[gree.grade]}`}>
-              {gree.grade}
+      {/* ── Verdict (Décider) ── */}
+      <VerdictCard gree={gree}>
+        <div className="flex flex-wrap items-center gap-2 pt-1.5">
+          {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" />}
+          {p.novaGroup && <NovaBadge group={p.novaGroup} />}
+          {p.greenScore && (
+            <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-2.5 py-1.5 text-xs font-semibold text-muted">
+              {t("greenScore")} <span className="grid h-6 w-6 place-items-center rounded-lg bg-score-a text-white">{p.greenScore.toUpperCase()}</span>
             </span>
+          )}
+        </div>
+        {gree.reasons.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pt-1.5">
+            {gree.reasons.slice(0, 4).map((r, i) => (
+              <GreeBadge key={i} size="sm" tone={r.kind === "bonus" ? "brand" : r.kind === "malus" ? "caution" : "neutral"}>
+                {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {tScore(`reason.${r.code}`, r.values)}
+              </GreeBadge>
+            ))}
           </div>
-          <div className="flex-1 space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" />}
-              {p.novaGroup && <NovaBadge group={p.novaGroup} />}
-              {p.greenScore && (
-                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-2.5 py-1.5 text-xs font-semibold text-muted">
-                  {t("greenScore")} <span className="grid h-6 w-6 place-items-center rounded-lg bg-score-a text-white">{p.greenScore.toUpperCase()}</span>
-                </span>
-              )}
-            </div>
-            {gree.reasons.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {gree.reasons.slice(0, 4).map((r, i) => (
-                  <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-                    r.kind === "bonus" ? "bg-natural/10 text-natural" : r.kind === "malus" ? "bg-score-d/10 text-score-d" : "bg-surface-2 text-muted"
-                  }`}>
-                    {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {tScore(`reason.${r.code}`, r.values)}
-                  </span>
-                ))}
-              </div>
-            )}
-            <p className="rounded-2xl bg-surface-2 p-3 text-sm leading-relaxed">
-              <Sparkles className="me-1 inline h-4 w-4 text-natural" />
-              <strong>{t("verdict")} :</strong> {t("verdictBody", { score: gree.global, label: tScore(`grade.${gree.grade}`) })}
-            </p>
-          </div>
-        </CardContent>
-      </PremiumCard>
+        )}
+        <p className="mt-2 rounded-2xl bg-surface-2/80 p-3 text-sm leading-relaxed">
+          <Sparkles className="me-1 inline h-4 w-4 text-natural-strong" aria-hidden />
+          <strong>{t("verdict")} :</strong> {t("verdictBody", { score: gree.global, label: tScore(`grade.${gree.grade}`) })}
+        </p>
+      </VerdictCard>
 
       {/* ── GreeScore breakdown: "Why this score?" ── */}
       <ScoreBreakdown gree={gree} hasGoals={prefs.goals.length > 0} />
@@ -234,21 +223,21 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       {blockingWarnings.length > 0 && (
         <div className="space-y-2">
           {blockingWarnings.map((w, i) => (
-            <Card key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
-              <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e" : "text-score-d"}`} />
+            <GreeCard key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
+              <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e-ink" : "text-score-d-ink"}`} />
               <p className="text-sm font-medium">{tScore(`warning.${w.code}`, w.values)}</p>
-            </Card>
+            </GreeCard>
           ))}
         </div>
       )}
 
       {/* ── Nutrition radar ── */}
-      <Card>
-        <CardContent className="grid place-items-center">
+      <GreeCard>
+        <GreeCardContent className="grid place-items-center">
           <SectionTitle>{t("radar")}</SectionTitle>
           <NutritionRadar product={p} />
-        </CardContent>
-      </Card>
+        </GreeCardContent>
+      </GreeCard>
 
       {/* ── Collapsible details ── */}
       <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />} defaultOpen>
@@ -300,34 +289,34 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       {score < 65 && <Alternatives product={p} prefs={prefs} />}
 
       {/* ── Floating actions dock ── */}
-      <FloatingAction>
+      <ActionDock>
         {basketNotice && (
-          <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural">
+          <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural-strong">
             <ShoppingBasket className="h-4 w-4" />
             <span className="min-w-0 flex-1">{t(basketNotice === "added" ? "addedToBasket" : "alreadyInBasket")}</span>
-            <Button variant="ghost" size="sm" onClick={() => router.push("/cart")}>
+            <GreeButton variant="ghost" size="sm" onClick={() => router.push("/cart")}>
               {t("goToBasket")}
-            </Button>
+            </GreeButton>
           </div>
         )}
         <div className="flex gap-2">
-          <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
+          <GreeButton variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
             onClick={() => favorites.toggle({ ...item, verdict: tScore(`grade.${gree.grade}`), scannedAt: Date.now() })}>
             <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
-          </Button>
-          <Button variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
+          </GreeButton>
+          <GreeButton variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
             <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
-          </Button>
+          </GreeButton>
         </div>
         <div className="mt-2 flex gap-2">
-          <Button variant="primary" className="flex-1" onClick={goToBattle}>
+          <GreeButton variant="primary" className="flex-1" onClick={goToBattle}>
             <Swords className="h-5 w-5" /> {inBattle ? t("alreadyInBattle") : battleFull ? t("battleFull") : t("scanBattle")}
-          </Button>
-          <Button variant="outline" className="flex-1" onClick={goToBattle}>
+          </GreeButton>
+          <GreeButton variant="outline" className="flex-1" onClick={goToBattle}>
             <GitCompareArrows className="h-5 w-5" /> {t("compare")}
-          </Button>
+          </GreeButton>
         </div>
-      </FloatingAction>
+      </ActionDock>
     </div>
   );
 }

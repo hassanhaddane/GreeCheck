@@ -2,10 +2,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, ArrowRightLeft, CheckCircle2, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { GreeCard } from "@/components/system/gree-card";
+import { GreeButton } from "@/components/system/gree-button";
 import { SectionTitle } from "@/components/ui/section-title";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { getAlternatives, type Alternative } from "@/domains/swap/engine";
 import { computeCartScore, type CartProductAnalysis, type CartScoreResult } from "@/domains/cart/engine";
 import type { Product } from "@/domains/product/model";
@@ -93,10 +93,10 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
     <section className="space-y-3">
       <SectionTitle>{t("replacementSuggestions")}</SectionTitle>
       {!hasCandidate ? (
-        <Card className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
-          <CheckCircle2 className="h-5 w-5 shrink-0 text-natural" />
+        <GreeCard className="flex items-center gap-3 border-natural/25 bg-natural/5 p-4">
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-natural-strong" />
           <p className="text-sm font-medium">{t("noReplacementNeeded")}</p>
-        </Card>
+        </GreeCard>
       ) : (
         <div className="space-y-3">
           {orderedSuggestions.map((suggestion) => {
@@ -105,7 +105,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
             const gain = suggestion.expectedGain ?? Math.ceil(suggestion.candidate.estimatedUpgradeGain / Math.max(1, products.length));
 
             return (
-              <Card key={current.barcode} className="overflow-hidden p-4">
+              <GreeCard key={current.barcode} className="overflow-hidden p-4">
                 <div className="flex items-start gap-3">
                   <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface-2">
                     { }
@@ -115,7 +115,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                     <p className="line-clamp-1 text-sm font-bold">{current.name}</p>
                     <p className="mt-0.5 text-xs text-muted">{t(`replacementReason.${suggestion.candidate.replacementReasonKey}`)}</p>
                   </div>
-                  <span className="rounded-full bg-score-d/10 px-2.5 py-1 text-xs font-bold text-score-d">
+                  <span className="rounded-full bg-score-d/10 px-2.5 py-1 text-xs font-bold text-score-d-ink">
                     {t("upgradeGain", { gain })}
                   </span>
                 </div>
@@ -123,7 +123,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                 {suggestion.status === "loading" ? (
                   <div className="mt-3 h-20 animate-pulse rounded-2xl bg-surface-2" />
                 ) : suggestion.status === "error" ? (
-                  <div className="mt-3 flex items-center gap-2 rounded-2xl bg-score-d/10 p-3 text-sm font-medium text-score-d">
+                  <div className="mt-3 flex items-center gap-2 rounded-2xl bg-score-d/10 p-3 text-sm font-medium text-score-d-ink">
                     <AlertCircle className="h-4 w-4" /> {t("replacementError")}
                   </div>
                 ) : suggestion.status === "empty" || !alternative ? (
@@ -148,19 +148,19 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                         <p className="line-clamp-2 text-sm font-bold">{alternative.product.name}</p>
                         <p className="truncate text-xs text-muted">{alternative.product.brand || t("unknownBrand")}</p>
                       </div>
-                      <ScoreRing value={alternative.gree.global} size={56} label="" tone="neon" />
+                      <GreeScoreRing value={alternative.gree.global} size={56} label="" tone="brand" />
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-2">
-                      <Button variant="soft" size="sm" onClick={() => onCompare(current, alternative.product)}>
+                      <GreeButton variant="soft" size="sm" onClick={() => onCompare(current, alternative.product)}>
                         <ArrowRightLeft className="h-4 w-4" /> {t("compare")}
-                      </Button>
-                      <Button variant="neon" size="sm" onClick={() => onReplace(current.barcode, alternative.product)}>
+                      </GreeButton>
+                      <GreeButton variant="neon" size="sm" onClick={() => onReplace(current.barcode, alternative.product)}>
                         <CheckCircle2 className="h-4 w-4" /> {t("replaceInBasket")}
-                      </Button>
+                      </GreeButton>
                     </div>
                   </div>
                 )}
-              </Card>
+              </GreeCard>
             );
           })}
         </div>

@@ -1,9 +1,9 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { X, Trophy, AlertTriangle, ShoppingBasket } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeCard } from "@/components/system/gree-card";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
@@ -31,13 +31,13 @@ export function BattleCard({
   const warning = gree.warnings.find((w) => w.level !== "info");
 
   return (
-    <Card className={cn("relative flex flex-col items-center gap-2 p-3 text-center transition", isWinner && "border-neon shadow-glow")}>
+    <GreeCard className={cn("relative flex flex-col items-center gap-2 p-3 text-center transition", isWinner && "border-neon shadow-glow")}>
       {isWinner && (
         <span className="absolute -top-2.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-neon-grad px-2.5 py-0.5 text-[0.6rem] font-bold text-deep shadow-glow">
           <Trophy className="h-3 w-3" /> {t("bestChoice")}
         </span>
       )}
-      <button onClick={onRemove} aria-label="remove" className="absolute end-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e">
+      <button onClick={onRemove} aria-label="remove" className="absolute end-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
         <X className="h-3.5 w-3.5" />
       </button>
 
@@ -47,7 +47,7 @@ export function BattleCard({
       </div>
 
       <div className="relative">
-        <ScoreRing value={gree.global} size={70} label="" tone={isWinner ? "neon" : "band"} />
+        <GreeScoreRing value={gree.global} size={70} label="" tone={isWinner ? "brand" : "band"} />
         <span className={cn("absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-lg text-xs font-extrabold text-white", GRADE_BG[gree.grade])}>
           {gree.grade}
         </span>
@@ -64,16 +64,16 @@ export function BattleCard({
       </div>
 
       {warning && (
-        <p className="flex items-center gap-1 rounded-lg bg-score-d/10 px-2 py-1 text-[0.6rem] font-medium text-score-d">
+        <p className="flex items-center gap-1 rounded-lg bg-score-d/10 px-2 py-1 text-[0.6rem] font-medium text-score-d-ink">
           <AlertTriangle className="h-3 w-3 shrink-0" /> {tScore(`warning.${warning.code}`, warning.values)}
         </p>
       )}
 
       {onAddBasket && (
-        <Button variant={inBasket ? "neon" : "soft"} size="sm" className="mt-auto h-8 w-full px-2 text-[0.68rem]" onClick={onAddBasket}>
+        <GreeButton variant={inBasket ? "neon" : "soft"} size="sm" className="mt-auto h-8 w-full px-2 text-[0.68rem]" onClick={onAddBasket}>
           <ShoppingBasket className="h-3.5 w-3.5" /> {inBasket ? t("goToBasket") : t("addToBasket")}
-        </Button>
+        </GreeButton>
       )}
-    </Card>
+    </GreeCard>
   );
 }

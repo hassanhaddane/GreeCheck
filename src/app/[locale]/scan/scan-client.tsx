@@ -22,8 +22,9 @@ import {
   SwitchCamera
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreePulse } from "@/components/system/gree-pulse";
+import { GreeCard } from "@/components/system/gree-card";
 import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
@@ -174,16 +175,18 @@ export function ScanClient() {
 
   return (
     <div className="mx-auto max-w-md space-y-5 pb-4">
-      <div className="flex items-center justify-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-neon-grad text-deep shadow-glow" aria-hidden>
-          <ScanLine className="h-4 w-4" />
-        </span>
+      <div className="flex items-center justify-center gap-2.5">
+        <GreePulse
+          size={36}
+          state={phase === "analyzing" ? "success" : state === "active" ? "scanning" : "idle"}
+          label={liveStatus}
+        />
         <h1 className="text-xl font-bold tracking-tight gc-gradient-text">{t("title")}</h1>
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">{liveStatus}</p>
 
-      <Card className="relative aspect-[3/4] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
+      <GreeCard className="relative aspect-[3/4] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${state === "active" ? "opacity-100" : "opacity-0"}`}
@@ -245,7 +248,7 @@ export function ScanClient() {
             </motion.div>
           )}
         </AnimatePresence>
-      </Card>
+      </GreeCard>
 
       {state === "active" && (
         <ScannerControls
@@ -262,8 +265,8 @@ export function ScanClient() {
       )}
 
       {lookup !== "idle" && lookup !== "loading" && (
-        <Card className="border-score-d/25 bg-score-d/5 p-4">
-          <p className="flex items-start gap-2 text-sm font-semibold text-score-d">
+        <GreeCard className="border-score-d/25 bg-score-d/5 p-4">
+          <p className="flex items-start gap-2 text-sm font-semibold text-score-d-ink">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             {lookup === "not_found"
               ? t("productNotFound", { code: lastCode })
@@ -272,18 +275,18 @@ export function ScanClient() {
                 : t("unsupportedCode")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button variant="neon" size="sm" onClick={retryAll}>
+            <GreeButton variant="neon" size="sm" onClick={retryAll}>
               <RotateCw className="h-4 w-4" /> {t("retry")}
-            </Button>
-            <Button variant="soft" size="sm" onClick={() => router.push("/search")}>
+            </GreeButton>
+            <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}>
               <Search className="h-4 w-4" /> {t("searchInstead")}
-            </Button>
+            </GreeButton>
           </div>
-        </Card>
+        </GreeCard>
       )}
 
       <p className="flex items-center justify-center gap-1.5 px-2 text-center text-xs text-muted">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-natural" aria-hidden />
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-natural-strong" aria-hidden />
         {t("privacyNote")}
       </p>
 
@@ -308,7 +311,7 @@ export function ScanClient() {
         })}
       </div>
 
-      <Card className="p-4">
+      <GreeCard className="p-4">
         <label htmlFor="manual-barcode" className="flex items-center gap-1.5 text-xs font-medium text-muted">
           <Keyboard className="h-3.5 w-3.5" aria-hidden /> {t("manual")}
         </label>
@@ -324,9 +327,9 @@ export function ScanClient() {
             placeholder={t("manualPlaceholder")}
             className="h-11 flex-1 rounded-2xl border border-line bg-surface-2 px-4 text-sm outline-none focus:ring-2 focus:ring-neon/50"
           />
-          <Button variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("manual")}>
+          <GreeButton variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("manual")}>
             <ArrowRight className="h-5 w-5 rtl:rotate-180" aria-hidden />
-          </Button>
+          </GreeButton>
         </div>
         <button
           type="button"
@@ -334,11 +337,11 @@ export function ScanClient() {
             stop();
             router.push("/search");
           }}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-1 text-sm font-medium text-natural focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60"
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-1 text-sm font-medium text-natural-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60"
         >
           <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
         </button>
-      </Card>
+      </GreeCard>
 
     </div>
   );
@@ -409,18 +412,18 @@ function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void
           <p className="rounded-2xl bg-neon/10 px-3 py-2 text-xs font-medium text-neon">{t("httpsTunnelHelp")}</p>
         )}
         {item.retry && (
-          <Button variant="neon" size="sm" onClick={retry}>
+          <GreeButton variant="neon" size="sm" onClick={retry}>
             <RotateCw className="h-4 w-4" aria-hidden /> {t("retry")}
-          </Button>
+          </GreeButton>
         )}
         {fallbackStates.includes(state) && (
           <div className="flex flex-wrap justify-center gap-2 pt-1">
-            <Button variant="soft" size="sm" onClick={() => router.push("/search")}>
+            <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}>
               <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
-            </Button>
-            <Button variant="soft" size="sm" onClick={focusManual}>
+            </GreeButton>
+            <GreeButton variant="soft" size="sm" onClick={focusManual}>
               <Keyboard className="h-4 w-4" aria-hidden /> {t("enterBarcode")}
-            </Button>
+            </GreeButton>
           </div>
         )}
       </div>
@@ -451,23 +454,23 @@ function ScannerControls({
 }) {
   const t = useTranslations("scan");
   return (
-    <Card className="space-y-3 p-3">
+    <GreeCard className="space-y-3 p-3">
       <div className="flex flex-wrap gap-2">
         {devices.length > 1 && (
-          <Button variant="soft" size="sm" onClick={() => onSwitchCamera()}>
+          <GreeButton variant="soft" size="sm" onClick={() => onSwitchCamera()}>
             <SwitchCamera className="h-4 w-4" /> {t("switchCamera")}
-          </Button>
+          </GreeButton>
         )}
         {torchSupported && (
-          <Button variant={torchOn ? "neon" : "soft"} size="sm" onClick={onToggleTorch}>
+          <GreeButton variant={torchOn ? "neon" : "soft"} size="sm" onClick={onToggleTorch}>
             {torchOn ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
             {torchOn ? t("torchOff") : t("torchOn")}
-          </Button>
+          </GreeButton>
         )}
         {zoomSupported && (
-          <Button variant="soft" size="sm" onClick={() => onZoom((zoom ?? 1) + 0.25)}>
+          <GreeButton variant="soft" size="sm" onClick={() => onZoom((zoom ?? 1) + 0.25)}>
             <SlidersHorizontal className="h-4 w-4" /> {t("zoom")}
-          </Button>
+          </GreeButton>
         )}
       </div>
       {devices.length > 1 && (
@@ -486,6 +489,6 @@ function ScannerControls({
           </select>
         </label>
       )}
-    </Card>
+    </GreeCard>
   );
 }

@@ -11,7 +11,7 @@ export function Logo({ size = 36, withWordmark = false, className }: LogoProps) 
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span
-        className="grid place-items-center rounded-2xl bg-neon-grad shadow-glow"
+        className="grid place-items-center rounded-2xl bg-natural-grad shadow-raised"
         style={{ width: size, height: size }}
       >
         <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none">
@@ -26,7 +26,7 @@ export function Logo({ size = 36, withWordmark = false, className }: LogoProps) 
       </span>
       {withWordmark && (
         <span className="text-lg font-bold tracking-tight">
-          Gree<span className="text-natural">Check</span>
+          Gree<span className="text-natural-strong">Check</span>
         </span>
       )}
     </span>

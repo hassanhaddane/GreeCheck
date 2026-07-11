@@ -16,7 +16,7 @@ export function SideNav() {
   const linkClass = (active: boolean) =>
     cn(
       "gc-pressable relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition",
-      active ? "text-deep dark:text-neon" : "text-muted hover:bg-surface-2 hover:text-ink"
+      active ? "text-deep dark:text-natural-strong" : "text-muted hover:bg-surface-2 hover:text-ink"
     );
 
   const activePill = (
@@ -38,7 +38,7 @@ export function SideNav() {
             <span
               className={cn(
                 "grid h-8 w-8 place-items-center rounded-xl transition",
-                active ? "bg-neon-grad text-deep shadow-glow" : "bg-surface-2 text-muted"
+                active ? "bg-natural-grad text-white shadow-raised" : "bg-surface-2 text-muted"
               )}
             >
               <Icon className="h-[1.1rem] w-[1.1rem]" strokeWidth={active ? 2.4 : 2} />
@@ -54,7 +54,7 @@ export function SideNav() {
           className={linkClass(pathname.startsWith("/settings"))}
         >
           {pathname.startsWith("/settings") && activePill}
-          <span className={cn("grid h-8 w-8 place-items-center rounded-xl", pathname.startsWith("/settings") ? "bg-neon-grad text-deep shadow-glow" : "bg-surface-2 text-muted")}>
+          <span className={cn("grid h-8 w-8 place-items-center rounded-xl", pathname.startsWith("/settings") ? "bg-natural-grad text-white shadow-raised" : "bg-surface-2 text-muted")}>
             <Settings className="h-[1.1rem] w-[1.1rem]" />
           </span>
           {t("settings")}

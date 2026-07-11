@@ -3,19 +3,19 @@ import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Sparkles, GitCompareArrows, ShoppingBasket, Check } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
-import { Card } from "@/components/ui/card";
+import { GreeCard } from "@/components/system/gree-card";
 import { SectionTitle } from "@/components/ui/section-title";
-import { Button } from "@/components/ui/button";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
-import { ProductRowSkeleton } from "@/components/ui/skeleton";
+import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { getAlternatives, type Alternative } from "@/domains/swap/engine";
 import { useBattleStore } from "@/domains/battle/store";
 import { useCartStore } from "@/domains/cart/store";
 import type { Product } from "@/domains/product/model";
 import type { LocalPreferences } from "@/domains/criteria/model";
 
-const GRADE_BG: Record<string, string> = { A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e" };
+const GRADE_BG: Record<string, string> = { A: "bg-score-a-ink", B: "bg-score-b-ink", C: "bg-score-c-ink", D: "bg-score-d-ink", E: "bg-score-e-ink" };
 
 export function Alternatives({ product, prefs }: { product: Product; prefs: LocalPreferences }) {
   const t = useTranslations("product");
@@ -64,7 +64,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
           {items.map((alt) => {
             const isAdded = added.has(alt.product.barcode);
             return (
-              <Card key={alt.product.barcode} className="flex flex-col gap-3 p-3">
+              <GreeCard key={alt.product.barcode} className="flex flex-col gap-3 p-3">
                 <div className="flex items-center gap-3">
                   <Link href={`/product/${alt.product.barcode}`} className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
                     { }
@@ -78,7 +78,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
                     </div>
                   </Link>
                   <div className="relative shrink-0">
-                    <ScoreRing value={alt.gree.global} size={46} label="" />
+                    <GreeScoreRing value={alt.gree.global} size={46} label="" />
                     <span className={`absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded text-[0.5rem] font-extrabold text-white ${GRADE_BG[alt.gree.grade]}`}>
                       {alt.gree.grade}
                     </span>
@@ -86,21 +86,21 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
                 </div>
 
                 {/* Explained recommendation */}
-                <p className="flex items-start gap-1.5 rounded-xl bg-natural/10 px-2.5 py-1.5 text-xs font-medium text-natural">
+                <p className="flex items-start gap-1.5 rounded-xl bg-natural/10 px-2.5 py-1.5 text-xs font-medium text-natural-strong">
                   <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   <span>{alt.reasons.map((r) => t(`altReason.${r}`)).join(" · ")}</span>
                 </p>
 
                 {/* Actions */}
                 <div className="mt-auto flex gap-2">
-                  <Button variant="soft" size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => compare(alt)}>
+                  <GreeButton variant="soft" size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => compare(alt)}>
                     <GitCompareArrows className="h-3.5 w-3.5" /> {t("compare")}
-                  </Button>
-                  <Button variant={isAdded ? "neon" : "primary"} size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => toBasket(alt)} disabled={isAdded}>
+                  </GreeButton>
+                  <GreeButton variant={isAdded ? "neon" : "primary"} size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => toBasket(alt)} disabled={isAdded}>
                     {isAdded ? <Check className="h-3.5 w-3.5" /> : <ShoppingBasket className="h-3.5 w-3.5" />} {isAdded ? t("addedToBasket") : t("addToBasket")}
-                  </Button>
+                  </GreeButton>
                 </div>
-              </Card>
+              </GreeCard>
             );
           })}
         </div>

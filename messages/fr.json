@@ -518,7 +518,13 @@
     },
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",
-    "betterAvailable": "Meilleure option plus haut dans la liste"
+    "betterAvailable": "Meilleure option plus haut dans la liste",
+    "trust": {
+      "label": "Confiance des données",
+      "high": "Confiance élevée",
+      "medium": "Données partielles",
+      "low": "Données insuffisantes"
+    }
   },
   "history": {
     "metaTitle": "Mes scans — GreeCheck",

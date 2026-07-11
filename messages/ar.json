@@ -518,7 +518,13 @@
     },
     "bestChoice": "الخيار الأفضل",
     "lowScoreWarning": "نتيجة منخفضة — قلّل منه",
-    "betterAvailable": "خيار أفضل أعلى القائمة"
+    "betterAvailable": "خيار أفضل أعلى القائمة",
+    "trust": {
+      "label": "موثوقية البيانات",
+      "high": "ثقة عالية",
+      "medium": "بيانات جزئية",
+      "low": "بيانات غير كافية"
+    }
   },
   "history": {
     "metaTitle": "عمليات المسح — GreeCheck",

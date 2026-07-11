@@ -32,7 +32,7 @@ export function LanguageSwitcher() {
                 router.replace(pathname, { locale: l });
               }}
               data-active={l === locale}
-              className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-surface-2 data-[active=true]:font-semibold data-[active=true]:text-natural"
+              className="flex w-full items-center gap-3 px-4 py-3 text-sm hover:bg-surface-2 data-[active=true]:font-semibold data-[active=true]:text-natural-strong"
             >
               <span>{localeMeta[l].flag}</span>
               <span>{localeMeta[l].label}</span>

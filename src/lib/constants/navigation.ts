@@ -1,6 +1,6 @@
 import {
   ScanLine, Search, Swords, ShoppingBasket, History,
-  Compass, SlidersHorizontal, BookOpenText, type LucideIcon
+  Compass, SlidersHorizontal, BookOpenText, Settings, ShieldCheck, type LucideIcon
 } from "lucide-react";
 
 export interface NavItem {
@@ -22,9 +22,11 @@ export const BOTTOM_NAV: NavItem[] = [
   { key: "cart", href: "/cart", icon: ShoppingBasket }
 ];
 
-/** Secondary destinations (desktop side rail + menus). */
-export const SECONDARY_NAV: NavItem[] = [
+/** Secondary destinations — the compact "More" menu (mobile sheet + desktop rail footer). */
+export const MORE_NAV: NavItem[] = [
   { key: "discover", href: "/discover", icon: Compass },
   { key: "criteria", href: "/criteria", icon: SlidersHorizontal },
-  { key: "methodology", href: "/methodology", icon: BookOpenText }
+  { key: "methodology", href: "/methodology", icon: BookOpenText },
+  { key: "settings", href: "/settings", icon: Settings },
+  { key: "privacy", href: "/privacy", icon: ShieldCheck }
 ];

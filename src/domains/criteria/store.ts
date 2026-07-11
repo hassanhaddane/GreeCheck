@@ -6,23 +6,11 @@
  */
 import { create } from "zustand";
 import type { LocalPreferences } from "@/domains/criteria/model";
+import { defaultPreferences } from "@/domains/criteria/model";
+
+export { defaultPreferences };
 import { preferencesRepo } from "@/services/storage/repositories";
 
-export const defaultPreferences: LocalPreferences = {
-  language: "fr",
-  goals: [],
-  avoidAllergens: [],
-  preferBio: false,
-  preferHalal: false,
-  preferVegan: false,
-  preferVegetarian: false,
-  reduceSugar: false,
-  reduceSalt: false,
-  reduceAdditives: false,
-  reduceUltraProcessed: false,
-  increaseProtein: false,
-  increaseFiber: false
-};
 
 interface PreferencesState extends LocalPreferences {
   hydrate: (p: LocalPreferences) => void;

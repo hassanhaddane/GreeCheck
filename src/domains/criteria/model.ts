@@ -30,3 +30,20 @@ export interface LocalPreferences {
   increaseProtein: boolean;
   increaseFiber: boolean;
 }
+
+/** Neutral defaults — shared by the store, tests and server-side demo computations. */
+export const defaultPreferences: LocalPreferences = {
+  language: "fr",
+  goals: [],
+  avoidAllergens: [],
+  preferBio: false,
+  preferHalal: false,
+  preferVegan: false,
+  preferVegetarian: false,
+  reduceSugar: false,
+  reduceSalt: false,
+  reduceAdditives: false,
+  reduceUltraProcessed: false,
+  increaseProtein: false,
+  increaseFiber: false
+};

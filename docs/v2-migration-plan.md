@@ -12,7 +12,7 @@ numbers. Actual mapping so far:
 | Prompt 01 | Phase 0 — audit + architecture docs | ✅ |
 | Prompt 02 (+validation) | Phases 1–2 — purge, domains, storage, routes, PWA start | ✅ |
 | Prompt 03 (+validation) | Design system & living brand (tokens, system primitives, GreePulse) | ✅ |
-| Prompt 04 (next) | **Adaptive marketing site, app entry & navigation** | ⏳ |
+| Prompt 04 (+this work) | **Adaptive marketing site, app entry & navigation** | ✅ |
 | Later prompts | Scoring V2 + Trust Halo · product page (GreeDNA) · GreeLens · GreeSwap · library · Battle/GreeCart V2 · criteria · SEO/i18n finalization | planned |
 
 Do not pre-implement a later prompt's scope inside an earlier one.

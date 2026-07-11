@@ -17,28 +17,11 @@
     "cart": "GreeCart",
     "discover": "Discover",
     "criteria": "My criteria",
-    "methodology": "Methodology"
-  },
-  "home": {
-    "greeting": "Hello",
-    "heroTitle": "Understand what you eat",
-    "heroSubtitle": "Scan a product to reveal its personalized GreeScore.",
-    "scanCta": "Scan a product",
-    "quickActions": "Quick actions",
-    "today": "Today",
-    "recent": "Recent scans",
-    "emptyRecent": "No scans yet. Start by scanning a product.",
-    "discover": "Discover what you really consume",
-    "modeTitle": "Your current mode",
-    "noGoals": "No goals set — your GreeScore stays neutral.",
-    "setGoals": "Pick my goals",
-    "seeAll": "See all",
-    "hintSearch": "Smart filters",
-    "hintBattle": "Compare up to 3",
-    "greeLens": "GreeLens",
-    "greeLensHint": "Futuristic scan with instant analysis",
-    "hintCart": "Analyze the quality of your basket",
-    "hintHistory": "Find your recent scans"
+    "methodology": "Methodology",
+    "more": "More",
+    "searchLabel": "Product search",
+    "scanCta": "Scan",
+    "recents": "Recent"
   },
   "scan": {
     "title": "GreeLens",
@@ -589,5 +572,77 @@
     "sourcesTitle": "Sources",
     "sourcesBody": "Product data comes from Open Food Facts, the open collaborative database. GreeCheck never invents product information.",
     "privacyBody": "Everything is computed on your device: no account, no server-side history, no advertising profile."
+  },
+  "marketing": {
+    "hero": {
+      "kicker": "Your food decision assistant",
+      "title": "Scan. Understand. Choose better.",
+      "subtitle": "Scan a product and get a clear verdict in two seconds: the main reasons and a better alternative. No account, no ads — everything stays on your device.",
+      "ctaScan": "Scan a product",
+      "ctaSearch": "Search",
+      "searchPlaceholder": "Search a product (e.g. cereal, yogurt…)",
+      "searchAction": "Search a product",
+      "openApp": "Open the app"
+    },
+    "demo": {
+      "title": "From scan to decision",
+      "subtitle": "The real journey, computed by the real GreeScore engine.",
+      "note": "Illustrative example computed by the real engine — in the app, product data comes from Open Food Facts.",
+      "step1": "Scan",
+      "step1Body": "Aim at the barcode. Detection is instant.",
+      "step2": "Understand",
+      "step2Body": "Clear verdict, main reasons, data confidence.",
+      "step3": "Choose better",
+      "step3Body": "A measurably better alternative from the same category.",
+      "scanning": "Detecting barcode…",
+      "productGeneric": "Classic hazelnut spread",
+      "productBetter": "Organic hazelnut spread",
+      "reasonSugar": "Too much sugar",
+      "reasonNova": "Ultra-processed",
+      "reasonBio": "Organic",
+      "reasonFiber": "High in fiber",
+      "swapGain": "+{n} points"
+    },
+    "score": {
+      "title": "GreeScore + Trust Halo",
+      "body": "A deterministic, explainable 0–100 health score: nutrition, NOVA processing, additives, labels. The Trust Halo separately shows data reliability — missing information lowers confidence, never the score.",
+      "explain": "Every score can be explained, line by line."
+    },
+    "swap": {
+      "title": "GreeSwap — the better alternative",
+      "body": "When a product scores poorly, GreeSwap suggests a same-category alternative with the measured improvement.",
+      "before": "Your product",
+      "after": "Alternative"
+    },
+    "battle": {
+      "title": "Scan Battle",
+      "body": "Compare up to three products head-to-head. The verdict weighs both score and data confidence.",
+      "winner": "Winner"
+    },
+    "cart": {
+      "title": "GreeCart — improve your whole basket",
+      "body": "GreeCart analyzes the overall quality of your groceries and simulates replacements, before/after.",
+      "before": "Before",
+      "after": "After",
+      "replaced": "{n} products replaced"
+    },
+    "privacy": {
+      "title": "Private by design",
+      "body": "No account. No ads. No server profile. History, favorites, cart and preferences live in your browser and can be wiped anytime.",
+      "p1": "No account required",
+      "p2": "100% on-device data",
+      "p3": "Zero ads, zero tracking"
+    },
+    "method": {
+      "title": "An open methodology",
+      "body": "Data comes from Open Food Facts, the open collaborative database. The GreeScore calculation is documented and identical for everyone.",
+      "cta": "Read the methodology"
+    },
+    "final": {
+      "title": "Ready to choose better?",
+      "body": "Open GreeLens and scan your first product — it's instant.",
+      "cta": "Scan now",
+      "ctaDesktop": "Search a product"
+    }
   }
 }

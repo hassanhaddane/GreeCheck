@@ -17,28 +17,11 @@
     "cart": "GreeCart",
     "discover": "Découvrir",
     "criteria": "Mes critères",
-    "methodology": "Méthodologie"
-  },
-  "home": {
-    "greeting": "Bonjour",
-    "heroTitle": "Comprends ce que tu manges",
-    "heroSubtitle": "Scanne un produit pour découvrir son GreeScore personnalisé.",
-    "scanCta": "Scanner un produit",
-    "quickActions": "Actions rapides",
-    "today": "Aujourd'hui",
-    "recent": "Scans récents",
-    "emptyRecent": "Aucun scan pour le moment. Commence par scanner un produit.",
-    "discover": "Découvre mieux ce que tu consommes",
-    "modeTitle": "Ton mode actuel",
-    "noGoals": "Aucun objectif défini — le GreeScore reste neutre.",
-    "setGoals": "Choisir mes objectifs",
-    "seeAll": "Tout voir",
-    "hintSearch": "Filtres intelligents",
-    "hintBattle": "Compare jusqu'à 3",
-    "greeLens": "GreeLens",
-    "greeLensHint": "Scan futuriste avec analyse instantanée",
-    "hintCart": "Analyse la qualité de ton panier",
-    "hintHistory": "Retrouve tes scans récents"
+    "methodology": "Méthodologie",
+    "more": "Plus",
+    "searchLabel": "Recherche produit",
+    "scanCta": "Scanner",
+    "recents": "Récents"
   },
   "scan": {
     "title": "GreeLens",
@@ -589,5 +572,77 @@
     "sourcesTitle": "Sources",
     "sourcesBody": "Les données produits proviennent d'Open Food Facts, base collaborative et ouverte. GreeCheck n'invente jamais d'information produit.",
     "privacyBody": "Le calcul s'effectue entièrement sur ton appareil : aucun compte, aucun historique serveur, aucun profil publicitaire."
+  },
+  "marketing": {
+    "hero": {
+      "kicker": "Ton assistant de décision alimentaire",
+      "title": "Scanne. Comprends. Choisis mieux.",
+      "subtitle": "Scanne un produit et obtiens en deux secondes un verdict clair, les raisons principales et une meilleure alternative. Sans compte, sans pub — tout reste sur ton appareil.",
+      "ctaScan": "Scanner un produit",
+      "ctaSearch": "Rechercher",
+      "searchPlaceholder": "Cherche un produit (ex. céréales, yaourt…)",
+      "searchAction": "Rechercher un produit",
+      "openApp": "Ouvrir l'application"
+    },
+    "demo": {
+      "title": "Du scan à la décision",
+      "subtitle": "Le vrai parcours, calculé par le vrai moteur GreeScore.",
+      "note": "Exemple illustratif calculé par le moteur réel — dans l'app, les données produits proviennent d'Open Food Facts.",
+      "step1": "Scanner",
+      "step1Body": "Vise le code-barres. La détection est instantanée.",
+      "step2": "Comprendre",
+      "step2Body": "Verdict clair, raisons principales, confiance des données.",
+      "step3": "Mieux choisir",
+      "step3Body": "Une alternative mesurablement meilleure, dans la même catégorie.",
+      "scanning": "Détection du code-barres…",
+      "productGeneric": "Pâte à tartiner classique",
+      "productBetter": "Pâte à tartiner noisettes bio",
+      "reasonSugar": "Trop de sucre",
+      "reasonNova": "Ultra-transformé",
+      "reasonBio": "Produit bio",
+      "reasonFiber": "Riche en fibres",
+      "swapGain": "+{n} points"
+    },
+    "score": {
+      "title": "GreeScore + Trust Halo",
+      "body": "Un score santé de 0 à 100, déterministe et explicable : nutrition, transformation NOVA, additifs, labels. Le Trust Halo indique séparément la fiabilité des données — une information manquante réduit la confiance, jamais le score.",
+      "explain": "Chaque score est explicable, ligne par ligne."
+    },
+    "swap": {
+      "title": "GreeSwap — la meilleure alternative",
+      "body": "Quand un produit est mal noté, GreeSwap propose une alternative de la même catégorie, avec l'amélioration mesurée.",
+      "before": "Ton produit",
+      "after": "Alternative"
+    },
+    "battle": {
+      "title": "Scan Battle",
+      "body": "Compare jusqu'à trois produits face à face. Le verdict tient compte du score et de la fiabilité des données.",
+      "winner": "Vainqueur"
+    },
+    "cart": {
+      "title": "GreeCart — améliore tout ton panier",
+      "body": "GreeCart analyse la qualité globale de tes courses et simule l'effet des remplacements, avant/après.",
+      "before": "Avant",
+      "after": "Après",
+      "replaced": "{n} produits remplacés"
+    },
+    "privacy": {
+      "title": "Privé par construction",
+      "body": "Pas de compte. Pas de publicité. Pas de profil serveur. Historique, favoris, panier et préférences restent dans ton navigateur, supprimables à tout moment.",
+      "p1": "Aucun compte requis",
+      "p2": "Données 100 % sur l'appareil",
+      "p3": "Zéro publicité, zéro tracking"
+    },
+    "method": {
+      "title": "Une méthodologie ouverte",
+      "body": "Les données proviennent d'Open Food Facts, base collaborative ouverte. Le calcul du GreeScore est documenté et identique pour tous.",
+      "cta": "Lire la méthodologie"
+    },
+    "final": {
+      "title": "Prêt à mieux choisir ?",
+      "body": "Ouvre GreeLens et scanne ton premier produit — c'est immédiat.",
+      "cta": "Scanner maintenant",
+      "ctaDesktop": "Rechercher un produit"
+    }
   }
 }

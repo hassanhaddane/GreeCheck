@@ -146,8 +146,9 @@ function ManualTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) =
     setBusy(true); setErr(null);
     try {
       const res = await getProduct(c);
-      if (res.status === "not_found") setErr(t("notFound"));
-      else { onResolve(add(res.product), res.product.name); setCode(""); }
+      if (res.kind === "product") { onResolve(add(res.product), res.product.name); setCode(""); }
+      else if (res.kind === "not_found") setErr(t("notFound"));
+      else setErr(t("errorFetch"));
     } catch { setErr(t("errorFetch")); }
     setBusy(false);
   };
@@ -185,8 +186,9 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
       setErr(null);
       getProduct(code)
         .then((res) => {
-          if (res.status === "not_found") setErr(t("notFound"));
-          else onResolve(add(res.product), res.product.name);
+          if (res.kind === "product") onResolve(add(res.product), res.product.name);
+          else if (res.kind === "not_found") setErr(t("notFound"));
+          else setErr(t("errorFetch"));
         })
         .catch(() => setErr(t("errorFetch")))
         .finally(() => setBusy(false));

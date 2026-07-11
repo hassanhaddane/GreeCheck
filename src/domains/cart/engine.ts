@@ -3,7 +3,7 @@ import type { GreeScore, ScoreGrade } from "@/domains/scoring/types";
 import type { LocalPreferences } from "@/domains/criteria/model";
 import { computeGreeScore } from "@/domains/scoring/gree-score";
 import { NUTRITION_THRESHOLDS, clamp, round } from "@/domains/scoring/thresholds";
-import { detectHaram, hasAllergenConflict, hasAnyNutrition, hasIngredientsData } from "@/domains/scoring/detectors";
+import { halalStatusOf, hasAllergenConflict, hasAnyNutrition, hasIngredientsData } from "@/domains/scoring/detectors";
 
 export type CartLabelKey = "excellent" | "good" | "mixed" | "needsImprovement" | "poor";
 export type CartConfidenceLevel = "high" | "medium" | "low";
@@ -189,10 +189,14 @@ function analyzeProduct(input: CartInput, prefs: LocalPreferences): CartProductA
   if (hasAllergenConflict(product, prefs.avoidAllergens)) {
     addIssue(issues, "allergenConflict", "critical", 35);
   }
-  if (activeHalal && detectHaram(product)) {
-    addIssue(issues, "halalConflict", "critical", 28);
-  } else if (activeHalal && !product.isHalal) {
-    addIssue(issues, "halalUnknown", "warning", 8);
+  if (activeHalal) {
+    const st = halalStatusOf(product);
+    if (st === "incompatible") {
+      addIssue(issues, "halalConflict", "critical", 28);
+    } else if (st === "check_required") {
+      addIssue(issues, "halalUnknown", "warning", 8);
+    }
+    // not_confirmed / unknown: NEUTRAL — never penalized as "not halal".
   }
   if (activeVegan && !product.isVegan) {
     addIssue(issues, "veganConflict", "critical", 26);
@@ -320,8 +324,9 @@ function makeCompatibility(
     if (kind === "bio") {
       product.isBio ? compatible++ : incompatible++;
     } else if (kind === "halal") {
-      if (product.isHalal) compatible++;
-      else if (detectHaram(product)) incompatible++;
+      const st = halalStatusOf(product);
+      if (st === "confirmed") compatible++;
+      else if (st === "incompatible") incompatible++;
       else unknown++;
     } else if (kind === "vegan") {
       product.isVegan ? compatible++ : incompatible++;

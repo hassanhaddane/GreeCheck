@@ -35,7 +35,7 @@ import type {
   ConfidenceLevel
 } from "@/domains/scoring/types";
 import { NUTRITION_THRESHOLDS as T, clamp, round } from "@/domains/scoring/thresholds";
-import { detectHaram, hasPalmOil } from "@/domains/scoring/detectors";
+import { detectHaram, halalStatusOf, hasPalmOil } from "@/domains/scoring/detectors";
 
 /* ─────────────────────────── tuning constants ──────────────────────────── */
 
@@ -245,7 +245,11 @@ export function scoreGoals(
     avoid_ultraprocessed: novaFit,
     build_muscle: () => Math.round(proteinFit() * 0.8 + (sugarFit() * 0.2)),
     lose_weight: () => Math.round(calorieFit() * 0.5 + sugarFit() * 0.3 + processing * 0.2),
-    halal: () => (p.isHalal ? 100 : detectHaram(p) ? 0 : 50),
+    halal: () => {
+      const st = halalStatusOf(p);
+      // Compatibility only: not_confirmed/unknown are NEUTRAL (never "not halal").
+      return st === "confirmed" ? 100 : st === "incompatible" ? 0 : st === "check_required" ? 40 : 50;
+    },
     vegan: () => (p.isVegan ? 100 : 20),
     vegetarian: () => (p.isVegetarian ? 100 : 25),
     high_protein: proteinFit,
@@ -268,8 +272,11 @@ export function scoreGoals(
       reasons.push({ kind: "bonus", code: "muscleProtein" });
     if (g === "reduce_sugar" && (n.sugars ?? 0) > T.sugarHigh)
       reasons.push({ kind: "malus", code: "reduceSugarGoal" });
-    if (g === "halal" && detectHaram(p))
-      warnings.push({ level: "critical", code: "haramIngredient" });
+    if (g === "halal") {
+      const st = halalStatusOf(p);
+      if (st === "incompatible") warnings.push({ level: "critical", code: "haramIngredient" });
+      else if (st === "check_required") warnings.push({ level: "warning", code: "halalCheckRequired" });
+    }
   }
   return count ? round(sum / count) : 50;
 }

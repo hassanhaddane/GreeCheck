@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
+import { normalizeError } from "@/services/api/errors";
 
 export const runtime = "nodejs";
 
@@ -24,8 +25,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ barcode
       headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=86400" }
     });
   } catch (err) {
+    const e = normalizeError(err);
+    if (e.code === "rate_limited") {
+      return NextResponse.json(
+        { status: "rate_limited" },
+        { status: 429, headers: e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined }
+      );
+    }
     return NextResponse.json(
-      { status: "error", error: "upstream_unavailable", message: (err as Error).message },
+      { status: "error", error: e.code === "network" ? "upstream_unreachable" : "upstream_unavailable" },
       { status: 502 }
     );
   }

@@ -66,7 +66,8 @@
     "searchingCode": "البحث عن الرمز…",
     "productDetected": "تم اكتشاف المنتج",
     "analyzingNutrition": "تحليل التغذية…",
-    "enterBarcode": "إدخال الباركود"
+    "enterBarcode": "إدخال الباركود",
+    "rateLimited": "الخدمة محدودة مؤقتًا — حاول مرة أخرى بعد قليل"
   },
   "search": {
     "title": "بحث",
@@ -167,7 +168,12 @@
       "high": "عالية",
       "medium": "متوسطة",
       "low": "منخفضة"
-    }
+    },
+    "staleBanner": "نتيجة مخزنة من {date} — الشبكة غير متاحة",
+    "staleRefresh": "تحديث",
+    "rateLimited": "الخدمة محدودة مؤقتًا",
+    "rateLimitedBody": "مصدر البيانات يقيد الطلبات. حاول مرة أخرى بعد قليل.",
+    "contributeEdit": "أكمل بطاقة المنتج"
   },
   "battle": {
     "title": "Scan Battle",
@@ -497,7 +503,8 @@
       "palmOil": "يحتوي زيت النخيل",
       "allergenPresent": "مسبب حساسية موجود: {name}",
       "haramIngredient": "مكوّن قد يكون غير حلال",
-      "partialData": "التقييم مبني على بيانات جزئية"
+      "partialData": "التقييم مبني على بيانات جزئية",
+      "halalCheckRequired": "مكوّن يحتاج إلى التحقق بالنسبة للحلال (يجب تأكيد المصدر)"
     },
     "bestChoice": "الخيار الأفضل",
     "lowScoreWarning": "نتيجة منخفضة — قلّل منه",

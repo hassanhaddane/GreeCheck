@@ -59,16 +59,16 @@ test("unknown data stays unknown — absence is never mapped to a negative value
 
 test("assessProduct grades completeness into status + confidence", () => {
   const full = assessProduct(mapOffProduct(RAW));
-  assert.equal(full.status, "found");
+  assert.equal(full.status, "complete");
   assert.equal(full.confidence, "high");
 
   const noNutrition = assessProduct(mapOffProduct({ code: "2", product_name: "X", ingredients_text: "eau, sel" }));
-  assert.equal(noNutrition.status, "missing_nutrition");
+  assert.equal(noNutrition.status, "insufficient_for_score");
   assert.equal(noNutrition.confidence, "low");
-  assert.ok(noNutrition.missing.includes("nutrition"));
+  assert.ok(noNutrition.missing.includes("missingNutrition"));
 
   const noIngredients = assessProduct(mapOffProduct({ code: "3", product_name: "Y", nutriments: { "sugars_100g": 4 } }));
-  assert.equal(noIngredients.status, "missing_ingredients");
+  assert.equal(noIngredients.status, "usable_incomplete");
   assert.equal(noIngredients.confidence, "medium");
 });
 
@@ -76,4 +76,64 @@ test("invalid grades and NOVA values are rejected, not guessed", () => {
   const p = mapOffProduct({ code: "4", product_name: "Z", nutriscore_grade: "unknown", nova_group: 7 });
   assert.equal(p.nutriScore, undefined);
   assert.equal(p.novaGroup, undefined);
+});
+
+/* ─────────────── V2 statuses: halal / vegan / palm-oil / quality ─────────────── */
+import {
+  classifyHalal, classifyVegan, classifyPalmOil, computeDataQuality, ensureDerived
+} from "./normalizer";
+
+test("halal is a 5-state compatibility fact — not_confirmed is NEVER 'not halal'", () => {
+  // real Nutella ingredients (captured payload): no flag → not_confirmed, not incompatible
+  const nutella = mapOffProduct(RAW);
+  assert.equal(nutella.halalStatus, "not_confirmed");
+  assert.equal(nutella.isHalal, false);
+
+  assert.equal(classifyHalal("eau, sel", ["halal"]), "confirmed");
+  assert.equal(classifyHalal("gélatine de porc, sucre", []), "incompatible");
+  assert.equal(classifyHalal("sucre, gélatine", []), "check_required"); // ambiguous origin
+  assert.equal(classifyHalal("farine de blé, eau, sel", []), "not_confirmed");
+  assert.equal(classifyHalal(undefined, []), "unknown");
+});
+
+test("vegan/vegetarian and palm-oil statuses expose explicit unknowns", () => {
+  const p = mapOffProduct(RAW);
+  assert.equal(p.palmOilStatus, "present");          // huile de palme
+  assert.equal(classifyVegan("LAIT écrémé en poudre, sucre", []), "incompatible");
+  assert.equal(classifyVegan("tofu, eau", ["vegan"]), "confirmed");
+  assert.equal(classifyVegan("noisettes, sucre", []), "unknown");
+  assert.equal(classifyPalmOil("huile de tournesol. sans huile de palme", []), "absent_claimed");
+  assert.equal(classifyPalmOil("noisettes, sucre", []), "unknown");
+});
+
+test("data quality: availability flags, completeness and EXPLAINABLE confidence", () => {
+  const full = mapOffProduct(RAW);
+  assert.ok(full.dataQuality);
+  const q = full.dataQuality!;
+  assert.equal(q.availability.nutrition, true);
+  assert.equal(q.availability.nutriScore, true);
+  assert.equal(q.availability.ingredients, true);
+  assert.equal(q.confidence, "high");
+  assert.ok(q.completeness >= 80);
+  // missing image is not among key confidence signals but nova is explained
+  const sparse = mapOffProduct({ code: "1", product_name: "X" });
+  const qs = computeDataQuality(sparse);
+  assert.equal(qs.confidence, "low");
+  assert.deepEqual(qs.confidenceReasons, ["missingNutriScore", "missingNutrition", "missingIngredients", "missingNova"]);
+});
+
+test("ensureDerived revives pre-V2 products (statuses + quality filled, idempotent)", () => {
+  const legacy = { barcode: "1", name: "L", nutriments: { sugars: 2 }, ingredientsText: "sucre, gélatine", source: "openfoodfacts" as const };
+  const revived = ensureDerived(legacy);
+  assert.equal(revived.halalStatus, "check_required");
+  assert.ok(revived.dataQuality);
+  assert.equal(ensureDerived(revived), revived); // no re-derivation when already filled
+});
+
+test("keyword matching is word-bounded (lactosérum ≠ rum, vinaigre ≠ vin, graham ≠ ham)", () => {
+  assert.equal(classifyHalal("LACTOSERUM en poudre, sucre", []), "not_confirmed");
+  assert.equal(classifyHalal("vinaigre de cidre, sel", []), "not_confirmed");
+  assert.equal(classifyHalal("biscuit graham, sucre", []), "not_confirmed");
+  assert.equal(classifyHalal("rhum, sucre", []), "incompatible"); // real hit still detected
+  assert.equal(classifyHalal("vin blanc, sel", []), "incompatible");
 });

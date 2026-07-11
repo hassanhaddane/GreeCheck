@@ -2,7 +2,8 @@
  * Pure ingredient/label detectors shared by scoring, basket analysis and filters.
  * No React, no I/O — deterministic string heuristics over normalized products.
  */
-import type { Product } from "@/domains/product/model";
+import type { Product, HalalStatus } from "@/domains/product/model";
+import { classifyHalal } from "@/domains/product/normalizer";
 
 /** Ingredient keywords suggesting non-halal content (heuristic). */
 export const HARAM_KEYWORDS = [
@@ -15,7 +16,16 @@ export const HARAM_KEYWORDS = [
 /** True when the ingredient list or labels suggest a non-halal ingredient. */
 export function detectHaram(p: Product): boolean {
   const hay = `${p.ingredientsText ?? ""} ${(p.labels ?? []).join(" ")}`.toLowerCase();
-  return HARAM_KEYWORDS.some((k) => hay.includes(k));
+  // Word-bounded: "rum" ≠ "lactosérum", "vin" ≠ "vinaigre", "ham" ≠ "graham".
+  return HARAM_KEYWORDS.some((k) => new RegExp(`(?<![a-zà-ÿ])${k}(?![a-zà-ÿ])`).test(hay));
+}
+
+/**
+ * Preferred halal signal: the normalized 5-state status. Only "incompatible"
+ * is a conflict — "not_confirmed"/"unknown" stay NEUTRAL by design.
+ */
+export function halalStatusOf(p: Product): HalalStatus {
+  return p.halalStatus ?? (p.isHalal ? "confirmed" : classifyHalal(p.ingredientsText, p.labels));
 }
 
 /** True when palm oil is present and not explicitly excluded. */

@@ -66,7 +66,8 @@
     "searchingCode": "Recherche du code…",
     "productDetected": "Produit détecté",
     "analyzingNutrition": "Analyse nutritionnelle…",
-    "enterBarcode": "Entrer le code-barres"
+    "enterBarcode": "Entrer le code-barres",
+    "rateLimited": "Service temporairement limité — réessaie dans un instant"
   },
   "search": {
     "title": "Rechercher",
@@ -167,7 +168,12 @@
       "high": "élevée",
       "medium": "moyenne",
       "low": "faible"
-    }
+    },
+    "staleBanner": "Résultat en cache du {date} — réseau indisponible",
+    "staleRefresh": "Actualiser",
+    "rateLimited": "Service temporairement limité",
+    "rateLimitedBody": "La source de données limite les requêtes. Réessaie dans un instant.",
+    "contributeEdit": "Compléter la fiche"
   },
   "battle": {
     "title": "Scan Battle",
@@ -497,7 +503,8 @@
       "palmOil": "Contient de l'huile de palme",
       "allergenPresent": "Allergène présent : {name}",
       "haramIngredient": "Ingrédient potentiellement non halal",
-      "partialData": "Score calculé avec des données partielles"
+      "partialData": "Score calculé avec des données partielles",
+      "halalCheckRequired": "Ingrédient à vérifier pour le halal (origine à confirmer)"
     },
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",

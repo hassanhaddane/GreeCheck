@@ -66,7 +66,8 @@
     "searchingCode": "Looking for the code…",
     "productDetected": "Product detected",
     "analyzingNutrition": "Analyzing nutrition…",
-    "enterBarcode": "Enter barcode"
+    "enterBarcode": "Enter barcode",
+    "rateLimited": "Service temporarily limited — try again in a moment"
   },
   "search": {
     "title": "Search",
@@ -167,7 +168,12 @@
       "high": "high",
       "medium": "medium",
       "low": "low"
-    }
+    },
+    "staleBanner": "Cached result from {date} — network unavailable",
+    "staleRefresh": "Refresh",
+    "rateLimited": "Service temporarily limited",
+    "rateLimitedBody": "The data source is limiting requests. Try again in a moment.",
+    "contributeEdit": "Complete the sheet"
   },
   "battle": {
     "title": "Scan Battle",
@@ -497,7 +503,8 @@
       "palmOil": "Contains palm oil",
       "allergenPresent": "Allergen present: {name}",
       "haramIngredient": "Potentially non-halal ingredient",
-      "partialData": "Score based on partial data"
+      "partialData": "Score based on partial data",
+      "halalCheckRequired": "Ingredient to verify for halal (origin to confirm)"
     },
     "bestChoice": "Best choice",
     "lowScoreWarning": "Low score — limit",

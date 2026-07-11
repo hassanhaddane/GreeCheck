@@ -17,7 +17,7 @@ import type { ProductResult } from "@/services/api/openfoodfacts";
 
 const ls = localStorageStub();
 const product = (barcode: string): Product => ({ barcode, name: `P${barcode}`, nutriments: {}, source: "openfoodfacts" });
-const found = (barcode: string): ProductResult => ({ status: "found", product: product(barcode), confidence: "high", missing: [] });
+const found = (barcode: string): ProductResult => ({ status: "usable_incomplete", product: product(barcode), confidence: "medium", missing: [] });
 
 beforeEach(async () => {
   assert.ok(db);
@@ -56,14 +56,14 @@ test("store mutations write through to the repository", async () => {
 
 test("product cache: fresh hit is served, stale entry is ignored by get() but reachable via getStale()", async () => {
   await productCacheRepo.put("123", found("123"));
-  assert.equal((await productCacheRepo.get("123"))?.status, "found");
+  assert.equal((await productCacheRepo.get("123"))?.status, "usable_incomplete");
 
   // age the entry past the TTL
   await db!.products.update("123", { cachedAt: Date.now() - PRODUCT_TTL - 1000 });
   assert.equal(await productCacheRepo.get("123"), undefined);
   const stale = await productCacheRepo.getStale("123");
   assert.ok(stale);
-  assert.equal(stale.result.status, "found");
+  assert.equal(stale.result.status, "usable_incomplete");
 });
 
 test("repository reads fail gracefully (closed DB → empty results, no throw)", async () => {

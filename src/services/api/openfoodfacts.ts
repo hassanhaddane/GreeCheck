@@ -5,6 +5,7 @@
  */
 import type { Product, Confidence, ProductState } from "@/domains/product/model";
 import { OFF_FIELDS, mapOffProduct, assessProduct, type OffRawProduct } from "@/domains/product/normalizer";
+import { RateLimitedError, retryAfterMs } from "./errors";
 
 // Re-exported for existing consumers of this module.
 export { OFF_FIELDS, mapOffProduct, assessProduct };
@@ -23,11 +24,14 @@ export type ProductResult =
   | { status: "not_found"; barcode: string };
 
 async function offFetch(url: string, revalidate = 60 * 60): Promise<Response> {
-  return fetch(url, {
+  const res = await fetch(url, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
     next: { revalidate },
     signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)
   });
+  // Rate-limit awareness: OFF answers 429 when the shared quota is exhausted.
+  if (res.status === 429) throw new RateLimitedError(retryAfterMs(res.headers.get("retry-after")));
+  return res;
 }
 
 /**

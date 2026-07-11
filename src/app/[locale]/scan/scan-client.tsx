@@ -35,7 +35,7 @@ import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 
-type LookupState = "idle" | "loading" | "not_found" | "network_error" | "unsupported";
+type LookupState = "idle" | "loading" | "not_found" | "network_error" | "rate_limited" | "unsupported";
 type ScanSource = "product" | "cart" | "battle";
 
 function sourceFromParam(value: string | null): ScanSource {
@@ -77,9 +77,9 @@ export function ScanClient() {
 
       try {
         const result = await getProduct(code);
-        if (result.status === "not_found") {
+        if (result.kind !== "product") {
           setPhase("idle");
-          setLookup("not_found");
+          setLookup(result.kind === "not_found" ? "not_found" : result.kind === "rate_limited" ? "rate_limited" : "network_error");
           return;
         }
 
@@ -272,7 +272,9 @@ export function ScanClient() {
               ? t("productNotFound", { code: lastCode })
               : lookup === "network_error"
                 ? t("networkError")
-                : t("unsupportedCode")}
+                : lookup === "rate_limited"
+                  ? t("rateLimited")
+                  : t("unsupportedCode")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <GreeButton variant="neon" size="sm" onClick={retryAll}>

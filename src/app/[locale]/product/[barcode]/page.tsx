@@ -23,8 +23,8 @@ import { Alternatives } from "@/components/product/alternatives";
 import { Skeleton } from "@/components/system/loading-state";
 import { EmptyState } from "@/components/system/empty-state";
 import { ErrorState } from "@/components/system/error-state";
-import { getProduct } from "@/domains/product/repository";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import { getProduct, type ProductLookup } from "@/domains/product/repository";
+import { productAddUrl, productContributionUrl } from "@/domains/product/contribute";
 import type { Product } from "@/domains/product/model";
 import { computeGreeScore } from "@/domains/scoring/gree-score";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
@@ -52,8 +52,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const tScore = useTranslations("score");
   const router = useRouter();
 
-  const [state, setState] = useState<"loading" | "error" | ProductResult["status"]>("loading");
-  const [data, setData] = useState<ProductResult | null>(null);
+  const [lookup, setLookup] = useState<ProductLookup | null>(null); // null = loading
   const [basketNotice, setBasketNotice] = useState<"added" | "duplicate" | null>(null);
 
   const favorites = useFavoritesStore();
@@ -73,24 +72,19 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   });
 
   const load = useCallback(async () => {
-    setState("loading");
-    try {
-      const result = await getProduct(barcode);
-      setData(result);
-      setState(result.status);
-      if (result.status !== "not_found") {
-        const gree = computeGreeScore(result.product, prefsRef.current);
-        addHistory({
-          barcode: result.product.barcode,
-          name: result.product.name,
-          imageUrl: result.product.imageUrl,
-          score: gree.global,
-          verdict: tScore(`grade.${gree.grade}`),
-          scannedAt: Date.now()
-        });
-      }
-    } catch {
-      setState("error");
+    setLookup(null);
+    const result = await getProduct(barcode); // never throws — normalized envelope
+    setLookup(result);
+    if (result.kind === "product") {
+      const gree = computeGreeScore(result.product, prefsRef.current);
+      addHistory({
+        barcode: result.product.barcode,
+        name: result.product.name,
+        imageUrl: result.product.imageUrl,
+        score: gree.global,
+        verdict: tScore(`grade.${gree.grade}`),
+        scannedAt: Date.now()
+      });
     }
   }, [barcode, addHistory, tScore]);
 
@@ -100,7 +94,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   }, [load]);
 
   /* ----------------------------- loading ----------------------------- */
-  if (state === "loading") {
+  if (lookup === null) {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
         <GreeCard><GreeCardContent className="flex gap-4"><Skeleton className="h-28 w-28 rounded-2xl" /><div className="flex-1 space-y-3 pt-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-3 w-1/2" /></div></GreeCardContent></GreeCard>
@@ -110,8 +104,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
-  /* ------------------------------ error ------------------------------ */
-  if (state === "error") {
+  /* --------------------------- network error ------------------------- */
+  if (lookup.kind === "network_error") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
         <ErrorState title={t("errorTitle")} description={t("errorBody")} onRetry={load} />
@@ -119,8 +113,17 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
+  /* ---------------------------- API limited -------------------------- */
+  if (lookup.kind === "rate_limited") {
+    return (
+      <div className="mx-auto max-w-2xl pt-8">
+        <ErrorState title={t("rateLimited")} description={t("rateLimitedBody")} onRetry={load} />
+      </div>
+    );
+  }
+
   /* ---------------------------- not found ---------------------------- */
-  if (state === "not_found" || !data || data.status === "not_found") {
+  if (lookup.kind === "not_found") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
         <EmptyState
@@ -128,7 +131,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           title={t("notFound")}
           description={t("notFoundBody")}
           action={
-            <a href={`https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${barcode}`} target="_blank" rel="noreferrer">
+            <a href={productAddUrl(barcode)} target="_blank" rel="noreferrer">
               <GreeButton variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</GreeButton>
             </a>
           }
@@ -138,7 +141,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   }
 
   /* ------------------------------ found ------------------------------ */
-  const p = data.product;
+  const p = lookup.product;
   // Live, personalized GreeScore — recomputes if the user changes preferences.
   const gree = computeGreeScore(p, prefs);
   const score = gree.global;
@@ -180,13 +183,29 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </div>
       </GreeCard>
 
+      {/* ── Stale-data indicator (offline / rate-limited fallback) ── */}
+      {lookup.stale && (
+        <GreeCard className="flex items-center gap-3 border-verdict-unknown/30 bg-verdict-unknown/5 p-4" role="status">
+          <ShieldQuestion className="h-5 w-5 shrink-0 text-verdict-unknown" />
+          <p className="flex-1 text-sm font-medium">
+            {t("staleBanner", { date: lookup.cachedAt ? new Date(lookup.cachedAt).toLocaleDateString() : "—" })}
+          </p>
+          <GreeButton variant="soft" size="sm" onClick={() => void getProduct(barcode, { force: true }).then(setLookup)}>
+            {t("staleRefresh")}
+          </GreeButton>
+        </GreeCard>
+      )}
+
       {/* ── Incomplete / confidence state ── */}
-      {data.confidence !== "high" && (
+      {lookup.confidence !== "high" && (
         <GreeCard className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
           <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c-ink" />
-          <p className="text-sm font-medium">
-            {data.confidence === "low" ? t("incomplete") : t("confidenceMedium")} — {t("dataMissing")}
+          <p className="flex-1 text-sm font-medium">
+            {lookup.status === "insufficient_for_score" ? t("incomplete") : t("confidenceMedium")} — {t("dataMissing")}
           </p>
+          <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="shrink-0">
+            <GreeButton variant="soft" size="sm"><ExternalLink className="h-3.5 w-3.5" /> {t("contributeEdit")}</GreeButton>
+          </a>
         </GreeCard>
       )}
 

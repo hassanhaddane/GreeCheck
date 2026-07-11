@@ -1,4 +1,4 @@
-import type { ScoreGrade, ScoreLabel } from "@/types/scoring";
+import type { ScoreGrade, ScoreLabel } from "@/domains/scoring/types";
 
 export const SCORE_BANDS: {
   min: number;

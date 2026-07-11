@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { searchProducts, type SearchResult } from "@/lib/api/openfoodfacts";
+import { searchProducts, type SearchResult } from "@/services/api/openfoodfacts";
 
 export const runtime = "nodejs";
 

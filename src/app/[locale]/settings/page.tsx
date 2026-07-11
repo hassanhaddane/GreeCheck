@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Globe, Sun, Moon, Monitor, Target, Trash2, Shield, History, Heart, ShoppingBasket, Database, RotateCcw, Check } from "lucide-react";
+import { Globe, Sun, Moon, Monitor, Target, Trash2, Shield, History, Heart, ShoppingBasket, Database, RotateCcw, Check, ChevronRight } from "lucide-react";
 import { useRouter, usePathname, Link, locales, localeMeta, type Locale } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
 import { InstallPrompt } from "@/components/app/install-prompt";
@@ -10,39 +10,18 @@ import { SectionTitle } from "@/components/ui/section-title";
 import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/app/theme-provider";
-import { usePreferencesStore } from "@/stores/preferences-store";
-import { useHistoryStore } from "@/stores/history-store";
-import { useFavoritesStore } from "@/stores/favorites-store";
-import { useBasketStore } from "@/stores/basket-store";
-import { clearHistory, clearFavorites, clearBasket, clearProductCache, resetApp } from "@/lib/storage/local-data";
+import { useHistoryStore } from "@/domains/library/history-store";
+import { useFavoritesStore } from "@/domains/library/favorites-store";
+import { useCartStore } from "@/domains/cart/store";
+import { clearHistory, clearFavorites, clearCart, clearProductCache, resetApp } from "@/services/storage/local-data";
 import { useMounted } from "@/hooks/use-mounted";
-import { useConsentStore } from "@/stores/consent-store";
-import { GOALS, GOAL_LABELS } from "@/lib/constants/goals";
 import { cn } from "@/lib/utils/cn";
 
-const PREF_KEYS = [
-  "preferBio", "preferHalal", "preferVegan", "preferVegetarian",
-  "reduceSugar", "reduceSalt", "reduceAdditives", "reduceUltraProcessed",
-  "increaseProtein", "increaseFiber"
-] as const;
 
-const PREF_LABELS: Record<(typeof PREF_KEYS)[number], Record<Locale, string>> = {
-  preferBio: { fr: "Préférer le bio", en: "Prefer organic", ar: "تفضيل العضوي" },
-  preferHalal: { fr: "Préférer halal", en: "Prefer halal", ar: "تفضيل الحلال" },
-  preferVegan: { fr: "Préférer vegan", en: "Prefer vegan", ar: "تفضيل النباتي الصرف" },
-  preferVegetarian: { fr: "Préférer végétarien", en: "Prefer vegetarian", ar: "تفضيل النباتي" },
-  reduceSugar: { fr: "Réduire le sucre", en: "Reduce sugar", ar: "تقليل السكر" },
-  reduceSalt: { fr: "Réduire le sel", en: "Reduce salt", ar: "تقليل الملح" },
-  reduceAdditives: { fr: "Réduire les additifs", en: "Reduce additives", ar: "تقليل الإضافات" },
-  reduceUltraProcessed: { fr: "Éviter l'ultra-transformé", en: "Avoid ultra-processed", ar: "تجنب المعالج جداً" },
-  increaseProtein: { fr: "Plus de protéines", en: "More protein", ar: "المزيد من البروتين" },
-  increaseFiber: { fr: "Plus de fibres", en: "More fibres", ar: "المزيد من الألياف" }
-};
 
 /** Two-step confirm button for destructive local-data actions. */
 function ConfirmButton({ label, icon, onConfirm, className }: { label: string; icon: React.ReactNode; onConfirm: () => void; className?: string }) {
   const t = useTranslations("settings");
-  const tAds = useTranslations("ads");
   const [armed, setArmed] = useState(false);
   const click = () => {
     if (armed) { onConfirm(); setArmed(false); return; }
@@ -62,19 +41,15 @@ function ConfirmButton({ label, icon, onConfirm, className }: { label: string; i
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
-  const tAds = useTranslations("ads");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  const prefs = usePreferencesStore();
   const mounted = useMounted();
-  const adMode = useConsentStore((c) => c.adMode);
-  const setAdMode = useConsentStore((c) => c.setMode);
 
   const historyCount = useHistoryStore((s) => s.entries.length);
   const favCount = useFavoritesStore((s) => s.items.length);
-  const basketCount = useBasketStore((s) => s.items.length);
+  const basketCount = useCartStore((s) => s.items.length);
 
   const themes = [
     { id: "light", icon: Sun, label: t("themeLight") },
@@ -90,7 +65,7 @@ export default function SettingsPage() {
   const rows = [
     { icon: History, label: t("clearHistory"), count: historyCount, onClear: clearHistory },
     { icon: Heart, label: t("clearFavorites"), count: favCount, onClear: clearFavorites },
-    { icon: ShoppingBasket, label: t("clearBasket"), count: basketCount, onClear: clearBasket },
+    { icon: ShoppingBasket, label: t("clearCart"), count: basketCount, onClear: clearCart },
     { icon: Database, label: t("clearCache"), count: null as number | null, onClear: () => clearProductCache() }
   ];
 
@@ -127,36 +102,17 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Goals */}
-      <section>
-        <SectionTitle><Target className="me-1 inline h-4 w-4" />{t("goals")}</SectionTitle>
-        <div className="flex flex-wrap gap-2">
-          {GOALS.map((g) => (
-            <Chip key={g.id} active={prefs.goals.includes(g.id)} onClick={() => prefs.toggleGoal(g.id)}>
-              <span>{g.emoji}</span> {GOAL_LABELS[g.id][locale]}
-            </Chip>
-          ))}
-        </div>
-      </section>
 
-      {/* Preferences toggles */}
+
+      {/* Mes critères */}
       <section>
-        <SectionTitle>{t("preferences")}</SectionTitle>
-        <Card>
-          <CardContent className="divide-y divide-line p-0">
-            {PREF_KEYS.map((k) => (
-              <label key={k} className="flex cursor-pointer items-center justify-between px-5 py-3.5">
-                <span className="text-sm font-medium">{PREF_LABELS[k][locale]}</span>
-                <input
-                  type="checkbox"
-                  checked={Boolean(prefs[k])}
-                  onChange={(e) => prefs.setPreferences({ [k]: e.target.checked })}
-                  className="relative h-5 w-9 cursor-pointer appearance-none rounded-full bg-line transition before:absolute before:left-0.5 before:top-0.5 before:h-4 before:w-4 before:rounded-full before:bg-white before:transition checked:bg-natural checked:before:translate-x-4"
-                />
-              </label>
-            ))}
-          </CardContent>
-        </Card>
+        <SectionTitle><Target className="me-1 inline h-4 w-4" />{t("criteriaTitle")}</SectionTitle>
+        <Link href="/criteria" className="block">
+          <Card className="gc-pressable flex items-center gap-3 p-4">
+            <p className="flex-1 text-sm text-muted">{t("criteriaHint")}</p>
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted rtl:rotate-180" aria-hidden />
+          </Card>
+        </Link>
       </section>
 
       {/* Data & privacy */}
@@ -206,23 +162,6 @@ export default function SettingsPage() {
         </Card>
       </section>
 
-      {/* Ads */}
-      <section>
-        <SectionTitle>{tAds("settingsTitle")}</SectionTitle>
-        <Card>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted">{tAds("settingsBody")}</p>
-            <div className="flex flex-wrap gap-2">
-              <Chip active={mounted && adMode === "non_personalized"} onClick={() => setAdMode("non_personalized")}>
-                {tAds("keepNonPersonalized")}
-              </Chip>
-              <Chip active={mounted && adMode === "personalized"} onClick={() => setAdMode("personalized")}>
-                {tAds("acceptPersonalized")}
-              </Chip>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
 
     </div>
   );

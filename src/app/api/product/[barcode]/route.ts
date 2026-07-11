@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchProductByBarcode } from "@/lib/api/openfoodfacts";
+import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
 
 export const runtime = "nodejs";
 

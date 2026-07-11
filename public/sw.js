@@ -77,8 +77,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // OpenStreetMap tiles / OFF product images: runtime cache, network-first.
-  if (/tile\.openstreetmap\.org$/.test(url.hostname) || /openfoodfacts\.org$/.test(url.hostname)) {
+  // OFF product images: runtime cache, network-first.
+  if (/openfoodfacts\.org$/.test(url.hostname)) {
     event.respondWith(
       fetch(request)
         .then((res) => {

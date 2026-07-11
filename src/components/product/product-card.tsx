@@ -9,10 +9,10 @@ import { MiniRadar } from "@/components/product/nutrition-radar";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { HealthBadge } from "@/components/score/health-badge";
-import { useBasketStore } from "@/stores/basket-store";
-import { useBattleStore } from "@/stores/battle-store";
-import type { Product } from "@/types/product";
-import type { GreeScore } from "@/types/scoring";
+import { useCartStore } from "@/domains/cart/store";
+import { useBattleStore } from "@/domains/battle/store";
+import type { Product } from "@/domains/product/model";
+import type { GreeScore } from "@/domains/scoring/types";
 
 /**
  * ProductCard — the shared premium product row.
@@ -33,7 +33,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
   const tScore = useTranslations("score");
   const tp = useTranslations("product");
   const router = useRouter();
-  const basket = useBasketStore();
+  const basket = useCartStore();
   const battle = useBattleStore();
   const inBasket = basket.has(p.barcode);
 

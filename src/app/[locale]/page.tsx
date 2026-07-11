@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
   ScanLine, Search, Swords, ShoppingBasket, ArrowRight, ChevronRight,
-  History, ListChecks, Target, Sparkles
+  History, Target, Sparkles
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Logo } from "@/components/app/logo";
@@ -15,10 +15,9 @@ import { SectionTitle } from "@/components/ui/section-title";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { ScoreRing } from "@/components/score/score-ring";
-import { AdSlot } from "@/components/ads/ad-slot";
-import { GOALS, GOAL_LABELS } from "@/lib/constants/goals";
-import { useHistoryStore } from "@/stores/history-store";
-import { usePreferencesStore } from "@/stores/preferences-store";
+import { GOALS, GOAL_LABELS } from "@/domains/criteria/goals";
+import { useHistoryStore } from "@/domains/library/history-store";
+import { usePreferencesStore } from "@/domains/criteria/store";
 import { useMounted } from "@/hooks/use-mounted";
 
 const fade = (i = 0) => ({
@@ -32,7 +31,7 @@ export default function HomePage() {
   const tn = useTranslations("nav");
   const tApp = useTranslations("app");
   const tb = useTranslations("battle");
-  const tSettings = useTranslations("settings");
+  const tCriteria = useTranslations("criteria");
   const locale = useLocale() as "fr" | "en" | "ar";
   const mounted = useMounted();
   const entries = useHistoryStore((s) => s.entries);
@@ -41,8 +40,8 @@ export default function HomePage() {
   const actions = [
     { key: "search", href: "/search", icon: Search, hint: t("hintSearch") },
     { key: "battle", href: "/battle", icon: Swords, hint: t("hintBattle") },
-    { key: "basket", href: "/basket", icon: ShoppingBasket, hint: t("hintBasket") },
-    { key: "list", href: "/list", icon: ListChecks, hint: t("hintList") }
+    { key: "cart", href: "/cart", icon: ShoppingBasket, hint: t("hintCart") },
+    { key: "history", href: "/history", icon: History, hint: t("hintHistory") }
   ];
 
   return (
@@ -141,7 +140,7 @@ export default function HomePage() {
                 <Target className="h-5 w-5" />
               </span>
               <p className="flex-1 text-sm text-muted">{t("noGoals")}</p>
-              <Link href="/settings">
+              <Link href="/criteria">
                 <Button variant="soft" size="sm">{t("setGoals")}</Button>
               </Link>
             </div>
@@ -157,8 +156,8 @@ export default function HomePage() {
                   );
                 })}
               </div>
-              <Link href="/settings" className="flex items-center gap-1 text-xs font-medium text-natural">
-                <Target className="h-3.5 w-3.5" /> {tSettings("goals")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
+              <Link href="/criteria" className="flex items-center gap-1 text-xs font-medium text-natural">
+                <Target className="h-3.5 w-3.5" /> {tCriteria("title")} <ChevronRight className="h-3 w-3 rtl:rotate-180" />
               </Link>
             </div>
           )}
@@ -170,7 +169,7 @@ export default function HomePage() {
         <div className="mb-3 flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("recent")}</h2>
           {mounted && entries.length > 0 && (
-            <Link href="/settings" className="flex items-center gap-0.5 text-xs font-medium text-natural">
+            <Link href="/history" className="flex items-center gap-0.5 text-xs font-medium text-natural">
               <History className="h-3.5 w-3.5" /> {t("seeAll")}
             </Link>
           )}
@@ -209,10 +208,6 @@ export default function HomePage() {
         )}
       </motion.section>
 
-      {/* ── Discreet ad ── */}
-      <motion.div {...fade(7)}>
-        <AdSlot />
-      </motion.div>
     </div>
   );
 }

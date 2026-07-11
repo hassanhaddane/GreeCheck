@@ -2,18 +2,22 @@
   "app": {
     "name": "GreeCheck",
     "tagline": "Scan. Understand. Choose better.",
-    "privacyBadge": "Your data stays on your device"
+    "privacyBadge": "Your data stays on your device",
+    "metaTitle": "GreeCheck — Scan. Understand. Choose better.",
+    "metaDescription": "Scan a food product and get its GreeScore: a clear verdict, the main reasons and better alternatives. No account, 100% on-device data."
   },
   "nav": {
     "home": "Home",
     "scan": "Scan",
     "search": "Search",
     "battle": "Battle",
-    "basket": "Basket",
-    "map": "Map",
     "settings": "Settings",
     "privacy": "Privacy",
-    "list": "List"
+    "history": "My scans",
+    "cart": "GreeCart",
+    "discover": "Discover",
+    "criteria": "My criteria",
+    "methodology": "Methodology"
   },
   "home": {
     "greeting": "Hello",
@@ -31,10 +35,10 @@
     "seeAll": "See all",
     "hintSearch": "Smart filters",
     "hintBattle": "Compare up to 3",
-    "hintBasket": "Rate your basket",
-    "hintList": "Shopping list",
     "greeLens": "GreeLens",
-    "greeLensHint": "Futuristic scan with instant analysis"
+    "greeLensHint": "Futuristic scan with instant analysis",
+    "hintCart": "Analyze the quality of your basket",
+    "hintHistory": "Find your recent scans"
   },
   "scan": {
     "title": "GreeLens",
@@ -106,7 +110,9 @@
     "bestChoice": "Best choice",
     "betterAvailable": "Better option higher in the list",
     "lowScoreWarning": "Low score — limit",
-    "whyLabel": "Why:"
+    "whyLabel": "Why:",
+    "metaTitle": "Product search — GreeCheck",
+    "metaDescription": "Search a food product and compare GreeScores: nutrition, processing, additives and healthier alternatives."
   },
   "product": {
     "title": "Product",
@@ -259,7 +265,7 @@
     "replacedInBasket": "{name} replaced by the winner",
     "noWorseInBasket": "Nothing in your basket scores lower"
   },
-  "basket": {
+  "cart": {
     "title": "Smart basket",
     "subtitle": "Scan several products and get an overall score.",
     "score": "Basket score",
@@ -389,47 +395,10 @@
     "optimizeDone": "{count} product(s) replaced — new estimated score: {score}",
     "optimizeNone": "No automatic swap found — your basket is already well optimized."
   },
-  "map": {
-    "title": "Around me",
-    "subtitle": "Find organic shops, supermarkets and markets in France.",
-    "searchCity": "Search a city",
-    "nearMe": "Around me",
-    "filters": {
-      "bio": "Organic",
-      "supermarket": "Supermarket",
-      "halal": "Halal",
-      "market": "Market",
-      "grocery": "Grocery"
-    },
-    "privacyNote": "Your location is used only on your device to search. It is never stored or sent.",
-    "directions": "Directions",
-    "away": "{km} km",
-    "results": "{n} place(s)",
-    "noResults": "No places found here.",
-    "searching": "Searching…",
-    "locating": "Locating…",
-    "denied": "Location access denied.",
-    "unsupported": "Geolocation unavailable.",
-    "searchHint": "Search a city or use your location.",
-    "viewOnMap": "View on map",
-    "openNow": "Hours",
-    "unavailable": "Map unavailable",
-    "unavailableBody": "The map couldn't be loaded. Check your connection and try again.",
-    "searchAction": "Search",
-    "refresh": "Refresh places",
-    "loadingPlaces": "Loading places…",
-    "placesError": "Places could not be loaded right now. The map service may be busy — try again in a moment.",
-    "noResultsFilters": "No places match the active filters. Widen the filters or refresh places.",
-    "inferred": "possible match",
-    "franceOnly": "Search is available in France only for now."
-  },
   "settings": {
     "title": "Settings",
     "language": "Language",
     "theme": "Theme",
-    "goals": "Goals",
-    "allergens": "Allergens",
-    "preferences": "Preferences",
     "data": "My data",
     "clearData": "Clear my local data",
     "themeLight": "Light",
@@ -439,14 +408,16 @@
     "onDevice": "All your data stays on this device. GreeCheck sends nothing to a server.",
     "clearHistory": "Clear history",
     "clearFavorites": "Delete favorites",
-    "clearBasket": "Clear basket",
     "clearCache": "Clear product cache",
     "resetApp": "Reset the app",
     "resetHint": "Erases preferences, goals, history, favorites, basket and cache.",
     "confirm": "Confirm?",
     "done": "Done",
     "items": "{n} item(s)",
-    "empty": "Empty"
+    "empty": "Empty",
+    "clearCart": "Clear GreeCart",
+    "criteriaTitle": "My criteria",
+    "criteriaHint": "Food goals and preferences — managed on a dedicated page."
   },
   "privacy": {
     "title": "Privacy",
@@ -502,67 +473,6 @@
     "weaknesses": "Weak points",
     "lowIntake": "low"
   },
-  "list": {
-    "title": "Shopping list",
-    "subtitle": "Your smart list, scored on-device.",
-    "newList": "New list",
-    "listName": "List name",
-    "create": "Create",
-    "noList": "Create your first shopping list.",
-    "empty": "Empty list — add some products.",
-    "addProduct": "Add a product",
-    "searchPlaceholder": "Product, brand…",
-    "estScore": "Estimated score",
-    "items": "{n} product(s)",
-    "checked": "{n} checked",
-    "filters": "Filters",
-    "filterBio": "Organic",
-    "filterHalal": "Halal",
-    "filterLowSugar": "Low sugar",
-    "filterProtein": "High protein",
-    "toImprove": "Replace",
-    "toImproveHint": "Products lowering your list score.",
-    "clear": "Clear",
-    "deleteList": "Delete list",
-    "rename": "Rename",
-    "noResults": "No results",
-    "addedToList": "Added to list",
-    "alreadyInList": "Already in list",
-    "aisle": {
-      "produce": "Fruit & veg",
-      "dairy": "Dairy",
-      "bakery": "Bakery & cereals",
-      "beverages": "Beverages",
-      "meat_fish": "Meat & fish",
-      "frozen": "Frozen",
-      "sweet": "Sweets & snacks",
-      "pantry": "Pantry",
-      "other": "Other"
-    },
-    "level": {
-      "good": "Excellent",
-      "ok": "Decent",
-      "bad": "Needs work"
-    },
-    "copyList": "Copy list",
-    "copied": "Copied!",
-    "goalsRespected": "Goals respected"
-  },
-  "ads": {
-    "label": "Ad space",
-    "sponsored": "Sponsored",
-    "nonPersonalized": "Non-personalized",
-    "personalized": "Personalized",
-    "why": "Why?",
-    "manage": "Manage ads",
-    "bannerTitle": "Ads & privacy",
-    "bannerBody": "GreeCheck stays free thanks to ads. By default they are not personalized and don't track your profile.",
-    "learnMore": "Learn more",
-    "keepNonPersonalized": "Non-personalized",
-    "acceptPersonalized": "Accept personalized",
-    "settingsTitle": "Ads",
-    "settingsBody": "Choose the type of ads shown."
-  },
   "pwa": {
     "install": "Install",
     "installTitle": "Install GreeCheck",
@@ -609,5 +519,69 @@
     "bestChoice": "Best choice",
     "lowScoreWarning": "Low score — limit",
     "betterAvailable": "Better option higher in the list"
+  },
+  "history": {
+    "metaTitle": "My scans — GreeCheck",
+    "metaDescription": "Your scan history, stored on your device only.",
+    "title": "My scans",
+    "empty": "No scans yet",
+    "emptyBody": "Scan a first product to start your local history.",
+    "scanCta": "Scan a product",
+    "count": "{n} scanned product(s)",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites",
+    "remove": "Remove from history"
+  },
+  "criteria": {
+    "metaTitle": "My criteria — GreeCheck",
+    "metaDescription": "Set your food goals and preferences. Optional, stored on your device only.",
+    "title": "My criteria",
+    "hint": "These criteria influence alerts, ranking and alternatives — never the base health score. Everything stays on your device.",
+    "goals": "Goals",
+    "preferences": "Preferences"
+  },
+  "discover": {
+    "metaTitle": "Discover — GreeCheck",
+    "metaDescription": "Explore product categories and compare their GreeScores.",
+    "title": "Discover",
+    "intro": "Explore product families and spot the best choices with the GreeScore.",
+    "categoriesTitle": "Browse by category",
+    "categories": {
+      "breakfast": "Breakfast",
+      "snacks": "Snacks",
+      "drinks": "Drinks",
+      "dairy": "Dairy",
+      "cereals": "Cereals",
+      "sauces": "Sauces"
+    },
+    "methodologyCta": "Understand how the GreeScore is calculated"
+  },
+  "methodology": {
+    "metaTitle": "GreeScore methodology — GreeCheck",
+    "metaDescription": "How the GreeScore is calculated: nutrition, processing, additives, labels, data confidence and sources.",
+    "title": "Methodology",
+    "intro": "The GreeScore is a 0–100 health decision score, computed locally, deterministically and transparently. Every score can be explained.",
+    "scoreTitle": "Score composition",
+    "scoreBody": "The score combines several criteria families, weighted then renormalized over the data actually available:",
+    "buckets": {
+      "nutrition": "Nutrition (35%) — Nutri-Score or, failing that, sugars, salt, saturated fat, fiber and protein.",
+      "processing": "Processing (20%) — NOVA group.",
+      "additives": "Additives & risks (15%) — additive severity, palm oil, avoided allergens.",
+      "labels": "Positive labels (10%) — organic, fair trade, clean label.",
+      "goal": "Fit with your goals (10%) — only when you set criteria.",
+      "ecology": "Environment (10%) — Green-Score, only when available."
+    },
+    "rulesTitle": "Fairness rules",
+    "rules": {
+      "nova": "NOVA 4 (ultra-processed) receives a heavy penalty.",
+      "bio": "Organic brings a significant bonus but never turns an ultra-processed, nutritionally poor product into an excellent one.",
+      "halal": "Halal is a personal compatibility criterion, never a nutritional quality criterion.",
+      "missing": "Missing data lowers confidence in the score, never the score itself: unknown is not treated as negative."
+    },
+    "confidenceTitle": "Data confidence",
+    "confidenceBody": "Every result shows a confidence level based on data completeness: Nutri-Score, ingredients and nutrition facts availability. A poorly documented product shows “partial data” rather than a bad score.",
+    "sourcesTitle": "Sources",
+    "sourcesBody": "Product data comes from Open Food Facts, the open collaborative database. GreeCheck never invents product information.",
+    "privacyBody": "Everything is computed on your device: no account, no server-side history, no advertising profile."
   }
 }

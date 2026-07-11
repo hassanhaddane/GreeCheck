@@ -13,10 +13,10 @@ import { ComparisonTable } from "@/components/battle/comparison-table";
 import { AxisBars } from "@/components/battle/axis-bars";
 import { Podium } from "@/components/battle/podium";
 import { AddSheet } from "@/components/battle/add-sheet";
-import { computeBattle } from "@/lib/scoring/battle";
-import { useBattleStore, BATTLE_MAX } from "@/stores/battle-store";
-import { useBasketStore } from "@/stores/basket-store";
-import { usePreferencesStore } from "@/stores/preferences-store";
+import { computeBattle } from "@/domains/battle/engine";
+import { useBattleStore, BATTLE_MAX } from "@/domains/battle/store";
+import { useCartStore } from "@/domains/cart/store";
+import { usePreferencesStore } from "@/domains/criteria/store";
 
 export default function BattlePage() {
   const t = useTranslations("battle");
@@ -24,7 +24,7 @@ export default function BattlePage() {
   const items = useBattleStore((s) => s.items);
   const remove = useBattleStore((s) => s.remove);
   const clear = useBattleStore((s) => s.clear);
-  const basket = useBasketStore();
+  const basket = useCartStore();
   const prefs = usePreferencesStore();
 
   const [sheet, setSheet] = useState<null | "search" | "scan">(null);
@@ -48,7 +48,7 @@ export default function BattlePage() {
     if (!result?.winner) return;
     const w = result.winner;
     basket.addProduct(w.product, w.gree);
-    router.push("/basket");
+    router.push("/cart");
   };
 
   /** Swap the weakest (lower-scored) basket product for the battle winner. */
@@ -70,7 +70,7 @@ export default function BattlePage() {
 
   const addEntryToBasket = (entry: NonNullable<typeof result>["ranking"][number]) => {
     basket.addProduct(entry.product, entry.gree);
-    router.push("/basket");
+    router.push("/cart");
   };
 
   return (

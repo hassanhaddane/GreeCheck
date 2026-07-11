@@ -1,4 +1,7 @@
-import { Home, ScanLine, Search, Swords, ShoppingBasket, MapPin, ListChecks, type LucideIcon } from "lucide-react";
+import {
+  ScanLine, Search, Swords, ShoppingBasket, History,
+  Compass, SlidersHorizontal, BookOpenText, type LucideIcon
+} from "lucide-react";
 
 export interface NavItem {
   key: string;
@@ -7,16 +10,21 @@ export interface NavItem {
   primary?: boolean;
 }
 
-// Mobile bottom bar — scan is the central primary action.
+/**
+ * Primary navigation — exactly the five V2 destinations
+ * (Scan is the central primary action on mobile).
+ */
 export const BOTTOM_NAV: NavItem[] = [
-  { key: "home", href: "/", icon: Home },
   { key: "search", href: "/search", icon: Search },
+  { key: "history", href: "/history", icon: History },
   { key: "scan", href: "/scan", icon: ScanLine, primary: true },
   { key: "battle", href: "/battle", icon: Swords },
-  { key: "basket", href: "/basket", icon: ShoppingBasket }
+  { key: "cart", href: "/cart", icon: ShoppingBasket }
 ];
 
+/** Secondary destinations (desktop side rail + menus). */
 export const SECONDARY_NAV: NavItem[] = [
-  { key: "list", href: "/list", icon: ListChecks },
-  { key: "map", href: "/map", icon: MapPin }
+  { key: "discover", href: "/discover", icon: Compass },
+  { key: "criteria", href: "/criteria", icon: SlidersHorizontal },
+  { key: "methodology", href: "/methodology", icon: BookOpenText }
 ];

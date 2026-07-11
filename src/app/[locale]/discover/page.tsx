@@ -1,0 +1,55 @@
+import type { Metadata } from "next";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { Compass, BookOpenText, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import type { Locale } from "@/i18n/routing";
+import { buildPageMetadata } from "@/lib/seo";
+import { PageHeading } from "@/components/app/page-heading";
+import { Card } from "@/components/ui/card";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata(locale as Locale, "/discover", "discover");
+}
+
+const CATEGORY_KEYS = ["breakfast", "snacks", "drinks", "dairy", "cereals", "sauces"] as const;
+
+export default async function DiscoverPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("discover");
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHeading title={t("title")} />
+      <p className="flex items-start gap-2 px-1 text-sm leading-relaxed text-muted">
+        <Compass className="mt-0.5 h-4 w-4 shrink-0 text-natural" aria-hidden />
+        {t("intro")}
+      </p>
+
+      <section>
+        <h2 className="mb-3 px-1 text-sm font-semibold uppercase tracking-wide text-muted">{t("categoriesTitle")}</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {CATEGORY_KEYS.map((key) => (
+            <Link key={key} href={`/search?q=${encodeURIComponent(t(`categories.${key}`))}`} className="block">
+              <Card className="gc-pressable flex items-center justify-between p-4">
+                <span className="text-sm font-semibold">{t(`categories.${key}`)}</span>
+                <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" aria-hidden />
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <Link href="/methodology" className="block">
+        <Card className="gc-pressable flex items-center gap-3 p-4">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-natural/10 text-natural">
+            <BookOpenText className="h-5 w-5" aria-hidden />
+          </span>
+          <span className="flex-1 text-sm font-semibold">{t("methodologyCta")}</span>
+          <ChevronRight className="h-4 w-4 text-muted rtl:rotate-180" aria-hidden />
+        </Card>
+      </Link>
+    </div>
+  );
+}

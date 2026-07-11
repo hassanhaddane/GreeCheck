@@ -1,7 +1,7 @@
 "use client";
 import { useId } from "react";
 import { useTranslations } from "next-intl";
-import type { Product } from "@/types/product";
+import type { Product } from "@/domains/product/model";
 
 /* ─────────────────────────── axis model ──────────────────────────── */
 

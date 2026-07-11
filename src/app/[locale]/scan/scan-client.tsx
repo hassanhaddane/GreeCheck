@@ -27,18 +27,18 @@ import { Card } from "@/components/ui/card";
 import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
-import { getProduct } from "@/lib/api/client";
+import { getProduct } from "@/domains/product/repository";
 import { parseProductCode } from "@/lib/utils/parse-scan";
-import { computeGreeScore } from "@/lib/scoring/gree-score";
-import { useBasketStore } from "@/stores/basket-store";
-import { useBattleStore } from "@/stores/battle-store";
-import { usePreferencesStore } from "@/stores/preferences-store";
+import { computeGreeScore } from "@/domains/scoring/gree-score";
+import { useCartStore } from "@/domains/cart/store";
+import { useBattleStore } from "@/domains/battle/store";
+import { usePreferencesStore } from "@/domains/criteria/store";
 
 type LookupState = "idle" | "loading" | "not_found" | "network_error" | "unsupported";
-type ScanSource = "product" | "basket" | "battle";
+type ScanSource = "product" | "cart" | "battle";
 
 function sourceFromParam(value: string | null): ScanSource {
-  return value === "basket" || value === "battle" ? value : "product";
+  return value === "cart" || value === "battle" ? value : "product";
 }
 
 export function ScanClient() {
@@ -46,7 +46,7 @@ export function ScanClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const source = sourceFromParam(searchParams.get("source"));
-  const basket = useBasketStore();
+  const basket = useCartStore();
   const addBattle = useBattleStore((state) => state.add);
   const prefs = usePreferencesStore();
 
@@ -82,9 +82,9 @@ export function ScanClient() {
           return;
         }
 
-        if (source === "basket") {
+        if (source === "cart") {
           basket.addProduct(result.product, computeGreeScore(result.product, prefs));
-          router.push("/basket");
+          router.push("/cart");
           return;
         }
         if (source === "battle") {

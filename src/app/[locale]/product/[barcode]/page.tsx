@@ -3,7 +3,7 @@ import { use, useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Heart, GitCompareArrows, Sparkles, ShoppingBasket, AlertTriangle, Swords,
-  ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3, ListChecks
+  ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,20 +19,18 @@ import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { NutritionRadar } from "@/components/product/nutrition-radar";
 import { Alternatives } from "@/components/product/alternatives";
-import { AdSlot } from "@/components/ads/ad-slot";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
-import { getProduct } from "@/lib/api/client";
-import type { ProductResult } from "@/lib/api/openfoodfacts";
-import type { Product } from "@/types/product";
-import { computeGreeScore } from "@/lib/scoring/gree-score";
-import { useFavoritesStore } from "@/stores/favorites-store";
-import { useBasketStore } from "@/stores/basket-store";
-import { useHistoryStore } from "@/stores/history-store";
-import { useBattleStore } from "@/stores/battle-store";
-import { usePreferencesStore } from "@/stores/preferences-store";
-import { useShoppingListStore } from "@/stores/shopping-list-store";
+import { getProduct } from "@/domains/product/repository";
+import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { Product } from "@/domains/product/model";
+import { computeGreeScore } from "@/domains/scoring/gree-score";
+import { useFavoritesStore } from "@/domains/library/favorites-store";
+import { useCartStore } from "@/domains/cart/store";
+import { useHistoryStore } from "@/domains/library/history-store";
+import { useBattleStore } from "@/domains/battle/store";
+import { usePreferencesStore } from "@/domains/criteria/store";
 
 const GRADE_BG: Record<string, string> = {
   A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e"
@@ -50,7 +48,6 @@ const NUTRI_ROWS: { key: keyof Product["nutriments"]; labelKey: string; unit: st
 export default function ProductPage({ params }: { params: Promise<{ barcode: string }> }) {
   const { barcode } = use(params);
   const t = useTranslations("product");
-  const tList = useTranslations("list");
   const tScore = useTranslations("score");
   const router = useRouter();
 
@@ -59,14 +56,12 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const [basketNotice, setBasketNotice] = useState<"added" | "duplicate" | null>(null);
 
   const favorites = useFavoritesStore();
-  const basket = useBasketStore();
+  const basket = useCartStore();
   const addHistory = useHistoryStore((s) => s.add);
   const addBattle = useBattleStore((s) => s.add);
   const inBattle = useBattleStore((s) => s.has(barcode));
   const battleFull = useBattleStore((s) => s.items.length >= 3 && !s.items.some((x) => x.barcode === barcode));
   const isFav = favorites.has(barcode);
-  const addToList = useShoppingListStore((s) => s.addProduct);
-  const inList = useShoppingListStore((s) => s.has(barcode));
 
   // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
   const prefs = usePreferencesStore();
@@ -300,7 +295,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       </CollapsibleSection>
 
       {/* ── Discrete ad ── */}
-      <AdSlot variant="inline" />
 
       {/* ── Alternatives (only when the product is medium or poor) ── */}
       {score < 65 && <Alternatives product={p} prefs={prefs} />}
@@ -311,7 +305,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural">
             <ShoppingBasket className="h-4 w-4" />
             <span className="min-w-0 flex-1">{t(basketNotice === "added" ? "addedToBasket" : "alreadyInBasket")}</span>
-            <Button variant="ghost" size="sm" onClick={() => router.push("/basket")}>
+            <Button variant="ghost" size="sm" onClick={() => router.push("/cart")}>
               {t("goToBasket")}
             </Button>
           </div>
@@ -320,9 +314,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
             onClick={() => favorites.toggle({ ...item, verdict: tScore(`grade.${gree.grade}`), scannedAt: Date.now() })}>
             <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
-          </Button>
-          <Button variant={inList ? "neon" : "soft"} size="icon" aria-label={tList("addProduct")} onClick={() => addToList(p, gree)}>
-            <ListChecks className="h-5 w-5" />
           </Button>
           <Button variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
             <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}

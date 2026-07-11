@@ -2,7 +2,6 @@ import { TopBar } from "./top-bar";
 import { BottomNav } from "./bottom-nav";
 import { SideNav } from "./side-nav";
 import { AppBackground } from "./app-background";
-import { ConsentBanner } from "@/components/ads/consent-banner";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -14,7 +13,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="min-w-0 flex-1 pb-32 pt-4 md:pb-12">{children}</main>
       </div>
       <BottomNav />
-      <ConsentBanner />
     </div>
   );
 }

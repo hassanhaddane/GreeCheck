@@ -2,18 +2,22 @@
   "app": {
     "name": "GreeCheck",
     "tagline": "Scanne. Comprends. Choisis mieux.",
-    "privacyBadge": "Vos données restent sur votre appareil"
+    "privacyBadge": "Vos données restent sur votre appareil",
+    "metaTitle": "GreeCheck — Scanne. Comprends. Choisis mieux.",
+    "metaDescription": "Scanne un produit et découvre son GreeScore : verdict clair, raisons principales et meilleures alternatives. Sans compte, données 100 % locales."
   },
   "nav": {
     "home": "Accueil",
     "scan": "Scanner",
     "search": "Rechercher",
     "battle": "Battle",
-    "basket": "Panier",
-    "map": "Carte",
     "settings": "Réglages",
     "privacy": "Confidentialité",
-    "list": "Liste"
+    "history": "Mes scans",
+    "cart": "GreeCart",
+    "discover": "Découvrir",
+    "criteria": "Mes critères",
+    "methodology": "Méthodologie"
   },
   "home": {
     "greeting": "Bonjour",
@@ -31,10 +35,10 @@
     "seeAll": "Tout voir",
     "hintSearch": "Filtres intelligents",
     "hintBattle": "Compare jusqu'à 3",
-    "hintBasket": "Note ton panier",
-    "hintList": "Liste de courses",
     "greeLens": "GreeLens",
-    "greeLensHint": "Scan futuriste avec analyse instantanée"
+    "greeLensHint": "Scan futuriste avec analyse instantanée",
+    "hintCart": "Analyse la qualité de ton panier",
+    "hintHistory": "Retrouve tes scans récents"
   },
   "scan": {
     "title": "GreeLens",
@@ -106,7 +110,9 @@
     "bestChoice": "Meilleur choix",
     "betterAvailable": "Meilleure option plus haut dans la liste",
     "lowScoreWarning": "Score faible — à limiter",
-    "whyLabel": "Pourquoi :"
+    "whyLabel": "Pourquoi :",
+    "metaTitle": "Recherche de produits — GreeCheck",
+    "metaDescription": "Recherche un produit alimentaire et compare les GreeScores : nutrition, transformation, additifs et alternatives plus saines."
   },
   "product": {
     "title": "Fiche produit",
@@ -259,7 +265,7 @@
     "replacedInBasket": "{name} remplacé par le gagnant",
     "noWorseInBasket": "Ton panier ne contient rien de moins bon"
   },
-  "basket": {
+  "cart": {
     "title": "Panier intelligent",
     "subtitle": "Scanne plusieurs produits et obtiens une note globale.",
     "score": "Score du panier",
@@ -389,47 +395,10 @@
     "optimizeDone": "{count} produit(s) remplacé(s) — nouveau score estimé : {score}",
     "optimizeNone": "Aucun remplacement automatique trouvé — panier déjà bien optimisé."
   },
-  "map": {
-    "title": "Autour de moi",
-    "subtitle": "Trouve magasins bio, supermarchés et marchés en France.",
-    "searchCity": "Rechercher une ville",
-    "nearMe": "Autour de moi",
-    "filters": {
-      "bio": "Bio",
-      "supermarket": "Supermarché",
-      "halal": "Halal",
-      "market": "Marché",
-      "grocery": "Épicerie"
-    },
-    "privacyNote": "Ta position est utilisée uniquement sur ton appareil pour la recherche. Elle n'est jamais stockée ni envoyée.",
-    "directions": "Itinéraire",
-    "away": "{km} km",
-    "results": "{n} lieu(x)",
-    "noResults": "Aucun lieu trouvé ici.",
-    "searching": "Recherche…",
-    "locating": "Localisation…",
-    "denied": "Accès à la position refusé.",
-    "unsupported": "Géolocalisation indisponible.",
-    "searchHint": "Cherche une ville ou utilise ta position.",
-    "viewOnMap": "Voir sur la carte",
-    "openNow": "Horaires",
-    "unavailable": "Carte indisponible",
-    "unavailableBody": "Impossible de charger la carte. Vérifie ta connexion et réessaie.",
-    "searchAction": "Rechercher",
-    "refresh": "Actualiser les lieux",
-    "loadingPlaces": "Chargement des lieux…",
-    "placesError": "Impossible de charger les lieux pour le moment. Le service de carte est peut-être surchargé — réessaie dans un instant.",
-    "noResultsFilters": "Aucun lieu ne correspond aux filtres actifs. Élargis les filtres ou actualise les lieux.",
-    "inferred": "détection possible",
-    "franceOnly": "Recherche disponible en France uniquement pour le moment."
-  },
   "settings": {
     "title": "Réglages",
     "language": "Langue",
     "theme": "Thème",
-    "goals": "Objectifs",
-    "allergens": "Allergènes",
-    "preferences": "Préférences",
     "data": "Mes données",
     "clearData": "Effacer mes données locales",
     "themeLight": "Clair",
@@ -439,14 +408,16 @@
     "onDevice": "Toutes tes données restent sur cet appareil. GreeCheck n'envoie rien à un serveur.",
     "clearHistory": "Vider l'historique",
     "clearFavorites": "Supprimer les favoris",
-    "clearBasket": "Vider le panier",
     "clearCache": "Vider le cache produit",
     "resetApp": "Réinitialiser l'application",
     "resetHint": "Efface préférences, objectifs, historique, favoris, panier et cache.",
     "confirm": "Confirmer ?",
     "done": "Fait",
     "items": "{n} élément(s)",
-    "empty": "Vide"
+    "empty": "Vide",
+    "clearCart": "Vider GreeCart",
+    "criteriaTitle": "Mes critères",
+    "criteriaHint": "Objectifs et préférences alimentaires — gérés dans une page dédiée."
   },
   "privacy": {
     "title": "Confidentialité",
@@ -502,67 +473,6 @@
     "weaknesses": "Points faibles",
     "lowIntake": "faible"
   },
-  "list": {
-    "title": "Liste de courses",
-    "subtitle": "Ta liste intelligente, notée localement.",
-    "newList": "Nouvelle liste",
-    "listName": "Nom de la liste",
-    "create": "Créer",
-    "noList": "Crée ta première liste de courses.",
-    "empty": "Liste vide — ajoute des produits.",
-    "addProduct": "Ajouter un produit",
-    "searchPlaceholder": "Produit, marque…",
-    "estScore": "Score estimé",
-    "items": "{n} produit(s)",
-    "checked": "{n} coché(s)",
-    "filters": "Filtres",
-    "filterBio": "Bio",
-    "filterHalal": "Halal",
-    "filterLowSugar": "Faible sucre",
-    "filterProtein": "Protéiné",
-    "toImprove": "À remplacer",
-    "toImproveHint": "Produits qui baissent le score de ta liste.",
-    "clear": "Vider",
-    "deleteList": "Supprimer la liste",
-    "rename": "Renommer",
-    "noResults": "Aucun résultat",
-    "addedToList": "Ajouté à la liste",
-    "alreadyInList": "Déjà dans la liste",
-    "aisle": {
-      "produce": "Fruits & légumes",
-      "dairy": "Produits laitiers",
-      "bakery": "Boulangerie & céréales",
-      "beverages": "Boissons",
-      "meat_fish": "Viandes & poissons",
-      "frozen": "Surgelés",
-      "sweet": "Épicerie sucrée & snacks",
-      "pantry": "Épicerie salée",
-      "other": "Autres"
-    },
-    "level": {
-      "good": "Excellent",
-      "ok": "Correct",
-      "bad": "À améliorer"
-    },
-    "copyList": "Copier la liste",
-    "copied": "Copiée !",
-    "goalsRespected": "Objectifs respectés"
-  },
-  "ads": {
-    "label": "Espace publicitaire",
-    "sponsored": "Sponsorisé",
-    "nonPersonalized": "Non personnalisée",
-    "personalized": "Personnalisée",
-    "why": "Pourquoi ?",
-    "manage": "Gérer les publicités",
-    "bannerTitle": "Publicités & confidentialité",
-    "bannerBody": "GreeCheck reste gratuit grâce à la publicité. Par défaut elle n'est pas personnalisée et ne suit pas ton profil.",
-    "learnMore": "En savoir plus",
-    "keepNonPersonalized": "Non personnalisées",
-    "acceptPersonalized": "Accepter personnalisées",
-    "settingsTitle": "Publicités",
-    "settingsBody": "Choisis le type de publicités affichées."
-  },
   "pwa": {
     "install": "Installer",
     "installTitle": "Installe GreeCheck",
@@ -609,5 +519,69 @@
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",
     "betterAvailable": "Meilleure option plus haut dans la liste"
+  },
+  "history": {
+    "metaTitle": "Mes scans — GreeCheck",
+    "metaDescription": "Ton historique de scans, stocké uniquement sur ton appareil.",
+    "title": "Mes scans",
+    "empty": "Aucun scan pour l'instant",
+    "emptyBody": "Scanne un premier produit pour démarrer ton historique local.",
+    "scanCta": "Scanner un produit",
+    "count": "{n} produit(s) scanné(s)",
+    "favorite": "Ajouter aux favoris",
+    "unfavorite": "Retirer des favoris",
+    "remove": "Supprimer de l'historique"
+  },
+  "criteria": {
+    "metaTitle": "Mes critères — GreeCheck",
+    "metaDescription": "Définis tes objectifs et préférences alimentaires. Facultatif, stocké uniquement sur ton appareil.",
+    "title": "Mes critères",
+    "hint": "Ces critères influencent les alertes, le classement et les alternatives — jamais le score santé de base. Tout reste sur ton appareil.",
+    "goals": "Objectifs",
+    "preferences": "Préférences"
+  },
+  "discover": {
+    "metaTitle": "Découvrir — GreeCheck",
+    "metaDescription": "Explore des catégories de produits et compare leurs GreeScores.",
+    "title": "Découvrir",
+    "intro": "Explore des familles de produits et repère les meilleurs choix grâce au GreeScore.",
+    "categoriesTitle": "Explorer par catégorie",
+    "categories": {
+      "breakfast": "Petit-déjeuner",
+      "snacks": "Snacks",
+      "drinks": "Boissons",
+      "dairy": "Produits laitiers",
+      "cereals": "Céréales",
+      "sauces": "Sauces"
+    },
+    "methodologyCta": "Comprendre comment le GreeScore est calculé"
+  },
+  "methodology": {
+    "metaTitle": "Méthodologie GreeScore — GreeCheck",
+    "metaDescription": "Comment le GreeScore est calculé : nutrition, transformation, additifs, labels, confiance des données et sources.",
+    "title": "Méthodologie",
+    "intro": "Le GreeScore est un score de décision santé de 0 à 100, calculé localement, de façon déterministe et transparente. Chaque score est explicable.",
+    "scoreTitle": "Composition du score",
+    "scoreBody": "Le score combine plusieurs familles de critères, pondérées puis renormalisées selon les données réellement disponibles :",
+    "buckets": {
+      "nutrition": "Nutrition (35 %) — Nutri-Score ou, à défaut, sucres, sel, graisses saturées, fibres et protéines.",
+      "processing": "Transformation (20 %) — groupe NOVA.",
+      "additives": "Additifs et risques (15 %) — sévérité des additifs, huile de palme, allergènes évités.",
+      "labels": "Labels positifs (10 %) — bio, commerce équitable, clean label.",
+      "goal": "Adéquation à tes objectifs (10 %) — uniquement si tu as défini des critères.",
+      "ecology": "Environnement (10 %) — Green-Score, uniquement s'il est disponible."
+    },
+    "rulesTitle": "Règles d'équité",
+    "rules": {
+      "nova": "NOVA 4 (ultra-transformé) reçoit une pénalité importante.",
+      "bio": "Le bio apporte un bonus significatif, mais ne transforme jamais un produit ultra-transformé et nutritionnellement pauvre en excellent produit.",
+      "halal": "Le halal est un critère de compatibilité personnelle, jamais un critère de qualité nutritionnelle.",
+      "missing": "Une donnée manquante réduit la confiance dans le score, jamais le score lui-même : l'inconnu n'est pas traité comme négatif."
+    },
+    "confidenceTitle": "Confiance des données",
+    "confidenceBody": "Chaque résultat indique un niveau de confiance basé sur la complétude des données : Nutri-Score, ingrédients et valeurs nutritionnelles disponibles. Un produit mal renseigné affiche « données partielles » plutôt qu'un mauvais score.",
+    "sourcesTitle": "Sources",
+    "sourcesBody": "Les données produits proviennent d'Open Food Facts, base collaborative et ouverte. GreeCheck n'invente jamais d'information produit.",
+    "privacyBody": "Le calcul s'effectue entièrement sur ton appareil : aucun compte, aucun historique serveur, aucun profil publicitaire."
   }
 }

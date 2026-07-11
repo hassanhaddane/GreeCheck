@@ -8,9 +8,9 @@ import { ProductRowSkeleton } from "@/components/ui/skeleton";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { parseProductCode } from "@/lib/utils/parse-scan";
-import { getProduct, searchProductsClient } from "@/lib/api/client";
-import { useBattleStore, type AddResult } from "@/stores/battle-store";
-import type { Product } from "@/types/product";
+import { getProduct, searchProductsClient } from "@/domains/product/repository";
+import { useBattleStore, type AddResult } from "@/domains/battle/store";
+import type { Product } from "@/domains/product/model";
 
 type Mode = "search" | "scan" | "manual";
 

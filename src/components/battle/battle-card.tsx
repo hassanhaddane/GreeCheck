@@ -8,7 +8,7 @@ import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { cn } from "@/lib/utils/cn";
-import type { BattleEntry } from "@/lib/scoring/battle";
+import type { BattleEntry } from "@/domains/battle/engine";
 
 const GRADE_BG: Record<string, string> = { A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e" };
 

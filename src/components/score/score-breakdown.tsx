@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import type { GreeScore, ScoreReason } from "@/types/scoring";
+import type { GreeScore, ScoreReason } from "@/domains/scoring/types";
 import { cn } from "@/lib/utils/cn";
 
 /** Reason codes grouped by scoring bucket (mirrors lib/scoring/gree-score.ts). */

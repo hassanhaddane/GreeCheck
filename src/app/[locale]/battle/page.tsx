@@ -181,9 +181,9 @@ export default function BattlePage() {
                         <div key={e.product.barcode} className="flex items-center gap-2">
                           <span className="w-28 shrink-0 truncate text-[0.7rem] text-white/75">{e.product.name}</span>
                           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
-                            <div className="h-full rounded-full bg-natural" style={{ width: `${e.gree.goalScore}%` }} />
+                            <div className="h-full rounded-full bg-natural" style={{ width: `${e.gree.subScores.goalFit}%` }} />
                           </div>
-                          <span className="w-7 shrink-0 text-end text-[0.7rem] font-bold tabular-nums text-neon">{e.gree.goalScore}</span>
+                          <span className="w-7 shrink-0 text-end text-[0.7rem] font-bold tabular-nums text-neon">{e.gree.subScores.goalFit}</span>
                         </div>
                       ))}
                     </div>

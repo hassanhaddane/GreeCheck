@@ -26,7 +26,7 @@ import { ErrorState } from "@/components/system/error-state";
 import { getProduct, type ProductLookup } from "@/domains/product/repository";
 import { productAddUrl, productContributionUrl } from "@/domains/product/contribute";
 import type { Product } from "@/domains/product/model";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
+import { computeGreeScore, explainScore } from "@/domains/scoring/gree-score";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
 import { useHistoryStore } from "@/domains/library/history-store";
@@ -220,18 +220,28 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             </span>
           )}
         </div>
-        {gree.reasons.length > 0 && (
+        {(gree.topNegatives.length > 0 || gree.topPositives.length > 0) && (
           <div className="flex flex-wrap gap-1.5 pt-1.5">
-            {gree.reasons.slice(0, 4).map((r, i) => (
-              <GreeBadge key={i} size="sm" tone={r.kind === "bonus" ? "brand" : r.kind === "malus" ? "caution" : "neutral"}>
-                {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {tScore(`reason.${r.code}`, r.values)}
-              </GreeBadge>
+            {gree.topNegatives.map((r, i) => (
+              <GreeBadge key={`n${i}`} size="sm" tone="caution">– {tScore(`reason.${r.code}`, r.values)}</GreeBadge>
+            ))}
+            {gree.topPositives.map((r, i) => (
+              <GreeBadge key={`p${i}`} size="sm" tone="brand">+ {tScore(`reason.${r.code}`, r.values)}</GreeBadge>
             ))}
           </div>
         )}
         <p className="mt-2 rounded-2xl bg-surface-2/80 p-3 text-sm leading-relaxed">
           <Sparkles className="me-1 inline h-4 w-4 text-natural-strong" aria-hidden />
-          <strong>{t("verdict")} :</strong> {t("verdictBody", { score: gree.global, label: tScore(`grade.${gree.grade}`) })}
+          {explainScore(gree)
+            .map((e) =>
+              tScore(
+                `explain.${e.code}`,
+                e.values?.criterion !== undefined
+                  ? { criterion: tScore(`criterion.${e.values.criterion}`) }
+                  : undefined
+              )
+            )
+            .join(" ")}
         </p>
       </VerdictCard>
 

@@ -66,13 +66,14 @@ test("TrustHalo conveys confidence with TEXT (never color alone)", () => {
 
 test("VerdictCard shows numeric score, grade text and confidence text", () => {
   const gree: GreeScore = {
-    global: 78, grade: "B", label: "Bon choix",
-    healthScore: 80, naturalityScore: 70, processingScore: 80, additivesScore: 90,
-    goalScore: 50, reasons: [], warnings: [], confidenceLevel: "high"
+    global: 78, grade: "B", verdict: "good_choice",
+    subScores: { nutrition: 80, processing: 80, additives: 90, naturality: 70 },
+    confidence: "high", confidenceReasons: [],
+    topPositives: [], topNegatives: [], reasons: [], warnings: [], alerts: []
   };
   const html = withIntl(<VerdictCard gree={gree} title="Yaourt nature" />);
   assert.match(html, />78</);                 // numeric score as text
-  assert.match(html, /Bon choix/);            // grade as text
+  assert.match(html, /Bon choix/);            // verdict as text
   assert.match(html, /Confiance élevée/);     // confidence as text
   assert.match(html, /Yaourt nature/);
 });

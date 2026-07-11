@@ -60,16 +60,16 @@ export function ScoreBreakdown({ gree, hasGoals }: { gree: GreeScore; hasGoals: 
   const t = useTranslations("product");
 
   const rows: { key: keyof typeof BUCKET_REASONS; icon: LucideIcon; label: string; value?: number }[] = [
-    { key: "health", icon: HeartPulse, label: t("subHealth"), value: gree.healthScore },
-    { key: "processing", icon: Factory, label: t("subProcessing"), value: gree.processingScore },
-    { key: "additives", icon: FlaskConical, label: t("subAdditives"), value: gree.additivesScore },
-    { key: "labels", icon: BadgeCheck, label: t("subNaturality"), value: gree.naturalityScore },
-    ...(hasGoals ? [{ key: "goal" as const, icon: Target, label: t("subGoal"), value: gree.goalScore }] : []),
-    ...(gree.ecologyScore !== undefined ? [{ key: "ecology" as const, icon: Globe, label: t("subEcology"), value: gree.ecologyScore }] : [])
+    { key: "health", icon: HeartPulse, label: t("subHealth"), value: gree.subScores.nutrition },
+    { key: "processing", icon: Factory, label: t("subProcessing"), value: gree.subScores.processing },
+    { key: "additives", icon: FlaskConical, label: t("subAdditives"), value: gree.subScores.additives },
+    { key: "labels", icon: BadgeCheck, label: t("subNaturality"), value: gree.subScores.naturality },
+    ...(hasGoals ? [{ key: "goal" as const, icon: Target, label: t("subGoal"), value: gree.subScores.goalFit }] : []),
+    ...(gree.subScores.environment !== undefined ? [{ key: "ecology" as const, icon: Globe, label: t("subEcology"), value: gree.subScores.environment }] : [])
   ];
 
   const confidenceTone =
-    gree.confidenceLevel === "high" ? "text-natural-strong" : gree.confidenceLevel === "medium" ? "text-score-c-ink" : "text-score-d-ink";
+    gree.confidence === "high" ? "text-natural-strong" : gree.confidence === "medium" ? "text-score-c-ink" : "text-score-d-ink";
 
   return (
     <GreeCard>
@@ -103,8 +103,8 @@ export function ScoreBreakdown({ gree, hasGoals }: { gree: GreeScore; hasGoals: 
           <ShieldQuestion className={cn("h-4 w-4 shrink-0", confidenceTone)} aria-hidden />
           <p className="text-xs text-muted">
             {t("breakdownConfidence")}{" "}
-            <strong className={confidenceTone}>{t(`confidence.${gree.confidenceLevel}`)}</strong>
-            {gree.confidenceLevel !== "high" && <> — {t("dataMissing")}</>}
+            <strong className={confidenceTone}>{t(`confidence.${gree.confidence}`)}</strong>
+            {gree.confidence !== "high" && <> — {t("dataMissing")}</>}
           </p>
         </div>
       </GreeCardContent>

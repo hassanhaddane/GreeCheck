@@ -493,7 +493,13 @@
       "vegan": "Vegan",
       "muscleProtein": "Bon pour la prise de muscle",
       "reduceSugarGoal": "Trop sucré pour ton objectif",
-      "lowEcoImpact": "Faible impact environnemental ({grade})"
+      "lowEcoImpact": "Faible impact environnemental ({grade})",
+      "tooSalty": "Trop salé",
+      "tooFat": "Riche en gras saturés",
+      "highEcoImpact": "Impact environnemental élevé ({grade})",
+      "bioCapped": "Le bio ne compense pas l'ultra-transformation",
+      "criterionMismatch": "En décalage avec ton critère",
+      "criterionMatch": "Aligné avec ton critère"
     },
     "warning": {
       "highSugar": "Sucre élevé ({v} g / 100 g)",
@@ -504,7 +510,8 @@
       "allergenPresent": "Allergène présent : {name}",
       "haramIngredient": "Ingrédient potentiellement non halal",
       "partialData": "Score calculé avec des données partielles",
-      "halalCheckRequired": "Ingrédient à vérifier pour le halal (origine à confirmer)"
+      "halalCheckRequired": "Ingrédient à vérifier pour le halal (origine à confirmer)",
+      "halalNotConfirmed": "Statut halal non confirmé (information, pas un problème)"
     },
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",
@@ -514,6 +521,41 @@
       "high": "Confiance élevée",
       "medium": "Données partielles",
       "low": "Données insuffisantes"
+    },
+    "verdict": {
+      "excellent_choice": "Excellent choix",
+      "good_choice": "Bon choix",
+      "limit": "À limiter",
+      "poor_fit_for_goal": "Peu adapté à ton objectif",
+      "ultra_processed": "Ultra-transformé",
+      "insufficient_data": "Données insuffisantes"
+    },
+    "explain": {
+      "highSugarUltraProcessed": "Très sucré et ultra-transformé.",
+      "ultraProcessed": "Produit ultra-transformé.",
+      "organicMinimal": "Bio et peu transformé.",
+      "goodButIncomplete": "Bon profil nutritionnel, mais les données sont incomplètes.",
+      "insufficientData": "Données insuffisantes pour un score fiable.",
+      "notIdealForCriterion": "Peu adapté à ton critère « {criterion} ».",
+      "solidChoice": "Profil solide sur les critères principaux.",
+      "mixedProfile": "Profil mitigé — regarde les raisons principales.",
+      "watchSugar": "Surveille le sucre."
+    },
+    "criterion": {
+      "reduceSugar": "réduire le sucre",
+      "reduceSalt": "réduire le sel",
+      "reduceAdditives": "éviter les additifs",
+      "reduceUltraProcessed": "éviter l'ultra-transformé",
+      "increaseProtein": "riche en protéines",
+      "increaseFiber": "riche en fibres",
+      "preferBio": "préférer le bio",
+      "vegan": "vegan",
+      "vegetarian": "végétarien",
+      "eatHealthier": "manger plus sain",
+      "loseWeight": "perdre du poids",
+      "buildMuscle": "prise de muscle",
+      "lowCalorie": "faible en calories",
+      "betterDigestion": "meilleure digestion"
     }
   },
   "history": {
@@ -560,11 +602,11 @@
     "scoreTitle": "Composition du score",
     "scoreBody": "Le score combine plusieurs familles de critères, pondérées puis renormalisées selon les données réellement disponibles :",
     "buckets": {
-      "nutrition": "Nutrition (35 %) — Nutri-Score ou, à défaut, sucres, sel, graisses saturées, fibres et protéines.",
-      "processing": "Transformation (20 %) — groupe NOVA.",
-      "additives": "Additifs et risques (15 %) — sévérité des additifs, huile de palme, allergènes évités.",
-      "labels": "Labels positifs (10 %) — bio, commerce équitable, clean label.",
-      "goal": "Adéquation à tes objectifs (10 %) — uniquement si tu as défini des critères.",
+      "nutrition": "Nutrition (40 %) — Nutri-Score faisant autorité ou, à défaut, modèle dérivé (sucres, sel, graisses saturées, fibres, protéines) avec seuils adaptés à la catégorie.",
+      "processing": "Transformation (25 %) — groupe NOVA (NOVA 4 fortement pénalisé).",
+      "additives": "Additifs et risques (15 %) — sévérité des additifs, huile de palme. Liste d'ingrédients inconnue = bucket exclu, jamais « sans additifs ».",
+      "labels": "Naturalité (10 %) — bio (bonus significatif mais plafonné), clean label, commerce équitable.",
+      "goal": "Adéquation à tes critères (10 %) — uniquement les critères actifs ; le halal n'y entre jamais (compatibilité seulement).",
       "ecology": "Environnement (10 %) — Green-Score, uniquement s'il est disponible."
     },
     "rulesTitle": "Règles d'équité",

@@ -35,7 +35,7 @@ export function computeBattle(products: Product[], prefs: LocalPreferences): Bat
 
   const cmp = (a: BattleEntry, b: BattleEntry): number => {
     if (b.gree.global !== a.gree.global) return b.gree.global - a.gree.global;
-    if (b.gree.healthScore !== a.gree.healthScore) return b.gree.healthScore - a.gree.healthScore;
+    if (b.gree.subScores.nutrition !== a.gree.subScores.nutrition) return b.gree.subScores.nutrition - a.gree.subScores.nutrition;
 
     // Preference-weighted tie-breaks.
     if (prefs.reduceSugar) {
@@ -63,7 +63,7 @@ export function computeBattle(products: Product[], prefs: LocalPreferences): Bat
   const winner = ranking[0] ?? null;
   const runnerUp = ranking[1] ?? null;
   const closeness = winner && runnerUp && Math.abs(winner.gree.global - runnerUp.gree.global) <= 5 ? "close" : "clear";
-  const confidence = entries.some((e) => e.gree.confidenceLevel === "low") ? "partial" : "high";
+  const confidence = entries.some((e) => e.gree.confidence === "low") ? "partial" : "high";
   const reasons = winner && runnerUp ? buildReasons(winner, runnerUp, prefs) : [];
 
   return { ranking, winner, runnerUp, closeness, confidence, reasons };
@@ -87,7 +87,7 @@ function buildReasons(w: BattleEntry, r: BattleEntry, prefs: LocalPreferences): 
   if (prefs.preferHalal && w.product.isHalal && !r.product.isHalal) out.push("matchHalal");
   if (prefs.preferBio && w.product.isBio && !r.product.isBio) out.push("matchBio");
   if ((prefs.preferVegan || prefs.goals.includes("vegan")) && w.product.isVegan && !r.product.isVegan) out.push("matchVegan");
-  if (prefs.goals.length && w.gree.goalScore > r.gree.goalScore + 3) out.push("betterGoal");
+  if (prefs.goals.length && (w.gree.subScores.goalFit ?? 0) > (r.gree.subScores.goalFit ?? 0) + 3) out.push("betterGoal");
 
   return out.slice(0, 4);
 }

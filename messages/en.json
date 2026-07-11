@@ -493,7 +493,13 @@
       "vegan": "Vegan",
       "muscleProtein": "Good for muscle building",
       "reduceSugarGoal": "Too sugary for your goal",
-      "lowEcoImpact": "Low environmental impact ({grade})"
+      "lowEcoImpact": "Low environmental impact ({grade})",
+      "tooSalty": "Too salty",
+      "tooFat": "High in saturated fat",
+      "highEcoImpact": "High environmental impact ({grade})",
+      "bioCapped": "Organic does not offset ultra-processing",
+      "criterionMismatch": "Misaligned with your criterion",
+      "criterionMatch": "Aligned with your criterion"
     },
     "warning": {
       "highSugar": "High sugar ({v} g / 100 g)",
@@ -504,7 +510,8 @@
       "allergenPresent": "Allergen present: {name}",
       "haramIngredient": "Potentially non-halal ingredient",
       "partialData": "Score based on partial data",
-      "halalCheckRequired": "Ingredient to verify for halal (origin to confirm)"
+      "halalCheckRequired": "Ingredient to verify for halal (origin to confirm)",
+      "halalNotConfirmed": "Halal status not confirmed (information, not an issue)"
     },
     "bestChoice": "Best choice",
     "lowScoreWarning": "Low score — limit",
@@ -514,6 +521,41 @@
       "high": "High confidence",
       "medium": "Partial data",
       "low": "Insufficient data"
+    },
+    "verdict": {
+      "excellent_choice": "Excellent choice",
+      "good_choice": "Good choice",
+      "limit": "Limit it",
+      "poor_fit_for_goal": "Poor fit for your goal",
+      "ultra_processed": "Ultra-processed",
+      "insufficient_data": "Insufficient data"
+    },
+    "explain": {
+      "highSugarUltraProcessed": "High in sugar and ultra-processed.",
+      "ultraProcessed": "Ultra-processed product.",
+      "organicMinimal": "Organic and minimally processed.",
+      "goodButIncomplete": "Good nutritional profile, but the data is incomplete.",
+      "insufficientData": "Not enough data for a reliable score.",
+      "notIdealForCriterion": "Not ideal for your “{criterion}” criterion.",
+      "solidChoice": "Solid profile on the main criteria.",
+      "mixedProfile": "Mixed profile — check the main reasons.",
+      "watchSugar": "Watch the sugar."
+    },
+    "criterion": {
+      "reduceSugar": "reduce sugar",
+      "reduceSalt": "reduce salt",
+      "reduceAdditives": "avoid additives",
+      "reduceUltraProcessed": "avoid ultra-processed",
+      "increaseProtein": "high protein",
+      "increaseFiber": "high fiber",
+      "preferBio": "prefer organic",
+      "vegan": "vegan",
+      "vegetarian": "vegetarian",
+      "eatHealthier": "eat healthier",
+      "loseWeight": "lose weight",
+      "buildMuscle": "build muscle",
+      "lowCalorie": "low calorie",
+      "betterDigestion": "better digestion"
     }
   },
   "history": {
@@ -560,11 +602,11 @@
     "scoreTitle": "Score composition",
     "scoreBody": "The score combines several criteria families, weighted then renormalized over the data actually available:",
     "buckets": {
-      "nutrition": "Nutrition (35%) — Nutri-Score or, failing that, sugars, salt, saturated fat, fiber and protein.",
-      "processing": "Processing (20%) — NOVA group.",
-      "additives": "Additives & risks (15%) — additive severity, palm oil, avoided allergens.",
-      "labels": "Positive labels (10%) — organic, fair trade, clean label.",
-      "goal": "Fit with your goals (10%) — only when you set criteria.",
+      "nutrition": "Nutrition (40%) — authoritative Nutri-Score or, failing that, a derived model (sugars, salt, saturated fat, fiber, protein) with category-aware thresholds.",
+      "processing": "Processing (25%) — NOVA group (NOVA 4 heavily penalized).",
+      "additives": "Additives & risks (15%) — additive severity, palm oil. Unknown ingredient list = bucket excluded, never “additive-free”.",
+      "labels": "Naturality (10%) — organic (meaningful but capped bonus), clean label, fair trade.",
+      "goal": "Fit with your criteria (10%) — active criteria only; halal never enters it (compatibility only).",
       "ecology": "Environment (10%) — Green-Score, only when available."
     },
     "rulesTitle": "Fairness rules",

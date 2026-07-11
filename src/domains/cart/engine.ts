@@ -237,11 +237,11 @@ function analyzeProduct(input: CartInput, prefs: LocalPreferences): CartProductA
 
   const baseScore = round(
     gree.global * 0.38 +
-      gree.healthScore * 0.18 +
-      gree.processingScore * 0.15 +
-      gree.additivesScore * 0.12 +
-      gree.goalScore * 0.1 +
-      gree.naturalityScore * 0.07
+      gree.subScores.nutrition * 0.18 +
+      (gree.subScores.processing ?? 50) * 0.15 +
+      (gree.subScores.additives ?? 50) * 0.12 +
+      (gree.subScores.goalFit ?? 50) * 0.1 +
+      gree.subScores.naturality * 0.07
   );
   const penalty = issues.reduce((sum, issue) => sum + issue.penalty, 0);
   const effectiveScore = clamp(round(baseScore - penalty));
@@ -576,8 +576,8 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
   const confidenceScore = clamp(
     100 -
       missingCriticalData * 18 -
-      analyses.filter((analysis) => analysis.gree.confidenceLevel === "low").length * 12 -
-      analyses.filter((analysis) => analysis.gree.confidenceLevel === "medium").length * 5 -
+      analyses.filter((analysis) => analysis.gree.confidence === "low").length * 12 -
+      analyses.filter((analysis) => analysis.gree.confidence === "medium").length * 5 -
       distributions.nova.unknown * 4
   );
   const hasCriticalIssue = analyses.some((analysis) => analysis.issues.some((issue) => issue.severity === "critical"));

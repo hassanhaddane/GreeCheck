@@ -64,7 +64,7 @@ export function GreeScoreRing({ value, size = 132, label, tone = "band", showVal
           </span>
           {label !== "" && (
             <span className="mt-0.5 text-[0.6rem] font-semibold uppercase tracking-wider text-muted">
-              {label ?? band.label}
+              {label ?? band.grade}
             </span>
           )}
         </motion.div>

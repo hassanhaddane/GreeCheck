@@ -28,7 +28,7 @@ const ROWS: Row[] = [
   { key: "bio", dir: "bool", get: (e) => !!e.product.isBio },
   { key: "halal", dir: "bool", get: (e) => !!e.product.isHalal },
   { key: "greenScore", dir: "lower", get: (e) => nutriRank(e.product.greenScore), fmt: (v) => "ABCDE"[v] },
-  { key: "goalMatch", dir: "higher", get: (e) => e.gree.goalScore }
+  { key: "goalMatch", dir: "higher", get: (e) => e.gree.subScores.goalFit ?? null }
 ];
 
 export function ComparisonTable({ entries }: { entries: BattleEntry[] }) {

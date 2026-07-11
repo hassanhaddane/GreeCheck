@@ -18,7 +18,8 @@ export interface VerdictCardProps {
 
 /**
  * VerdictCard — level 1 of the product hierarchy ("Décider").
- * One glance = score + grade verdict + data trust. Nothing else.
+ * One glance = score + VERDICT + data trust. A low-confidence result renders
+ * the neutral "insufficient data" verdict, never an authoritative one.
  */
 export function VerdictCard({ gree, title, subtitle, children, className }: VerdictCardProps) {
   const t = useTranslations("score");
@@ -31,10 +32,20 @@ export function VerdictCard({ gree, title, subtitle, children, className }: Verd
           {title && <p className="gc-title line-clamp-2">{title}</p>}
           {subtitle && <p className="gc-caption truncate">{subtitle}</p>}
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-            <GreeBadge tone={gree.grade === "A" || gree.grade === "B" ? "positive" : gree.grade === "C" ? "caution" : "negative"}>
-              {t(`grade.${gree.grade}`)}
+            <GreeBadge
+              tone={
+                gree.verdict === "insufficient_data"
+                  ? "unknown"
+                  : gree.verdict === "excellent_choice" || gree.verdict === "good_choice"
+                    ? "positive"
+                    : gree.verdict === "limit" || gree.verdict === "poor_fit_for_goal"
+                      ? "caution"
+                      : "negative"
+              }
+            >
+              {t(`verdict.${gree.verdict}`)}
             </GreeBadge>
-            <TrustHalo level={gree.confidenceLevel} size="sm" />
+            <TrustHalo level={gree.confidence} size="sm" />
           </div>
           {children}
         </div>

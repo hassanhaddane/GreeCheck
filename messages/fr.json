@@ -251,7 +251,24 @@
       "environmentHigh": "Impact plus élevé ({grade})",
       "unknown": "Donnée non disponible"
     },
-    "nutFat": "Matières grasses"
+    "nutFat": "Matières grasses",
+    "swap": {
+      "title": "Meilleures alternatives",
+      "subtitle": "Même catégorie, meilleur choix — améliorations mesurées",
+      "whyBetter": "Pourquoi mieux ?",
+      "whyBetterTitle": "Pourquoi c’est un meilleur choix",
+      "scanForYou": "Sélectionnées et vérifiées pour toi",
+      "lessSugar": "{n}% de sucre en moins",
+      "lessSalt": "{n}% de sel en moins",
+      "lessSatFat": "{n}% de gras saturés en moins",
+      "moreProtein": "+{n} g de protéines",
+      "moreFiber": "+{n} g de fibres",
+      "lowerNova": "NOVA {to} au lieu de NOVA {from}",
+      "noFlaggedAdditives": "Aucun additif signalé",
+      "fewerAdditives": "{n} additif(s) en moins",
+      "organic": "Certifié biologique",
+      "betterScore": "GreeScore +{n} points"
+    }
   },
   "battle": {
     "title": "Scan Battle",

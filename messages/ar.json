@@ -251,7 +251,24 @@
       "environmentHigh": "أثر أعلى ({grade})",
       "unknown": "البيانات غير متوفّرة"
     },
-    "nutFat": "الدهون"
+    "nutFat": "الدهون",
+    "swap": {
+      "title": "بدائل أفضل",
+      "subtitle": "نفس الفئة، خيار أفضل — تحسينات مقيسة",
+      "whyBetter": "لماذا أفضل؟",
+      "whyBetterTitle": "لماذا يُعدّ خيارًا أفضل",
+      "scanForYou": "مُختارة ومُتحقَّق منها لأجلك",
+      "lessSugar": "‏{n}% سكر أقل",
+      "lessSalt": "‏{n}% ملح أقل",
+      "lessSatFat": "‏{n}% دهون مشبعة أقل",
+      "moreProtein": "‏+{n} غ بروتين",
+      "moreFiber": "‏+{n} غ ألياف",
+      "lowerNova": "‏NOVA {to} بدلاً من NOVA {from}",
+      "noFlaggedAdditives": "لا توجد إضافات مُشار إليها",
+      "fewerAdditives": "‏{n} إضافة أقل",
+      "organic": "معتمَد عضويًا",
+      "betterScore": "‏GreeScore ‏+{n} نقطة"
+    }
   },
   "battle": {
     "title": "Scan Battle",

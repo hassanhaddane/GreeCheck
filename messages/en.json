@@ -251,7 +251,24 @@
       "environmentHigh": "Higher impact ({grade})",
       "unknown": "Data not available"
     },
-    "nutFat": "Fat"
+    "nutFat": "Fat",
+    "swap": {
+      "title": "Better alternatives",
+      "subtitle": "Same category, better choice — measured improvements",
+      "whyBetter": "Why better?",
+      "whyBetterTitle": "Why this is a better choice",
+      "scanForYou": "Selected and checked for you",
+      "lessSugar": "{n}% less sugar",
+      "lessSalt": "{n}% less salt",
+      "lessSatFat": "{n}% less saturated fat",
+      "moreProtein": "+{n} g protein",
+      "moreFiber": "+{n} g fiber",
+      "lowerNova": "NOVA {to} instead of NOVA {from}",
+      "noFlaggedAdditives": "No flagged additives",
+      "fewerAdditives": "{n} fewer additive(s)",
+      "organic": "Certified organic",
+      "betterScore": "GreeScore +{n} points"
+    }
   },
   "battle": {
     "title": "Scan Battle",

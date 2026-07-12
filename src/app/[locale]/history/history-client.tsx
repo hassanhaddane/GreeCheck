@@ -42,6 +42,7 @@ function gradeTone(grade?: string): "positive" | "caution" | "negative" | "neutr
 
 export function HistoryClient() {
   const t = useTranslations("history");
+  const tc = useTranslations("common");
   const tScore = useTranslations("score");
   const locale = useLocale() as Locale;
   const mounted = useMounted();
@@ -187,7 +188,7 @@ export function HistoryClient() {
       )}
 
       {/* Filters bottom sheet */}
-      <GreeBottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title={t("filtersTitle")}>
+      <GreeBottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title={t("filtersTitle")} closeLabel={tc("close")}>
         <div className="space-y-4">
           <FilterRow label={t("dateLabel")}>
             {(["all", "today", "week", "month"] as DatePreset[]).map((d) => (
@@ -231,7 +232,7 @@ export function HistoryClient() {
       </GreeBottomSheet>
 
       {/* Row actions bottom sheet */}
-      <GreeBottomSheet open={actionsFor !== null} onClose={() => setActionsFor(null)} title={actionsFor?.name ?? ""}>
+      <GreeBottomSheet open={actionsFor !== null} onClose={() => setActionsFor(null)} title={actionsFor?.name ?? ""} closeLabel={tc("close")}>
         {actionsFor && (
           <div className="space-y-1.5">
             <ActionItem icon={ChevronRight} label={t("open")} onClick={() => { const b = actionsFor.barcode; setActionsFor(null); router.push(`/product/${b}`); }} />

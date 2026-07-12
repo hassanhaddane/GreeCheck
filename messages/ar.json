@@ -153,6 +153,8 @@
     }
   },
   "product": {
+    "metaTitle": "{name} — تحليل غذائي | GreeCheck",
+    "metaDescription": "اطّلع على القيم الغذائية والمكونات والإضافات وNutri-Score ومستوى معالجة {name}.",
     "title": "المنتج",
     "summary": "ملخص",
     "greeScore": "GreeScore",
@@ -567,14 +569,21 @@
     "criteriaHint": "الأهداف والتفضيلات الغذائية — تُدار في صفحة مخصصة.",
     "resetPrefs": "إعادة ضبط المعايير"
   },
+  "labels": {
+    "bio": "عضوي",
+    "halal": "حلال",
+    "vegan": "نباتي صرف",
+    "vegetarian": "نباتي",
+    "gluten_free": "خالٍ من الغلوتين"
+  },
   "privacy": {
+    "metaTitle": "الخصوصية والبيانات المحلية — GreeCheck",
+    "metaDescription": "كيف يحمي GreeCheck بياناتك: بلا حساب أو إعلانات، وسجل محلي، ومن دون حفظ الموقع.",
     "title": "الخصوصية",
     "statement": "بياناتك تبقى على جهازك. لا ينشئ GreeCheck حساباً ولا يخزن ملفك الصحي ولا يحتفظ بسجل المسح.",
     "noAccount": "لا حاجة لحساب",
     "localOnly": "تخزين محلي 100%",
     "attribution": "بيانات المنتجات مقدمة من Open Food Facts (ODbL).",
-    "adsTitle": "الإعلانات",
-    "adsBody": "GreeCheck مجاني ومموّل بالإعلانات. افتراضياً تكون الإعلانات سياقية وغير مخصصة. يمكنك تفعيل الإعلانات المخصصة عبر الموافقة — يديرها شريك خارجي، وليس عبر تحليل داخلي في GreeCheck.",
     "noTracking": "لا تتبع داخلي للمستخدم",
     "noTrackingBody": "لا ينشئ GreeCheck ملفاً إعلانياً ولا يتتبع سلوكك داخل التطبيق.",
     "localTitle": "ما يبقى على جهازك",
@@ -584,7 +593,9 @@
     "localPrefs": "التفضيلات والأهداف ومسببات الحساسية — تُستخدم محلياً لتخصيص GreeScore.",
     "noHealthServer": "لا تُخزن أي بيانات صحية على الخادم: لا قاعدة مستخدمين ولا ملفات شخصية.",
     "geoTitle": "الموقع",
-    "geoBody": "يُستخدم موقعك على جهازك فقط أثناء البحث عن المتاجر. لا يُخزَّن ولا يُنقل أبداً.",
+    "geoBody": "لا يُطلب موقعك إلا بعد إجراء واضح داخل «استكشف». يمر عبر وسيط GreeCheck عديم الحالة إلى OpenStreetMap فقط للعثور على الأماكن القريبة؛ ولا يحتفظ به GreeCheck أو يضيفه إلى سجلك.",
+    "noAds": "لا إعلانات",
+    "noAdsBody": "لا يعرض GreeCheck V2 إعلانات أو مساحات إعلانية ولا يتضمن أي ملفات تعريف إعلانية.",
     "contributeTitle": "المساهمة في Open Food Facts",
     "contributeBody": "إذا لم يُعثر على منتج، يمكنك إضافته إلى قاعدة Open Food Facts التعاونية عبر موقعهم ووفق شروطهم.",
     "contributeCta": "ساهم في Open Food Facts"
@@ -600,7 +611,11 @@
     "toggleTheme": "تبديل المظهر",
     "unavailable": "غير متاح",
     "pageNotFound": "الصفحة غير موجودة",
-    "backHome": "العودة إلى الرئيسية"
+    "backHome": "العودة إلى الرئيسية",
+    "skipToContent": "انتقل إلى المحتوى الرئيسي",
+    "dismiss": "إغلاق",
+    "close": "إغلاق",
+    "remove": "إزالة"
   },
   "radar": {
     "title": "الملف الغذائي",
@@ -625,7 +640,13 @@
     "install": "تثبيت",
     "installTitle": "ثبّت GreeCheck",
     "installBody": "أضف التطبيق إلى شاشتك الرئيسية لتجربة ملء الشاشة.",
-    "offline": "غير متصل"
+    "offline": "غير متصل",
+    "updateTitle": "يوجد تحديث جاهز",
+    "updateBody": "أعد تحميل GreeCheck لاستخدام أحدث إصدار.",
+    "updateAction": "تحديث",
+    "offlineTitle": "أنت غير متصل",
+    "offlineBody": "لا يزال بإمكانك فتح المنتجات المخزنة مؤقتًا على هذا الجهاز.",
+    "offlineAction": "إعادة المحاولة"
   },
   "score": {
     "grade": {
@@ -784,20 +805,46 @@
     "remove": "إزالة"
   },
   "discover": {
-    "metaTitle": "استكشف — GreeCheck",
-    "metaDescription": "استكشف فئات المنتجات وقارن نتائج GreeScore.",
+    "metaTitle": "متاجر الطعام القريبة منك — GreeCheck",
+    "metaDescription": "اعثر على متاجر السوبرماركت والعضوية والحلال والبقالة والأسواق عبر OpenStreetMap.",
     "title": "استكشف",
-    "intro": "استكشف عائلات المنتجات واكتشف أفضل الخيارات بفضل GreeScore.",
-    "categoriesTitle": "تصفح حسب الفئة",
-    "categories": {
-      "breakfast": "فطور",
-      "snacks": "وجبات خفيفة",
-      "drinks": "مشروبات",
-      "dairy": "منتجات الألبان",
-      "cereals": "حبوب",
-      "sauces": "صلصات"
+    "intro": "اعثر على متاجر طعام مفيدة قرب مدينة أو حول موقعك.",
+    "cityLabel": "المدينة",
+    "cityPlaceholder": "الرياض، دبي، باريس…",
+    "search": "بحث",
+    "aroundMe": "بالقرب مني",
+    "aroundMeLabel": "حول موقعك",
+    "filtersTitle": "أنواع الأماكن",
+    "types": {
+      "supermarket": "متاجر السوبرماركت",
+      "organic": "المتاجر العضوية",
+      "halal": "متاجر الحلال",
+      "grocery": "متاجر البقالة",
+      "market": "الأسواق"
     },
-    "methodologyCta": "افهم كيفية حساب GreeScore"
+    "selectFilter": "اختر نوع مكان واحدًا على الأقل.",
+    "locationNote": "لا يُطلب موقعك إلا بعد اختيار «بالقرب مني». يُستخدم لهذا البحث ولا يحفظه GreeCheck أبدًا.",
+    "loading": "جارٍ البحث عن الأماكن…",
+    "location-denied": {
+      "title": "الموقع غير متاح",
+      "body": "اسمح بالوصول إلى الموقع في المتصفح أو ابحث عن مدينة."
+    },
+    "error": {
+      "title": "البحث غير متاح مؤقتًا",
+      "body": "خدمات الخرائط لا تستجيب. حاول مرة أخرى بعد قليل."
+    },
+    "empty": {
+      "title": "لم يتم العثور على أماكن",
+      "body": "جرّب مدينة أخرى أو فعّل المزيد من الفلاتر."
+    },
+    "resultsTitle": "{n, plural, =0 {لا توجد أماكن} one {مكان واحد} two {مكانان} few {# أماكن} many {# مكانًا} other {# مكان}}",
+    "showMap": "عرض الخريطة",
+    "hideMap": "إخفاء الخريطة",
+    "mapTitle": "خريطة متاجر الطعام",
+    "unknownPlace": "متجر بلا اسم",
+    "hours": "ساعات العمل: {value}",
+    "directions": "الاتجاهات",
+    "websiteFor": "موقع {name}"
   },
   "methodology": {
     "metaTitle": "منهجية GreeScore — GreeCheck",

@@ -9,6 +9,7 @@ type BIPEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ out
 
 export function InstallPrompt({ variant = "card" }: { variant?: "card" | "button" }) {
   const t = useTranslations("pwa");
+  const tc = useTranslations("common");
   const [deferred, setDeferred] = useState<BIPEvent | null>(null);
   // Read the standalone flag lazily during init instead of via setState-in-effect.
   // Safe: the component always renders null on the first pass (deferred is null).
@@ -58,8 +59,8 @@ export function InstallPrompt({ variant = "card" }: { variant?: "card" | "button
         <p className="text-xs text-muted">{t("installBody")}</p>
       </div>
       <GreeButton variant="neon" size="sm" onClick={install}>{t("install")}</GreeButton>
-      <button onClick={() => setDismissed(true)} aria-label="dismiss" className="text-muted hover:text-ink">
-        <X className="h-4 w-4" />
+      <button onClick={() => setDismissed(true)} aria-label={tc("dismiss")} className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-muted hover:bg-surface-2">
+        <X className="h-4 w-4" aria-hidden />
       </button>
     </GreeCard>
   );

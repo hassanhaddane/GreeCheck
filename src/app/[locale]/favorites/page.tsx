@@ -6,7 +6,8 @@ import { FavoritesClient } from "./favorites-client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return buildPageMetadata(locale as Locale, "/favorites", "favorites");
+  const metadata = await buildPageMetadata(locale as Locale, "/favorites", "favorites");
+  return { ...metadata, robots: { index: false, follow: false } };
 }
 
 export default async function FavoritesPage({ params }: { params: Promise<{ locale: string }> }) {

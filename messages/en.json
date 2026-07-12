@@ -153,6 +153,8 @@
     }
   },
   "product": {
+    "metaTitle": "{name} — nutrition analysis | GreeCheck",
+    "metaDescription": "See the nutrition facts, ingredients, additives, Nutri-Score and processing level for {name}.",
     "title": "Product",
     "summary": "Summary",
     "greeScore": "GreeScore",
@@ -567,14 +569,21 @@
     "criteriaHint": "Food goals and preferences — managed on a dedicated page.",
     "resetPrefs": "Reset criteria"
   },
+  "labels": {
+    "bio": "Organic",
+    "halal": "Halal",
+    "vegan": "Vegan",
+    "vegetarian": "Vegetarian",
+    "gluten_free": "Gluten-free"
+  },
   "privacy": {
+    "metaTitle": "Privacy and local data — GreeCheck",
+    "metaDescription": "How GreeCheck protects your data: no account, no ads, local history and no saved location.",
     "title": "Privacy",
     "statement": "Your data stays on your device. GreeCheck does not create an account, store your health profile, or keep your scan history.",
     "noAccount": "No account required",
     "localOnly": "100% local storage",
     "attribution": "Product data provided by Open Food Facts (ODbL).",
-    "adsTitle": "Ads",
-    "adsBody": "GreeCheck is free and ad-funded. By default, ads are contextual and non-personalized. You can enable personalized ads via consent — handled by an external partner, never by internal profiling in GreeCheck.",
     "noTracking": "No internal user tracking",
     "noTrackingBody": "GreeCheck builds no ad profile and does not track your behavior in the app.",
     "localTitle": "What stays on your device",
@@ -584,7 +593,9 @@
     "localPrefs": "Preferences, goals and allergens — used locally to personalize your GreeScore.",
     "noHealthServer": "No health data is stored server-side: GreeCheck has no user database and no profiles.",
     "geoTitle": "Location",
-    "geoBody": "Your position is used only on your device, for the duration of a store search. It is never stored or transmitted.",
+    "geoBody": "Your position is requested only after your action in Discover. It passes through GreeCheck's stateless proxy to OpenStreetMap solely to find nearby places; GreeCheck never keeps it or adds it to your history.",
+    "noAds": "No advertising",
+    "noAdsBody": "GreeCheck V2 displays no ads or ad placeholders and includes no advertising profiling.",
     "contributeTitle": "Open Food Facts contribution",
     "contributeBody": "If a product can't be found, you can add it to the collaborative Open Food Facts database. Contribution happens on their site, under their terms.",
     "contributeCta": "Contribute on Open Food Facts"
@@ -600,7 +611,11 @@
     "toggleTheme": "Toggle theme",
     "unavailable": "Unavailable",
     "pageNotFound": "Page not found",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "skipToContent": "Skip to main content",
+    "dismiss": "Dismiss",
+    "close": "Close",
+    "remove": "Remove"
   },
   "radar": {
     "title": "Nutritional profile",
@@ -625,7 +640,13 @@
     "install": "Install",
     "installTitle": "Install GreeCheck",
     "installBody": "Add the app to your home screen for a full-screen experience.",
-    "offline": "Offline"
+    "offline": "Offline",
+    "updateTitle": "An update is ready",
+    "updateBody": "Reload GreeCheck to use the latest version.",
+    "updateAction": "Update",
+    "offlineTitle": "You're offline",
+    "offlineBody": "You can still open products already cached on this device.",
+    "offlineAction": "Try again"
   },
   "score": {
     "grade": {
@@ -784,20 +805,46 @@
     "remove": "Remove"
   },
   "discover": {
-    "metaTitle": "Discover — GreeCheck",
-    "metaDescription": "Explore product categories and compare their GreeScores.",
+    "metaTitle": "Food stores near you — GreeCheck",
+    "metaDescription": "Find supermarkets, organic or halal stores, grocery shops and markets with OpenStreetMap.",
     "title": "Discover",
-    "intro": "Explore product families and spot the best choices with the GreeScore.",
-    "categoriesTitle": "Browse by category",
-    "categories": {
-      "breakfast": "Breakfast",
-      "snacks": "Snacks",
-      "drinks": "Drinks",
-      "dairy": "Dairy",
-      "cereals": "Cereals",
-      "sauces": "Sauces"
+    "intro": "Find useful food shops near a city or around you.",
+    "cityLabel": "City",
+    "cityPlaceholder": "London, Manchester, Dubai…",
+    "search": "Search",
+    "aroundMe": "Around me",
+    "aroundMeLabel": "Around your location",
+    "filtersTitle": "Place types",
+    "types": {
+      "supermarket": "Supermarkets",
+      "organic": "Organic stores",
+      "halal": "Halal stores",
+      "grocery": "Grocery stores",
+      "market": "Markets"
     },
-    "methodologyCta": "Understand how the GreeScore is calculated"
+    "selectFilter": "Select at least one place type.",
+    "locationNote": "Your location is requested only after you choose “Around me”. It is used for this search and is never saved by GreeCheck.",
+    "loading": "Finding places…",
+    "location-denied": {
+      "title": "Location unavailable",
+      "body": "Allow location access in your browser or search for a city."
+    },
+    "error": {
+      "title": "Search temporarily unavailable",
+      "body": "The mapping services are not responding. Try again shortly."
+    },
+    "empty": {
+      "title": "No places found",
+      "body": "Try another city or enable more filters."
+    },
+    "resultsTitle": "{n, plural, =0 {No places} one {# place} other {# places}}",
+    "showMap": "Show map",
+    "hideMap": "Hide map",
+    "mapTitle": "Map of food stores",
+    "unknownPlace": "Unnamed store",
+    "hours": "Hours: {value}",
+    "directions": "Directions",
+    "websiteFor": "Website for {name}"
   },
   "methodology": {
     "metaTitle": "GreeScore methodology — GreeCheck",

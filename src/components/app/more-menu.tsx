@@ -9,6 +9,7 @@ import { MORE_NAV } from "@/lib/constants/navigation";
 /** Compact "More" menu (mobile): secondary destinations in a bottom sheet. */
 export function MoreMenu() {
   const t = useTranslations("nav");
+  const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
 
   return (
@@ -17,11 +18,11 @@ export function MoreMenu() {
         onClick={() => setOpen(true)}
         aria-label={t("more")}
         aria-haspopup="dialog"
-        className="gc-pressable grid h-10 w-10 place-items-center rounded-xl text-muted hover:bg-surface-2 md:hidden"
+        className="gc-pressable grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-surface-2 md:hidden"
       >
         <Menu className="h-5 w-5" />
       </button>
-      <GreeBottomSheet open={open} onClose={() => setOpen(false)} title={t("more")}>
+      <GreeBottomSheet open={open} onClose={() => setOpen(false)} title={t("more")} closeLabel={tc("close")}>
         <nav aria-label={t("more")}>
           <ul className="divide-y divide-line">
             {MORE_NAV.map((item) => {

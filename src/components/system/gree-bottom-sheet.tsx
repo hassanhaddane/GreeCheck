@@ -12,6 +12,7 @@ export interface GreeBottomSheetProps {
   title?: string;
   /** Accessible name when no visible title is rendered. */
   ariaLabel?: string;
+  closeLabel?: string;
   children: React.ReactNode;
   className?: string;
 }
@@ -21,7 +22,7 @@ export interface GreeBottomSheetProps {
  * Mobile: slides from the bottom with a grab handle. Desktop: centered panel.
  * Scrim click / Escape / close button dismiss it. Reduced-motion = fade only.
  */
-export function GreeBottomSheet({ open, onClose, title, ariaLabel, children, className }: GreeBottomSheetProps) {
+export function GreeBottomSheet({ open, onClose, title, ariaLabel, closeLabel, children, className }: GreeBottomSheetProps) {
   const reduce = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -106,8 +107,8 @@ export function GreeBottomSheet({ open, onClose, title, ariaLabel, children, cla
               {title && <h2 className="gc-title">{title}</h2>}
               <button
                 onClick={onClose}
-                aria-label="close"
-                className="gc-pressable ms-auto grid h-9 w-9 place-items-center rounded-xl bg-surface-2 text-muted"
+                aria-label={closeLabel ?? ariaLabel ?? title}
+                className="gc-pressable ms-auto grid h-11 w-11 place-items-center rounded-xl bg-surface-2 text-muted"
               >
                 <X className="h-4 w-4" />
               </button>

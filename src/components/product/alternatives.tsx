@@ -41,6 +41,7 @@ function useImprovementLabel() {
 
 export function Alternatives({ product, prefs }: { product: Product; prefs: LocalPreferences }) {
   const t = useTranslations("product");
+  const tc = useTranslations("common");
   const router = useRouter();
   const addBattle = useBattleStore((s) => s.add);
   const addProduct = useCartStore((s) => s.addProduct);
@@ -164,7 +165,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
       )}
 
       {/* "Why better?" — measurable breakdown */}
-      <GreeBottomSheet open={sheetFor !== null} onClose={() => setSheetFor(null)} title={t("swap.whyBetterTitle")}>
+      <GreeBottomSheet open={sheetFor !== null} onClose={() => setSheetFor(null)} title={t("swap.whyBetterTitle")} closeLabel={tc("close")}>
         {sheetFor && (
           <div className="space-y-3">
             <div className="flex items-center gap-3">

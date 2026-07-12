@@ -22,6 +22,7 @@ export type AddSheetMode = Mode;
 
 export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => void; initialMode?: AddSheetMode }) {
   const t = useTranslations("battle");
+  const tc = useTranslations("common");
   const add = useBattleStore((s) => s.add);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
@@ -47,7 +48,7 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
   ];
 
   return (
-    <GreeBottomSheet open onClose={onClose} title={t("addProduct")}>
+    <GreeBottomSheet open onClose={onClose} title={t("addProduct")} closeLabel={tc("close")}>
         {/* source tabs */}
         <div className="mb-4 grid grid-cols-4 gap-2">
           {modes.map((m) => {
@@ -124,7 +125,7 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
                   <span className="truncate text-xs text-muted">{p.brand || "—"}</span>
                 </div>
               </div>
-              <GreeButton size="icon" variant={inBattle ? "soft" : "neon"} aria-label="add" onClick={() => onAdd(p)} disabled={inBattle}>
+              <GreeButton size="icon" variant={inBattle ? "soft" : "neon"} aria-label={t("add")} onClick={() => onAdd(p)} disabled={inBattle}>
                 {inBattle ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               </GreeButton>
             </div>

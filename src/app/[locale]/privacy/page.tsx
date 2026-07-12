@@ -1,17 +1,24 @@
-"use client";
+import type { Metadata } from "next";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
-import { useTranslations } from "next-intl";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   ShieldCheck, UserX, HardDrive, Database, EyeOff,
-  History, Heart, ShoppingBasket, SlidersHorizontal, MapPin, ExternalLink
+  History, Heart, ShoppingBasket, SlidersHorizontal, MapPin, ExternalLink, BadgeX
 } from "lucide-react";
 import { PageHeading } from "@/components/app/page-heading";
 import { GreeButton } from "@/components/system/gree-button";
-import { useMounted } from "@/hooks/use-mounted";
+import type { Locale } from "@/i18n/routing";
+import { buildPageMetadata } from "@/lib/seo";
 
-export default function PrivacyPage() {
-  const t = useTranslations("privacy");
-  const mounted = useMounted();
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return buildPageMetadata(locale as Locale, "/privacy", "privacy");
+}
+
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("privacy");
 
   const points = [
     { icon: UserX, label: t("noAccount") },
@@ -87,6 +94,14 @@ export default function PrivacyPage() {
         <div>
           <p className="text-sm font-semibold">{t("noTracking")}</p>
           <p className="mt-1 text-sm text-muted">{t("noTrackingBody")}</p>
+        </div>
+      </GreeCard>
+
+      <GreeCard className="flex items-start gap-3 p-5">
+        <BadgeX className="mt-0.5 h-5 w-5 shrink-0 text-natural-strong" aria-hidden />
+        <div>
+          <p className="text-sm font-semibold">{t("noAds")}</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted">{t("noAdsBody")}</p>
         </div>
       </GreeCard>
 

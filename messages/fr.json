@@ -153,6 +153,8 @@
     }
   },
   "product": {
+    "metaTitle": "{name} — analyse nutritionnelle | GreeCheck",
+    "metaDescription": "Découvre les données nutritionnelles, ingrédients, additifs, Nutri-Score et niveau de transformation de {name}.",
     "title": "Fiche produit",
     "summary": "Résumé",
     "greeScore": "GreeScore",
@@ -567,14 +569,21 @@
     "criteriaHint": "Objectifs et préférences alimentaires — gérés dans une page dédiée.",
     "resetPrefs": "Réinitialiser les critères"
   },
+  "labels": {
+    "bio": "Bio",
+    "halal": "Halal",
+    "vegan": "Vegan",
+    "vegetarian": "Végétarien",
+    "gluten_free": "Sans gluten"
+  },
   "privacy": {
+    "metaTitle": "Confidentialité et données locales — GreeCheck",
+    "metaDescription": "Comment GreeCheck protège tes données : aucun compte, aucune publicité, historique local et localisation non conservée.",
     "title": "Confidentialité",
     "statement": "Vos données restent sur votre appareil. GreeCheck ne crée pas de compte, ne stocke pas votre profil santé et ne conserve pas votre historique de scan.",
     "noAccount": "Aucun compte requis",
     "localOnly": "Stockage 100% local",
     "attribution": "Données produits fournies par Open Food Facts (ODbL).",
-    "adsTitle": "Publicités",
-    "adsBody": "GreeCheck est gratuit et financé par la publicité. Par défaut, les publicités sont contextuelles et non personnalisées. Tu peux activer des publicités personnalisées via le consentement — géré par un partenaire externe, jamais par un profilage interne à GreeCheck.",
     "noTracking": "Aucun tracking utilisateur interne",
     "noTrackingBody": "GreeCheck ne crée pas de profil publicitaire et ne suit pas ton comportement dans l'application.",
     "localTitle": "Ce qui reste sur ton appareil",
@@ -584,7 +593,9 @@
     "localPrefs": "Préférences, objectifs et allergènes — utilisés localement pour personnaliser ton GreeScore.",
     "noHealthServer": "Aucune donnée santé n'est stockée côté serveur : GreeCheck n'a ni base utilisateur, ni profil.",
     "geoTitle": "Localisation",
-    "geoBody": "Ta position est utilisée uniquement sur ton appareil, le temps d'une recherche de magasins. Elle n'est jamais stockée ni transmise.",
+    "geoBody": "Ta position n'est demandée qu'après ton action dans Discover. Elle transite par le proxy sans état de GreeCheck vers OpenStreetMap uniquement pour trouver les lieux proches ; elle n'est conservée ni par GreeCheck ni dans ton historique.",
+    "noAds": "Aucune publicité",
+    "noAdsBody": "GreeCheck V2 n'affiche aucune publicité, aucun emplacement publicitaire et n'intègre aucun profilage publicitaire.",
     "contributeTitle": "Contribution Open Food Facts",
     "contributeBody": "Si un produit est introuvable, tu peux l'ajouter à la base collaborative Open Food Facts. La contribution se fait sur leur site, selon leurs conditions.",
     "contributeCta": "Contribuer sur Open Food Facts"
@@ -600,7 +611,11 @@
     "toggleTheme": "Changer de thème",
     "unavailable": "Indisponible",
     "pageNotFound": "Page introuvable",
-    "backHome": "Retour à l'accueil"
+    "backHome": "Retour à l'accueil",
+    "skipToContent": "Aller au contenu principal",
+    "dismiss": "Fermer",
+    "close": "Fermer",
+    "remove": "Retirer"
   },
   "radar": {
     "title": "Profil nutritionnel",
@@ -625,7 +640,13 @@
     "install": "Installer",
     "installTitle": "Installe GreeCheck",
     "installBody": "Ajoute l'app à ton écran d'accueil pour un accès plein écran.",
-    "offline": "Hors ligne"
+    "offline": "Hors ligne",
+    "updateTitle": "Une mise à jour est prête",
+    "updateBody": "Recharge GreeCheck pour utiliser la dernière version.",
+    "updateAction": "Mettre à jour",
+    "offlineTitle": "Tu es hors ligne",
+    "offlineBody": "Tu peux encore consulter les produits déjà mis en cache sur cet appareil.",
+    "offlineAction": "Réessayer"
   },
   "score": {
     "grade": {
@@ -784,20 +805,46 @@
     "remove": "Retirer"
   },
   "discover": {
-    "metaTitle": "Découvrir — GreeCheck",
-    "metaDescription": "Explore des catégories de produits et compare leurs GreeScores.",
+    "metaTitle": "Magasins alimentaires autour de toi — GreeCheck",
+    "metaDescription": "Trouve des supermarchés, magasins bio ou halal, épiceries et marchés avec OpenStreetMap.",
     "title": "Découvrir",
-    "intro": "Explore des familles de produits et repère les meilleurs choix grâce au GreeScore.",
-    "categoriesTitle": "Explorer par catégorie",
-    "categories": {
-      "breakfast": "Petit-déjeuner",
-      "snacks": "Snacks",
-      "drinks": "Boissons",
-      "dairy": "Produits laitiers",
-      "cereals": "Céréales",
-      "sauces": "Sauces"
+    "intro": "Trouve des commerces alimentaires utiles près d'une ville ou autour de toi.",
+    "cityLabel": "Ville",
+    "cityPlaceholder": "Paris, Lyon, Bruxelles…",
+    "search": "Rechercher",
+    "aroundMe": "Autour de moi",
+    "aroundMeLabel": "Autour de ta position",
+    "filtersTitle": "Types de lieux",
+    "types": {
+      "supermarket": "Supermarchés",
+      "organic": "Magasins bio",
+      "halal": "Magasins halal",
+      "grocery": "Épiceries",
+      "market": "Marchés"
     },
-    "methodologyCta": "Comprendre comment le GreeScore est calculé"
+    "selectFilter": "Sélectionne au moins un type de lieu.",
+    "locationNote": "Ta position n'est demandée qu'après avoir choisi « Autour de moi ». Elle sert à cette recherche et n'est jamais enregistrée par GreeCheck.",
+    "loading": "Recherche des lieux…",
+    "location-denied": {
+      "title": "Localisation indisponible",
+      "body": "Autorise la localisation dans ton navigateur ou recherche une ville."
+    },
+    "error": {
+      "title": "Recherche momentanément indisponible",
+      "body": "Les services cartographiques ne répondent pas. Réessaie dans un instant."
+    },
+    "empty": {
+      "title": "Aucun lieu trouvé",
+      "body": "Essaie une autre ville ou active davantage de filtres."
+    },
+    "resultsTitle": "{n, plural, =0 {Aucun lieu} one {# lieu} other {# lieux}}",
+    "showMap": "Afficher la carte",
+    "hideMap": "Masquer la carte",
+    "mapTitle": "Carte des commerces alimentaires",
+    "unknownPlace": "Commerce sans nom",
+    "hours": "Horaires : {value}",
+    "directions": "Itinéraire",
+    "websiteFor": "Site de {name}"
   },
   "methodology": {
     "metaTitle": "Méthodologie GreeScore — GreeCheck",

@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildPageMetadata, SITE_URL } from "@/lib/seo";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { GreeBadge } from "@/components/system/gree-badge";
 import { TrustHalo } from "@/components/system/trust-halo";
@@ -76,8 +76,41 @@ export default async function MarketingHome({ params }: { params: Promise<{ loca
     [DEMO_BETTER.barcode]: t("demo.productBetter")
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: `${SITE_URL}/${locale}`,
+        name: "GreeCheck",
+        description: t("hero.subtitle"),
+        inLanguage: locale,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${SITE_URL}/${locale}/search?q={search_term_string}`,
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "WebApplication",
+        name: "GreeCheck",
+        url: `${SITE_URL}/${locale}`,
+        applicationCategory: "HealthApplication",
+        operatingSystem: "Any",
+        inLanguage: locale,
+        isAccessibleForFree: true,
+        description: t("hero.subtitle")
+      }
+    ]
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-16 pb-10 pt-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+      />
       {/* ═══ 1 · Hero ═══ */}
       <section className="flex flex-col items-center gap-5 text-center">
         <Logo size={56} />

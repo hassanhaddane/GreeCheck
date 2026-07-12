@@ -12,6 +12,7 @@ import type { BattleEntry } from "@/domains/battle/engine";
 /** Compact basket row. `priority` flags an item that should be replaced. */
 export function CartItemCard({ entry, onRemove, priority }: { entry: BattleEntry; onRemove: () => void; priority?: boolean }) {
   const tScore = useTranslations("score");
+  const t = useTranslations("cart");
   const { product: p, gree } = entry;
   const warning = gree.warnings.find((w) => w.level !== "info");
   return (
@@ -31,7 +32,7 @@ export function CartItemCard({ entry, onRemove, priority }: { entry: BattleEntry
         </div>
       </Link>
       <GreeScoreRing value={gree.global} size={42} label="" />
-      <button onClick={onRemove} aria-label="remove" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
+      <button onClick={onRemove} aria-label={t("remove")} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
         <X className="h-3.5 w-3.5" />
       </button>
     </GreeCard>

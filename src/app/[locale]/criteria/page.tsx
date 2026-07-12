@@ -6,7 +6,8 @@ import { CriteriaClient } from "./criteria-client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return buildPageMetadata(locale as Locale, "/criteria", "criteria");
+  const metadata = await buildPageMetadata(locale as Locale, "/criteria", "criteria");
+  return { ...metadata, robots: { index: false, follow: false } };
 }
 
 export default async function CriteriaPage({ params }: { params: Promise<{ locale: string }> }) {

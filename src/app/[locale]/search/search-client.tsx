@@ -34,6 +34,7 @@ const union = <T,>(a: Set<T>, b: T[]) => new Set<T>([...a, ...b]);
 
 export function SearchClient() {
   const t = useTranslations("search");
+  const tc = useTranslations("common");
   const locale = useLocale() as FilterLocale;
   const prefs = usePreferencesStore();
   const router = useRouter();
@@ -276,7 +277,7 @@ export function SearchClient() {
       )}
 
       {/* Progressive filters — responsive bottom sheet (mobile) / panel (desktop) */}
-      <GreeBottomSheet open={panelOpen} onClose={() => setPanelOpen(false)} title={t("filters")}>
+      <GreeBottomSheet open={panelOpen} onClose={() => setPanelOpen(false)} title={t("filters")} closeLabel={tc("close")}>
         <div className="space-y-4">
           {/* Health score group */}
           <div className="rounded-2xl bg-surface-2 p-3">

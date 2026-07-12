@@ -26,6 +26,7 @@ export function BattleCard({
   onAddBasket?: () => void;
 }) {
   const t = useTranslations("battle");
+  const tc = useTranslations("common");
   const tScore = useTranslations("score");
   const { product: p, gree } = entry;
   const warning = gree.warnings.find((w) => w.level !== "info");
@@ -37,7 +38,7 @@ export function BattleCard({
           <Trophy className="h-3 w-3" /> {t("bestChoice")}
         </span>
       )}
-      <button onClick={onRemove} aria-label="remove" className="absolute end-2 top-2 z-10 grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
+      <button onClick={onRemove} aria-label={tc("remove")} className="absolute end-1 top-1 z-10 grid h-11 w-11 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
         <X className="h-3.5 w-3.5" />
       </button>
 

@@ -2,6 +2,8 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { GreeButton } from "@/components/system/gree-button";
 
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 export default async function NotFound() {
   const t = await getTranslations("common");
   return (
@@ -12,3 +14,4 @@ export default async function NotFound() {
     </div>
   );
 }
+import type { Metadata } from "next";

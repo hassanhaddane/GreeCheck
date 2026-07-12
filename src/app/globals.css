@@ -110,7 +110,7 @@
 
 * { -webkit-tap-highlight-color: transparent; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 
 body {
   background-color: rgb(var(--gc-bg));
@@ -119,6 +119,7 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 /* RTL niceties */
@@ -254,4 +255,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  html { scroll-behavior: auto !important; }
+}
+
+@media (pointer: coarse) {
+  button, [role="button"], input, select { min-block-size: 44px; }
+  button, [role="button"] { min-inline-size: 44px; }
 }

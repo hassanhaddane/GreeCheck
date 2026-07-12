@@ -6,7 +6,8 @@ import { HistoryClient } from "./history-client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return buildPageMetadata(locale as Locale, "/history", "history");
+  const metadata = await buildPageMetadata(locale as Locale, "/history", "history");
+  return { ...metadata, robots: { index: false, follow: false } };
 }
 
 export default async function HistoryPage({ params }: { params: Promise<{ locale: string }> }) {

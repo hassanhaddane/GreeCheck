@@ -1,5 +1,4 @@
 "use client";
-import { GreeBadge } from "@/components/system/gree-badge";
 import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import type * as React from "react";
 import { useTranslations } from "next-intl";
@@ -11,6 +10,7 @@ import { TrustHalo } from "@/components/system/trust-halo";
 import { MiniRadar } from "@/components/product/nutrition-radar";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
+import { LabelBadge } from "@/components/badges/label-badge";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import type { Product } from "@/domains/product/model";
@@ -74,8 +74,8 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
               {[
                 p.nutriScore ? <NutriScoreBadge key="nutri" grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" /> : null,
                 p.novaGroup ? <NovaBadge key="nova" group={p.novaGroup} className="scale-90" /> : null,
-                p.isBio ? <GreeBadge key="bio" tone="brand" size="sm">Bio</GreeBadge> : null,
-                p.isHalal ? <GreeBadge key="halal" tone="brand" size="sm">Halal</GreeBadge> : null
+                p.isBio ? <LabelBadge key="bio" kind="bio" className="px-1.5 py-0 text-[0.65rem]" /> : null,
+                p.isHalal ? <LabelBadge key="halal" kind="halal" className="px-1.5 py-0 text-[0.65rem]" /> : null
               ].filter(Boolean).slice(0, 3)}
               <TrustHalo level={gree.confidence} size="sm" />
               <span className="text-[0.65rem] font-medium text-muted">{tScore(`grade.${gree.grade}`)}</span>
@@ -92,7 +92,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
               onClick={addToBattle}
               aria-label={tp("scanBattle")}
               title={tp("scanBattle")}
-              className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted transition hover:bg-deep hover:text-white"
+              className="gc-pressable grid h-11 w-11 place-items-center rounded-xl bg-surface-2 text-muted transition hover:bg-deep hover:text-white"
             >
               <Swords className="h-4 w-4" />
             </button>
@@ -101,7 +101,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
               onClick={addToBasket}
               aria-label={tp("addToBasket")}
               title={tp("addToBasket")}
-              className={`gc-pressable grid h-8 w-8 place-items-center rounded-xl transition ${
+              className={`gc-pressable grid h-11 w-11 place-items-center rounded-xl transition ${
                 inBasket ? "bg-natural/15 text-natural-strong" : "bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural-strong"
               }`}
             >

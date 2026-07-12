@@ -399,7 +399,7 @@ function chooseMainStrength(
   }
   if (compatibility.bio.active && metrics.bioRatio >= 0.5) return message("bio");
   if (compatibility.halal.active && metrics.halalRatio >= 0.5) return message("halal");
-  return message("balanced");
+  return message("none");
 }
 
 function chooseVerdict(score: number, metrics: CartScoreResult["metrics"], prefs: LocalPreferences): CartMessage {
@@ -444,7 +444,7 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
       positiveInsights: [],
       warnings: [],
       mainRisk: message("none"),
-      mainStrength: message("balanced"),
+      mainStrength: message("none"),
       productsDraggingScore: [],
       productsImprovingCart: [],
       recommendedReplacements: [],
@@ -597,7 +597,6 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
   }
   if (nutritionBalance.protein.preferenceActive && nutritionBalance.protein.status === "good") positiveInsights.push(message("protein"));
   if (nutritionBalance.fiber.preferenceActive && nutritionBalance.fiber.status === "good") positiveInsights.push(message("fiber"));
-  if (!positiveInsights.length) positiveInsights.push(message("balancedBasics"));
 
   const productsDraggingScore = [...analyses]
     .filter((analysis) => analysis.effectiveScore < 68 || analysis.issues.some((issue) => issue.severity !== "info"))

@@ -57,7 +57,6 @@ export async function GET(req: Request) {
     });
   } catch (err) {
     const e = normalizeError(err);
-    console.error(`[api/search] upstream failure for q="${q}" page=${page}: ${e.code} ${e.message}`);
     if (e.code === "rate_limited") {
       return NextResponse.json(
         { error: "rate_limited" },

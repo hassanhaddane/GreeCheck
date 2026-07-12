@@ -300,7 +300,6 @@ export function useBarcodeScanner({ onDetect }: Options) {
               const handled = onDetectRef.current(raw, format);
               if (handled) {
                 finishedRef.current = true;
-                navigator.vibrate?.(45);
                 stopStream();
                 setState("paused");
               }

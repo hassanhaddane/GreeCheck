@@ -287,7 +287,7 @@ export function ScanClient() {
         {showIntro && <FirstScanIntro key="intro" onDone={dismissIntro} />}
       </AnimatePresence>
 
-      <GreeCard className="relative aspect-[3/4] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
+      <GreeCard className="relative h-[clamp(18rem,43svh,28rem)] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${state === "active" ? "opacity-100" : "opacity-0"}`}
@@ -430,7 +430,7 @@ export function ScanClient() {
             placeholder={t("manualPlaceholder")}
             className="h-11 flex-1 rounded-2xl border border-line bg-surface-2 px-4 text-sm outline-none focus:ring-2 focus:ring-neon/50"
           />
-          <GreeButton variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("manual")}>
+          <GreeButton variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("enterBarcode")}>
             <ArrowRight className="h-5 w-5 rtl:rotate-180" aria-hidden />
           </GreeButton>
         </div>

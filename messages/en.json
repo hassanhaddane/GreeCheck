@@ -115,7 +115,7 @@
     "groupNutrition": "Nutrition",
     "groupSmart": "Smart filters",
     "activeFilters": "Active filters",
-    "results": "{n} result(s)",
+    "results": "{n, plural, one {# result} other {# results}}",
     "emptyTitle": "No product matches",
     "emptyBody": "Try widening your search or removing filters.",
     "startTitle": "Search a product",
@@ -216,6 +216,18 @@
     "verdictBody": "GreeScore {score} — {label}. Computed locally (nutrition, processing, additives, labels).",
     "notProvided": "Not provided",
     "noAdditives": "No additives detected",
+    "additiveSeverity": {
+      "neutral": "Common use",
+      "watch": "Worth watching",
+      "controversial": "Moderate attention",
+      "avoid": "Higher attention"
+    },
+    "additiveExplanation": {
+      "neutral": "No specific signal appears in our non-exhaustive reference list.",
+      "watch": "This additive deserves attention depending on how often the product is consumed.",
+      "controversial": "Available sources support measured caution without alarmist conclusions.",
+      "avoid": "GreeCheck applies a stronger precautionary penalty in its transparent method."
+    },
     "noAllergens": "No major allergen reported",
     "per100": "Per 100 g / 100 ml",
     "breakdownTitle": "Why this score?",
@@ -293,7 +305,7 @@
       "moreFiber": "+{n} g fiber",
       "lowerNova": "NOVA {to} instead of NOVA {from}",
       "noFlaggedAdditives": "No flagged additives",
-      "fewerAdditives": "{n} fewer additive(s)",
+      "fewerAdditives": "{n, plural, one {# fewer additive} other {# fewer additives}}",
       "organic": "Certified organic",
       "betterScore": "GreeScore +{n} points"
     }
@@ -398,7 +410,7 @@
     "title": "Smart basket",
     "subtitle": "Scan several products and get an overall score.",
     "score": "Basket score",
-    "itemsCount": "{n} product(s)",
+    "itemsCount": "{n, plural, one {# product} other {# products}}",
     "empty": "Your basket is empty.",
     "emptyBody": "Scan or search products to rate the whole basket.",
     "level": {
@@ -444,17 +456,17 @@
       "empty": "Your basket is empty.",
       "excellentClean": "Excellent basket: healthy, minimally processed, no alerts.",
       "halalMatch": "Basket 100% halal-compatible.",
-      "goodButProcessed": "Good basket, but {count} ultra-processed product(s).",
-      "goodButSugar": "Good basket, but {count} too-sugary product(s).",
+      "goodButProcessed": "Good basket, but {count, plural, one {# ultra-processed product} other {# ultra-processed products}}.",
+      "goodButSugar": "Good basket, but {count, plural, one {# overly sugary product} other {# overly sugary products}}.",
       "poorProcessedSugar": "Needs work: {nova} ultra-processed and {sugar} too sugary.",
-      "partial": "{count} product(s) with incomplete data — partial score.",
+      "partial": "{count, plural, one {# product has} other {# products have}} incomplete data — partial score.",
       "goodOverall": "Good basket overall.",
       "mixed": "Decent basket, with real room to improve.",
       "poor": "This basket needs attention.",
-      "allergenConflict": "Warning: {count} product(s) contain an allergen you avoid."
+      "allergenConflict": "Warning: {count, plural, one {# product contains} other {# products contain}} an allergen you avoid."
     },
     "warning": {
-      "allergenConflicts": "{count} allergen conflict(s)",
+      "allergenConflicts": "{count, plural, one {# allergen conflict} other {# allergen conflicts}}",
       "nova4": "{count} ultra-processed",
       "highSugar": "{count} too sugary",
       "highSalt": "{count} too salty",
@@ -464,7 +476,7 @@
       "bioLow": "{count} not organic"
     },
     "positive": {
-      "excellentProducts": "{count} excellent product(s)",
+      "excellentProducts": "{count, plural, one {# excellent product} other {# excellent products}}",
       "lowProcessed": "{count} minimally processed",
       "bioMatch": "{percent}% organic",
       "halalMatch": "{percent}% halal",
@@ -483,13 +495,13 @@
       "balanced": "Balanced overall"
     },
     "risk": {
-      "allergenConflicts": "{count} allergen conflict(s)",
-      "nova4": "{count} ultra-processed product(s)",
-      "highSugar": "{count} too-sugary product(s)",
-      "highSalt": "{count} too-salty product(s)",
-      "manyAdditives": "{count} additive-heavy product(s)",
-      "missingData": "{count} product(s) with incomplete data",
-      "lowScore": "{count} low-score product(s)",
+      "allergenConflicts": "{count, plural, one {# allergen conflict} other {# allergen conflicts}}",
+      "nova4": "{count, plural, one {# ultra-processed product} other {# ultra-processed products}}",
+      "highSugar": "{count, plural, one {# overly sugary product} other {# overly sugary products}}",
+      "highSalt": "{count, plural, one {# overly salty product} other {# overly salty products}}",
+      "manyAdditives": "{count, plural, one {# additive-heavy product} other {# additive-heavy products}}",
+      "missingData": "{count, plural, one {# product with incomplete data} other {# products with incomplete data}}",
+      "lowScore": "{count, plural, one {# low-score product} other {# low-score products}}",
       "none": "No major risk detected"
     },
     "replacementReason": {
@@ -521,7 +533,7 @@
     "mainRisk": "Main risk",
     "optimize": "Optimize my basket",
     "optimizing": "Optimizing…",
-    "optimizeDone": "{count} product(s) replaced — new estimated score: {score}",
+    "optimizeDone": "{count, plural, one {# product replaced} other {# products replaced}} — new estimated score: {score}",
     "optimizeNone": "No automatic swap found — your basket is already well optimized.",
     "keepCount": "{n} to keep",
     "reconsiderCount": "{n} to reconsider",
@@ -562,7 +574,7 @@
     "resetHint": "Erases preferences, goals, history, favorites, basket and cache.",
     "confirm": "Confirm?",
     "done": "Done",
-    "items": "{n} item(s)",
+    "items": "{n, plural, one {# item} other {# items}}",
     "empty": "Empty",
     "clearCart": "Clear GreeCart",
     "criteriaTitle": "My criteria",
@@ -604,7 +616,6 @@
     "back": "Back",
     "soon": "Soon",
     "loading": "Loading…",
-    "comingSoon": "This section is coming soon.",
     "error": "Something went wrong",
     "retry": "Retry",
     "changeLanguage": "Change language",
@@ -664,7 +675,7 @@
       "nova1": "Unprocessed (NOVA 1)",
       "nova2": "Lightly processed (NOVA 2)",
       "nova4": "Ultra-processed (NOVA 4)",
-      "additivesWatch": "{n} additive(s) to watch",
+      "additivesWatch": "{n, plural, one {# additive to watch} other {# additives to watch}}",
       "noAdditive": "No additives",
       "palmOilReason": "Palm oil",
       "bio": "Organic product",
@@ -745,7 +756,7 @@
     "empty": "No scans yet",
     "emptyBody": "Scan a first product to start your local history.",
     "scanCta": "Scan a product",
-    "count": "{n} scanned product(s)",
+    "count": "{n, plural, one {# scanned product} other {# scanned products}}",
     "favorite": "Add to favorites",
     "unfavorite": "Remove from favorites",
     "remove": "Remove from history",
@@ -802,7 +813,23 @@
     "allergensHint": "Pick or add what you want to avoid. Creates compatibility alerts, not a score penalty.",
     "allergenPlaceholder": "Add an allergen…",
     "addAllergen": "Add",
-    "remove": "Remove"
+    "remove": "Remove",
+    "preferenceLabels": {
+      "preferBio": "Prefer organic",
+      "preferHalal": "Prefer halal",
+      "preferVegan": "Prefer vegan",
+      "preferVegetarian": "Prefer vegetarian",
+      "reduceSugar": "Reduce sugar",
+      "reduceSalt": "Reduce salt",
+      "reduceAdditives": "Reduce additives",
+      "reduceUltraProcessed": "Avoid ultra-processed",
+      "increaseProtein": "More protein",
+      "increaseFiber": "More fiber"
+    },
+    "allergenPresets": {
+      "gluten": "Gluten", "milk": "Milk", "lactose": "Lactose", "eggs": "Eggs",
+      "peanuts": "Peanuts", "nuts": "Nuts", "soybeans": "Soy", "palm": "Palm oil"
+    }
   },
   "discover": {
     "metaTitle": "Food stores near you — GreeCheck",
@@ -888,7 +915,7 @@
     "demo": {
       "title": "From scan to decision",
       "subtitle": "The real journey, computed by the real GreeScore engine.",
-      "note": "Illustrative example computed by the real engine — in the app, product data comes from Open Food Facts.",
+      "note": "Scores calculated by the real engine from Open Food Facts records verified on July 12, 2026.",
       "step1": "Scan",
       "step1Body": "Aim at the barcode. Detection is instant.",
       "step2": "Understand",
@@ -896,8 +923,9 @@
       "step3": "Choose better",
       "step3Body": "A measurably better alternative from the same category.",
       "scanning": "Detecting barcode…",
-      "productGeneric": "Classic hazelnut spread",
-      "productBetter": "Organic hazelnut spread",
+      "productGeneric": "Nutella",
+      "productMiddle": "Nocciolata organic",
+      "productBetter": "Funkie cocoa hazelnut",
       "reasonSugar": "Too much sugar",
       "reasonNova": "Ultra-processed",
       "reasonBio": "Organic",
@@ -925,7 +953,7 @@
       "body": "GreeCart analyzes the overall quality of your groceries and simulates replacements, before/after.",
       "before": "Before",
       "after": "After",
-      "replaced": "{n} products replaced"
+      "replaced": "{n, plural, one {# product replaced} other {# products replaced}}"
     },
     "privacy": {
       "title": "Private by design",
@@ -953,7 +981,7 @@
     "empty": "No favorites yet",
     "emptyBody": "Save products as favorites from a product page or your history.",
     "scanCta": "Scan",
-    "count": "{n} favorite(s)",
+    "count": "{n, plural, one {# favorite} other {# favorites}}",
     "addBattle": "Add to Battle",
     "addCart": "Add to GreeCart",
     "remove": "Remove",

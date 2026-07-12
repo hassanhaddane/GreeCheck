@@ -43,6 +43,19 @@ test("boot hydrates every feature store from its repository", async () => {
   assert.equal(usePreferencesStore.getState().preferBio, true);
 });
 
+test("boot merges an eager first action instead of erasing it", async () => {
+  await db!.cart.put({ product: product("persisted"), score: 60, addedAt: 1 });
+  await db!.kv.put({ key: "meta.legacyMigrated", value: true });
+  useCartStore.getState().addProduct(product("eager"), { global: 75 } as never);
+
+  await bootLocalData();
+
+  assert.deepEqual(
+    useCartStore.getState().items.map((item) => item.product.barcode).sort(),
+    ["eager", "persisted"]
+  );
+});
+
 test("store mutations write through to the repository", async () => {
   useHistoryStore.getState().add({ barcode: "777", name: "Muesli", score: 80, verdict: "ok", scannedAt: Date.now() });
   // write-through is fire-and-forget → allow the microtask to settle

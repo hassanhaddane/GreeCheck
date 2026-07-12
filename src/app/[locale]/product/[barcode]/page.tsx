@@ -1,5 +1,6 @@
 "use client";
 import { use, useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
   Heart, ShoppingBasket, AlertTriangle, Swords, ShieldQuestion, ExternalLink,
@@ -16,7 +17,6 @@ import { GreeBadge } from "@/components/system/gree-badge";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
-import { NutritionRadar } from "@/components/product/nutrition-radar";
 import { SubScoreCards } from "@/components/product/sub-score-cards";
 import { GreeDNA } from "@/components/product/gree-dna";
 import { Alternatives } from "@/components/product/alternatives";
@@ -27,7 +27,7 @@ import { getProduct, type ProductLookup } from "@/domains/product/repository";
 import { productAddUrl, productContributionUrl } from "@/domains/product/contribute";
 import type { Product } from "@/domains/product/model";
 import type { ScoreReason } from "@/domains/scoring/types";
-import { computeGreeScore, explainScore } from "@/domains/scoring/gree-score";
+import { additiveSeverityOf, computeGreeScore, explainScore } from "@/domains/scoring/gree-score";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
 import { useHistoryStore } from "@/domains/library/history-store";
@@ -189,8 +189,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       <GreeCard className="overflow-hidden">
         <div className="flex items-center gap-4 p-4">
           <div className="aspect-square w-20 shrink-0 overflow-hidden rounded-2xl bg-surface-2">
-            { }
-            {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
+            {p.imageUrl ? (
+              <Image src={p.imageUrl} alt={p.name} width={80} height={80} sizes="80px" priority className="h-full w-full object-contain" />
+            ) : null}
           </div>
           <div className="min-w-0 flex-1">
             {(p.isBio || p.isHalal || p.isVegan || p.isVegetarian) && (
@@ -330,9 +331,20 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           badge={additiveCount ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{additiveCount}</span> : undefined}
         >
           {additiveCount > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {p.additives!.map((a) => <span key={a} className="gc-chip text-xs">{a.toUpperCase()}</span>)}
-            </div>
+            <ul className="space-y-2">
+              {p.additives!.map((a) => {
+                const severity = additiveSeverityOf(a);
+                return (
+                  <li key={a} className="rounded-2xl border border-line bg-surface-2 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="gc-chip text-xs font-bold">{a.toUpperCase()}</span>
+                      <span className="text-xs font-semibold text-muted">{t(`additiveSeverity.${severity}`)}</span>
+                    </div>
+                    <p className="mt-1.5 text-xs leading-relaxed text-muted">{t(`additiveExplanation.${severity}`)}</p>
+                  </li>
+                );
+              })}
+            </ul>
           ) : <p className="text-sm text-muted">{t("noAdditives")}</p>}
         </CollapsibleSection>
       )}
@@ -361,9 +373,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {hasNutrition && (
         <CollapsibleSection title={t("completeNutrition")} icon={<BarChart3 className="h-5 w-5" />}>
-          <div className="grid place-items-center pb-2">
-            <NutritionRadar product={p} />
-          </div>
           <p className="mb-2 text-xs text-muted">{t("per100")}</p>
           <div className="divide-y divide-line">
             {FULL_NUTRI_ROWS.filter((row) => p.nutriments[row.key] !== undefined).map((row) => (

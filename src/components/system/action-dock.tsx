@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export function ActionDock({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("sticky bottom-[calc(6rem+env(safe-area-inset-bottom))] z-30 md:bottom-4", className)} {...props}>
+    <div className={cn("relative", className)} {...props}>
       <div className="gc-glass gc-edge rounded-3xl p-2.5 shadow-glass">{children}</div>
     </div>
   );

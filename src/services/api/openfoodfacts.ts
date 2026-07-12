@@ -131,14 +131,10 @@ async function searchViaLegacy(query: string, page: number, pageSize: number): P
 export async function searchProducts(query: string, page = 1, pageSize = 20): Promise<SearchResult> {
   try {
     return await searchViaSearchALicious(query, page, pageSize);
-  } catch (primaryErr) {
-    console.warn(`[search] search-a-licious failed (${(primaryErr as Error).message}); falling back to cgi/search.pl`);
+  } catch {
     try {
       return await searchViaLegacy(query, page, pageSize);
     } catch (fallbackErr) {
-      console.error(
-        `[search] both upstreams failed — primary: ${(primaryErr as Error).message}; fallback: ${(fallbackErr as Error).message}`
-      );
       throw fallbackErr;
     }
   }

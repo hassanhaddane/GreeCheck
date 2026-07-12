@@ -34,6 +34,13 @@ test("simulateReplacement recalculates and reports a positive gain for a better 
   assert.equal(r.gain, r.after - r.before);
 });
 
+test("a poor one-product basket never invents a positive strength", () => {
+  const result = computeCartScore([input(soda)], PREFS);
+  assert.ok(result.global < 35);
+  assert.equal(result.mainStrength.key, "none");
+  assert.deepEqual(result.positiveInsights, []);
+});
+
 test("simulateReplacement is neutral/negative for a worse replacement", () => {
   const worse = product({ barcode: "worse", nutriScore: "e", novaGroup: 4, additives: ["e150d"], nutriments: { sugars: 70 } });
   const inputs = [input(oats), input(water)];

@@ -84,14 +84,17 @@ function overpassQuery(lat: number, lon: number, radius: number): string {
 
 async function fetchOverpass(lat: number, lon: number): Promise<{ elements?: OverpassElement[] }> {
   let lastError: unknown;
+  const deadline = Date.now() + 12_000;
   for (const endpoint of OVERPASS_ENDPOINTS) {
+    const remaining = deadline - Date.now();
+    if (remaining < 500) break;
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "User-Agent": USER_AGENT, "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
         body: new URLSearchParams({ data: overpassQuery(lat, lon, 3000) }),
         cache: "no-store",
-        signal: AbortSignal.timeout(18000)
+        signal: AbortSignal.timeout(Math.min(6_500, remaining))
       });
       if (!response.ok) throw new Error(`overpass_${response.status}`);
       return (await response.json()) as { elements?: OverpassElement[] };
@@ -154,8 +157,7 @@ export async function GET(request: Request) {
       { center, places, attribution: "© OpenStreetMap contributors" },
       { headers: { "Cache-Control": city ? "public, max-age=300, stale-while-revalidate=3600" : "private, no-store" } }
     );
-  } catch (error) {
-    console.error("[places] upstream failure", error);
+  } catch {
     return NextResponse.json({ error: "places_unavailable" }, { status: 502 });
   }
 }

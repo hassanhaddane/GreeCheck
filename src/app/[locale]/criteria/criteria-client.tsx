@@ -1,13 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { ShieldCheck, MapPin, SlidersHorizontal, Gauge, Plus, X } from "lucide-react";
-import type { Locale } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { usePreferencesStore } from "@/domains/criteria/store";
-import { PREF_LABELS } from "@/domains/criteria/goals";
 import type { PrefKey } from "@/domains/criteria/goals";
 import { useMounted } from "@/hooks/use-mounted";
 
@@ -19,16 +17,7 @@ const DEFAULT_KEYS: PrefKey[] = [
 const ADVANCED_KEYS: PrefKey[] = ["preferVegan", "preferVegetarian"];
 
 /** Allergen / restriction presets — canonical needles match OFF allergen tags. */
-const ALLERGEN_PRESETS: { token: string; label: Record<Locale, string> }[] = [
-  { token: "gluten", label: { fr: "Gluten", en: "Gluten", ar: "غلوتين" } },
-  { token: "milk", label: { fr: "Lait", en: "Milk", ar: "حليب" } },
-  { token: "lactose", label: { fr: "Lactose", en: "Lactose", ar: "لاكتوز" } },
-  { token: "eggs", label: { fr: "Œufs", en: "Eggs", ar: "بيض" } },
-  { token: "peanuts", label: { fr: "Arachides", en: "Peanuts", ar: "فول سوداني" } },
-  { token: "nuts", label: { fr: "Fruits à coque", en: "Nuts", ar: "مكسرات" } },
-  { token: "soybeans", label: { fr: "Soja", en: "Soy", ar: "صويا" } },
-  { token: "palm", label: { fr: "Huile de palme", en: "Palm oil", ar: "زيت النخيل" } }
-];
+const ALLERGEN_PRESETS = ["gluten", "milk", "lactose", "eggs", "peanuts", "nuts", "soybeans", "palm"] as const;
 
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -47,7 +36,6 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 /** "Mes critères" — optional, never blocking; criteria never change the base health score. */
 export function CriteriaClient() {
   const t = useTranslations("criteria");
-  const locale = useLocale() as Locale;
   const prefs = usePreferencesStore();
   const mounted = useMounted();
   const [draft, setDraft] = useState("");
@@ -86,7 +74,7 @@ export function CriteriaClient() {
         <GreeCard>
           <GreeCardContent className="divide-y divide-line p-0">
             {DEFAULT_KEYS.map((k) => (
-              <Toggle key={k} label={PREF_LABELS[k][locale]} checked={mounted && Boolean(prefs[k])} onChange={(v) => prefs.setPreferences({ [k]: v })} />
+              <Toggle key={k} label={t(`preferenceLabels.${k}`)} checked={mounted && Boolean(prefs[k])} onChange={(v) => prefs.setPreferences({ [k]: v })} />
             ))}
           </GreeCardContent>
         </GreeCard>
@@ -99,7 +87,7 @@ export function CriteriaClient() {
         <GreeCard>
           <GreeCardContent className="divide-y divide-line p-0">
             {ADVANCED_KEYS.map((k) => (
-              <Toggle key={k} label={PREF_LABELS[k][locale]} checked={mounted && Boolean(prefs[k])} onChange={(v) => prefs.setPreferences({ [k]: v })} />
+              <Toggle key={k} label={t(`preferenceLabels.${k}`)} checked={mounted && Boolean(prefs[k])} onChange={(v) => prefs.setPreferences({ [k]: v })} />
             ))}
           </GreeCardContent>
         </GreeCard>
@@ -110,12 +98,12 @@ export function CriteriaClient() {
           <p className="mb-2.5 text-xs text-muted">{t("allergensHint")}</p>
 
           <div className="flex flex-wrap gap-2">
-            {ALLERGEN_PRESETS.map((p) => {
-              const on = mounted && allergens.includes(p.token);
+            {ALLERGEN_PRESETS.map((token) => {
+              const on = mounted && allergens.includes(token);
               return (
-                <button key={p.token} type="button" onClick={() => (on ? removeAllergen(p.token) : addAllergen(p.token))} data-active={on} aria-pressed={on}
+                <button key={token} type="button" onClick={() => (on ? removeAllergen(token) : addAllergen(token))} data-active={on} aria-pressed={on}
                   className="gc-pressable rounded-2xl border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-muted data-[active=true]:border-transparent data-[active=true]:bg-score-e data-[active=true]:text-white">
-                  {p.label[locale]}
+                  {t(`allergenPresets.${token}`)}
                 </button>
               );
             })}
@@ -138,9 +126,9 @@ export function CriteriaClient() {
           </div>
 
           {/* Selected custom allergens */}
-          {mounted && allergens.filter((a) => !ALLERGEN_PRESETS.some((p) => p.token === a)).length > 0 && (
+          {mounted && allergens.filter((a) => !ALLERGEN_PRESETS.includes(a as (typeof ALLERGEN_PRESETS)[number])).length > 0 && (
             <div className="mt-2.5 flex flex-wrap gap-2">
-              {allergens.filter((a) => !ALLERGEN_PRESETS.some((p) => p.token === a)).map((a) => (
+              {allergens.filter((a) => !ALLERGEN_PRESETS.includes(a as (typeof ALLERGEN_PRESETS)[number])).map((a) => (
                 <span key={a} className="inline-flex items-center gap-1 rounded-full bg-score-e/10 px-2.5 py-1 text-xs font-medium capitalize text-score-e-ink">
                   {a}
                   <button type="button" onClick={() => removeAllergen(a)} aria-label={`${t("remove")} ${a}`}><X className="h-3 w-3" /></button>

@@ -24,7 +24,7 @@ import type { GreeScore } from "@/domains/scoring/types";
 
 const withIntl = (node: React.ReactNode) =>
   renderToStaticMarkup(
-    <NextIntlClientProvider locale="fr" messages={fr as never}>
+    <NextIntlClientProvider locale="fr" messages={fr as never} timeZone="UTC">
       {node}
     </NextIntlClientProvider>
   );

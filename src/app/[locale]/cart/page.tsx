@@ -170,13 +170,13 @@ export default function CartPage() {
       </GreeCard>
 
       {/* ── What's good ── */}
-      <GreeCard variant="tinted" className="p-4">
+      {(result.mainStrength.key !== "none" || result.positiveInsights.length > 0) && <GreeCard variant="tinted" className="p-4">
         <h2 className="flex items-center gap-1.5 text-sm font-semibold text-natural-strong"><ThumbsUp className="h-4 w-4" aria-hidden /> {t("whatIsGood")}</h2>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-natural/15 px-3 py-1 text-xs font-semibold text-natural-strong">{t(`strength.${result.mainStrength.key}`, result.mainStrength.values)}</span>
+          {result.mainStrength.key !== "none" && <span className="rounded-full bg-natural/15 px-3 py-1 text-xs font-semibold text-natural-strong">{t(`strength.${result.mainStrength.key}`, result.mainStrength.values)}</span>}
           {result.positiveInsights.map((m, i) => <span key={i} className="rounded-full bg-surface px-3 py-1 text-xs font-medium text-ink">{t(`positive.${m.key}`, m.values)}</span>)}
         </div>
-      </GreeCard>
+      </GreeCard>}
 
       {/* ── Main risk ── */}
       {(result.warnings.length > 0 || result.mainRisk.key !== "none") && (

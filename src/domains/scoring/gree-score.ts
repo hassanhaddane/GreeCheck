@@ -74,6 +74,12 @@ const ADDITIVE_RISK: Record<string, "avoid" | "controversial" | "watch"> = {
   e224: "controversial", e228: "controversial",
   e338: "watch", e466: "watch", e433: "watch", e155: "watch", e160a: "watch"
 };
+export type AdditiveSeverity = "avoid" | "controversial" | "watch" | "neutral";
+
+/** Shared, deterministic additive classification used by scoring and UI explanations. */
+export function additiveSeverityOf(code: string): AdditiveSeverity {
+  return ADDITIVE_RISK[code.toLowerCase().replace(/\s+/g, "")] ?? "neutral";
+}
 const ADDITIVE_PENALTY = { avoid: 16, controversial: 9, watch: 4, neutral: 1.5 } as const;
 
 const BANDS: { min: number; grade: ScoreGrade }[] = [
@@ -183,8 +189,8 @@ function scoreAdditives(p: Product, ingredientsKnown: boolean, ctx: Ctx): number
   let flagged = 0;
   let flaggedPenalty = 0;
   for (const raw of additives) {
-    const sev = ADDITIVE_RISK[raw.toLowerCase().replace(/\s+/g, "")];
-    if (sev) {
+    const sev = additiveSeverityOf(raw);
+    if (sev !== "neutral") {
       score -= ADDITIVE_PENALTY[sev];
       flagged++;
       flaggedPenalty += ADDITIVE_PENALTY[sev];

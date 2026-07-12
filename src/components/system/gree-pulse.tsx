@@ -76,14 +76,10 @@ export const GreePulse = memo(function GreePulse({ state = "idle", size = 56, cl
             ? undefined
             : state === "scanning"
               ? { scale: [1, 1.14, 1], opacity: [0.9, 0.35, 0.9] }
-              : state === "idle"
-                ? { scale: [1, 1.05, 1], opacity: [0.55, 0.85, 0.55] }
-                : { scale: 1, opacity: 0.7 }
+              : { scale: 1, opacity: state === "idle" ? 0.55 : 0.7 }
         }
         transition={
-          state === "scanning"
-            ? { duration: 1.4, repeat: Infinity, ease: "easeInOut" }
-            : { duration: 4.2, repeat: Infinity, ease: "easeInOut" }
+          state === "scanning" ? { duration: 1.4, repeat: Infinity, ease: "easeInOut" } : undefined
         }
       />
       {/* scanning sweep — neon, motion only */}

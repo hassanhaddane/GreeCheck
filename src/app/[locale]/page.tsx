@@ -72,7 +72,7 @@ export default async function MarketingHome({ params }: { params: Promise<{ loca
 
   const battleNames: Record<string, string> = {
     [DEMO_GENERIC.barcode]: t("demo.productGeneric"),
-    [DEMO_MIDDLE.barcode]: t("demo.productGeneric"),
+    [DEMO_MIDDLE.barcode]: t("demo.productMiddle"),
     [DEMO_BETTER.barcode]: t("demo.productBetter")
   };
 
@@ -154,7 +154,7 @@ export default async function MarketingHome({ params }: { params: Promise<{ loca
           <p className="gc-caption mt-1">{t("demo.subtitle")}</p>
         </header>
         <DemoJourney data={demoData} />
-        <p className="mt-4 text-center text-xs text-muted/80">{t("demo.note")}</p>
+        <p className="mt-4 text-center text-xs text-muted">{t("demo.note")}</p>
       </section>
 
       {/* ═══ 3 · GreeScore + Trust Halo ═══ */}
@@ -251,7 +251,7 @@ export default async function MarketingHome({ params }: { params: Promise<{ loca
               <StaticScoreRing value={cartAfter.global} size={84} />
             </div>
           </div>
-          <p className="mt-3 text-center text-xs font-medium text-muted">{t("cart.replaced", { n: 2 })}</p>
+          <p className="mt-3 text-center text-xs font-medium text-muted">{t("cart.replaced", { n: 1 })}</p>
         </GreeCard>
       </section>
 

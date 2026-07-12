@@ -1,5 +1,5 @@
 /* GreeCheck service worker — public shell/assets only. User data stays in IndexedDB. */
-const VERSION = "gc-v3";
+const VERSION = "gc-v4";
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const MAX_RUNTIME_ENTRIES = 40;
@@ -19,7 +19,8 @@ const PRECACHE = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(SHELL).then((cache) => Promise.allSettled(PRECACHE.map((url) => cache.add(url))))
+    // Atomic install: a broken release must not replace the last working worker.
+    caches.open(SHELL).then((cache) => cache.addAll(PRECACHE))
   );
 });
 
@@ -38,7 +39,6 @@ self.addEventListener("message", (event) => {
 function isStaticAsset(url) {
   return url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/wasm/") ||
     /\.(?:css|js|woff2?|png|svg|jpg|jpeg|webp|ico)$/.test(url.pathname);
 }
 

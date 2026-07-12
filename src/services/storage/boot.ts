@@ -22,6 +22,11 @@ import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
 
 let booted = false;
 
+function mergeByBarcode<T extends { barcode: string }>(current: T[], persisted: T[]): T[] {
+  const seen = new Set(current.map((item) => item.barcode));
+  return [...current, ...persisted.filter((item) => !seen.has(item.barcode))];
+}
+
 /** Test-only escape hatch (module state persists across app loads in tests). */
 export function __resetBootForTests() {
   booted = false;
@@ -44,10 +49,19 @@ export async function bootLocalData(): Promise<void> {
       onboardingRepo.get()
     ]);
 
-    useHistoryStore.getState().hydrate(history);
-    useFavoritesStore.getState().hydrate(favorites);
-    useCartStore.getState().hydrate(cart);
-    useBattleStore.getState().hydrate(battle.map((b) => b.product));
+    // Reads can finish after an eager first user action. Merge instead of
+    // replacing so a scan/favorite/cart/Battle action can never disappear.
+    const currentHistory = useHistoryStore.getState().entries;
+    const currentFavorites = useFavoritesStore.getState().items;
+    const currentCart = useCartStore.getState().items;
+    const currentBattle = useBattleStore.getState().items;
+    useHistoryStore.getState().hydrate(mergeByBarcode(currentHistory, history));
+    useFavoritesStore.getState().hydrate(mergeByBarcode(currentFavorites, favorites));
+    useCartStore.getState().hydrate(mergeByBarcode(
+      currentCart.map((item) => ({ ...item, barcode: item.product.barcode })),
+      cart.map((item) => ({ ...item, barcode: item.product.barcode }))
+    ).map(({ barcode: _barcode, ...item }) => item));
+    useBattleStore.getState().hydrate(mergeByBarcode(currentBattle, battle.map((b) => b.product)));
     if (prefs) usePreferencesStore.getState().hydrate(prefs);
     if (onboarding) useOnboardingStore.getState().hydrate(onboarding);
   } catch {

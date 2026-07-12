@@ -13,7 +13,7 @@
     "battle": "مقارنة",
     "settings": "الإعدادات",
     "privacy": "الخصوصية",
-    "history": "عمليات المسح",
+    "history": "السجل",
     "cart": "GreeCart",
     "discover": "استكشف",
     "criteria": "معاييري",
@@ -216,6 +216,18 @@
     "verdictBody": "GreeScore {score} — {label}. محسوب محلياً (التغذية، المعالجة، الإضافات، العلامات).",
     "notProvided": "غير مذكورة",
     "noAdditives": "لم تُكتشف إضافات",
+    "additiveSeverity": {
+      "neutral": "استخدام شائع",
+      "watch": "يستحق الانتباه",
+      "controversial": "انتباه متوسط",
+      "avoid": "انتباه أكبر"
+    },
+    "additiveExplanation": {
+      "neutral": "لا توجد إشارة خاصة في مرجعنا غير الشامل.",
+      "watch": "تستحق هذه المادة الانتباه بحسب تكرار استهلاك المنتج.",
+      "controversial": "تدعم المصادر المتاحة حذراً متوازناً من دون استنتاجات مخيفة.",
+      "avoid": "يطبّق GreeCheck خصماً احترازياً أكبر ضمن منهجيته الشفافة."
+    },
     "noAllergens": "لا مسبب حساسية رئيسي",
     "per100": "لكل 100 غ / 100 مل",
     "breakdownTitle": "لماذا هذه النتيجة؟",
@@ -604,7 +616,6 @@
     "back": "رجوع",
     "soon": "قريباً",
     "loading": "جارٍ التحميل…",
-    "comingSoon": "هذا القسم قادم قريباً.",
     "error": "حدث خطأ",
     "retry": "إعادة المحاولة",
     "changeLanguage": "تغيير اللغة",
@@ -802,7 +813,23 @@
     "allergensHint": "اختر أو أضِف ما تريد تجنّبه. يُنشئ تنبيهات توافق، لا خصمًا من الدرجة.",
     "allergenPlaceholder": "أضِف مُسبِّب حساسية…",
     "addAllergen": "إضافة",
-    "remove": "إزالة"
+    "remove": "إزالة",
+    "preferenceLabels": {
+      "preferBio": "تفضيل العضوي",
+      "preferHalal": "تفضيل الحلال",
+      "preferVegan": "تفضيل النباتي الصرف",
+      "preferVegetarian": "تفضيل النباتي",
+      "reduceSugar": "تقليل السكر",
+      "reduceSalt": "تقليل الملح",
+      "reduceAdditives": "تقليل الإضافات",
+      "reduceUltraProcessed": "تجنب المعالج جدًا",
+      "increaseProtein": "المزيد من البروتين",
+      "increaseFiber": "المزيد من الألياف"
+    },
+    "allergenPresets": {
+      "gluten": "غلوتين", "milk": "حليب", "lactose": "لاكتوز", "eggs": "بيض",
+      "peanuts": "فول سوداني", "nuts": "مكسرات", "soybeans": "صويا", "palm": "زيت النخيل"
+    }
   },
   "discover": {
     "metaTitle": "متاجر الطعام القريبة منك — GreeCheck",
@@ -888,7 +915,7 @@
     "demo": {
       "title": "من المسح إلى القرار",
       "subtitle": "الرحلة الحقيقية، محسوبة بمحرك GreeScore الحقيقي.",
-      "note": "مثال توضيحي محسوب بالمحرك الحقيقي — في التطبيق، تأتي بيانات المنتجات من Open Food Facts.",
+      "note": "درجات محسوبة بالمحرك الحقيقي من سجلات Open Food Facts التي تم التحقق منها في 12 يوليو 2026.",
       "step1": "امسح",
       "step1Body": "وجّه الكاميرا نحو الرمز الشريطي. الاكتشاف فوري.",
       "step2": "افهم",
@@ -896,8 +923,9 @@
       "step3": "اختر الأفضل",
       "step3Body": "بديل أفضل بشكل قابل للقياس من الفئة نفسها.",
       "scanning": "جارٍ اكتشاف الرمز الشريطي…",
-      "productGeneric": "معجون بندق كلاسيكي",
-      "productBetter": "معجون بندق عضوي",
+      "productGeneric": "Nutella",
+      "productMiddle": "Nocciolata عضوي",
+      "productBetter": "Funkie كاكاو وبندق",
       "reasonSugar": "سكر زائد",
       "reasonNova": "معالج جدًا",
       "reasonBio": "منتج عضوي",

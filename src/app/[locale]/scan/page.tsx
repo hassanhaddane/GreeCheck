@@ -14,7 +14,7 @@ function ScanFallback() {
   return (
     <div className="mx-auto max-w-md space-y-5 pb-4">
       <div className="mx-auto h-8 w-36 rounded-2xl bg-surface-2" />
-      <GreeCard className="aspect-[3/4] animate-pulse bg-surface-2 p-0" />
+      <GreeCard className="h-[clamp(18rem,43svh,28rem)] animate-pulse bg-surface-2 p-0" />
       <div className="grid grid-cols-2 gap-2">
         <div className="h-12 rounded-2xl bg-surface-2" />
         <div className="h-12 rounded-2xl bg-surface-2" />

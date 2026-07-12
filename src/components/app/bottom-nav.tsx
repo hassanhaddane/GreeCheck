@@ -14,6 +14,9 @@ export function BottomNav() {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
+  // The public marketing entry stays intentionally lightweight.
+  if (pathname === "/") return null;
+
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="gc-glass gc-edge mx-auto mb-3 flex max-w-md items-center justify-around rounded-[1.75rem] px-2 py-2 shadow-glass">
@@ -38,7 +41,7 @@ export function BottomNav() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "gc-pressable relative flex flex-1 flex-col items-center gap-1 rounded-2xl py-2 text-[0.65rem] font-medium",
+                "gc-pressable relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl py-2 text-[0.65rem] font-medium",
                 active ? "text-deep dark:text-natural-strong" : "text-muted"
               )}
             >
@@ -50,7 +53,7 @@ export function BottomNav() {
                 />
               )}
               <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
-              {t(item.key)}
+              <span className="max-w-full truncate px-0.5">{t(item.key)}</span>
             </Link>
           );
         })}

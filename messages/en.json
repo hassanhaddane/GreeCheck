@@ -21,7 +21,8 @@
     "more": "More",
     "searchLabel": "Product search",
     "scanCta": "Scan",
-    "recents": "Recent"
+    "recents": "Recent",
+    "favorites": "Favorites"
   },
   "scan": {
     "title": "GreeLens",
@@ -526,7 +527,8 @@
     "empty": "Empty",
     "clearCart": "Clear GreeCart",
     "criteriaTitle": "My criteria",
-    "criteriaHint": "Food goals and preferences — managed on a dedicated page."
+    "criteriaHint": "Food goals and preferences — managed on a dedicated page.",
+    "resetPrefs": "Reset criteria"
   },
   "privacy": {
     "title": "Privacy",
@@ -688,7 +690,42 @@
     "count": "{n} scanned product(s)",
     "favorite": "Add to favorites",
     "unfavorite": "Remove from favorites",
-    "remove": "Remove from history"
+    "remove": "Remove from history",
+    "filtersTitle": "Filters",
+    "view": "View",
+    "view_list": "List",
+    "view_grid": "Grid",
+    "view_timeline": "Timeline",
+    "noMatch": "No scans match",
+    "noMatchBody": "Adjust or reset the filters.",
+    "resetFilters": "Reset",
+    "apply": "See {n}",
+    "dateLabel": "Date",
+    "date_all": "All",
+    "date_today": "Today",
+    "date_week": "7 days",
+    "date_month": "30 days",
+    "qualityLabel": "Quality",
+    "quality_all": "All",
+    "quality_good": "Good products",
+    "quality_poor": "To avoid",
+    "scoreRange": "GreeScore range",
+    "minScore": "Minimum score",
+    "maxScore": "Maximum score",
+    "categoryLabel": "Category",
+    "allCategories": "All",
+    "moreFilters": "More",
+    "favoritesOnly": "Favorites",
+    "organicOnly": "Organic",
+    "alertsOnly": "Alerts",
+    "open": "Open",
+    "scanAgain": "Scan again",
+    "addBattle": "Add to Battle",
+    "addCart": "Add to GreeCart",
+    "moreActions": "More actions",
+    "addedCart": "Added to GreeCart",
+    "addedBattle": "Added to Battle",
+    "actionUnavailable": "Product unavailable offline"
   },
   "criteria": {
     "metaTitle": "My criteria — GreeCheck",
@@ -696,7 +733,18 @@
     "title": "My criteria",
     "hint": "These criteria influence alerts, ranking and alternatives — never the base health score. Everything stays on your device.",
     "goals": "Goals",
-    "preferences": "Preferences"
+    "preferences": "Preferences",
+    "explainLocal": "Your criteria stay on this device, no account.",
+    "explainCompat": "They influence alerts, ranking and alternatives.",
+    "explainNotScore": "They never change a product’s base GreeScore.",
+    "optional": "Optional — you can skip this anytime.",
+    "advanced": "Advanced options",
+    "advancedHint": "Extra diets and restrictions.",
+    "allergens": "Allergens and restrictions",
+    "allergensHint": "Pick or add what you want to avoid. Creates compatibility alerts, not a score penalty.",
+    "allergenPlaceholder": "Add an allergen…",
+    "addAllergen": "Add",
+    "remove": "Remove"
   },
   "discover": {
     "metaTitle": "Discover — GreeCheck",
@@ -813,5 +861,20 @@
       "cta": "Scan now",
       "ctaDesktop": "Search a product"
     }
+  },
+  "favorites": {
+    "metaTitle": "Favorites — GreeCheck",
+    "metaDescription": "Your favorite products, stored locally on this device.",
+    "title": "Favorites",
+    "empty": "No favorites yet",
+    "emptyBody": "Save products as favorites from a product page or your history.",
+    "scanCta": "Scan",
+    "count": "{n} favorite(s)",
+    "addBattle": "Add to Battle",
+    "addCart": "Add to GreeCart",
+    "remove": "Remove",
+    "addedCart": "Added to GreeCart",
+    "addedBattle": "Added to Battle",
+    "actionUnavailable": "Product unavailable offline"
   }
 }

@@ -21,7 +21,8 @@
     "more": "Plus",
     "searchLabel": "Recherche produit",
     "scanCta": "Scanner",
-    "recents": "Récents"
+    "recents": "Récents",
+    "favorites": "Favoris"
   },
   "scan": {
     "title": "GreeLens",
@@ -526,7 +527,8 @@
     "empty": "Vide",
     "clearCart": "Vider GreeCart",
     "criteriaTitle": "Mes critères",
-    "criteriaHint": "Objectifs et préférences alimentaires — gérés dans une page dédiée."
+    "criteriaHint": "Objectifs et préférences alimentaires — gérés dans une page dédiée.",
+    "resetPrefs": "Réinitialiser les critères"
   },
   "privacy": {
     "title": "Confidentialité",
@@ -688,7 +690,42 @@
     "count": "{n} produit(s) scanné(s)",
     "favorite": "Ajouter aux favoris",
     "unfavorite": "Retirer des favoris",
-    "remove": "Supprimer de l'historique"
+    "remove": "Supprimer de l'historique",
+    "filtersTitle": "Filtres",
+    "view": "Affichage",
+    "view_list": "Liste",
+    "view_grid": "Grille",
+    "view_timeline": "Chronologie",
+    "noMatch": "Aucun scan ne correspond",
+    "noMatchBody": "Ajuste ou réinitialise les filtres.",
+    "resetFilters": "Réinitialiser",
+    "apply": "Voir {n}",
+    "dateLabel": "Date",
+    "date_all": "Tout",
+    "date_today": "Aujourd’hui",
+    "date_week": "7 jours",
+    "date_month": "30 jours",
+    "qualityLabel": "Qualité",
+    "quality_all": "Tous",
+    "quality_good": "Bons produits",
+    "quality_poor": "À éviter",
+    "scoreRange": "Plage de GreeScore",
+    "minScore": "Score minimum",
+    "maxScore": "Score maximum",
+    "categoryLabel": "Catégorie",
+    "allCategories": "Toutes",
+    "moreFilters": "Autres",
+    "favoritesOnly": "Favoris",
+    "organicOnly": "Bio",
+    "alertsOnly": "Alertes",
+    "open": "Ouvrir",
+    "scanAgain": "Scanner à nouveau",
+    "addBattle": "Ajouter au Battle",
+    "addCart": "Ajouter au GreeCart",
+    "moreActions": "Plus d’actions",
+    "addedCart": "Ajouté au GreeCart",
+    "addedBattle": "Ajouté au Battle",
+    "actionUnavailable": "Produit indisponible hors ligne"
   },
   "criteria": {
     "metaTitle": "Mes critères — GreeCheck",
@@ -696,7 +733,18 @@
     "title": "Mes critères",
     "hint": "Ces critères influencent les alertes, le classement et les alternatives — jamais le score santé de base. Tout reste sur ton appareil.",
     "goals": "Objectifs",
-    "preferences": "Préférences"
+    "preferences": "Préférences",
+    "explainLocal": "Tes critères restent sur cet appareil, sans compte.",
+    "explainCompat": "Ils influencent les alertes, le classement et les alternatives.",
+    "explainNotScore": "Ils ne modifient jamais le GreeScore de base d’un produit.",
+    "optional": "Facultatif — tu peux passer cette étape à tout moment.",
+    "advanced": "Options avancées",
+    "advancedHint": "Régimes et restrictions supplémentaires.",
+    "allergens": "Allergènes et restrictions",
+    "allergensHint": "Sélectionne ou ajoute ce que tu veux éviter. Génère des alertes de compatibilité, pas une baisse de score.",
+    "allergenPlaceholder": "Ajouter un allergène…",
+    "addAllergen": "Ajouter",
+    "remove": "Retirer"
   },
   "discover": {
     "metaTitle": "Découvrir — GreeCheck",
@@ -813,5 +861,20 @@
       "cta": "Scanner maintenant",
       "ctaDesktop": "Rechercher un produit"
     }
+  },
+  "favorites": {
+    "metaTitle": "Favoris — GreeCheck",
+    "metaDescription": "Tes produits favoris, stockés localement sur cet appareil.",
+    "title": "Favoris",
+    "empty": "Aucun favori",
+    "emptyBody": "Ajoute des produits en favori depuis une fiche ou ton historique.",
+    "scanCta": "Scanner",
+    "count": "{n} favori(s)",
+    "addBattle": "Ajouter au Battle",
+    "addCart": "Ajouter au GreeCart",
+    "remove": "Retirer",
+    "addedCart": "Ajouté au GreeCart",
+    "addedBattle": "Ajouté au Battle",
+    "actionUnavailable": "Produit indisponible hors ligne"
   }
 }

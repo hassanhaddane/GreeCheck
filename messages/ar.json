@@ -21,7 +21,8 @@
     "more": "المزيد",
     "searchLabel": "البحث عن المنتجات",
     "scanCta": "مسح",
-    "recents": "الأحدث"
+    "recents": "الأحدث",
+    "favorites": "المفضلة"
   },
   "scan": {
     "title": "GreeLens",
@@ -526,7 +527,8 @@
     "empty": "فارغ",
     "clearCart": "إفراغ GreeCart",
     "criteriaTitle": "معاييري",
-    "criteriaHint": "الأهداف والتفضيلات الغذائية — تُدار في صفحة مخصصة."
+    "criteriaHint": "الأهداف والتفضيلات الغذائية — تُدار في صفحة مخصصة.",
+    "resetPrefs": "إعادة ضبط المعايير"
   },
   "privacy": {
     "title": "الخصوصية",
@@ -688,7 +690,42 @@
     "count": "{n} منتج ممسوح",
     "favorite": "إضافة إلى المفضلة",
     "unfavorite": "إزالة من المفضلة",
-    "remove": "حذف من السجل"
+    "remove": "حذف من السجل",
+    "filtersTitle": "عوامل التصفية",
+    "view": "العرض",
+    "view_list": "قائمة",
+    "view_grid": "شبكة",
+    "view_timeline": "الجدول الزمني",
+    "noMatch": "لا توجد عمليات مسح مطابقة",
+    "noMatchBody": "عدّل عوامل التصفية أو أعد ضبطها.",
+    "resetFilters": "إعادة الضبط",
+    "apply": "عرض {n}",
+    "dateLabel": "التاريخ",
+    "date_all": "الكل",
+    "date_today": "اليوم",
+    "date_week": "7 أيام",
+    "date_month": "30 يومًا",
+    "qualityLabel": "الجودة",
+    "quality_all": "الكل",
+    "quality_good": "منتجات جيدة",
+    "quality_poor": "يُفضّل تجنّبها",
+    "scoreRange": "نطاق GreeScore",
+    "minScore": "أدنى درجة",
+    "maxScore": "أعلى درجة",
+    "categoryLabel": "الفئة",
+    "allCategories": "الكل",
+    "moreFilters": "المزيد",
+    "favoritesOnly": "المفضلة",
+    "organicOnly": "عضوي",
+    "alertsOnly": "تنبيهات",
+    "open": "فتح",
+    "scanAgain": "مسح مرة أخرى",
+    "addBattle": "أضِف إلى Battle",
+    "addCart": "أضِف إلى GreeCart",
+    "moreActions": "إجراءات أخرى",
+    "addedCart": "أُضيف إلى GreeCart",
+    "addedBattle": "أُضيف إلى Battle",
+    "actionUnavailable": "المنتج غير متاح دون اتصال"
   },
   "criteria": {
     "metaTitle": "معاييري — GreeCheck",
@@ -696,7 +733,18 @@
     "title": "معاييري",
     "hint": "تؤثر هذه المعايير على التنبيهات والترتيب والبدائل — ولا تغيّر أبدًا درجة الصحة الأساسية. كل شيء يبقى على جهازك.",
     "goals": "الأهداف",
-    "preferences": "التفضيلات"
+    "preferences": "التفضيلات",
+    "explainLocal": "تبقى معاييرك على هذا الجهاز، بدون حساب.",
+    "explainCompat": "تؤثّر في التنبيهات والترتيب والبدائل.",
+    "explainNotScore": "لا تُغيّر أبدًا GreeScore الأساسي للمنتج.",
+    "optional": "اختياري — يمكنك تخطّي هذه الخطوة في أي وقت.",
+    "advanced": "خيارات متقدمة",
+    "advancedHint": "أنظمة غذائية وقيود إضافية.",
+    "allergens": "مسببات الحساسية والقيود",
+    "allergensHint": "اختر أو أضِف ما تريد تجنّبه. يُنشئ تنبيهات توافق، لا خصمًا من الدرجة.",
+    "allergenPlaceholder": "أضِف مُسبِّب حساسية…",
+    "addAllergen": "إضافة",
+    "remove": "إزالة"
   },
   "discover": {
     "metaTitle": "استكشف — GreeCheck",
@@ -813,5 +861,20 @@
       "cta": "امسح الآن",
       "ctaDesktop": "ابحث عن منتج"
     }
+  },
+  "favorites": {
+    "metaTitle": "المفضلة — GreeCheck",
+    "metaDescription": "منتجاتك المفضلة، مُخزّنة محليًا على هذا الجهاز.",
+    "title": "المفضلة",
+    "empty": "لا توجد مفضلات بعد",
+    "emptyBody": "أضِف منتجات إلى المفضلة من صفحة المنتج أو من سجلك.",
+    "scanCta": "مسح",
+    "count": "{n} مفضلة",
+    "addBattle": "أضِف إلى Battle",
+    "addCart": "أضِف إلى GreeCart",
+    "remove": "إزالة",
+    "addedCart": "أُضيف إلى GreeCart",
+    "addedBattle": "أُضيف إلى Battle",
+    "actionUnavailable": "المنتج غير متاح دون اتصال"
   }
 }

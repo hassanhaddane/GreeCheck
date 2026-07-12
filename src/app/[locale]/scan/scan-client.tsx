@@ -35,10 +35,12 @@ import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useHistoryStore } from "@/domains/library/history-store";
+import { buildHistoryItem } from "@/domains/library/model";
 import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
 import { RapidScanCard, type RapidScanResult } from "@/components/scan/rapid-scan-card";
 import { FirstScanIntro } from "@/components/scan/first-scan-intro";
 import type { Product } from "@/domains/product/model";
+import type { GreeScore } from "@/domains/scoring/types";
 
 type LookupState = "idle" | "loading" | "not_found" | "network_error" | "rate_limited" | "unsupported";
 type ScanSource = "product" | "cart" | "battle";
@@ -85,15 +87,8 @@ export function ScanClient() {
 
   // History is written locally on EVERY successful resolve (dedupes by barcode).
   const recordHistory = useCallback(
-    (product: Product, score: number, grade: string) => {
-      addHistory({
-        barcode: product.barcode,
-        name: product.name,
-        imageUrl: product.imageUrl,
-        score,
-        verdict: tScore(`grade.${grade}`),
-        scannedAt: Date.now()
-      });
+    (product: Product, gree: GreeScore) => {
+      addHistory(buildHistoryItem(product, gree, tScore(`grade.${gree.grade}`)));
     },
     [addHistory, tScore]
   );
@@ -116,7 +111,7 @@ export function ScanClient() {
         }
 
         const gree = computeGreeScore(result.product, prefs);
-        recordHistory(result.product, gree.global, gree.grade);
+        recordHistory(result.product, gree);
         lastResolvedCodeRef.current = result.product.barcode;
         if (!sessionCodesRef.current.has(result.product.barcode)) {
           sessionCodesRef.current.add(result.product.barcode);

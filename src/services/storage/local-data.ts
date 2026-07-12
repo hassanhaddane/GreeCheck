@@ -36,6 +36,12 @@ export async function clearProductCache() {
   await productCacheRepo.clear();
 }
 
+/** Reset "Mes critères" back to the neutral defaults. */
+export async function clearPreferences() {
+  usePreferencesStore.getState().reset();
+  await preferencesRepo.clear();
+}
+
 /** Full reset: clears every store, every repository and all local keys. */
 export async function resetApp() {
   useHistoryStore.getState().clear();

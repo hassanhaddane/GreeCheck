@@ -13,7 +13,7 @@ import { useTheme } from "@/components/app/theme-provider";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
-import { clearHistory, clearFavorites, clearCart, clearProductCache, resetApp } from "@/services/storage/local-data";
+import { clearHistory, clearFavorites, clearCart, clearProductCache, clearPreferences, resetApp } from "@/services/storage/local-data";
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/lib/utils/cn";
 
@@ -66,6 +66,7 @@ export default function SettingsPage() {
     { icon: History, label: t("clearHistory"), count: historyCount, onClear: clearHistory },
     { icon: Heart, label: t("clearFavorites"), count: favCount, onClear: clearFavorites },
     { icon: ShoppingBasket, label: t("clearCart"), count: basketCount, onClear: clearCart },
+    { icon: Target, label: t("resetPrefs"), count: null as number | null, onClear: () => clearPreferences() },
     { icon: Database, label: t("clearCache"), count: null as number | null, onClear: () => clearProductCache() }
   ];
 
@@ -161,8 +162,6 @@ export default function SettingsPage() {
           </GreeCardContent>
         </GreeCard>
       </section>
-
-
     </div>
   );
 }

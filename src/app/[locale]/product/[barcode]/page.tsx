@@ -31,6 +31,7 @@ import { computeGreeScore, explainScore } from "@/domains/scoring/gree-score";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
 import { useHistoryStore } from "@/domains/library/history-store";
+import { buildHistoryItem } from "@/domains/library/model";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 
@@ -86,14 +87,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     setLookup(result);
     if (result.kind === "product") {
       const gree = computeGreeScore(result.product, prefsRef.current);
-      addHistory({
-        barcode: result.product.barcode,
-        name: result.product.name,
-        imageUrl: result.product.imageUrl,
-        score: gree.global,
-        verdict: tScore(`grade.${gree.grade}`),
-        scannedAt: Date.now()
-      });
+      addHistory(buildHistoryItem(result.product, gree, tScore(`grade.${gree.grade}`)));
     }
   }, [barcode, addHistory, tScore]);
 
@@ -154,7 +148,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   // Live, personalized GreeScore — recomputes if the user changes preferences.
   const gree = computeGreeScore(p, prefs);
   const score = gree.global;
-  const item = { barcode: p.barcode, name: p.name, imageUrl: p.imageUrl, score };
 
   const ingredientsKnown = Boolean(p.ingredientsText && p.ingredientsText.trim().length > 2);
   const additiveCount = p.additives?.length ?? 0;
@@ -188,7 +181,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     setBasketNotice(result === "duplicate" ? "duplicate" : "added");
   };
   const toggleFavorite = () =>
-    favorites.toggle({ ...item, verdict: tScore(`grade.${gree.grade}`), scannedAt: Date.now() });
+    favorites.toggle(buildHistoryItem(p, gree, tScore(`grade.${gree.grade}`)));
 
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-4">

@@ -15,7 +15,7 @@
     "copy-wasm": "node scripts/copy-wasm.mjs",
     "predev": "node scripts/copy-wasm.mjs",
     "prebuild": "node scripts/copy-wasm.mjs",
-    "test": "node --import tsx --test src/domains/scoring/gree-score.test.ts src/domains/swap/engine.test.ts src/domains/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx"
+    "test": "node --import tsx --test src/domains/scoring/gree-score.test.ts src/domains/swap/engine.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx"
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Compass, BookOpenText, ChevronRight } from "lucide-react";
+import { Compass, BookOpenText, ChevronRight, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
+import type { FilterLocale } from "@/types/filters";
 import { buildPageMetadata } from "@/lib/seo";
+import { INTENT_PRESETS } from "@/domains/search/intents";
 import { PageHeading } from "@/components/app/page-heading";
 import { GreeCard } from "@/components/system/gree-card";
 
@@ -18,6 +20,8 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("discover");
+  const ts = await getTranslations("search");
+  const fl = locale as FilterLocale;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -26,6 +30,24 @@ export default async function DiscoverPage({ params }: { params: Promise<{ local
         <Compass className="mt-0.5 h-4 w-4 shrink-0 text-natural-strong" aria-hidden />
         {t("intro")}
       </p>
+
+      {/* Intent presets — server-rendered, indexable links into guided search. */}
+      <section>
+        <h2 className="mb-3 flex items-center gap-1.5 px-1 text-sm font-semibold uppercase tracking-wide text-muted">
+          <Sparkles className="h-4 w-4 text-natural-strong" aria-hidden /> {ts("presetsTitle")}
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {INTENT_PRESETS.map((p) => (
+            <Link
+              key={p.id}
+              href={`/search?q=${encodeURIComponent(p.query[fl])}`}
+              className="gc-pressable rounded-2xl border border-line bg-surface px-3 py-2 text-sm font-semibold hover:border-natural/40"
+            >
+              {p.label[fl]}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section>
         <h2 className="mb-3 px-1 text-sm font-semibold uppercase tracking-wide text-muted">{t("categoriesTitle")}</h2>

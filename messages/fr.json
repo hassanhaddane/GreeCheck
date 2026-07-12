@@ -124,7 +124,32 @@
     "lowScoreWarning": "Score faible — à limiter",
     "whyLabel": "Pourquoi :",
     "metaTitle": "Recherche de produits — GreeCheck",
-    "metaDescription": "Recherche un produit alimentaire et compare les GreeScores : nutrition, transformation, additifs et alternatives plus saines."
+    "metaDescription": "Recherche un produit alimentaire et compare les GreeScores : nutrition, transformation, additifs et alternatives plus saines.",
+    "sortBest": "Pertinence",
+    "clear": "Effacer",
+    "intentApplied": "Intention détectée :",
+    "presetsTitle": "Recherches guidées",
+    "recentTitle": "Récemment scannés",
+    "openBarcode": "Ouvrir ce produit",
+    "minScore": "GreeScore minimum",
+    "confidentOnly": "Données fiables uniquement",
+    "applyFilters": "Voir {n} résultats",
+    "intent": {
+      "organic": "Bio",
+      "lowSugar": "Peu de sucre",
+      "lowSalt": "Peu de sel",
+      "highProtein": "Riche en protéines",
+      "highFiber": "Riche en fibres",
+      "fewerAdditives": "Sans additifs",
+      "lessProcessed": "Peu transformé",
+      "halal": "Halal",
+      "vegan": "Vegan",
+      "vegetarian": "Végétarien",
+      "glutenFree": "Sans gluten",
+      "lactoseFree": "Sans lactose",
+      "noPalmOil": "Sans huile de palme",
+      "greenScore": "Faible impact"
+    }
   },
   "product": {
     "title": "Fiche produit",

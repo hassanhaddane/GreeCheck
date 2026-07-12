@@ -7,6 +7,7 @@ import { ChevronRight, Swords, ShoppingBasket, Check, Trophy, AlertTriangle, Arr
 import { useRouter, Link } from "@/i18n/routing";
 import { GreeCard } from "@/components/system/gree-card";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
+import { TrustHalo } from "@/components/system/trust-halo";
 import { MiniRadar } from "@/components/product/nutrition-radar";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
@@ -69,10 +70,14 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
             <p className="truncate text-sm font-semibold">{p.name}</p>
             <p className="truncate text-xs text-muted">{p.brand || "—"}</p>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" />}
-              {p.novaGroup && <NovaBadge group={p.novaGroup} className="scale-90" />}
-              {p.isBio && <GreeBadge tone="brand" size="sm">Bio</GreeBadge>}
-              {p.isHalal && <GreeBadge tone="brand" size="sm">Halal</GreeBadge>}
+              {/* At most THREE relevant badges — the strongest signals first. */}
+              {[
+                p.nutriScore ? <NutriScoreBadge key="nutri" grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" /> : null,
+                p.novaGroup ? <NovaBadge key="nova" group={p.novaGroup} className="scale-90" /> : null,
+                p.isBio ? <GreeBadge key="bio" tone="brand" size="sm">Bio</GreeBadge> : null,
+                p.isHalal ? <GreeBadge key="halal" tone="brand" size="sm">Halal</GreeBadge> : null
+              ].filter(Boolean).slice(0, 3)}
+              <TrustHalo level={gree.confidence} size="sm" />
               <span className="text-[0.65rem] font-medium text-muted">{tScore(`grade.${gree.grade}`)}</span>
             </div>
           </div>

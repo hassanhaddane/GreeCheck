@@ -124,7 +124,32 @@
     "lowScoreWarning": "نتيجة منخفضة — قلّل منه",
     "whyLabel": "لماذا:",
     "metaTitle": "البحث عن المنتجات — GreeCheck",
-    "metaDescription": "ابحث عن منتج غذائي وقارن نتائج GreeScore: التغذية، والمعالجة، والإضافات، وبدائل أكثر صحة."
+    "metaDescription": "ابحث عن منتج غذائي وقارن نتائج GreeScore: التغذية، والمعالجة، والإضافات، وبدائل أكثر صحة.",
+    "sortBest": "الملاءمة",
+    "clear": "مسح",
+    "intentApplied": "النية المكتشفة:",
+    "presetsTitle": "عمليات بحث موجّهة",
+    "recentTitle": "مُمسوحة مؤخرًا",
+    "openBarcode": "افتح هذا المنتج",
+    "minScore": "أدنى GreeScore",
+    "confidentOnly": "بيانات موثوقة فقط",
+    "applyFilters": "عرض {n} نتيجة",
+    "intent": {
+      "organic": "عضوي",
+      "lowSugar": "سكر منخفض",
+      "lowSalt": "ملح منخفض",
+      "highProtein": "غني بالبروتين",
+      "highFiber": "غني بالألياف",
+      "fewerAdditives": "بدون إضافات",
+      "lessProcessed": "أقل معالجة",
+      "halal": "حلال",
+      "vegan": "نباتي صرف",
+      "vegetarian": "نباتي",
+      "glutenFree": "خالٍ من الغلوتين",
+      "lactoseFree": "خالٍ من اللاكتوز",
+      "noPalmOil": "بدون زيت النخيل",
+      "greenScore": "أثر منخفض"
+    }
   },
   "product": {
     "title": "المنتج",

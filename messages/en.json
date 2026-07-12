@@ -349,7 +349,9 @@
       "matchHalal": "it matches your halal preference",
       "matchBio": "it's organic as you prefer",
       "matchVegan": "it's vegan",
-      "betterGoal": "it fits your goals better"
+      "betterGoal": "it fits your goals better",
+      "moreReliable": "more reliable data",
+      "lowerEcoImpact": "lower environmental impact"
     },
     "table": {
       "greeScore": "GreeScore",
@@ -373,7 +375,22 @@
     "goalFit": "Goal fit",
     "replaceInBasket": "Replace in my basket",
     "replacedInBasket": "{name} replaced by the winner",
-    "noWorseInBasket": "Nothing in your basket scores lower"
+    "noWorseInBasket": "Nothing in your basket scores lower",
+    "fromLibrary": "Library",
+    "srcHistory": "My scans",
+    "srcFavorites": "Favorites",
+    "srcCart": "GreeCart",
+    "srcEmpty": "Nothing here yet.",
+    "addFromAnywhere": "Add a product",
+    "incomparableTitle": "Comparison not reliable",
+    "incomparableBody": "We’d rather explain why than show a misleading winner.",
+    "issue_differentCategories": "The products are in different categories.",
+    "issue_insufficientData": "A product is missing essential data (nutrition or Nutri-Score).",
+    "issue_singleProduct": "Add a second product to compare.",
+    "referenceCompare": "Comparison (for reference)",
+    "keyMetrics": "Key metrics",
+    "completeCompare": "Complete comparison",
+    "dnaCompare": "GreeDNA comparison"
   },
   "cart": {
     "title": "Smart basket",

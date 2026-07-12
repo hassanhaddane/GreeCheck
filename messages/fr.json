@@ -349,7 +349,9 @@
       "matchHalal": "il correspond à ta préférence halal",
       "matchBio": "il est bio comme tu préfères",
       "matchVegan": "il est vegan",
-      "betterGoal": "il colle mieux à tes objectifs"
+      "betterGoal": "il colle mieux à tes objectifs",
+      "moreReliable": "données plus fiables",
+      "lowerEcoImpact": "impact environnemental plus faible"
     },
     "table": {
       "greeScore": "GreeScore",
@@ -373,7 +375,22 @@
     "goalFit": "Compatibilité objectif",
     "replaceInBasket": "Remplacer dans mon panier",
     "replacedInBasket": "{name} remplacé par le gagnant",
-    "noWorseInBasket": "Ton panier ne contient rien de moins bon"
+    "noWorseInBasket": "Ton panier ne contient rien de moins bon",
+    "fromLibrary": "Bibliothèque",
+    "srcHistory": "Mes scans",
+    "srcFavorites": "Favoris",
+    "srcCart": "GreeCart",
+    "srcEmpty": "Rien ici pour l’instant.",
+    "addFromAnywhere": "Ajouter un produit",
+    "incomparableTitle": "Comparaison peu fiable",
+    "incomparableBody": "On préfère t’expliquer pourquoi plutôt que d’afficher un gagnant trompeur.",
+    "issue_differentCategories": "Les produits appartiennent à des catégories différentes.",
+    "issue_insufficientData": "Un produit manque de données essentielles (nutrition ou Nutri-Score).",
+    "issue_singleProduct": "Ajoute un second produit pour comparer.",
+    "referenceCompare": "Comparaison (à titre indicatif)",
+    "keyMetrics": "Métriques clés",
+    "completeCompare": "Comparaison complète",
+    "dnaCompare": "Comparaison GreeDNA"
   },
   "cart": {
     "title": "Panier intelligent",

@@ -349,7 +349,9 @@
       "matchHalal": "يطابق تفضيلك الحلال",
       "matchBio": "عضوي كما تفضّل",
       "matchVegan": "نباتي صرف",
-      "betterGoal": "يناسب أهدافك أكثر"
+      "betterGoal": "يناسب أهدافك أكثر",
+      "moreReliable": "بيانات أكثر موثوقية",
+      "lowerEcoImpact": "أثر بيئي أقل"
     },
     "table": {
       "greeScore": "GreeScore",
@@ -373,7 +375,22 @@
     "goalFit": "التوافق مع الهدف",
     "replaceInBasket": "استبدال في سلتي",
     "replacedInBasket": "تم استبدال {name} بالفائز",
-    "noWorseInBasket": "لا شيء في سلتك أقل تقييماً"
+    "noWorseInBasket": "لا شيء في سلتك أقل تقييماً",
+    "fromLibrary": "المكتبة",
+    "srcHistory": "عمليات المسح",
+    "srcFavorites": "المفضلة",
+    "srcCart": "GreeCart",
+    "srcEmpty": "لا شيء هنا بعد.",
+    "addFromAnywhere": "إضافة منتج",
+    "incomparableTitle": "المقارنة غير موثوقة",
+    "incomparableBody": "نفضّل أن نوضّح السبب بدلًا من عرض فائز مضلّل.",
+    "issue_differentCategories": "المنتجات من فئات مختلفة.",
+    "issue_insufficientData": "أحد المنتجات تنقصه بيانات أساسية (تغذية أو Nutri-Score).",
+    "issue_singleProduct": "أضِف منتجًا ثانيًا للمقارنة.",
+    "referenceCompare": "مقارنة (للاسترشاد)",
+    "keyMetrics": "المقاييس الأساسية",
+    "completeCompare": "مقارنة كاملة",
+    "dnaCompare": "مقارنة GreeDNA"
   },
   "cart": {
     "title": "السلة الذكية",

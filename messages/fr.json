@@ -67,7 +67,35 @@
     "productDetected": "Produit détecté",
     "analyzingNutrition": "Analyse nutritionnelle…",
     "enterBarcode": "Entrer le code-barres",
-    "rateLimited": "Service temporairement limité — réessaie dans un instant"
+    "rateLimited": "Service temporairement limité — réessaie dans un instant",
+    "rapid": {
+      "heading": "Scan éclair",
+      "viewResult": "Voir le résultat",
+      "addToCart": "Ajouter au GreeCart",
+      "addToBattle": "Ajouter au Battle",
+      "scanAnother": "Scanner un autre",
+      "addedToCart": "Ajouté au GreeCart",
+      "inCart": "Déjà dans le GreeCart",
+      "addedToBattle": "Ajouté au Battle",
+      "alreadyInBattle": "Déjà dans le Battle",
+      "battleFull": "Battle complet (3 max)",
+      "cached": "Résultat en cache (hors ligne)",
+      "alreadyScanned": "Déjà scanné — vise un autre produit",
+      "sessionCount": "{n} scannés dans cette session"
+    },
+    "intro": {
+      "title": "Bienvenue dans GreeCheck",
+      "stepLabel": "Étape {n} / 3",
+      "step1Title": "Comprends le GreeScore",
+      "step1Body": "Un score de 0 à 100 avec un verdict clair : tu sais en deux secondes si un produit est un bon choix.",
+      "step2Title": "Trouve mieux avec GreeSwap",
+      "step2Body": "Quand un produit est faible, GreeCheck te propose une meilleure alternative de la même catégorie.",
+      "step3Title": "Tes données restent sur cet appareil",
+      "step3Body": "Historique, critères et favoris sont stockés localement. Aucun compte, aucun envoi vers un serveur.",
+      "next": "Suivant",
+      "done": "Compris",
+      "dismiss": "Ignorer"
+    }
   },
   "search": {
     "title": "Rechercher",

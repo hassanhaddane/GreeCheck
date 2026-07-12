@@ -67,7 +67,35 @@
     "productDetected": "تم اكتشاف المنتج",
     "analyzingNutrition": "تحليل التغذية…",
     "enterBarcode": "إدخال الباركود",
-    "rateLimited": "الخدمة محدودة مؤقتًا — حاول مرة أخرى بعد قليل"
+    "rateLimited": "الخدمة محدودة مؤقتًا — حاول مرة أخرى بعد قليل",
+    "rapid": {
+      "heading": "مسح سريع",
+      "viewResult": "عرض النتيجة",
+      "addToCart": "أضِف إلى GreeCart",
+      "addToBattle": "أضِف إلى Battle",
+      "scanAnother": "مسح منتج آخر",
+      "addedToCart": "أُضيف إلى GreeCart",
+      "inCart": "موجود في GreeCart",
+      "addedToBattle": "أُضيف إلى Battle",
+      "alreadyInBattle": "موجود في Battle",
+      "battleFull": "‏Battle ممتلئ (3 كحد أقصى)",
+      "cached": "نتيجة من الذاكرة المؤقتة (دون اتصال)",
+      "alreadyScanned": "تم مسحه مسبقًا — وجّه إلى منتج آخر",
+      "sessionCount": "{n} تم مسحها في هذه الجلسة"
+    },
+    "intro": {
+      "title": "مرحبًا بك في GreeCheck",
+      "stepLabel": "الخطوة {n} / 3",
+      "step1Title": "افهم GreeScore",
+      "step1Body": "درجة من 0 إلى 100 مع حكم واضح: تعرف خلال ثانيتين ما إذا كان المنتج خيارًا جيدًا.",
+      "step2Title": "اعثر على الأفضل مع GreeSwap",
+      "step2Body": "عندما تكون درجة المنتج منخفضة، يقترح GreeCheck بديلاً أفضل من نفس الفئة.",
+      "step3Title": "تبقى بياناتك على هذا الجهاز",
+      "step3Body": "يُخزَّن السجل والمعايير والمفضلة محليًا. بدون حساب، ولا يُرسَل شيء إلى خادم.",
+      "next": "التالي",
+      "done": "فهمت",
+      "dismiss": "تجاهل"
+    }
   },
   "search": {
     "title": "بحث",

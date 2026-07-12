@@ -34,6 +34,11 @@ import { computeGreeScore } from "@/domains/scoring/gree-score";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
+import { useHistoryStore } from "@/domains/library/history-store";
+import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
+import { RapidScanCard, type RapidScanResult } from "@/components/scan/rapid-scan-card";
+import { FirstScanIntro } from "@/components/scan/first-scan-intro";
+import type { Product } from "@/domains/product/model";
 
 type LookupState = "idle" | "loading" | "not_found" | "network_error" | "rate_limited" | "unsupported";
 type ScanSource = "product" | "cart" | "battle";
@@ -47,8 +52,14 @@ export function ScanClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const source = sourceFromParam(searchParams.get("source"));
-  const basket = useCartStore();
+  const tScore = useTranslations("score");
+  const addProductToCart = useCartStore((s) => s.addProduct);
+  const cartItems = useCartStore((s) => s.items);
   const addBattle = useBattleStore((state) => state.add);
+  const battleItems = useBattleStore((s) => s.items);
+  const addHistory = useHistoryStore((s) => s.add);
+  const onboardingSeen = useOnboardingStore((s) => s.seen);
+  const markOnboardingSeen = useOnboardingStore((s) => s.markSeen);
   const prefs = usePreferencesStore();
 
   const [mode, setMode] = useState<ScanMode>("barcode");
@@ -58,6 +69,12 @@ export function ScanClient() {
   const [lastCode, setLastCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [manual, setManual] = useState("");
+  // Rapid Scan Session — act on a detected product without leaving GreeLens.
+  const [rapid, setRapid] = useState<RapidScanResult | null>(null);
+  const [sessionCount, setSessionCount] = useState(0);
+  const [showIntro, setShowIntro] = useState(false);
+  const sessionCodesRef = useRef<Set<string>>(new Set());
+  const lastResolvedCodeRef = useRef("");
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const flashNotice = useCallback((message: string) => {
@@ -66,9 +83,24 @@ export function ScanClient() {
     noticeTimer.current = setTimeout(() => setNotice(null), 3200);
   }, []);
 
+  // History is written locally on EVERY successful resolve (dedupes by barcode).
+  const recordHistory = useCallback(
+    (product: Product, score: number, grade: string) => {
+      addHistory({
+        barcode: product.barcode,
+        name: product.name,
+        imageUrl: product.imageUrl,
+        score,
+        verdict: tScore(`grade.${grade}`),
+        scannedAt: Date.now()
+      });
+    },
+    [addHistory, tScore]
+  );
+
   const resolveProduct = useCallback(
     async (code: string) => {
-      // GreeLens staged feedback: detected → analyzing → navigate.
+      // GreeLens staged feedback: detected → analyzing → result.
       setPhase("detected");
       setLookup("loading");
       setLastCode(code);
@@ -83,8 +115,18 @@ export function ScanClient() {
           return;
         }
 
+        const gree = computeGreeScore(result.product, prefs);
+        recordHistory(result.product, gree.global, gree.grade);
+        lastResolvedCodeRef.current = result.product.barcode;
+        if (!sessionCodesRef.current.has(result.product.barcode)) {
+          sessionCodesRef.current.add(result.product.barcode);
+          setSessionCount(sessionCodesRef.current.size);
+        }
+
+        // Explicit "scan to add" flows (launched from GreeCart / Battle) keep
+        // their direct behavior — the user already declared the intent.
         if (source === "cart") {
-          basket.addProduct(result.product, computeGreeScore(result.product, prefs));
+          addProductToCart(result.product, gree);
           router.push("/cart");
           return;
         }
@@ -94,13 +136,18 @@ export function ScanClient() {
           return;
         }
 
-        router.push(`/product/${result.product.barcode}`);
+        // Default GreeLens flow → Rapid Scan Session (no forced navigation).
+        setPhase("idle");
+        setLookup("idle");
+        setRapid({ product: result.product, gree, stale: result.stale });
+        // First-scan onboarding: once only, AFTER a successful scan.
+        if (!onboardingSeen) setShowIntro(true);
       } catch {
         setPhase("idle");
         setLookup("network_error");
       }
     },
-    [addBattle, basket, prefs, router, source]
+    [addBattle, addProductToCart, onboardingSeen, prefs, recordHistory, router, source]
   );
 
   const handleDetect = useCallback(
@@ -109,10 +156,16 @@ export function ScanClient() {
       if (!code) {
         setLookup("unsupported");
         flashNotice(t("unsupportedCode"));
+        return false; // keep scanning — this frame was not a product code
+      }
+      // Prevent duplicate rapid scans: ignore the barcode we just resolved and
+      // keep the camera live so the shopper can aim at a DIFFERENT product.
+      if (code === lastResolvedCodeRef.current) {
+        flashNotice(t("rapid.alreadyScanned"));
         return false;
       }
       void resolveProduct(code);
-      return true;
+      return true; // handled → the hook pauses the stream until "scan another"
     },
     [flashNotice, resolveProduct, t]
   );
@@ -151,6 +204,38 @@ export function ScanClient() {
     retry();
   };
 
+  // ── Rapid Scan Session derived state + actions ──
+  const rapidBarcode = rapid?.product.barcode;
+  const inCart = Boolean(rapidBarcode && cartItems.some((i) => i.product.barcode === rapidBarcode));
+  const inBattle = Boolean(rapidBarcode && battleItems.some((x) => x.barcode === rapidBarcode));
+  const battleFull = battleItems.length >= 3 && !inBattle;
+
+  const rapidViewResult = () => {
+    if (!rapid) return;
+    stop();
+    router.push(`/product/${rapid.product.barcode}`);
+  };
+  const rapidAddToCart = () => {
+    if (!rapid) return;
+    const r = addProductToCart(rapid.product, rapid.gree);
+    flashNotice(r === "added" ? t("rapid.addedToCart") : t("rapid.inCart"));
+  };
+  const rapidAddToBattle = () => {
+    if (!rapid) return;
+    const r = addBattle(rapid.product);
+    flashNotice(r === "added" ? t("rapid.addedToBattle") : r === "full" ? t("rapid.battleFull") : t("rapid.alreadyInBattle"));
+  };
+  const rapidScanAnother = () => {
+    setRapid(null);
+    setLookup("idle");
+    setLastCode("");
+    retry();
+  };
+  const dismissIntro = () => {
+    setShowIntro(false);
+    markOnboardingSeen();
+  };
+
   const modes: { id: ScanMode; icon: typeof ScanLine }[] = [
     { id: "barcode", icon: ScanLine },
     { id: "qr", icon: QrCode }
@@ -185,6 +270,27 @@ export function ScanClient() {
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">{liveStatus}</p>
+
+      <AnimatePresence>
+        {rapid && (
+          <RapidScanCard
+            key={rapid.product.barcode}
+            result={rapid}
+            sessionCount={sessionCount}
+            inCart={inCart}
+            inBattle={inBattle}
+            battleFull={battleFull}
+            onViewResult={rapidViewResult}
+            onAddToCart={rapidAddToCart}
+            onAddToBattle={rapidAddToBattle}
+            onScanAnother={rapidScanAnother}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showIntro && <FirstScanIntro key="intro" onDone={dismissIntro} />}
+      </AnimatePresence>
 
       <GreeCard className="relative aspect-[3/4] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
         <video
@@ -233,7 +339,7 @@ export function ScanClient() {
           </div>
         )}
 
-        <CameraStatePanel state={state} retry={retryAll} />
+        {!rapid && <CameraStatePanel state={state} retry={retryAll} />}
 
         <AnimatePresence>
           {notice && (

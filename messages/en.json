@@ -67,7 +67,35 @@
     "productDetected": "Product detected",
     "analyzingNutrition": "Analyzing nutrition…",
     "enterBarcode": "Enter barcode",
-    "rateLimited": "Service temporarily limited — try again in a moment"
+    "rateLimited": "Service temporarily limited — try again in a moment",
+    "rapid": {
+      "heading": "Quick scan",
+      "viewResult": "View result",
+      "addToCart": "Add to GreeCart",
+      "addToBattle": "Add to Battle",
+      "scanAnother": "Scan another",
+      "addedToCart": "Added to GreeCart",
+      "inCart": "Already in GreeCart",
+      "addedToBattle": "Added to Battle",
+      "alreadyInBattle": "Already in Battle",
+      "battleFull": "Battle full (max 3)",
+      "cached": "Cached result (offline)",
+      "alreadyScanned": "Already scanned — aim at another product",
+      "sessionCount": "{n} scanned this session"
+    },
+    "intro": {
+      "title": "Welcome to GreeCheck",
+      "stepLabel": "Step {n} / 3",
+      "step1Title": "Understand the GreeScore",
+      "step1Body": "A 0–100 score with a clear verdict: you know in two seconds whether a product is a good choice.",
+      "step2Title": "Find better with GreeSwap",
+      "step2Body": "When a product scores low, GreeCheck suggests a better alternative in the same category.",
+      "step3Title": "Your data stays on this device",
+      "step3Body": "History, criteria and favorites are stored locally. No account, nothing sent to a server.",
+      "next": "Next",
+      "done": "Got it",
+      "dismiss": "Dismiss"
+    }
   },
   "search": {
     "title": "Search",

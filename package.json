@@ -4,7 +4,10 @@
   "private": true,
   "description": "GreeCheck — Scanne. Comprends. Choisis mieux. Premium nutrition PWA.",
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=20.19.0"
+  },
+  "overrides": {
+    "postcss": "$postcss"
   },
   "scripts": {
     "dev": "next dev",
@@ -12,20 +15,17 @@
     "start": "next start",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "copy-wasm": "node scripts/copy-wasm.mjs",
-    "predev": "node scripts/copy-wasm.mjs",
-    "prebuild": "node scripts/copy-wasm.mjs",
-    "test": "node --import tsx --test src/lib/scoring/gree-score.test.ts"
+    "test": "node --import tsx --test src/domains/scoring/gree-score.test.ts src/domains/swap/engine.test.ts src/domains/battle/engine.test.ts src/domains/cart/what-if.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/library/history-view.test.ts src/domains/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx src/app/api/places/route.test.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.3",
-    "barcode-detector": "^2.3.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "framer-motion": "^12.42.2",
-    "leaflet": "^1.9.4",
     "lucide-react": "^1.23.0",
     "next": "^16.2.10",
     "next-intl": "^4.13.1",
@@ -35,16 +35,17 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.21",
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^22.10.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.10",
+    "fake-indexeddb": "^6.0.0",
     "postcss": "^8.5.10",
     "tailwindcss": "^3.4.7",
-    "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3"
   }

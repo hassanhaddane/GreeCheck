@@ -11,6 +11,14 @@ const nextConfig = {
       { protocol: "https", hostname: "world.openfoodfacts.org" },
       { protocol: "https", hostname: "static.openfoodfacts.org" }
     ]
+  },
+  async redirects() {
+    // V1 → V2 route moves (kept permanently for old bookmarks / PWA shortcuts).
+    return [
+      { source: "/:locale(fr|en|ar)/basket", destination: "/:locale/cart", permanent: true },
+      { source: "/:locale(fr|en|ar)/list", destination: "/:locale/cart", permanent: true },
+      { source: "/:locale(fr|en|ar)/map", destination: "/:locale", permanent: true }
+    ];
   }
 };
 

@@ -11,7 +11,7 @@ export function PrivacyPill({ className, label }: { className?: string; label?: 
     <Link
       href="/privacy"
       className={cn(
-        "gc-pressable inline-flex items-center gap-1.5 rounded-full border border-natural/20 bg-natural/10 px-3 py-1.5 text-xs font-medium text-natural transition hover:bg-natural/15",
+        "gc-pressable inline-flex items-center gap-1.5 rounded-full border border-natural/20 bg-natural/10 px-3 py-1.5 text-xs font-medium text-natural-strong transition hover:bg-natural/15",
         className
       )}
     >

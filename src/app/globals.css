@@ -2,54 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================================
-   GreeCheck — Design Tokens
-   Premium white (Apple Health) + natural green + neon green.
-   Colors stored as space-separated RGB channels so Tailwind's
-   <alpha-value> works (rgb(var(--token) / opacity)).
-   ============================================================ */
+/* ════════════════════════════════════════════════════════════════
+   GreeCheck V2 — Design Tokens ("warm Apple-white, living green")
+   ----------------------------------------------------------------
+   • Colors are space-separated RGB channels → rgb(var(--x) / a).
+   • Natural green = brand. Neon green = MOTION ONLY (scan, focus,
+     success, progress). Never use neon for static decoration.
+   • Surfaces are 4 elevation levels; shadows are 3 depth levels +
+     one motion glow. Soft-3D = shadow + inset top highlight, never
+     heavy bevels.
+   ════════════════════════════════════════════════════════════════ */
 :root {
-  --gc-bg: 250 250 247;        /* #FAFAF7 premium white */
-  --gc-surface: 255 255 255;   /* #FFFFFF pure */
-  --gc-surface-2: 245 246 244; /* subtle panel */
-  --gc-ink: 16 19 18;          /* #101312 soft black */
-  --gc-muted: 102 112 106;     /* #66706A text grey */
-  --gc-line: 232 234 231;      /* hairline borders */
+  /* ── color · canvas & ink ─────────────────────────────────── */
+  --gc-bg: 250 250 247;          /* warm apple-white canvas       */
+  --gc-surface-0: 250 250 247;   /* level 0 = canvas              */
+  --gc-surface: 255 255 255;     /* level 1 · cards               */
+  --gc-surface-2: 245 246 244;   /* level 2 · insets, wells       */
+  --gc-surface-3: 238 240 236;   /* level 3 · pressed / deep well */
+  --gc-ink: 16 19 18;            /* deep neutral text             */
+  --gc-muted: 102 112 106;       /* secondary text                */
+  --gc-line: 232 234 231;        /* hairline borders              */
 
-  --gc-natural: 46 204 113;    /* #2ECC71 natural green */
-  --gc-neon: 57 255 136;       /* #39FF88 futuristic neon */
-  --gc-deep: 11 61 46;         /* #0B3D2E deep green */
+  /* ── color · brand ────────────────────────────────────────── */
+  --gc-natural: 46 204 113;      /* natural green — brand accent  */
+  --gc-natural-strong: 21 128 61; /* AA text green on white (5.0:1)*/
+  --gc-neon: 57 255 136;         /* neon — active motion ONLY     */
+  --gc-deep: 11 61 46;           /* deep green — hero surfaces    */
 
-  --gc-score-a: 22 163 74;     /* excellent */
-  --gc-score-b: 132 204 22;    /* good */
-  --gc-score-c: 234 179 8;     /* medium */
-  --gc-score-d: 249 115 22;    /* limit */
-  --gc-score-e: 239 68 68;     /* avoid */
+  /* ── color · semantic score (A→E) ─────────────────────────────
+     plain tokens = FILLS/GRAPHICS only; *-ink = AA-safe TEXT colors */
+  --gc-score-a: 22 163 74;
+  --gc-score-b: 132 204 22;
+  --gc-score-c: 234 179 8;
+  --gc-score-d: 249 115 22;
+  --gc-score-e: 239 68 68;
+  --gc-score-a-ink: 21 128 61;
+  --gc-score-b-ink: 77 124 15;
+  --gc-score-c-ink: 161 98 7;
+  --gc-score-d-ink: 194 65 12;
+  --gc-score-e-ink: 220 38 38;
 
-  --gc-glass: 255 255 255;     /* glass tint base */
+  /* ── color · verdict semantics (V2 decision layer) ────────── */
+  --gc-verdict-positive: var(--gc-score-a);
+  --gc-verdict-caution: var(--gc-score-c);
+  --gc-verdict-negative: var(--gc-score-e);
+  --gc-verdict-unknown: 91 101 95;   /* unknown ≠ negative (AA text) */
 
+  --gc-glass: 255 255 255;
+
+  /* ── typography ───────────────────────────────────────────── */
   --font-sans: "Inter", "SF Pro Display", system-ui, sans-serif;
-  --radius: 1rem;
+
+  /* ── radii ────────────────────────────────────────────────── */
+  --gc-r-sm: 0.625rem;
+  --gc-r-md: 1rem;
+  --gc-r-lg: 1.5rem;
+  --gc-r-xl: 2rem;
+  --radius: 1rem; /* legacy alias */
+
+  /* ── elevation (soft-3D) ──────────────────────────────────── */
+  --gc-shadow-1: 0 1px 2px rgb(16 19 18 / 0.04), 0 8px 24px -12px rgb(16 19 18 / 0.10);
+  --gc-shadow-2: 0 2px 4px rgb(16 19 18 / 0.05), 0 16px 36px -16px rgb(11 61 46 / 0.22);
+  --gc-shadow-3: 0 4px 10px rgb(16 19 18 / 0.07), 0 28px 60px -24px rgb(11 61 46 / 0.30);
+  --gc-edge-light: inset 0 1px 0 rgb(255 255 255 / 0.35);
+
+  /* ── motion ───────────────────────────────────────────────── */
+  --gc-dur-fast: 140ms;
+  --gc-dur-base: 260ms;
+  --gc-dur-slow: 480ms;
+  --gc-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --gc-ease-spring: cubic-bezier(0.34, 1.4, 0.4, 1);
+
+  /* ── focus ────────────────────────────────────────────────── */
+  --gc-focus-ring: var(--gc-natural-strong);
 }
 
 .dark {
   --gc-bg: 9 12 11;
+  --gc-surface-0: 9 12 11;
   --gc-surface: 18 22 20;
   --gc-surface-2: 26 31 28;
+  --gc-surface-3: 33 39 36;
   --gc-ink: 240 244 241;
   --gc-muted: 150 160 154;
   --gc-line: 38 44 41;
 
   --gc-natural: 46 204 113;
+  --gc-natural-strong: 74 222 128;
   --gc-neon: 57 255 136;
   --gc-deep: 18 60 47;
 
+  --gc-verdict-unknown: 166 176 170;
+  --gc-score-a-ink: 74 222 128;
+  --gc-score-b-ink: 163 230 53;
+  --gc-score-c-ink: 250 204 21;
+  --gc-score-d-ink: 251 146 60;
+  --gc-score-e-ink: 248 113 113;
   --gc-glass: 22 28 25;
+
+  --gc-shadow-1: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  --gc-shadow-2: 0 2px 4px rgb(0 0 0 / 0.4), 0 16px 36px -16px rgb(0 0 0 / 0.6);
+  --gc-shadow-3: 0 4px 10px rgb(0 0 0 / 0.45), 0 28px 60px -24px rgb(0 0 0 / 0.7);
+  --gc-edge-light: inset 0 1px 0 rgb(255 255 255 / 0.07);
+
+  --gc-focus-ring: var(--gc-neon);
 }
 
 * { -webkit-tap-highlight-color: transparent; }
 
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
 
 body {
   background-color: rgb(var(--gc-bg));
@@ -58,16 +119,22 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 /* RTL niceties */
 [dir="rtl"] body { font-feature-settings: normal; }
 
-/* ============================================================
+/* ── global keyboard focus (visible, brand-colored, never removed) ── */
+:focus-visible {
+  outline: 2px solid rgb(var(--gc-focus-ring));
+  outline-offset: 2px;
+  border-radius: var(--gc-r-sm);
+}
+
+/* ════════════════════════════════════════════════════════════════
    Ambient premium background (rendered by <AppBackground/>)
-   Layered: soft halos → organic orbs → faint grid. All fixed,
-   pointer-events none, behind the app. Clean, not busy.
-   ============================================================ */
+   ════════════════════════════════════════════════════════════════ */
 .gc-bg-halos {
   background-image:
     radial-gradient(52rem 52rem at 112% -12%, rgb(var(--gc-neon) / 0.075), transparent 62%),
@@ -87,25 +154,8 @@ body {
   mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
   -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
 }
-.gc-orb {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(70px);
-  opacity: 0.55;
-  will-change: transform;
-}
-@keyframes gc-drift-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(4%, 6%, 0) scale(1.08); }
-}
-@keyframes gc-drift-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(-5%, -4%, 0) scale(0.94); }
-}
-.gc-orb-a { animation: gc-drift-a 26s ease-in-out infinite; }
-.gc-orb-b { animation: gc-drift-b 32s ease-in-out infinite; }
-
 @layer components {
+  /* ── surfaces & soft-3D depth ─────────────────────────────── */
   .gc-glass {
     background-color: rgb(var(--gc-glass) / 0.72);
     backdrop-filter: saturate(160%) blur(18px);
@@ -113,32 +163,42 @@ body {
     border: 1px solid rgb(var(--gc-line) / 0.8);
   }
   .gc-card {
-    @apply rounded-2xl bg-surface border border-line shadow-soft;
+    @apply rounded-2xl bg-surface border border-line;
+    box-shadow: var(--gc-shadow-1);
   }
-  /* Premium hover lift for interactive cards (desktop) */
-  .gc-lift {
-    @apply transition-all duration-300;
-  }
+  .gc-depth-1 { box-shadow: var(--gc-shadow-1); }
+  .gc-depth-2 { box-shadow: var(--gc-shadow-2), var(--gc-edge-light); }
+  .gc-depth-3 { box-shadow: var(--gc-shadow-3), var(--gc-edge-light); }
+  .gc-edge { box-shadow: var(--gc-edge-light); }
+  .gc-well { @apply rounded-2xl bg-surface-2; box-shadow: inset 0 1px 3px rgb(16 19 18 / 0.05); }
+
+  /* Premium hover lift for interactive cards (pointer devices) */
+  .gc-lift { transition: transform var(--gc-dur-base) var(--gc-ease-out), box-shadow var(--gc-dur-base) var(--gc-ease-out); }
   @media (hover: hover) {
-    .gc-lift:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(16,19,18,0.04), 0 18px 40px -18px rgba(11,61,46,0.28); }
+    .gc-lift:hover { transform: translateY(-2px); box-shadow: var(--gc-shadow-2); }
   }
+  .gc-pressable { transition: transform var(--gc-dur-fast) var(--gc-ease-out); }
+  .gc-pressable:active { transform: scale(0.97); }
+
+  /* ── typography scale ─────────────────────────────────────── */
+  .gc-display { @apply text-3xl font-extrabold tracking-tight leading-tight; }
+  .gc-title   { @apply text-xl font-bold tracking-tight; }
+  .gc-heading { @apply text-base font-semibold tracking-tight; }
+  .gc-body    { @apply text-sm leading-relaxed; }
+  .gc-caption { @apply text-xs text-muted; }
+  .gc-overline{ @apply text-[0.65rem] font-bold uppercase tracking-wider text-muted; }
+
+  /* ── chips ─────────────────────────────────────────────────── */
   .gc-chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink;
+    transition: background-color var(--gc-dur-fast) var(--gc-ease-out), color var(--gc-dur-fast) var(--gc-ease-out);
   }
-  .gc-chip[data-active="true"] {
-    @apply border-transparent bg-deep text-white shadow-soft;
-  }
-  .gc-pressable { @apply transition-transform active:scale-[0.97]; }
-  .gc-gradient-text {
-    @apply bg-neon-grad bg-clip-text text-transparent;
-  }
-  /* Soft top edge highlight for glass/deep cards */
-  .gc-edge {
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
-  }
+  .gc-chip[data-active="true"] { @apply border-transparent bg-deep text-white shadow-soft; }
+
+  .gc-gradient-text { @apply bg-natural-grad bg-clip-text text-transparent; }
 }
 
-/* Diagonal shine sweep (used on hero / neon buttons) */
+/* Diagonal shine sweep (hero / neon buttons — motion accent) */
 .gc-shine { position: relative; overflow: hidden; }
 .gc-shine::after {
   content: "";
@@ -156,7 +216,7 @@ body {
   80% { transform: rotate(24deg) translateX(420%); }
 }
 
-/* Soft pulsing halo behind the scan FAB */
+/* Soft pulsing halo (scan FAB, GreePulse scanning) — neon = motion */
 @keyframes gc-pulse-ring {
   0% { transform: scale(1); opacity: 0.45; }
   70%, 100% { transform: scale(1.55); opacity: 0; }
@@ -167,7 +227,7 @@ body {
   inset: 0;
   border-radius: 9999px;
   background: rgb(var(--gc-neon) / 0.35);
-  animation: gc-pulse-ring 2.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: gc-pulse-ring 2.6s var(--gc-ease-out) infinite;
   z-index: -1;
 }
 
@@ -177,4 +237,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  html { scroll-behavior: auto !important; }
+}
+
+@media (pointer: coarse) {
+  button, [role="button"], input, select { min-block-size: 44px; }
+  button, [role="button"] { min-inline-size: 44px; }
 }

@@ -2,9 +2,9 @@
 import { useMemo } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { RotateCcw, Info } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { GreeCard } from "@/components/system/gree-card";
 import { Chip } from "@/components/ui/chip";
-import { Button } from "@/components/ui/button";
+import { GreeButton } from "@/components/system/gree-button";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
 import { FILTER_DEFS, NUTRI_LETTERS, NOVA_GROUPS } from "@/lib/filters/definitions";
 import type { FilterGroup, FilterLocale } from "@/types/filters";
@@ -44,7 +44,7 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
   const activeDefs = FILTER_DEFS.filter((f) => active.has(f.id));
 
   return (
-    <Card className="space-y-4 p-4">
+    <GreeCard className="space-y-4 p-4">
       {/* Nutri-Score allow-list */}
       <div>
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">{t("groupNutriScore")}</p>
@@ -104,7 +104,7 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
                   active={active.has(f.id)}
                   onClick={() => onToggleFilter(f.id)}
                   title={f.description[locale]}
-                  className={g === "smart" ? "data-[active=true]:bg-neon-grad data-[active=true]:text-deep" : ""}
+                  className={g === "smart" ? "data-[active=true]:bg-natural-grad data-[active=true]:text-white" : ""}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   {f.label[locale]}
@@ -120,7 +120,7 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
         <div className="space-y-1.5 rounded-2xl bg-surface-2 p-3">
           {activeDefs.map((f) => (
             <p key={f.id} className="flex items-start gap-1.5 text-xs text-muted">
-              <Info className="mt-0.5 h-3 w-3 shrink-0 text-natural" aria-hidden />
+              <Info className="mt-0.5 h-3 w-3 shrink-0 text-natural-strong" aria-hidden />
               <span><strong className="text-ink">{f.label[locale]}</strong> — {f.description[locale]}</span>
             </p>
           ))}
@@ -128,10 +128,10 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
       )}
 
       {activeCount > 0 && (
-        <Button variant="ghost" size="sm" className="text-score-e" onClick={onReset}>
+        <GreeButton variant="ghost" size="sm" className="text-score-e-ink" onClick={onReset}>
           <RotateCcw className="h-4 w-4" /> {t("reset")} ({activeCount})
-        </Button>
+        </GreeButton>
       )}
-    </Card>
+    </GreeCard>
   );
 }

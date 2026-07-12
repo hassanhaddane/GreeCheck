@@ -1,11 +1,16 @@
-/* GreeCheck service worker — offline-first shell + asset cache. No user data cached. */
-const VERSION = "gc-v2";
+/* GreeCheck service worker — public shell/assets only. User data stays in IndexedDB. */
+const VERSION = "gc-v4";
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
+const MAX_RUNTIME_ENTRIES = 40;
 
 const PRECACHE = [
-  "/offline.html",
-  "/manifest.webmanifest",
+  "/fr/offline",
+  "/en/offline",
+  "/ar/offline",
+  "/fr/manifest.webmanifest",
+  "/en/manifest.webmanifest",
+  "/ar/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-maskable-512.png",
@@ -13,30 +18,41 @@ const PRECACHE = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(SHELL).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
+  event.waitUntil(
+    // Atomic install: a broken release must not replace the last working worker.
+    caches.open(SHELL).then((cache) => cache.addAll(PRECACHE))
+  );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== SHELL && k !== RUNTIME).map((k) => caches.delete(k))))
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== SHELL && key !== RUNTIME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
-// Allow the page to trigger an immediate update.
-self.addEventListener("message", (e) => {
-  if (e.data === "SKIP_WAITING") self.skipWaiting();
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
 function isStaticAsset(url) {
-  return (
-    url.pathname.startsWith("/_next/static/") ||
+  return url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname.startsWith("/wasm/") ||
-    /\.(?:css|js|woff2?|png|svg|jpg|jpeg|webp|ico)$/.test(url.pathname)
-  );
+    /\.(?:css|js|woff2?|png|svg|jpg|jpeg|webp|ico)$/.test(url.pathname);
+}
+
+function localeFromPath(pathname) {
+  const locale = pathname.split("/")[1];
+  return locale === "en" || locale === "ar" ? locale : "fr";
+}
+
+async function putBounded(cacheName, request, response) {
+  if (!response || !response.ok || response.type === "opaque") return;
+  const cache = await caches.open(cacheName);
+  await cache.put(request, response);
+  const keys = await cache.keys();
+  await Promise.all(keys.slice(0, Math.max(0, keys.length - MAX_RUNTIME_ENTRIES)).map((key) => cache.delete(key)));
 }
 
 self.addEventListener("fetch", (event) => {
@@ -46,50 +62,38 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  // App navigations: network-first, fall back to cache, then the offline page.
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME).then((c) => c.put(request, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(request).then((r) => r || caches.match("/offline.html")))
-    );
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        event.waitUntil(putBounded(RUNTIME, request, response.clone()));
+        return response;
+      } catch {
+        const cached = await caches.match(request, { ignoreSearch: true });
+        if (cached) return cached;
+        const locale = localeFromPath(url.pathname);
+        return (await caches.match(`/${locale}/offline`)) || (await caches.match("/fr/offline")) || Response.error();
+      }
+    })());
     return;
   }
 
-  // Same-origin static assets: cache-first (stale-while-revalidate).
   if (sameOrigin && isStaticAsset(url)) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        const network = fetch(request)
-          .then((res) => {
-            const copy = res.clone();
-            caches.open(SHELL).then((c) => c.put(request, copy)).catch(() => {});
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      })
-    );
+    event.respondWith((async () => {
+      const cached = await caches.match(request);
+      const network = fetch(request).then((response) => {
+        event.waitUntil(putBounded(SHELL, request, response.clone()));
+        return response;
+      }).catch(() => cached);
+      return cached || network;
+    })());
     return;
   }
 
-  // OpenStreetMap tiles / OFF product images: runtime cache, network-first.
-  if (/tile\.openstreetmap\.org$/.test(url.hostname) || /openfoodfacts\.org$/.test(url.hostname)) {
-    event.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME).then((c) => c.put(request, copy)).catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
+  if (/openfoodfacts\.org$/.test(url.hostname)) {
+    event.respondWith(fetch(request).then((response) => {
+      event.waitUntil(putBounded(RUNTIME, request, response.clone()));
+      return response;
+    }).catch(() => caches.match(request)));
   }
-
-  // Everything else (APIs, other origins): straight to network.
 });

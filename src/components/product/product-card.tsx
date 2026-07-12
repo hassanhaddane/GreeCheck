@@ -1,18 +1,20 @@
 "use client";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import type * as React from "react";
 import { useTranslations } from "next-intl";
 import { ChevronRight, Swords, ShoppingBasket, Check, Trophy, AlertTriangle, ArrowUp, Sparkles } from "lucide-react";
 import { useRouter, Link } from "@/i18n/routing";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { ScoreRing } from "@/components/score/score-ring";
+import { GreeCard } from "@/components/system/gree-card";
+import { GreeScoreRing } from "@/components/system/gree-score-ring";
+import { TrustHalo } from "@/components/system/trust-halo";
 import { MiniRadar } from "@/components/product/nutrition-radar";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
-import { HealthBadge } from "@/components/score/health-badge";
-import { useBasketStore } from "@/stores/basket-store";
-import { useBattleStore } from "@/stores/battle-store";
-import type { Product } from "@/types/product";
-import type { GreeScore } from "@/types/scoring";
+import { LabelBadge } from "@/components/badges/label-badge";
+import { useCartStore } from "@/domains/cart/store";
+import { useBattleStore } from "@/domains/battle/store";
+import type { Product } from "@/domains/product/model";
+import type { GreeScore } from "@/domains/scoring/types";
 
 /**
  * ProductCard — the shared premium product row.
@@ -33,7 +35,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
   const tScore = useTranslations("score");
   const tp = useTranslations("product");
   const router = useRouter();
-  const basket = useBasketStore();
+  const basket = useCartStore();
   const battle = useBattleStore();
   const inBasket = basket.has(p.barcode);
 
@@ -55,31 +57,32 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
   };
 
   return (
-    <PremiumCard interactive className={`p-0 ${bestChoice ? "border-natural/40 ring-1 ring-natural/25" : ""}`}>
+    <GreeCard interactive className={`p-0 ${bestChoice ? "border-natural/40 ring-1 ring-natural/25" : ""}`}>
       {bestChoice && (
-        <div className="flex items-center gap-1.5 rounded-t-2xl bg-neon-grad px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-deep">
+        <div className="flex items-center gap-1.5 rounded-t-2xl bg-natural-grad px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-white">
           <Trophy className="h-3 w-3" aria-hidden /> {tScore("bestChoice")}
         </div>
       )}
       <div className="flex items-center gap-3 p-3">
         <Link href={`/product/${p.barcode}`} className="flex min-w-0 flex-1 items-center gap-3">
-          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-            { }
-            {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
-          </div>
+          <ProductThumbnail src={p.imageUrl} alt={p.name} size="lg" className="h-14 w-14" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{p.name}</p>
             <p className="truncate text-xs text-muted">{p.brand || "—"}</p>
             <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" />}
-              {p.novaGroup && <NovaBadge group={p.novaGroup} className="scale-90" />}
-              {p.isBio && <HealthBadge className="px-1.5 py-0.5 text-[0.6rem]">Bio</HealthBadge>}
-              {p.isHalal && <HealthBadge className="px-1.5 py-0.5 text-[0.6rem]">Halal</HealthBadge>}
+              {/* At most THREE relevant badges — the strongest signals first. */}
+              {[
+                p.nutriScore ? <NutriScoreBadge key="nutri" grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" /> : null,
+                p.novaGroup ? <NovaBadge key="nova" group={p.novaGroup} className="scale-90" /> : null,
+                p.isBio ? <LabelBadge key="bio" kind="bio" className="px-1.5 py-0 text-[0.65rem]" /> : null,
+                p.isHalal ? <LabelBadge key="halal" kind="halal" className="px-1.5 py-0 text-[0.65rem]" /> : null
+              ].filter(Boolean).slice(0, 3)}
+              <TrustHalo level={gree.confidence} size="sm" />
               <span className="text-[0.65rem] font-medium text-muted">{tScore(`grade.${gree.grade}`)}</span>
             </div>
           </div>
           <span className="hidden shrink-0 sm:block" aria-hidden><MiniRadar product={p} size={40} /></span>
-          <ScoreRing value={gree.global} size={46} label="" />
+          <GreeScoreRing value={gree.global} size={46} label="" />
           <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted rtl:rotate-180 sm:block" />
         </Link>
         {showActions && (
@@ -89,7 +92,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
               onClick={addToBattle}
               aria-label={tp("scanBattle")}
               title={tp("scanBattle")}
-              className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted transition hover:bg-deep hover:text-white"
+              className="gc-pressable grid h-11 w-11 place-items-center rounded-xl bg-surface-2 text-muted transition hover:bg-deep hover:text-white"
             >
               <Swords className="h-4 w-4" />
             </button>
@@ -98,8 +101,8 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
               onClick={addToBasket}
               aria-label={tp("addToBasket")}
               title={tp("addToBasket")}
-              className={`gc-pressable grid h-8 w-8 place-items-center rounded-xl transition ${
-                inBasket ? "bg-natural/15 text-natural" : "bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural"
+              className={`gc-pressable grid h-11 w-11 place-items-center rounded-xl transition ${
+                inBasket ? "bg-natural/15 text-natural-strong" : "bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural-strong"
               }`}
             >
               {inBasket ? <Check className="h-4 w-4" /> : <ShoppingBasket className="h-4 w-4" />}
@@ -111,31 +114,31 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
       {(topReason || blockingWarning || lowScore || betterAvailable) && (
         <div className="space-y-1 border-t border-line/70 px-3 py-2">
           {topReason && !lowScore && (
-            <p className="flex items-center gap-1.5 text-[0.7rem] text-natural">
+            <p className="flex items-center gap-1.5 text-[0.7rem] text-natural-strong">
               <Sparkles className="h-3 w-3 shrink-0" aria-hidden />
               {tScore(`reason.${topReason.code}`, topReason.values)}
             </p>
           )}
           {blockingWarning && (
-            <p className={`flex items-center gap-1.5 text-[0.7rem] ${blockingWarning.level === "critical" ? "text-score-e" : "text-score-d"}`}>
+            <p className={`flex items-center gap-1.5 text-[0.7rem] ${blockingWarning.level === "critical" ? "text-score-e-ink" : "text-score-d-ink"}`}>
               <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
               {tScore(`warning.${blockingWarning.code}`, blockingWarning.values)}
             </p>
           )}
           {lowScore && !blockingWarning && (
-            <p className="flex items-center gap-1.5 text-[0.7rem] text-score-d">
+            <p className="flex items-center gap-1.5 text-[0.7rem] text-score-d-ink">
               <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
               {tScore("lowScoreWarning")}
             </p>
           )}
           {betterAvailable && (
             <p className="flex items-center gap-1.5 text-[0.7rem] font-medium text-muted">
-              <ArrowUp className="h-3 w-3 shrink-0 text-natural" aria-hidden />
+              <ArrowUp className="h-3 w-3 shrink-0 text-natural-strong" aria-hidden />
               {tScore("betterAvailable")}
             </p>
           )}
         </div>
       )}
-    </PremiumCard>
+    </GreeCard>
   );
 }

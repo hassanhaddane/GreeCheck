@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { searchByCategory } from "@/lib/api/openfoodfacts";
+import { searchByCategory } from "@/services/api/openfoodfacts";
 
 export const runtime = "nodejs";
 

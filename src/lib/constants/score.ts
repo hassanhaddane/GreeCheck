@@ -1,16 +1,12 @@
-import type { ScoreGrade, ScoreLabel } from "@/types/scoring";
+import type { ScoreGrade } from "@/domains/scoring/types";
 
-export const SCORE_BANDS: {
-  min: number;
-  grade: ScoreGrade;
-  label: ScoreLabel;
-  colorVar: string;
-}[] = [
-  { min: 80, grade: "A", label: "Excellent", colorVar: "--gc-score-a" },
-  { min: 65, grade: "B", label: "Bon choix", colorVar: "--gc-score-b" },
-  { min: 45, grade: "C", label: "Moyen", colorVar: "--gc-score-c" },
-  { min: 25, grade: "D", label: "À limiter", colorVar: "--gc-score-d" },
-  { min: 0, grade: "E", label: "À éviter", colorVar: "--gc-score-e" }
+/** Grade bands — labels are resolved via i18n ("score.grade.<grade>"). */
+export const SCORE_BANDS: { min: number; grade: ScoreGrade; colorVar: string }[] = [
+  { min: 80, grade: "A", colorVar: "--gc-score-a" },
+  { min: 65, grade: "B", colorVar: "--gc-score-b" },
+  { min: 45, grade: "C", colorVar: "--gc-score-c" },
+  { min: 25, grade: "D", colorVar: "--gc-score-d" },
+  { min: 0, grade: "E", colorVar: "--gc-score-e" }
 ];
 
 export function bandForScore(value: number) {

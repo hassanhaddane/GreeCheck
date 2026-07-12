@@ -2,20 +2,27 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, Loader2, CameraOff } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ProductRowSkeleton } from "@/components/ui/skeleton";
+import { ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, Loader2, CameraOff, Library, History, Heart, ShoppingBasket } from "lucide-react";
+import { GreeButton } from "@/components/system/gree-button";
+import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
+import { ProductRowSkeleton } from "@/components/system/loading-state";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { parseProductCode } from "@/lib/utils/parse-scan";
-import { getProduct, searchProductsClient } from "@/lib/api/client";
-import { useBattleStore, type AddResult } from "@/stores/battle-store";
-import type { Product } from "@/types/product";
+import { getProduct, searchProductsClient } from "@/domains/product/repository";
+import { useBattleStore, type AddResult } from "@/domains/battle/store";
+import { useHistoryStore } from "@/domains/library/history-store";
+import { useFavoritesStore } from "@/domains/library/favorites-store";
+import { useCartStore } from "@/domains/cart/store";
+import type { Product } from "@/domains/product/model";
 
-type Mode = "search" | "scan" | "manual";
+type Mode = "search" | "scan" | "manual" | "library";
+export type AddSheetMode = Mode;
 
-export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => void; initialMode?: "search" | "scan" | "manual" }) {
+export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => void; initialMode?: AddSheetMode }) {
   const t = useTranslations("battle");
+  const tc = useTranslations("common");
   const add = useBattleStore((s) => s.add);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [notice, setNotice] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
@@ -36,31 +43,19 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
   const modes: { id: Mode; icon: typeof ScanLine; label: string }[] = [
     { id: "search", icon: SearchIcon, label: t("searchProduct") },
     { id: "scan", icon: ScanLine, label: t("scanProduct") },
+    { id: "library", icon: Library, label: t("fromLibrary") },
     { id: "manual", icon: Keyboard, label: t("manualEntry") }
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ y: 40, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="relative z-10 w-full max-w-md gc-glass max-h-[88vh] overflow-y-auto rounded-t-3xl p-5 shadow-glass sm:rounded-3xl"
-      >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold tracking-tight">{t("addProduct")}</h2>
-          <button onClick={onClose} aria-label="close" className="grid h-9 w-9 place-items-center rounded-full bg-surface-2 text-muted gc-pressable">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* mode tabs */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
+    <GreeBottomSheet open onClose={onClose} title={t("addProduct")} closeLabel={tc("close")}>
+        {/* source tabs */}
+        <div className="mb-4 grid grid-cols-4 gap-2">
           {modes.map((m) => {
             const Icon = m.icon;
             return (
               <button key={m.id} onClick={() => setMode(m.id)} data-active={mode === m.id} aria-pressed={mode === m.id}
-                className="gc-pressable flex flex-col items-center gap-1 rounded-2xl border border-line bg-surface py-2.5 text-xs font-semibold text-muted data-[active=true]:border-transparent data-[active=true]:bg-deep data-[active=true]:text-white">
+                className="gc-pressable flex flex-col items-center gap-1 rounded-2xl border border-line bg-surface py-2.5 text-[0.7rem] font-semibold text-muted data-[active=true]:border-transparent data-[active=true]:bg-deep data-[active=true]:text-white">
                 <Icon className="h-5 w-5" /> {m.label}
               </button>
             );
@@ -71,7 +66,7 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
           {notice && (
             <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               role="status"
-              className={`mb-3 rounded-xl px-3 py-2 text-center text-sm font-medium ${notice.kind === "ok" ? "bg-natural/10 text-natural" : "bg-score-d/10 text-score-d"}`}>
+              className={`mb-3 rounded-xl px-3 py-2 text-center text-sm font-medium ${notice.kind === "ok" ? "bg-natural/10 text-natural-strong" : "bg-score-d/10 text-score-d-ink"}`}>
               {notice.kind === "ok" ? `✓ ${notice.text}` : notice.text}
             </motion.p>
           )}
@@ -80,8 +75,8 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
         {mode === "search" && <SearchTab onAdd={addProduct} />}
         {mode === "manual" && <ManualTab onResolve={(r, n) => handleResult(r, n)} add={add} />}
         {mode === "scan" && <ScanTab onResolve={(r, n) => handleResult(r, n)} add={add} />}
-      </motion.div>
-    </div>
+        {mode === "library" && <LibraryTab onResolve={(r, n) => handleResult(r, n)} add={add} onAdd={addProduct} />}
+    </GreeBottomSheet>
   );
 }
 
@@ -97,8 +92,6 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
   useEffect(() => {
     clearTimeout(debounce.current);
     const query = q.trim();
-    // Defer all state updates into timers so none run synchronously in the
-    // effect body (react-hooks/set-state-in-effect).
     if (query.length < 2) {
       debounce.current = setTimeout(() => { setItems([]); setStatus("idle"); }, 0);
       return () => clearTimeout(debounce.current);
@@ -124,10 +117,7 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
           const inBattle = has(p.barcode);
           return (
             <div key={p.barcode} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2.5">
-              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-surface-2">
-                { }
-                {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
-              </div>
+              <ProductThumbnail src={p.imageUrl} alt={p.name} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{p.name}</p>
                 <div className="mt-0.5 flex items-center gap-1.5">
@@ -135,9 +125,9 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
                   <span className="truncate text-xs text-muted">{p.brand || "—"}</span>
                 </div>
               </div>
-              <Button size="icon" variant={inBattle ? "soft" : "neon"} aria-label="add" onClick={() => onAdd(p)} disabled={inBattle}>
+              <GreeButton size="icon" variant={inBattle ? "soft" : "neon"} aria-label={t("add")} onClick={() => onAdd(p)} disabled={inBattle}>
                 {inBattle ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              </Button>
+              </GreeButton>
             </div>
           );
         })}
@@ -159,8 +149,9 @@ function ManualTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) =
     setBusy(true); setErr(null);
     try {
       const res = await getProduct(c);
-      if (res.status === "not_found") setErr(t("notFound"));
-      else { onResolve(add(res.product), res.product.name); setCode(""); }
+      if (res.kind === "product") { onResolve(add(res.product), res.product.name); setCode(""); }
+      else if (res.kind === "not_found") setErr(t("notFound"));
+      else setErr(t("errorFetch"));
     } catch { setErr(t("errorFetch")); }
     setBusy(false);
   };
@@ -170,11 +161,11 @@ function ManualTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) =
       <div className="flex gap-2">
         <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 14))} onKeyDown={(e) => e.key === "Enter" && submit()}
           inputMode="numeric" placeholder={t("manualPlaceholder")} className="h-11 flex-1 rounded-2xl border border-line bg-surface px-4 text-sm outline-none focus:ring-2 focus:ring-neon/50" />
-        <Button variant="neon" size="icon" disabled={code.replace(/\D/g, "").length < 8 || busy} onClick={submit} aria-label={t("add")}>
+        <GreeButton variant="neon" size="icon" disabled={code.replace(/\D/g, "").length < 8 || busy} onClick={submit} aria-label={t("add")}>
           {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5 rtl:rotate-180" />}
-        </Button>
+        </GreeButton>
       </div>
-      {err && <p className="text-center text-sm font-medium text-score-d">{err}</p>}
+      {err && <p className="text-center text-sm font-medium text-score-d-ink">{err}</p>}
     </div>
   );
 }
@@ -198,8 +189,9 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
       setErr(null);
       getProduct(code)
         .then((res) => {
-          if (res.status === "not_found") setErr(t("notFound"));
-          else onResolve(add(res.product), res.product.name);
+          if (res.kind === "product") onResolve(add(res.product), res.product.name);
+          else if (res.kind === "not_found") setErr(t("notFound"));
+          else setErr(t("errorFetch"));
         })
         .catch(() => setErr(t("errorFetch")))
         .finally(() => setBusy(false));
@@ -232,20 +224,95 @@ function ScanTab({ onResolve, add }: { onResolve: (r: AddResult, n?: string) => 
                         ? scanT("cameraInUse")
                         : scanT("cameraUnsupported")}
               </span>
-              <Button variant="neon" size="sm" onClick={retry}>
+              <GreeButton variant="neon" size="sm" onClick={retry}>
                 {scanT("retry")}
-              </Button>
+              </GreeButton>
             </div>
           </div>
         )}
         {busy && <div className="absolute inset-0 grid place-items-center bg-deep/40"><Loader2 className="h-6 w-6 animate-spin text-neon" /></div>}
       </div>
       {devices.length > 1 && (
-        <Button variant="soft" size="sm" className="w-full" onClick={() => switchCamera()}>
+        <GreeButton variant="soft" size="sm" className="w-full" onClick={() => switchCamera()}>
           {scanT("switchCamera")}
-        </Button>
+        </GreeButton>
       )}
-      {err && <p className="text-center text-sm font-medium text-score-d">{err}</p>}
+      {err && <p className="text-center text-sm font-medium text-score-d-ink">{err}</p>}
+    </div>
+  );
+}
+
+/* ── library: Mes scans · Favorites · GreeCart ── */
+type Source = "history" | "favorites" | "cart";
+interface LocalRow { barcode: string; name: string; imageUrl?: string; score?: number; product?: Product }
+
+function LibraryTab({ onResolve, add, onAdd }: { onResolve: (r: AddResult, n?: string) => void; add: (p: Product) => AddResult; onAdd: (p: Product) => void }) {
+  const t = useTranslations("battle");
+  const has = useBattleStore((s) => s.has);
+  const history = useHistoryStore((s) => s.entries);
+  const favorites = useFavoritesStore((s) => s.items);
+  const cart = useCartStore((s) => s.items);
+  const [source, setSource] = useState<Source>("history");
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const rows: LocalRow[] =
+    source === "cart"
+      ? cart.map((i) => ({ barcode: i.product.barcode, name: i.product.name, imageUrl: i.product.imageUrl, score: i.score, product: i.product }))
+      : (source === "favorites" ? favorites : history).map((e) => ({ barcode: e.barcode, name: e.name, imageUrl: e.imageUrl, score: e.score }));
+
+  const addRow = async (row: LocalRow) => {
+    if (row.product) { onAdd(row.product); return; }          // cart items carry the full product
+    setBusy(row.barcode);
+    try {
+      const res = await getProduct(row.barcode);              // history/favorites → fetch (cached) then add
+      if (res.kind === "product") onResolve(add(res.product), res.product.name);
+    } catch {
+      /* offline & uncached: leave the row actionable */
+    }
+    setBusy(null);
+  };
+
+  const sources: { id: Source; icon: typeof History; label: string }[] = [
+    { id: "history", icon: History, label: t("srcHistory") },
+    { id: "favorites", icon: Heart, label: t("srcFavorites") },
+    { id: "cart", icon: ShoppingBasket, label: t("srcCart") }
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        {sources.map((s) => {
+          const Icon = s.icon;
+          return (
+            <button key={s.id} onClick={() => setSource(s.id)} data-active={source === s.id} aria-pressed={source === s.id}
+              className="gc-pressable flex items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface py-2 text-xs font-semibold text-muted data-[active=true]:border-transparent data-[active=true]:bg-natural-grad data-[active=true]:text-white">
+              <Icon className="h-4 w-4" /> {s.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {rows.length === 0 ? (
+        <p className="py-6 text-center text-sm text-muted">{t("srcEmpty")}</p>
+      ) : (
+        <div className="max-h-72 space-y-2 overflow-y-auto">
+          {rows.slice(0, 30).map((row) => {
+            const inBattle = has(row.barcode);
+            return (
+              <div key={row.barcode} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2.5">
+                <ProductThumbnail src={row.imageUrl} alt={row.name} size="md" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{row.name}</p>
+                  {row.score !== undefined && <p className="text-xs text-muted tabular-nums">GreeScore {row.score}</p>}
+                </div>
+                <GreeButton size="icon" variant={inBattle ? "soft" : "neon"} aria-label={t("add")} onClick={() => addRow(row)} disabled={inBattle || busy === row.barcode}>
+                  {busy === row.barcode ? <Loader2 className="h-4 w-4 animate-spin" /> : inBattle ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                </GreeButton>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

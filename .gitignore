@@ -13,7 +13,3 @@ next-env.d.ts
 .tsbuildinfo
 
 .idea/
-tsconfig.tsbuildinfo
-.vercel
-playwright-report
-test-results

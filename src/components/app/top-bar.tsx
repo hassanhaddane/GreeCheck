@@ -1,39 +1,22 @@
-import { useTranslations } from "next-intl";
-import { ScanLine } from "lucide-react";
+"use client";
 import { Link } from "@/i18n/routing";
 import { Logo } from "./logo";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSwitcher } from "./language-switcher";
-import { GlobalSearch } from "./global-search";
-import { MoreMenu } from "./more-menu";
 import { PrivacyPill } from "@/components/ui/privacy-pill";
 
-/**
- * Top bar — the connective tissue between marketing and app:
- * logo home link, global search (desktop), explicit Scan access (desktop),
- * locale/theme, and the compact More menu (mobile).
- */
 export function TopBar() {
-  const t = useTranslations("nav");
   return (
     <header className="sticky top-0 z-40 gc-glass border-x-0 border-t-0">
-      <div className="container flex h-14 items-center gap-2">
-        <Link href="/" aria-label="GreeCheck" className="gc-pressable shrink-0">
+      <div className="container flex h-14 items-center justify-between gap-2">
+        <Link href="/" aria-label="GreeCheck" className="gc-pressable">
           <Logo size={32} withWordmark />
         </Link>
-        <div className="flex-1" />
-        <GlobalSearch />
-        {/* Explicit desktop access to Scan */}
-        <Link
-          href="/scan"
-          className="gc-pressable hidden h-10 shrink-0 items-center gap-1.5 rounded-xl bg-surface-2 px-3 text-sm font-semibold md:inline-flex"
-        >
-          <ScanLine className="h-4 w-4 text-natural-strong" aria-hidden /> {t("scanCta")}
-        </Link>
-        <PrivacyPill className="hidden lg:inline-flex" />
-        <LanguageSwitcher />
-        <ThemeToggle />
-        <MoreMenu />
+        <div className="flex items-center gap-1">
+          <PrivacyPill className="hidden sm:inline-flex" />
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

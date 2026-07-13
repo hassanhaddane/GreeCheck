@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { buildRadarAxes } from "@/components/product/nutrition-radar";
-import type { BattleEntry } from "@/domains/battle/engine";
+import type { BattleEntry } from "@/lib/scoring/battle";
 
 // Distinct hues per battle slot (kept on-brand: green family + accents).
 export const BATTLE_COLORS = ["rgb(var(--gc-natural))", "rgb(var(--gc-neon))", "#0EA5E9"];

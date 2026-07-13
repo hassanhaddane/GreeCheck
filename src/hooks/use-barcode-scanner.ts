@@ -1,6 +1,11 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { BrowserMultiFormatReader, IScannerControls } from "@zxing/browser";
+import {
+  BarcodeFormat,
+  BrowserMultiFormatReader,
+  type IScannerControls
+} from "@zxing/browser";
+import { DecodeHintType, NotFoundException } from "@zxing/library";
 
 export type CamState =
   | "idle"
@@ -27,6 +32,15 @@ interface Options {
   /** Return true to stop scanning permanently, for example when navigation starts. */
   onDetect: (raw: string, format?: string) => boolean | void;
 }
+
+const SUPPORTED_FORMATS = [
+  BarcodeFormat.EAN_13,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
+  BarcodeFormat.CODE_128,
+  BarcodeFormat.QR_CODE
+];
 
 export const SUPPORTED_FORMAT_LABELS = ["EAN_13", "EAN_8", "UPC_A", "UPC_E", "CODE_128", "QR_CODE"];
 const VIDEO_TRACKS = (track: MediaStreamTrack) => (track.kind === "video" ? [track] : []);
@@ -92,24 +106,14 @@ async function readPermission(): Promise<CameraPermissionState> {
   }
 }
 
-async function makeReader() {
-  const [browser, library] = await Promise.all([import("@zxing/browser"), import("@zxing/library")]);
-  const supportedFormats = [
-    browser.BarcodeFormat.EAN_13,
-    browser.BarcodeFormat.EAN_8,
-    browser.BarcodeFormat.UPC_A,
-    browser.BarcodeFormat.UPC_E,
-    browser.BarcodeFormat.CODE_128,
-    browser.BarcodeFormat.QR_CODE
-  ];
-  const hints = new Map();
-  hints.set(library.DecodeHintType.POSSIBLE_FORMATS, supportedFormats);
-  hints.set(library.DecodeHintType.TRY_HARDER, true);
-  const reader = new browser.BrowserMultiFormatReader(hints, {
+function makeReader(): BrowserMultiFormatReader {
+  const hints = new Map<DecodeHintType, unknown>();
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, SUPPORTED_FORMATS);
+  hints.set(DecodeHintType.TRY_HARDER, true);
+  return new BrowserMultiFormatReader(hints, {
     delayBetweenScanAttempts: 100,
     delayBetweenScanSuccess: 450
   });
-  return { reader, BarcodeFormat: browser.BarcodeFormat, NotFoundException: library.NotFoundException };
 }
 
 function constraintsForDevice(deviceId?: string): MediaStreamConstraints {
@@ -278,7 +282,7 @@ export function useBarcodeScanner({ onDetect }: Options) {
     setPermission(await readPermission());
 
     try {
-      const { reader, BarcodeFormat, NotFoundException } = await makeReader();
+      const reader = makeReader();
       readerRef.current = reader;
       await refreshDevices();
       const controls = await reader.decodeFromConstraints(
@@ -300,6 +304,7 @@ export function useBarcodeScanner({ onDetect }: Options) {
               const handled = onDetectRef.current(raw, format);
               if (handled) {
                 finishedRef.current = true;
+                navigator.vibrate?.(45);
                 stopStream();
                 setState("paused");
               }

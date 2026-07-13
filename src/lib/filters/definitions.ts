@@ -9,9 +9,9 @@ import {
   Candy, Droplets, Beef, Wheat, Globe, Dumbbell, Scale, Sunrise, Cookie,
   ShieldCheck, Star, Factory, Repeat, CalendarCheck, Users, Store
 } from "lucide-react";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@/types/product";
 import type { SmartFilter, FilterGroup, FilterLocale } from "@/types/filters";
-import { NUTRITION_THRESHOLDS as T } from "@/domains/scoring/thresholds";
+import { NUTRITION_THRESHOLDS as T } from "@/lib/nutrition/thresholds";
 
 // Back-compat aliases — canonical types live in types/filters.
 export type { FilterGroup };
@@ -118,7 +118,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "weight_loss", group: "smart", icon: Scale,
     label: { fr: "Best for weight loss", en: "Best for weight loss", ar: "الأفضل لإنقاص الوزن" },
     description: { fr: "Peu calorique, peu sucré, sain", en: "Low calorie, low sugar, healthy", ar: "سعرات وسكر منخفضان" },
-    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.subScores.nutrition >= 55
+    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.healthScore >= 55
   },
   {
     id: "breakfast", group: "smart", icon: Sunrise,
@@ -130,7 +130,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "healthy_snack", group: "smart", icon: Cookie,
     label: { fr: "Smart snack", en: "Smart snack", ar: "وجبة خفيفة ذكية" },
     description: { fr: "Bon score, léger, peu transformé", en: "Good score, light, low processed", ar: "نتيجة جيدة وخفيف" },
-    match: (p, g) => g.global >= 60 && (g.subScores.processing ?? 0) >= 50 && (p.nutriments.energyKcal ?? 999) <= 250
+    match: (p, g) => g.global >= 60 && g.processingScore >= 50 && (p.nutriments.energyKcal ?? 999) <= 250
   },
   {
     id: "halal_ok", group: "smart", icon: ShieldCheck,
@@ -166,7 +166,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "family_safe", group: "smart", icon: Users,
     label: { fr: "Family safe", en: "Family safe", ar: "آمن للعائلة" },
     description: { fr: "Sans additif à risque, sucre et sel maîtrisés", en: "No risky additives, controlled sugar & salt", ar: "بدون إضافات خطرة وسكر وملح معتدلان" },
-    match: (p, g) => (g.subScores.additives ?? 0) >= 80 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
+    match: (p, g) => g.additivesScore >= 80 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
   },
   {
     id: "supermarket_best", group: "smart", icon: Store,

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#FAFAF7" />
+<title>GreeCheck — Hors ligne</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; min-height: 100dvh; display: grid; place-items: center;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    background: #FAFAF7; color: #101312; padding: 24px;
+    background-image:
+      radial-gradient(40rem 40rem at 110% -10%, rgba(57,255,136,.10), transparent 60%),
+      radial-gradient(35rem 35rem at -10% 10%, rgba(46,204,113,.08), transparent 55%);
+  }
+  @media (prefers-color-scheme: dark) { body { background:#090C0B; color:#F0F4F1; } }
+  .card { max-width: 22rem; text-align: center; }
+  .mark { width: 72px; height: 72px; border-radius: 22px; margin: 0 auto 20px;
+    background: linear-gradient(135deg,#2ECC71,#39FF88); display: grid; place-items: center;
+    box-shadow: 0 0 28px -4px rgba(57,255,136,.5); }
+  .mark svg { width: 40px; height: 40px; }
+  h1 { font-size: 1.35rem; margin: 0 0 8px; font-weight: 800; letter-spacing: -.02em; }
+  p { margin: 0 0 24px; color: #66706A; line-height: 1.5; font-size: .95rem; }
+  button { border: 0; cursor: pointer; font: inherit; font-weight: 700;
+    background: #0B3D2E; color: #fff; padding: 14px 22px; border-radius: 16px;
+    box-shadow: 0 8px 24px -12px rgba(11,61,46,.5); }
+  button:active { transform: scale(.97); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#0B3D2E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1>Tu es hors ligne</h1>
+    <p>GreeCheck a besoin d'une connexion pour analyser de nouveaux produits. Tes données restent sur ton appareil.</p>
+    <button onclick="location.reload()">Réessayer</button>
+  </div>
+</body>
+</html>

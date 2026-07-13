@@ -1,7 +1,7 @@
 "use client";
 import { useId } from "react";
 import { useTranslations } from "next-intl";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@/types/product";
 
 /* ─────────────────────────── axis model ──────────────────────────── */
 
@@ -153,9 +153,9 @@ export function NutritionRadar({ product, size = 240 }: { product: Product; size
         <div className="mt-3 w-full space-y-2">
           {strengths.length > 0 && (
             <div className="flex flex-wrap items-center justify-center gap-1.5">
-              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-natural-strong">{t("strengths")}</span>
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-natural">{t("strengths")}</span>
               {strengths.map((a) => (
-                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-natural/10 px-2 py-0.5 text-[0.7rem] font-medium text-natural-strong">
+                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-natural/10 px-2 py-0.5 text-[0.7rem] font-medium text-natural">
                   + {t(a.key)}{a.tone === "bad" ? ` ${t("lowIntake")}` : ""}
                 </span>
               ))}
@@ -163,9 +163,9 @@ export function NutritionRadar({ product, size = 240 }: { product: Product; size
           )}
           {weaknesses.length > 0 && (
             <div className="flex flex-wrap items-center justify-center gap-1.5">
-              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-score-d-ink">{t("weaknesses")}</span>
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-score-d">{t("weaknesses")}</span>
               {weaknesses.map((a) => (
-                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-score-d/10 px-2 py-0.5 text-[0.7rem] font-medium text-score-d-ink">
+                <span key={a.key} className="inline-flex items-center gap-1 rounded-full bg-score-d/10 px-2 py-0.5 text-[0.7rem] font-medium text-score-d">
                   – {t(a.key)}
                 </span>
               ))}

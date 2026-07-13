@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { searchProducts, type SearchResult } from "@/services/api/openfoodfacts";
-import { normalizeError } from "@/services/api/errors";
+import { searchProducts, type SearchResult } from "@/lib/api/openfoodfacts";
 
 export const runtime = "nodejs";
 
@@ -56,13 +55,8 @@ export async function GET(req: Request) {
       headers: { "Cache-Control": "public, max-age=600, stale-while-revalidate=86400" }
     });
   } catch (err) {
-    const e = normalizeError(err);
-    if (e.code === "rate_limited") {
-      return NextResponse.json(
-        { error: "rate_limited" },
-        { status: 429, headers: e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined }
-      );
-    }
+    // Both upstream strategies failed — this is the only case that returns 502.
+    console.error(`[api/search] upstream failure for q="${q}" page=${page}: ${(err as Error).message}`);
     return NextResponse.json({ error: "upstream_unavailable" }, { status: 502 });
   }
 }

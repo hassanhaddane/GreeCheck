@@ -1,55 +1,46 @@
 "use client";
 import { use, useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import {
-  Heart, ShoppingBasket, AlertTriangle, Swords, ShieldQuestion, ExternalLink,
-  ScanLine, List, FlaskConical, ShieldAlert, BarChart3, GitCompareArrows,
-  BookOpenText, Sparkles
+  Heart, GitCompareArrows, Sparkles, ShoppingBasket, AlertTriangle, Swords,
+  ShieldQuestion, ExternalLink, ScanLine, List, FlaskConical, ShieldAlert, BarChart3, ListChecks
 } from "lucide-react";
-import { Link, useRouter } from "@/i18n/routing";
-import { ActionDock } from "@/components/system/action-dock";
-import { GreeButton } from "@/components/system/gree-button";
-import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
+import { useRouter } from "@/i18n/routing";
+import { Card, CardContent } from "@/components/ui/card";
+import { PremiumCard } from "@/components/ui/premium-card";
+import { FloatingAction } from "@/components/ui/floating-action";
+import { Button } from "@/components/ui/button";
+import { SectionTitle } from "@/components/ui/section-title";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { VerdictCard } from "@/components/system/verdict-card";
-import { GreeBadge } from "@/components/system/gree-badge";
+import { ScoreRing } from "@/components/score/score-ring";
+import { ScoreBreakdown } from "@/components/score/score-breakdown";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
-import { SubScoreCards } from "@/components/product/sub-score-cards";
-import { GreeDNA } from "@/components/product/gree-dna";
+import { NutritionRadar } from "@/components/product/nutrition-radar";
 import { Alternatives } from "@/components/product/alternatives";
-import { Skeleton } from "@/components/system/loading-state";
-import { EmptyState } from "@/components/system/empty-state";
-import { ErrorState } from "@/components/system/error-state";
-import { getProduct, type ProductLookup } from "@/domains/product/repository";
-import { productAddUrl, productContributionUrl } from "@/domains/product/contribute";
-import type { Product } from "@/domains/product/model";
-import type { ScoreReason } from "@/domains/scoring/types";
-import { additiveSeverityOf, computeGreeScore, explainScore } from "@/domains/scoring/gree-score";
-import { useFavoritesStore } from "@/domains/library/favorites-store";
-import { useCartStore } from "@/domains/cart/store";
-import { useHistoryStore } from "@/domains/library/history-store";
-import { buildHistoryItem } from "@/domains/library/model";
-import { useBattleStore } from "@/domains/battle/store";
-import { usePreferencesStore } from "@/domains/criteria/store";
+import { AdSlot } from "@/components/ads/ad-slot";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/error-state";
+import { getProduct } from "@/lib/api/client";
+import type { ProductResult } from "@/lib/api/openfoodfacts";
+import type { Product } from "@/types/product";
+import { computeGreeScore } from "@/lib/scoring/gree-score";
+import { useFavoritesStore } from "@/stores/favorites-store";
+import { useBasketStore } from "@/stores/basket-store";
+import { useHistoryStore } from "@/stores/history-store";
+import { useBattleStore } from "@/stores/battle-store";
+import { usePreferencesStore } from "@/stores/preferences-store";
+import { useShoppingListStore } from "@/stores/shopping-list-store";
 
-type NutriRow = { key: keyof Product["nutriments"]; labelKey: string; unit: string };
+const GRADE_BG: Record<string, string> = {
+  A: "bg-score-a", B: "bg-score-b", C: "bg-score-c", D: "bg-score-d", E: "bg-score-e"
+};
 
-const KEY_NUTRI_ROWS: NutriRow[] = [
+const NUTRI_ROWS: { key: keyof Product["nutriments"]; labelKey: string; unit: string }[] = [
   { key: "energyKcal", labelKey: "nutEnergy", unit: "kcal" },
   { key: "sugars", labelKey: "nutSugars", unit: "g" },
-  { key: "saturatedFat", labelKey: "nutSatFat", unit: "g" },
-  { key: "salt", labelKey: "nutSalt", unit: "g" },
-  { key: "fiber", labelKey: "nutFiber", unit: "g" },
-  { key: "proteins", labelKey: "nutProteins", unit: "g" }
-];
-
-const FULL_NUTRI_ROWS: NutriRow[] = [
-  { key: "energyKcal", labelKey: "nutEnergy", unit: "kcal" },
-  { key: "sugars", labelKey: "nutSugars", unit: "g" },
-  { key: "fat", labelKey: "nutFat", unit: "g" },
   { key: "saturatedFat", labelKey: "nutSatFat", unit: "g" },
   { key: "salt", labelKey: "nutSalt", unit: "g" },
   { key: "fiber", labelKey: "nutFiber", unit: "g" },
@@ -59,19 +50,23 @@ const FULL_NUTRI_ROWS: NutriRow[] = [
 export default function ProductPage({ params }: { params: Promise<{ barcode: string }> }) {
   const { barcode } = use(params);
   const t = useTranslations("product");
+  const tList = useTranslations("list");
   const tScore = useTranslations("score");
   const router = useRouter();
 
-  const [lookup, setLookup] = useState<ProductLookup | null>(null); // null = loading
+  const [state, setState] = useState<"loading" | "error" | ProductResult["status"]>("loading");
+  const [data, setData] = useState<ProductResult | null>(null);
   const [basketNotice, setBasketNotice] = useState<"added" | "duplicate" | null>(null);
 
   const favorites = useFavoritesStore();
-  const basket = useCartStore();
+  const basket = useBasketStore();
   const addHistory = useHistoryStore((s) => s.add);
   const addBattle = useBattleStore((s) => s.add);
   const inBattle = useBattleStore((s) => s.has(barcode));
   const battleFull = useBattleStore((s) => s.items.length >= 3 && !s.items.some((x) => x.barcode === barcode));
   const isFav = favorites.has(barcode);
+  const addToList = useShoppingListStore((s) => s.addProduct);
+  const inList = useShoppingListStore((s) => s.has(barcode));
 
   // Preferences live only on the device; kept in a ref so fetching isn't re-triggered.
   const prefs = usePreferencesStore();
@@ -82,12 +77,24 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   });
 
   const load = useCallback(async () => {
-    setLookup(null);
-    const result = await getProduct(barcode); // never throws — normalized envelope
-    setLookup(result);
-    if (result.kind === "product") {
-      const gree = computeGreeScore(result.product, prefsRef.current);
-      addHistory(buildHistoryItem(result.product, gree, tScore(`grade.${gree.grade}`)));
+    setState("loading");
+    try {
+      const result = await getProduct(barcode);
+      setData(result);
+      setState(result.status);
+      if (result.status !== "not_found") {
+        const gree = computeGreeScore(result.product, prefsRef.current);
+        addHistory({
+          barcode: result.product.barcode,
+          name: result.product.name,
+          imageUrl: result.product.imageUrl,
+          score: gree.global,
+          verdict: tScore(`grade.${gree.grade}`),
+          scannedAt: Date.now()
+        });
+      }
+    } catch {
+      setState("error");
     }
   }, [barcode, addHistory, tScore]);
 
@@ -97,18 +104,18 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   }, [load]);
 
   /* ----------------------------- loading ----------------------------- */
-  if (lookup === null) {
+  if (state === "loading") {
     return (
       <div className="mx-auto max-w-2xl space-y-6">
-        <GreeCard><GreeCardContent className="flex gap-4"><Skeleton className="h-24 w-24 rounded-2xl" /><div className="flex-1 space-y-3 pt-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-3 w-1/2" /></div></GreeCardContent></GreeCard>
-        <GreeCard><GreeCardContent className="flex items-center gap-6"><Skeleton className="h-32 w-32 rounded-full" /><div className="flex-1 space-y-3"><Skeleton className="h-8 w-40" /><Skeleton className="h-16 w-full rounded-2xl" /></div></GreeCardContent></GreeCard>
+        <Card><CardContent className="flex gap-4"><Skeleton className="h-28 w-28 rounded-2xl" /><div className="flex-1 space-y-3 pt-2"><Skeleton className="h-4 w-20" /><Skeleton className="h-5 w-2/3" /><Skeleton className="h-3 w-1/2" /></div></CardContent></Card>
+        <Card><CardContent className="flex items-center gap-6"><Skeleton className="h-36 w-36 rounded-full" /><div className="flex-1 space-y-3"><Skeleton className="h-8 w-40" /><Skeleton className="h-16 w-full rounded-2xl" /></div></CardContent></Card>
         <Skeleton className="h-40 w-full rounded-2xl" />
       </div>
     );
   }
 
-  /* --------------------------- network error ------------------------- */
-  if (lookup.kind === "network_error") {
+  /* ------------------------------ error ------------------------------ */
+  if (state === "error") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
         <ErrorState title={t("errorTitle")} description={t("errorBody")} onRetry={load} />
@@ -116,17 +123,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     );
   }
 
-  /* ---------------------------- API limited -------------------------- */
-  if (lookup.kind === "rate_limited") {
-    return (
-      <div className="mx-auto max-w-2xl pt-8">
-        <ErrorState title={t("rateLimited")} description={t("rateLimitedBody")} onRetry={load} />
-      </div>
-    );
-  }
-
   /* ---------------------------- not found ---------------------------- */
-  if (lookup.kind === "not_found") {
+  if (state === "not_found" || !data || data.status === "not_found") {
     return (
       <div className="mx-auto max-w-2xl pt-8">
         <EmptyState
@@ -134,8 +132,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           title={t("notFound")}
           description={t("notFoundBody")}
           action={
-            <a href={productAddUrl(barcode)} target="_blank" rel="noreferrer">
-              <GreeButton variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</GreeButton>
+            <a href={`https://world.openfoodfacts.org/cgi/product.pl?type=add&code=${barcode}`} target="_blank" rel="noreferrer">
+              <Button variant="neon" size="sm"><ExternalLink className="h-4 w-4" /> {t("contribute")}</Button>
             </a>
           }
         />
@@ -144,31 +142,13 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   }
 
   /* ------------------------------ found ------------------------------ */
-  const p = lookup.product;
+  const p = data.product;
   // Live, personalized GreeScore — recomputes if the user changes preferences.
   const gree = computeGreeScore(p, prefs);
   const score = gree.global;
-
-  const ingredientsKnown = Boolean(p.ingredientsText && p.ingredientsText.trim().length > 2);
-  const additiveCount = p.additives?.length ?? 0;
-  const hasNutrition = Object.values(p.nutriments).some((v) => v !== undefined);
-  const hasAllergensOrTraces = Boolean(p.allergens?.length || p.traces?.length);
-
-  const criticalAlert = gree.alerts.length > 0;
-  // GreeSwap surfaces immediately only for a poor OR incompatible product.
-  const isPoor = score < 50 || gree.grade === "D" || gree.grade === "E" || criticalAlert;
-
-  // At most three primary reasons — the most decision-relevant first.
-  const primaryReasons: ScoreReason[] = (
-    isPoor
-      ? [...gree.topNegatives, ...gree.topPositives]
-      : [...gree.topPositives, ...gree.topNegatives]
-  ).slice(0, 3);
+  const item = { barcode: p.barcode, name: p.name, imageUrl: p.imageUrl, score };
 
   const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
-
-  const confidenceTone =
-    gree.confidence === "high" ? "text-natural-strong" : gree.confidence === "medium" ? "text-score-c-ink" : "text-score-d-ink";
 
   const goToBattle = () => {
     addBattle(p); // full product so the battle has all data
@@ -180,279 +160,183 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     const result = basket.addProduct(p, gree);
     setBasketNotice(result === "duplicate" ? "duplicate" : "added");
   };
-  const toggleFavorite = () =>
-    favorites.toggle(buildHistoryItem(p, gree, tScore(`grade.${gree.grade}`)));
 
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-4">
-      {/* ═══ 1 · Product identity (compact) ═══ */}
-      <GreeCard className="overflow-hidden">
-        <div className="flex items-center gap-4 p-4">
-          <div className="aspect-square w-20 shrink-0 overflow-hidden rounded-2xl bg-surface-2">
-            {p.imageUrl ? (
-              <Image src={p.imageUrl} alt={p.name} width={80} height={80} sizes="80px" priority className="h-full w-full object-contain" />
-            ) : null}
+      {/* ── Header ── */}
+      <Card className="overflow-hidden">
+        <div className="grid gap-4 p-5 sm:grid-cols-[120px_1fr] sm:items-center">
+          <div className="aspect-square w-28 justify-self-center overflow-hidden rounded-2xl bg-surface-2 sm:w-full">
+            { }
+            {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
           </div>
-          <div className="min-w-0 flex-1">
-            {(p.isBio || p.isHalal || p.isVegan || p.isVegetarian) && (
-              <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                {p.isBio && <LabelBadge kind="bio" />}
-                {p.isHalal && <LabelBadge kind="halal" />}
-                {p.isVegan && <LabelBadge kind="vegan" />}
-                {p.isVegetarian && !p.isVegan && <LabelBadge kind="vegetarian" />}
-              </div>
-            )}
-            <h1 className="truncate text-lg font-bold leading-tight tracking-tight">{p.name}</h1>
-            <p className="truncate text-sm text-muted">{[p.brand, p.quantity].filter(Boolean).join(" · ") || "—"}</p>
+          <div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {p.isHalal && <LabelBadge kind="halal" />}
+              {p.isBio && <LabelBadge kind="bio" />}
+              {p.isVegan && <LabelBadge kind="vegan" />}
+              {p.isVegetarian && !p.isVegan && <LabelBadge kind="vegetarian" />}
+            </div>
+            <h1 className="mt-2 text-xl font-bold leading-tight tracking-tight">{p.name}</h1>
+            <p className="text-sm text-muted">{[p.brand, p.quantity].filter(Boolean).join(" · ") || "—"}</p>
+            <p className="mt-0.5 text-xs text-muted">{p.barcode}</p>
           </div>
-          <GreeButton
-            variant={isFav ? "neon" : "soft"}
-            size="icon"
-            className="shrink-0"
-            aria-pressed={isFav}
-            aria-label={t("favorite")}
-            onClick={toggleFavorite}
-          >
-            <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} aria-hidden />
-          </GreeButton>
         </div>
-      </GreeCard>
+      </Card>
 
-      {/* ── Stale-data indicator (offline / rate-limited fallback) ── */}
-      {lookup.stale && (
-        <GreeCard className="flex items-center gap-3 border-verdict-unknown/30 bg-verdict-unknown/5 p-4" role="status">
-          <ShieldQuestion className="h-5 w-5 shrink-0 text-verdict-unknown" aria-hidden />
-          <p className="flex-1 text-sm font-medium">
-            {t("staleBanner", { date: lookup.cachedAt ? new Date(lookup.cachedAt).toLocaleDateString() : "—" })}
+      {/* ── Incomplete / confidence state ── */}
+      {data.confidence !== "high" && (
+        <Card className="flex items-center gap-3 border-score-c/30 bg-score-c/5 p-4">
+          <ShieldQuestion className="h-5 w-5 shrink-0 text-score-c" />
+          <p className="text-sm font-medium">
+            {data.confidence === "low" ? t("incomplete") : t("confidenceMedium")} — {t("dataMissing")}
           </p>
-          <GreeButton variant="soft" size="sm" onClick={() => void getProduct(barcode, { force: true }).then(setLookup)}>
-            {t("staleRefresh")}
-          </GreeButton>
-        </GreeCard>
+        </Card>
       )}
 
-      {/* ═══ 2 · Decision hero — the dominant animated GreeScore ═══ */}
-      <VerdictCard gree={gree}>
-        <div className="flex flex-wrap items-center gap-2 pt-1.5">
-          {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" />}
-          {p.novaGroup && <NovaBadge group={p.novaGroup} />}
-          {p.greenScore && (
-            <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-2.5 py-1.5 text-xs font-semibold text-muted">
-              {t("greenScore")} <span className="grid h-6 w-6 place-items-center rounded-lg bg-score-a text-white">{p.greenScore.toUpperCase()}</span>
+      {/* ── GreeScore (immediately visible) ── */}
+      <PremiumCard variant="glass" className="overflow-hidden">
+        <CardContent className="flex flex-col items-center gap-5 sm:flex-row sm:gap-7">
+          <div className="relative shrink-0">
+            <ScoreRing value={score} size={144} tone="neon" />
+            <span className={`absolute -right-1 -top-1 grid h-9 w-9 place-items-center rounded-xl text-base font-extrabold text-white shadow-soft ${GRADE_BG[gree.grade]}`}>
+              {gree.grade}
             </span>
-          )}
-        </div>
-        {primaryReasons.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1.5">
-            {primaryReasons.map((r, i) => (
-              <GreeBadge key={i} size="sm" tone={r.kind === "malus" ? "caution" : "brand"}>
-                {r.kind === "malus" ? "– " : "+ "}{tScore(`reason.${r.code}`, r.values)}
-              </GreeBadge>
-            ))}
           </div>
-        )}
-        <p className="mt-2 rounded-2xl bg-surface-2/80 p-3 text-sm leading-relaxed">
-          <Sparkles className="me-1 inline h-4 w-4 text-natural-strong" aria-hidden />
-          {explainScore(gree)
-            .map((e) =>
-              tScore(
-                `explain.${e.code}`,
-                e.values?.criterion !== undefined
-                  ? { criterion: tScore(`criterion.${e.values.criterion}`) }
-                  : undefined
-              )
-            )
-            .join(" ")}
-        </p>
-      </VerdictCard>
+          <div className="flex-1 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" />}
+              {p.novaGroup && <NovaBadge group={p.novaGroup} />}
+              {p.greenScore && (
+                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface-2 px-2.5 py-1.5 text-xs font-semibold text-muted">
+                  {t("greenScore")} <span className="grid h-6 w-6 place-items-center rounded-lg bg-score-a text-white">{p.greenScore.toUpperCase()}</span>
+                </span>
+              )}
+            </div>
+            {gree.reasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {gree.reasons.slice(0, 4).map((r, i) => (
+                  <span key={i} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
+                    r.kind === "bonus" ? "bg-natural/10 text-natural" : r.kind === "malus" ? "bg-score-d/10 text-score-d" : "bg-surface-2 text-muted"
+                  }`}>
+                    {r.kind === "bonus" ? "+" : r.kind === "malus" ? "–" : "•"} {tScore(`reason.${r.code}`, r.values)}
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="rounded-2xl bg-surface-2 p-3 text-sm leading-relaxed">
+              <Sparkles className="me-1 inline h-4 w-4 text-natural" />
+              <strong>{t("verdict")} :</strong> {t("verdictBody", { score: gree.global, label: tScore(`grade.${gree.grade}`) })}
+            </p>
+          </div>
+        </CardContent>
+      </PremiumCard>
 
-      {/* ── Critical compatibility / important alerts ── */}
+      {/* ── GreeScore breakdown: "Why this score?" ── */}
+      <ScoreBreakdown gree={gree} hasGoals={prefs.goals.length > 0} />
+
+      {/* ── Important alerts ── */}
       {blockingWarnings.length > 0 && (
         <div className="space-y-2">
           {blockingWarnings.map((w, i) => (
-            <GreeCard key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
-              <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e-ink" : "text-score-d-ink"}`} aria-hidden />
+            <Card key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
+              <AlertTriangle className={`h-5 w-5 shrink-0 ${w.level === "critical" ? "text-score-e" : "text-score-d"}`} />
               <p className="text-sm font-medium">{tScore(`warning.${w.code}`, w.values)}</p>
-            </GreeCard>
+            </Card>
           ))}
         </div>
       )}
 
-      {/* ═══ 3 · Immediate action ═══ */}
-      {isPoor ? (
-        <Alternatives product={p} prefs={prefs} />
-      ) : (
-        <GreeCard variant="tinted">
-          <GreeCardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted">{t("nextActionHint")}</p>
-            <div className="flex shrink-0 gap-2">
-              <GreeButton variant={productInBasket ? "neon" : "primary"} size="sm" onClick={addToBasket}>
-                <ShoppingBasket className="h-4 w-4" aria-hidden /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
-              </GreeButton>
-              <GreeButton variant="soft" size="sm" onClick={goToBattle}>
-                <GitCompareArrows className="h-4 w-4" aria-hidden /> {t("compare")}
-              </GreeButton>
-            </div>
-          </GreeCardContent>
-        </GreeCard>
-      )}
+      {/* ── Nutrition radar ── */}
+      <Card>
+        <CardContent className="grid place-items-center">
+          <SectionTitle>{t("radar")}</SectionTitle>
+          <NutritionRadar product={p} />
+        </CardContent>
+      </Card>
 
-      {/* ═══ 4 · Visible sub-scores ═══ */}
-      <SubScoreCards gree={gree} hasGoals={prefs.goals.length > 0} />
+      {/* ── Collapsible details ── */}
+      <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />} defaultOpen>
+        <p className="text-sm leading-relaxed text-ink/90">{p.ingredientsText || <span className="text-muted">{t("notProvided")}</span>}</p>
+      </CollapsibleSection>
 
-      {/* ═══ 5 · GreeDNA — composition summary ═══ */}
-      <GreeDNA product={p} gree={gree} />
+      <CollapsibleSection
+        title={t("additives")}
+        icon={<FlaskConical className="h-5 w-5" />}
+        badge={p.additives?.length ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{p.additives.length}</span> : undefined}
+      >
+        {p.additives && p.additives.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {p.additives.map((a) => <span key={a} className="gc-chip text-xs">{a.toUpperCase()}</span>)}
+          </div>
+        ) : <p className="text-sm text-muted">{t("noAdditives")}</p>}
+      </CollapsibleSection>
 
-      {/* ═══ 6 · Essential details (progressive) ═══ */}
-      {hasNutrition && (
-        <CollapsibleSection title={t("keyNutrition")} icon={<BarChart3 className="h-5 w-5" />} defaultOpen>
-          <p className="mb-2 text-xs text-muted">{t("per100")}</p>
-          <div className="divide-y divide-line">
-            {KEY_NUTRI_ROWS.filter((row) => p.nutriments[row.key] !== undefined).map((row) => (
+      <CollapsibleSection
+        title={t("allergens")}
+        icon={<ShieldAlert className="h-5 w-5" />}
+        badge={p.allergens?.length ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{p.allergens.length}</span> : undefined}
+      >
+        {p.allergens && p.allergens.length ? (
+          <div className="flex flex-wrap gap-1.5">
+            {p.allergens.map((a) => <span key={a} className="gc-chip text-xs capitalize">{a}</span>)}
+          </div>
+        ) : <p className="text-sm text-muted">{t("noAllergens")}</p>}
+      </CollapsibleSection>
+
+      <CollapsibleSection title={t("nutrition")} icon={<BarChart3 className="h-5 w-5" />} defaultOpen>
+        <p className="mb-2 text-xs text-muted">{t("per100")}</p>
+        <div className="divide-y divide-line">
+          {NUTRI_ROWS.map((row) => {
+            const v = p.nutriments[row.key];
+            return (
               <div key={row.key} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="text-muted">{t(row.labelKey)}</span>
-                <span className="font-semibold tabular-nums">{`${p.nutriments[row.key]} ${row.unit}`}</span>
+                <span className="font-semibold tabular-nums">{v !== undefined ? `${v} ${row.unit}` : "—"}</span>
               </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-
-      {ingredientsKnown && (
-        <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />}>
-          <p className="text-sm leading-relaxed text-ink/90">{p.ingredientsText}</p>
-        </CollapsibleSection>
-      )}
-
-      {(ingredientsKnown || additiveCount > 0) && (
-        <CollapsibleSection
-          title={t("additives")}
-          icon={<FlaskConical className="h-5 w-5" />}
-          badge={additiveCount ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{additiveCount}</span> : undefined}
-        >
-          {additiveCount > 0 ? (
-            <ul className="space-y-2">
-              {p.additives!.map((a) => {
-                const severity = additiveSeverityOf(a);
-                return (
-                  <li key={a} className="rounded-2xl border border-line bg-surface-2 p-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="gc-chip text-xs font-bold">{a.toUpperCase()}</span>
-                      <span className="text-xs font-semibold text-muted">{t(`additiveSeverity.${severity}`)}</span>
-                    </div>
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted">{t(`additiveExplanation.${severity}`)}</p>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : <p className="text-sm text-muted">{t("noAdditives")}</p>}
-        </CollapsibleSection>
-      )}
-
-      {hasAllergensOrTraces && (
-        <CollapsibleSection
-          title={t("allergensTraces")}
-          icon={<ShieldAlert className="h-5 w-5" />}
-          badge={p.allergens?.length ? <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs font-semibold text-muted">{p.allergens.length}</span> : undefined}
-        >
-          {p.allergens?.length ? (
-            <div className="flex flex-wrap gap-1.5">
-              {p.allergens.map((a) => <span key={a} className="gc-chip text-xs capitalize">{a}</span>)}
-            </div>
-          ) : null}
-          {p.traces?.length ? (
-            <div className="mt-3">
-              <p className="mb-1.5 text-xs font-semibold text-muted">{t("tracesLabel")}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {p.traces.map((a) => <span key={a} className="gc-chip text-xs capitalize">{a}</span>)}
-              </div>
-            </div>
-          ) : null}
-        </CollapsibleSection>
-      )}
-
-      {hasNutrition && (
-        <CollapsibleSection title={t("completeNutrition")} icon={<BarChart3 className="h-5 w-5" />}>
-          <p className="mb-2 text-xs text-muted">{t("per100")}</p>
-          <div className="divide-y divide-line">
-            {FULL_NUTRI_ROWS.filter((row) => p.nutriments[row.key] !== undefined).map((row) => (
-              <div key={row.key} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="text-muted">{t(row.labelKey)}</span>
-                <span className="font-semibold tabular-nums">{`${p.nutriments[row.key]} ${row.unit}`}</span>
-              </div>
-            ))}
-          </div>
-        </CollapsibleSection>
-      )}
-
-      <CollapsibleSection title={t("sourceMethodology")} icon={<BookOpenText className="h-5 w-5" />}>
-        <div className="space-y-3 text-sm">
-          <p className="text-muted">
-            {t("sourceLabel")}: <strong className="text-ink">{t("sourceOpenFoodFacts")}</strong>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Link href="/methodology" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
-              <BookOpenText className="h-3.5 w-3.5" aria-hidden /> {t("methodologyLink")}
-            </Link>
-            <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {t("viewOnOff")}
-            </a>
-          </div>
+            );
+          })}
         </div>
       </CollapsibleSection>
 
-      <CollapsibleSection title={t("dataConfidence")} icon={<ShieldQuestion className="h-5 w-5" />}>
-        <div className="flex items-center gap-2 rounded-2xl bg-surface-2 p-3">
-          <ShieldQuestion className={`h-4 w-4 shrink-0 ${confidenceTone}`} aria-hidden />
-          <p className="text-xs text-muted">
-            {t("breakdownConfidence")} <strong className={confidenceTone}>{t(`confidence.${gree.confidence}`)}</strong>
-          </p>
-        </div>
-        {gree.confidenceReasons.length > 0 && (
-          <ul className="mt-2 space-y-1.5">
-            {gree.confidenceReasons.map((code) => (
-              <li key={code} className="flex items-center gap-2 text-xs text-muted">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-line" aria-hidden />
-                {t(`missing.${code}`)}
-              </li>
-            ))}
-            <li className="pt-1">
-              <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-natural-strong">
-                <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {t("contributeEdit")}
-              </a>
-            </li>
-          </ul>
-        )}
-      </CollapsibleSection>
+      {/* ── Discrete ad ── */}
+      <AdSlot variant="inline" />
 
-      {/* ═══ Sticky contextual action dock ═══ */}
-      <ActionDock>
+      {/* ── Alternatives (only when the product is medium or poor) ── */}
+      {score < 65 && <Alternatives product={p} prefs={prefs} />}
+
+      {/* ── Floating actions dock ── */}
+      <FloatingAction>
         {basketNotice && (
-          <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural-strong">
-            <ShoppingBasket className="h-4 w-4" aria-hidden />
+          <div className="mb-2 flex items-center gap-2 rounded-2xl border border-natural/25 bg-natural/10 p-2.5 text-sm font-semibold text-natural">
+            <ShoppingBasket className="h-4 w-4" />
             <span className="min-w-0 flex-1">{t(basketNotice === "added" ? "addedToBasket" : "alreadyInBasket")}</span>
-            <GreeButton variant="ghost" size="sm" onClick={() => router.push("/cart")}>
+            <Button variant="ghost" size="sm" onClick={() => router.push("/basket")}>
               {t("goToBasket")}
-            </GreeButton>
+            </Button>
           </div>
         )}
         <div className="flex gap-2">
-          <GreeButton variant={isFav ? "neon" : "soft"} size="icon" aria-pressed={isFav} aria-label={t("favorite")} onClick={toggleFavorite}>
-            <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} aria-hidden />
-          </GreeButton>
-          <GreeButton variant={productInBasket ? "neon" : "primary"} className="flex-1" onClick={addToBasket}>
-            <ShoppingBasket className="h-5 w-5" aria-hidden /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
-          </GreeButton>
+          <Button variant={isFav ? "neon" : "soft"} size="icon" aria-label={t("favorite")}
+            onClick={() => favorites.toggle({ ...item, verdict: tScore(`grade.${gree.grade}`), scannedAt: Date.now() })}>
+            <Heart className={isFav ? "h-5 w-5 fill-current" : "h-5 w-5"} />
+          </Button>
+          <Button variant={inList ? "neon" : "soft"} size="icon" aria-label={tList("addProduct")} onClick={() => addToList(p, gree)}>
+            <ListChecks className="h-5 w-5" />
+          </Button>
+          <Button variant={productInBasket ? "neon" : "soft"} className="flex-1" onClick={addToBasket}>
+            <ShoppingBasket className="h-5 w-5" /> {productInBasket ? t("alreadyInBasket") : t("addToBasket")}
+          </Button>
         </div>
         <div className="mt-2 flex gap-2">
-          <GreeButton variant="soft" className="flex-1" onClick={goToBattle}>
-            <Swords className="h-5 w-5" aria-hidden /> {inBattle ? t("alreadyInBattle") : battleFull ? t("battleFull") : t("scanBattle")}
-          </GreeButton>
-          <GreeButton variant="outline" className="flex-1" onClick={() => router.push("/scan")}>
-            <ScanLine className="h-5 w-5" aria-hidden /> {t("scanAnother")}
-          </GreeButton>
+          <Button variant="primary" className="flex-1" onClick={goToBattle}>
+            <Swords className="h-5 w-5" /> {inBattle ? t("alreadyInBattle") : battleFull ? t("battleFull") : t("scanBattle")}
+          </Button>
+          <Button variant="outline" className="flex-1" onClick={goToBattle}>
+            <GitCompareArrows className="h-5 w-5" /> {t("compare")}
+          </Button>
         </div>
-      </ActionDock>
+      </FloatingAction>
     </div>
   );
 }

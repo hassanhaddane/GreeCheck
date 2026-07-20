@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GreeCheck V2 · Lab des prototypes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gc-proto.css">
+<style>
+  .hub{max-width:760px;margin:0 auto;padding:56px 20px}
+  .protos{display:grid;gap:16px;margin-top:28px}
+  @media(min-width:720px){.protos{grid-template-columns:repeat(3,1fr)}}
+  .proto{display:block;text-decoration:none;color:inherit;background:var(--surface);
+    border-radius:var(--r-lg);box-shadow:var(--sh1);padding:22px;
+    transition:box-shadow var(--base) var(--out),transform var(--fast)}
+  .proto:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+  .proto .tag{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;
+    background:var(--deep);color:#fff;font-weight:700;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="hub">
+  <div class="kicker" style="font-size:.6875rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--natural-strong)">GreeCheck V2 · Lab isolé — pas de code de production</div>
+  <h1 class="serif" style="font-size:2.4rem;font-weight:600;letter-spacing:-.02em;margin:.4rem 0">Prototypes interactifs</h1>
+  <p class="small" style="max-width:52ch">Trois parcours à réviser, mobile-first (390×844), light mode.
+  Sur desktop chaque prototype s'affiche dans un cadre téléphone avec ses notes de test.
+  Fixtures locales uniquement — aucune API réelle, marques fictives.</p>
+  <div class="protos">
+    <a class="proto" href="a-scan-flow.html">
+      <span class="tag">A</span>
+      <b>Scan Flow</b>
+      <p class="small" style="margin:6px 0 0">Accueil → permission → scan → détection → sheet résultat → analyse.</p>
+    </a>
+    <a class="proto" href="b-product-flow.html">
+      <span class="tag">B</span>
+      <b>Product Flow</b>
+      <p class="small" style="margin:6px 0 0">Identité → GreeScore → GreeImpact → confiance → raisons → alternative.</p>
+    </a>
+    <a class="proto" href="c-decision-flow.html">
+      <span class="tag">C</span>
+      <b>Decision Flow</b>
+      <p class="small" style="margin:6px 0 0">Deux produits → GreeCompare → gagnant → GreeCart → liste de courses.</p>
+    </a>
+  </div>
+  <p class="small" style="margin-top:28px">Revue UX : <code>docs/v2/06-prototype-review.md</code></p>
+</div>
+</body>
+</html>

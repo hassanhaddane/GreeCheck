@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GreeCheck V2 · Prototype C — Decision Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,600&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gc-proto.css">
+<style>
+  .pick{position:relative;text-align:start;background:var(--surface);border-radius:var(--r-lg);
+    box-shadow:var(--sh1);padding:14px;display:flex;flex-direction:column;gap:8px;width:100%;
+    transition:box-shadow var(--base) var(--out),transform var(--fast)}
+  .pick:active{transform:scale(.98)}
+  .pick.sel{box-shadow:var(--sh2),0 0 0 2px var(--natural-strong)}
+  .pick .tick{position:absolute;top:10px;inset-inline-end:10px;width:26px;height:26px;border-radius:50%;
+    display:grid;place-items:center;background:var(--surface2);color:transparent;font-weight:700}
+  .pick.sel .tick{background:var(--natural-strong);color:#fff}
+  .duel{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .col{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh1);padding:16px;text-align:center}
+  .col.win{box-shadow:var(--sh2),0 0 0 2px var(--natural-strong);animation:winIn var(--slow) var(--spring) both}
+  @keyframes winIn{from{transform:scale(.94);opacity:.4}to{transform:scale(1);opacity:1}}
+  .diff{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;
+    padding:11px 0;border-bottom:1px solid var(--line);font-size:.9375rem}
+  .diff:last-child{border-bottom:0}
+  .diff .lab{font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.05em;text-align:center}
+  .diff .v{font-variant-numeric:tabular-nums;font-weight:600}
+  .diff .v.good{color:var(--a-ink)} .diff .v.bad{color:var(--e-ink)} .diff .v.mid{color:var(--c-ink)}
+  .listitem{display:flex;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .listitem:last-child{border-bottom:0}
+  .cartline{display:flex;align-items:baseline;gap:10px}
+  .cartline b{font-family:var(--serif);font-size:2.4rem;font-weight:600;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="lab">
+  <aside class="lab-side">
+    <div class="lab-head">
+      <div class="kicker">Prototype C · Lab</div>
+      <h1>Decision Flow</h1>
+      <p>Choisir deux produits → GreeCompare → comprendre le gagnant → GreeCart → liste de courses.</p>
+    </div>
+    <div class="steps">
+      <button data-step="s-select" onclick="go('s-select')">Sélection</button>
+      <button data-step="s-compare" onclick="showCompare()">Comparer</button>
+      <button data-step="s-cart" onclick="go('s-cart')">GreeCart</button>
+      <button data-step="s-list" onclick="go('s-list')">Liste</button>
+    </div>
+    <div class="lab-notes">
+      <h2>Parcours à tester</h2>
+      <ol>
+        <li>Sélectionner les deux yaourts</li>
+        <li>Podium : gagnant justifié, pas juste un chiffre</li>
+        <li>« Ajouter au GreeCart » → score du panier +3</li>
+        <li>« Ajouter à la liste » → coche en liste</li>
+      </ol>
+    </div>
+  </aside>
+
+  <main class="phone">
+
+    <!-- ═══ SELECT ═══ -->
+    <section class="screen active" id="s-select">
+      <div class="topbar"><h1>GreeCompare</h1></div>
+      <div class="scroll" style="padding-top:8px">
+        <p class="small" style="margin:0 0 14px">Choisissez deux produits à départager — depuis vos scans, favoris ou une recherche.</p>
+        <div class="stack" style="gap:10px" id="picker"></div>
+      </div>
+      <div class="dock">
+        <button class="btn btn-primary btn-block" id="cmpbtn" disabled style="opacity:.4" onclick="showCompare()">
+          Comparer (0/2)
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══ COMPARE ═══ -->
+    <section class="screen" id="s-compare">
+      <div class="topbar"><button class="back" onclick="go('s-select')" aria-label="Retour">←</button><h1>Le duel</h1></div>
+      <div class="scroll" style="padding-top:6px">
+
+        <div class="duel">
+          <div class="col win">
+            <div class="shot" style="height:96px;margin-bottom:10px" id="art-w"></div>
+            <b style="font-size:.9375rem">Yaourt Nature</b>
+            <div class="small">Prairial</div>
+            <div style="margin-top:8px"><span class="grade a"><b>A</b> 81 · Excellent choix</span></div>
+            <span class="chip" style="margin-top:8px;background:var(--mint);color:var(--a-ink)">Gagnant</span>
+          </div>
+          <div class="col">
+            <div class="shot" style="height:96px;margin-bottom:10px" id="art-l"></div>
+            <b style="font-size:.9375rem">Yaourt Vanille Sucré</b>
+            <div class="small">Douceo</div>
+            <div style="margin-top:8px"><span class="grade c"><b>C</b> 52 · Choix moyen</span></div>
+            <span class="chip" style="margin-top:8px;background:var(--stone);color:var(--unknown)">2ᵉ</span>
+          </div>
+        </div>
+
+        <div class="verdict section" style="--vc:var(--score-a)">
+          <h2>Prairial l'emporte, nettement.</h2>
+          <p>Trois fois moins de sucres, zéro additif, et un lait non aromatisé — à confiance de données égale.</p>
+        </div>
+
+        <div class="card section">
+          <span class="overline" style="display:block;margin-bottom:4px">Ce qui fait la différence</span>
+          <div class="diff">
+            <span class="v good" style="text-align:end">4,5 g</span><span class="lab">Sucres /100 g</span><span class="v bad">12,4 g</span>
+          </div>
+          <div class="diff">
+            <span class="v good" style="text-align:end">0</span><span class="lab">Additifs</span><span class="v mid">3</span>
+          </div>
+          <div class="diff">
+            <span class="v good" style="text-align:end">NOVA 1</span><span class="lab">Transformation</span><span class="v mid">NOVA 3</span>
+          </div>
+          <div class="diff">
+            <span class="v good" style="text-align:end">B</span><span class="lab">GreeImpact</span><span class="v good">B</span>
+          </div>
+          <p class="small" style="margin:12px 0 0">Confiance élevée pour les deux produits — la comparaison est fiable.</p>
+        </div>
+
+        <div class="stack section" style="gap:10px">
+          <button class="btn btn-primary btn-block" id="addcart" onclick="addToCart(this)">Ajouter le gagnant au GreeCart</button>
+          <button class="btn btn-ghost btn-block" onclick="go('s-select')">Comparer d'autres produits</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ GREECART ═══ -->
+    <section class="screen" id="s-cart">
+      <div class="topbar"><button class="back" onclick="showCompare()" aria-label="Retour">←</button><h1>GreeCart</h1></div>
+      <div class="scroll" style="padding-top:6px">
+        <div class="card" style="background:var(--deep);color:#FAFAF7;box-shadow:var(--sh3)">
+          <span class="overline" style="color:#9CC8AE">Score du panier</span>
+          <div class="cartline">
+            <b class="count" id="cartscore" data-from="58" data-countup="61">58</b>
+            <span style="font-size:1rem;opacity:.8">/100 · Bon panier</span>
+          </div>
+          <p class="small" style="color:#CFE6D8;margin:6px 0 0">
+            +3 points grâce au Yaourt Nature Prairial — votre meilleur ajout de la semaine.
+          </p>
+        </div>
+
+        <div class="card section">
+          <span class="overline" style="display:block;margin-bottom:4px">4 produits</span>
+          <div class="listitem">
+            <div class="shot" style="width:46px;height:54px" id="c-art1"></div>
+            <div style="flex:1"><b style="font-size:.9375rem">Yaourt Nature Prairial</b>
+              <div class="small">Ajouté à l'instant</div></div>
+            <span class="grade a"><b>A</b> 81</span>
+          </div>
+          <div class="listitem">
+            <div class="shot" style="width:46px;height:54px" id="c-art2"></div>
+            <div style="flex:1"><b style="font-size:.9375rem">Granola Avoine Bio</b>
+              <div class="small">Naturia</div></div>
+            <span class="grade b"><b>B</b> 72</span>
+          </div>
+          <div class="listitem">
+            <div class="shot" style="width:46px;height:54px" id="c-art3"></div>
+            <div style="flex:1"><b style="font-size:.9375rem">Choco Billes Krispo</b>
+              <div class="small">À reconsidérer — alternative dispo</div></div>
+            <span class="grade d"><b>D</b> 31</span>
+          </div>
+        </div>
+
+        <div class="card flat section">
+          <span class="overline">Plan d'amélioration</span>
+          <div class="insight"><span class="dot warn">1</span>
+            <div><b>Remplacer les Choco Billes</b><span>Un muesli sans sucres ajoutés ferait passer le panier à 67/100.</span></div></div>
+        </div>
+
+        <button class="btn btn-primary btn-block section" id="addlist" onclick="addToList(this)">
+          Ajouter le yaourt à ma liste de courses
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══ SHOPPING LIST ═══ -->
+    <section class="screen" id="s-list">
+      <div class="topbar"><button class="back" onclick="go('s-cart')" aria-label="Retour">←</button><h1>Ma liste de courses</h1></div>
+      <div class="scroll" style="padding-top:6px">
+        <p class="small" style="margin:0 0 12px">Locale, hors-ligne, à vous. Cochez en magasin.</p>
+        <div class="card">
+          <div class="listitem">
+            <input type="checkbox" id="l1" style="width:22px;height:22px;accent-color:var(--natural-strong)">
+            <label for="l1" style="flex:1"><b style="font-size:.9375rem">Yaourt Nature Prairial ×1</b>
+              <div class="small">Rayon frais · ajouté depuis GreeCompare</div></label>
+            <span class="grade a"><b>A</b></span>
+          </div>
+          <div class="listitem">
+            <input type="checkbox" id="l2" style="width:22px;height:22px;accent-color:var(--natural-strong)">
+            <label for="l2" style="flex:1"><b style="font-size:.9375rem">Granola Avoine Bio ×1</b>
+              <div class="small">Rayon petit-déjeuner</div></label>
+            <span class="grade b"><b>B</b></span>
+          </div>
+        </div>
+        <div class="card flat section" style="text-align:center;padding:22px">
+          <!-- organic empty-adjacent illustration -->
+          <svg width="72" height="72" viewBox="0 0 96 96" style="margin-bottom:8px" aria-hidden="true">
+            <ellipse cx="48" cy="80" rx="30" ry="6" fill="#DCF2E3"/>
+            <path d="M48 78 C 47 60, 46 46, 48 32" fill="none" stroke="#0B3D2E" stroke-width="3" stroke-linecap="round"/>
+            <path d="M48 48 C 38 44, 30 36, 28 26 C 40 29, 47 37, 48 46 Z" fill="#CDE8D4"/>
+            <path d="M48 36 C 58 32, 64 24, 66 14 C 55 17, 49 25, 48 34 Z" fill="#2ECC71"/>
+          </svg>
+          <p class="small" style="margin:0">Chaque scan améliore vos habitudes —<br>cette liste en est la preuve.</p>
+        </div>
+        <p class="small" style="text-align:center;margin-top:18px">
+          <a href="index.html" style="color:var(--natural-strong)">← Retour au hub des prototypes</a>
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="gc-proto.js"></script>
+<script src="gc-fixtures.js"></script>
+<script>
+/* selection */
+const CHOICES=["prairial","douceo","delisso"];
+const sel=new Set();
+const picker=document.getElementById("picker");
+CHOICES.forEach(k=>{
+  const p=FIX[k];
+  const b=document.createElement("button");
+  b.className="pick"; b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<div class="row" style="gap:12px">
+      <div class="shot" style="width:58px;height:66px">${art(k,50)}</div>
+      <div style="flex:1"><b style="font-size:.9375rem">${p.name}</b>
+        <div class="small">${p.brand}</div>
+        <div style="margin-top:5px"><span class="grade ${p.grade}"><b>${p.grade.toUpperCase()}</b> ${p.score} · ${p.label}</span></div>
+      </div></div><span class="tick">✓</span>`;
+  b.onclick=()=>{
+    if(sel.has(k))sel.delete(k);
+    else if(sel.size<2)sel.add(k);
+    b.classList.toggle("sel",sel.has(k));
+    b.setAttribute("aria-pressed",sel.has(k));
+    const btn=document.getElementById("cmpbtn");
+    btn.textContent=`Comparer (${sel.size}/2)`;
+    btn.disabled=sel.size!==2; btn.style.opacity=sel.size===2?"1":".4";
+  };
+  picker.appendChild(b);
+});
+function showCompare(){ go("s-compare"); }
+function addToCart(btn){
+  beat(btn); btn.textContent="Ajouté au GreeCart ✓";
+  setTimeout(()=>{ go("s-cart");
+    const s=document.getElementById("cartscore"); runCount(s);
+  }, REDUCED?50:420);
+}
+function addToList(btn){
+  beat(btn); btn.textContent="Ajouté à la liste ✓";
+  setTimeout(()=>go("s-list"), REDUCED?50:420);
+}
+document.getElementById("art-w").innerHTML=ART.yaourtNature(86);
+document.getElementById("art-l").innerHTML=ART.yaourtVanille(86);
+document.getElementById("c-art1").innerHTML=ART.yaourtNature(40);
+document.getElementById("c-art2").innerHTML=ART.granolaBio(40);
+document.getElementById("c-art3").innerHTML=ART.cereal(40);
+</script>
+</body>
+</html>

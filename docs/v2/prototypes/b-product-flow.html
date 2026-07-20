@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GreeCheck V2 · Prototype B — Product Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,550;9..144,600&family=Inter:wght@400;450;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="gc-proto.css">
+<style>
+  .tile{border-radius:var(--r-md);padding:14px}
+  .tile b{font-size:1.25rem;font-variant-numeric:tabular-nums;display:block}
+  .tile .lbl{font-size:.75rem;font-weight:600;margin-bottom:4px;display:block}
+  .tile .why{font-size:.75rem;line-height:1.35;opacity:.85}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .addv{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .addv:last-child{border-bottom:0}
+  .addv code{font-family:var(--mono);font-size:.8125rem;background:var(--surface2);
+    border-radius:6px;padding:3px 7px}
+  details.exp{border-top:1px solid var(--line)}
+  details.exp summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;
+    align-items:center;padding:15px 0;font-weight:600;font-size:.9375rem}
+  details.exp summary::after{content:"›";transform:rotate(90deg);color:var(--muted);transition:transform var(--fast)}
+  details.exp[open] summary::after{transform:rotate(-90deg)}
+</style>
+</head>
+<body>
+<div class="lab">
+  <aside class="lab-side">
+    <div class="lab-head">
+      <div class="kicker">Prototype B · Lab</div>
+      <h1>Product Flow</h1>
+      <p>Identité → GreeScore → GreeImpact → confiance → raisons → nutrition → additifs → compatibilité → alternative.</p>
+    </div>
+    <div class="lab-notes">
+      <h2>Parcours à tester</h2>
+      <ol>
+        <li>Verdict lisible en ~2 s, raisons dessous</li>
+        <li>Santé (anneau) ≠ impact (barre bleue)</li>
+        <li>Toucher « Bonne confiance » → sheet</li>
+        <li>Sections avancées repliées par défaut</li>
+        <li>Alternative : « +26 points » mesurable</li>
+      </ol>
+    </div>
+  </aside>
+
+  <main class="phone">
+    <section class="screen active" id="s-product">
+      <div class="topbar">
+        <button class="back" aria-label="Retour">←</button><h1>Analyse produit</h1>
+        <button class="back" style="margin-inline-start:auto" aria-label="Ajouter aux favoris">♡</button>
+      </div>
+      <div class="scroll" style="padding-top:8px">
+
+        <!-- 1 · IDENTITY -->
+        <div class="row" style="gap:16px">
+          <div class="shot" style="width:96px;height:116px" id="art-hero"></div>
+          <div>
+            <span class="overline">Granolas &amp; mueslis</span>
+            <h2 style="font-size:1.1875rem;font-weight:650;line-height:1.2;margin-top:3px">Granola Choco &amp; Graines</h2>
+            <div class="small">Delisso · 450 g</div>
+          </div>
+        </div>
+
+        <!-- 2 · VERDICT (decide) -->
+        <div class="verdict section" style="--vc:var(--score-c)">
+          <h2>À limiter.</h2>
+          <p>Correct sur les fibres, mais trop sucré et très transformé.</p>
+        </div>
+
+        <!-- 3 · GREESCORE + CONFIDENCE -->
+        <div class="card section">
+          <div class="row between">
+            <div>
+              <span class="overline">GreeScore · santé</span>
+              <div style="margin-top:8px"><span class="grade c"><b>C</b> Choix moyen</span></div>
+              <button class="chip" id="confbtn" style="margin-top:10px;background:var(--stone);color:var(--unknown)"
+                aria-haspopup="dialog">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9" stroke-dasharray="42 14"/></svg>
+                Bonne confiance · détails
+              </button>
+            </div>
+            <div class="ring halo-part" data-score="46" data-grade="c" data-size="116"
+                 role="img" aria-label="GreeScore 46 sur 100, note C, choix moyen, bonne confiance"></div>
+          </div>
+        </div>
+
+        <!-- 4 · KEY REASONS (understand) -->
+        <div class="card section">
+          <span class="overline">L'essentiel</span>
+          <div class="insight"><span class="dot neg">−</span>
+            <div><b>Trop sucré</b><span>21 g/100 g, proche du seuil élevé (22,5 g).</span></div></div>
+          <div class="insight"><span class="dot neg">−</span>
+            <div><b>Ultra-transformé (NOVA 4)</b><span>Sirop de glucose et arôme ajoutés.</span></div></div>
+          <div class="insight"><span class="dot pos">+</span>
+            <div><b>Riche en fibres</b><span>7,8 g/100 g — excellent pour un granola.</span></div></div>
+          <div class="insight"><span class="dot warn">!</span>
+            <div><b>1 additif controversé</b><span>Lécithine sur liste de vigilance.</span></div></div>
+        </div>
+
+        <!-- 5 · GREEIMPACT — separate, bar not ring -->
+        <div class="card pastel section" style="background:var(--sky)">
+          <div class="row between">
+            <span class="overline" style="color:var(--sky-ink)">GreeImpact · planète</span>
+            <span style="font-weight:700;color:var(--sky-ink)">B · Impact modéré</span>
+          </div>
+          <div class="impact-bar" style="margin:12px 0 8px"><i data-w="66%" style="width:66%"></i></div>
+          <p class="small" style="color:var(--sky-ink);opacity:.9;margin:0">
+            Cacao non certifié, mais céréales d'origine France et emballage recyclable.
+          </p>
+        </div>
+
+        <!-- 6 · NUTRITION (explore) -->
+        <div class="card section">
+          <span class="overline" style="display:block;margin-bottom:10px">Nutrition · pour 100 g</span>
+          <div class="tiles">
+            <div class="tile" style="background:var(--butter);color:var(--c-ink)">
+              <span class="lbl">Sucres · élevé</span><b>21 g</b>
+              <span class="why">Seuil élevé : 22,5 g</span>
+            </div>
+            <div class="tile" style="background:var(--mint);color:var(--a-ink)">
+              <span class="lbl">Fibres · très bon</span><b>7,8 g</b>
+              <span class="why">Bien au-delà des 6 g visés</span>
+            </div>
+            <div class="tile" style="background:var(--sand);color:var(--c-ink)">
+              <span class="lbl">Sat. · moyen</span><b>3,1 g</b>
+              <span class="why">Entre 1,5 et 5 g</span>
+            </div>
+            <div class="tile" style="background:var(--stone);color:var(--unknown)">
+              <span class="lbl">Sel · faible</span><b>0,2 g</b>
+              <span class="why">Sous le seuil bas (0,3 g)</span>
+            </div>
+          </div>
+          <details class="exp" style="margin-top:12px">
+            <summary>Valeurs complètes</summary>
+            <p class="small" style="margin:0 0 12px">Énergie 452 kcal · Glucides 62 g · Protéines 9,1 g · Lipides 16 g — Nutri-Score C.</p>
+          </details>
+        </div>
+
+        <!-- 7 · ADDITIVES -->
+        <div class="card section">
+          <span class="overline" style="display:block;margin-bottom:4px">Additifs · 2 détectés</span>
+          <div class="addv">
+            <code>E322</code>
+            <div style="flex:1"><b style="font-size:.9375rem">Lécithine de tournesol</b>
+              <div class="small">Émulsifiant</div></div>
+            <span class="chip" style="background:var(--butter);color:var(--c-ink)">Vigilance</span>
+          </div>
+          <div class="addv">
+            <code>E300</code>
+            <div style="flex:1"><b style="font-size:.9375rem">Acide ascorbique</b>
+              <div class="small">Antioxydant (vitamine C)</div></div>
+            <span class="chip" style="background:var(--mint);color:var(--a-ink)">Sans risque connu</span>
+          </div>
+        </div>
+
+        <!-- 8 · COMPATIBILITY — unknown is neutral -->
+        <div class="card section">
+          <span class="overline" style="display:block;margin-bottom:10px">Compatibilité · vos critères</span>
+          <div class="row" style="flex-wrap:wrap;gap:8px">
+            <span class="chip" style="background:var(--blush);color:var(--d-ink)">Contient du gluten — votre alerte</span>
+            <span class="chip" style="background:var(--stone);color:var(--unknown)">Halal : non confirmé</span>
+            <span class="chip" style="background:var(--mint);color:var(--a-ink)">Végétarien : confirmé</span>
+          </div>
+          <p class="small" style="margin:10px 0 0">« Non confirmé » signifie que la donnée n'existe pas — pas que le produit est incompatible.</p>
+        </div>
+
+        <!-- 9 · BETTER ALTERNATIVE -->
+        <div class="card section" style="border:1.5px solid color-mix(in srgb,var(--natural) 40%,white)">
+          <div class="row between" style="margin-bottom:10px">
+            <span class="overline" style="color:var(--natural-strong)">Meilleure alternative</span>
+            <span class="chip" style="background:var(--mint);color:var(--a-ink)">
+              +<span class="count" data-countup="26">26</span> points
+            </span>
+          </div>
+          <div class="row" style="gap:14px">
+            <div class="shot" style="width:70px;height:84px" id="art-alt"></div>
+            <div style="flex:1">
+              <b>Granola Avoine Bio</b>
+              <div class="small">Naturia · 400 g · même rayon</div>
+              <div class="row" style="gap:6px;margin-top:6px">
+                <span class="grade b"><b>B</b> Bon choix · 72/100</span>
+              </div>
+            </div>
+          </div>
+          <div class="insight" style="margin-top:6px"><span class="dot pos">+</span>
+            <div><b>−14 g de sucres</b><span>7 g/100 g contre 21 g.</span></div></div>
+          <div class="insight"><span class="dot pos">+</span>
+            <div><b>Peu transformé (NOVA 2) et bio</b><span>Sans arôme ni sirop ajoutés.</span></div></div>
+          <button class="btn btn-primary btn-block" style="margin-top:12px" onclick="beat(this);this.textContent='Ajouté au GreeCart ✓'">
+            Remplacer dans mon GreeCart
+          </button>
+        </div>
+
+        <p class="small" style="text-align:center;margin-top:20px">
+          <a href="index.html" style="color:var(--natural-strong)">← Retour au hub des prototypes</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- CONFIDENCE SHEET -->
+    <div class="scrim" id="scrim"></div>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Détail de la confiance des données">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-body">
+        <span class="overline">Confiance des données</span>
+        <h2 class="title" style="margin:6px 0 8px">Bonne confiance</h2>
+        <p class="small">Le score s'appuie sur des données Open Food Facts vérifiées. Il manque :</p>
+        <div class="insight"><span class="dot neu">?</span>
+          <div><b>Origine précise du cacao</b><span>Sans effet sur le score santé — réduit la précision de GreeImpact.</span></div></div>
+        <div class="insight"><span class="dot neu">?</span>
+          <div><b>Certification halal</b><span>Aucune donnée fabricant. « Inconnu » n'est jamais compté comme négatif.</span></div></div>
+        <p class="small" style="margin-top:12px">Une donnée manquante réduit la confiance, jamais le score santé.</p>
+        <button class="btn btn-secondary btn-block" style="margin-top:14px" onclick="sheet.close()">Compris</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="gc-proto.js"></script>
+<script src="gc-fixtures.js"></script>
+<script>
+const sheet=sheetCtl("sheet","scrim");
+document.getElementById("confbtn").addEventListener("click",sheet.open);
+document.getElementById("art-hero").innerHTML=ART.granola(84);
+document.getElementById("art-alt").innerHTML=ART.granolaBio(60);
+go("s-product");
+</script>
+</body>
+</html>

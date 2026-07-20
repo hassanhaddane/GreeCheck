@@ -19,6 +19,7 @@ export { halalStatusOf } from "./scoring/detectors";
 /* environmental impact (separate from health) */
 export * from "./impact/types";
 export { computeGreeImpact } from "./impact/engine";
+export * from "./impact/provider";
 
 /* user criteria & compatibility */
 export * from "./criteria/model";

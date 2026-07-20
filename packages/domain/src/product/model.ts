@@ -54,6 +54,43 @@ export interface DataQuality {
   confidenceReasons: string[];
 }
 
+
+/* ── environmental reading (Green-Score / Eco-Score) ─────────────── */
+
+/** Sub-signals of the environmental assessment (source adjustment values). */
+export interface EnvironmentalAdjustments {
+  /** Origins of ingredients bonus/malus (source value, typically −5…+5). */
+  originsValue?: number;
+  /** Packaging malus (source value, ≤ 0). */
+  packagingValue?: number;
+  /** Production-system bonus (source value, ≥ 0) + the labels that earned it. */
+  productionSystemValue?: number;
+  productionSystemLabels?: string[];
+  /** Threatened-species malus (e.g. uncertified palm oil) + the ingredient. */
+  threatenedSpeciesValue?: number;
+  threatenedSpeciesIngredient?: string;
+}
+
+/**
+ * Normalized environmental reading. SOURCE values are preserved verbatim next
+ * to normalized ones; the lifecycle score is CATEGORY-level (Agribalyse) and
+ * must never be presented as a product-specific measurement.
+ */
+export interface ProductEnvironment {
+  provider: "openfoodfacts";
+  sourceScore?: number;
+  sourceGrade?: string;
+  normalizedScore?: number;
+  normalizedGrade?: Grade;
+  /** Category-level lifecycle score (Agribalyse), when provided. */
+  lifecycleScore?: number;
+  adjustments?: EnvironmentalAdjustments;
+  /** Signals the SOURCE itself declares missing (labels, origins, packagings…). */
+  sourceMissing?: string[];
+  /** True when the source marks its assessment status as known. */
+  statusKnown?: boolean;
+}
+
 export interface Product {
   /* identity */
   barcode: string;
@@ -78,6 +115,8 @@ export interface Product {
   nutriScorePoints?: number;
   novaGroup?: 1 | 2 | 3 | 4;
   greenScore?: Grade;
+  /** Full environmental reading (source + normalized); greenScore stays the quick grade. */
+  environment?: ProductEnvironment;
   /* derived statuses (explicit unknowns) */
   halalStatus?: HalalStatus;
   veganStatus?: VeganStatus;

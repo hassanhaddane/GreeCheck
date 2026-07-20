@@ -5,7 +5,7 @@
  */
 import type {
   Product, Grade, Confidence, AssessmentStatus, HalalStatus, VeganStatus,
-  PalmOilStatus, DataAvailability, DataQuality
+  PalmOilStatus, DataAvailability, DataQuality, ProductEnvironment
 } from "../product/model";
 
 /** Fields requested from OFF — keeps payloads small and predictable. */
@@ -32,9 +32,29 @@ export const OFF_FIELDS = [
   "nutriscore_score",
   "nova_group",
   "ecoscore_grade",
+  "ecoscore_score",
+  "ecoscore_data",
   "environmental_score_grade",
+  "environmental_score_score",
+  "environmental_score_data",
   "green_score"
 ].join(",");
+
+
+/** Raw OFF environmental payload (environmental_score_data / ecoscore_data). */
+export interface OffRawEnvironmentalData {
+  status?: string;
+  score?: number;
+  grade?: string;
+  agribalyse?: { score?: number };
+  adjustments?: {
+    origins_of_ingredients?: { value?: number };
+    packaging?: { value?: number };
+    production_system?: { value?: number; labels?: string[] };
+    threatened_species?: { value?: number; ingredient?: string };
+  };
+  missing?: Record<string, unknown>;
+}
 
 /** Raw OFF payload (subset of OFF_FIELDS). Never let this leak past this file. */
 export interface OffRawProduct {
@@ -61,6 +81,10 @@ export interface OffRawProduct {
   nova_group?: number | string;
   ecoscore_grade?: string;
   environmental_score_grade?: string;
+  environmental_score_score?: number;
+  environmental_score_data?: OffRawEnvironmentalData;
+  ecoscore_score?: number;
+  ecoscore_data?: OffRawEnvironmentalData;
   green_score?: string;
 }
 
@@ -78,6 +102,53 @@ function num(v: unknown): number | undefined {
   const n = typeof v === "string" ? parseFloat(v) : (v as number);
   return Number.isFinite(n) ? n : undefined;
 }
+
+/* ── environmental reading (Green-Score / Eco-Score) ─────────────────────── */
+
+/**
+ * Build the normalized environmental reading. Source values are preserved
+ * verbatim; nothing is estimated or invented. Returns undefined when the
+ * source provides no environmental signal at all.
+ */
+export function normalizeEnvironment(raw: OffRawProduct): ProductEnvironment | undefined {
+  const data = raw.environmental_score_data ?? raw.ecoscore_data;
+  const sourceScore =
+    raw.environmental_score_score ?? raw.ecoscore_score ??
+    (typeof data?.score === "number" ? data.score : undefined);
+  const sourceGradeRaw =
+    raw.green_score ?? raw.environmental_score_grade ?? raw.ecoscore_grade ?? data?.grade;
+
+  if (sourceScore === undefined && !grade(sourceGradeRaw) && !data) return undefined;
+
+  const adj = data?.adjustments;
+  const adjustments = adj
+    ? {
+        originsValue: adj.origins_of_ingredients?.value,
+        packagingValue: adj.packaging?.value,
+        productionSystemValue: adj.production_system?.value,
+        productionSystemLabels: adj.production_system?.labels?.map(cleanTag),
+        threatenedSpeciesValue: adj.threatened_species?.value,
+        threatenedSpeciesIngredient: adj.threatened_species?.ingredient
+      }
+    : undefined;
+
+  return {
+    provider: "openfoodfacts",
+    sourceScore,
+    sourceGrade: sourceGradeRaw,
+    normalizedScore:
+      sourceScore !== undefined && Number.isFinite(sourceScore)
+        ? Math.max(0, Math.min(100, Math.round(sourceScore)))
+        : undefined,
+    normalizedGrade: grade(sourceGradeRaw),
+    lifecycleScore:
+      typeof data?.agribalyse?.score === "number" ? data.agribalyse.score : undefined,
+    adjustments,
+    sourceMissing: data?.missing ? Object.keys(data.missing) : undefined,
+    statusKnown: data?.status === undefined ? undefined : data.status === "known"
+  };
+}
+
 function grade(v?: string): Grade | undefined {
   const g = v?.toLowerCase();
   return g && VALID_GRADES.has(g) ? (g as Grade) : undefined;
@@ -276,6 +347,7 @@ export function mapOffProduct(raw: OffRawProduct): Product {
     nutriScorePoints: typeof raw.nutriscore_score === "number" && Number.isFinite(raw.nutriscore_score) ? raw.nutriscore_score : undefined,
     novaGroup,
     greenScore: grade(raw.green_score) ?? grade(raw.environmental_score_grade) ?? grade(raw.ecoscore_grade),
+    environment: normalizeEnvironment(raw),
     halalStatus,
     veganStatus,
     vegetarianStatus,

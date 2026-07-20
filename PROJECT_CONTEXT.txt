@@ -1,0 +1,529 @@
+PROJECT_CONTEXT — GreeCheck
+État du code analysé : 20 juillet 2026
+
+Ce document décrit le dépôt tel qu’il est réellement implémenté. Les documents de conception présents dans docs/ ont été utilisés comme contexte, mais le code actuel reste la source de vérité. Toute information non vérifiable dans le dépôt est marquée « À confirmer ».
+
+================================================================================
+1. PRÉSENTATION GÉNÉRALE
+================================================================================
+
+Objectif du projet
+------------------
+GreeCheck est une application web progressive (PWA) de décision nutritionnelle. Elle permet de scanner ou rechercher un produit alimentaire, d’en normaliser les données publiques, de calculer localement un score propriétaire déterministe (GreeScore), puis d’expliquer ce résultat et de proposer des actions : comparer, remplacer, ajouter à un panier d’analyse ou conserver dans une bibliothèque locale.
+
+Le positionnement actuel est « privacy-first » : aucun compte, aucune authentification, aucune base utilisateur côté serveur et aucune synchronisation de profil. Les critères, allergènes, scans, favoris, produits du GreeCart et brouillon de Battle sont conservés dans le navigateur.
+
+Problème résolu
+---------------
+L’application transforme des données Open Food Facts parfois incomplètes ou techniques en une décision lisible : qualité nutritionnelle, transformation NOVA, additifs, labels, impact environnemental, confiance des données et compatibilité avec les critères locaux de l’utilisateur. Elle évite également qu’une donnée absente soit interprétée automatiquement comme un avantage.
+
+Utilisateurs ciblés
+-------------------
+- Grand public souhaitant comprendre rapidement un produit alimentaire.
+- Utilisateurs surveillant sucre, sel, protéines, fibres, additifs ou transformation.
+- Personnes ayant des critères bio, halal, vegan, végétariens ou des allergènes à éviter.
+- Utilisateurs francophones, anglophones et arabophones ; l’arabe est rendu en RTL.
+- Usage mobile prioritaire pour le scan, avec une navigation desktop dédiée.
+
+État actuel de la V1/V2
+-----------------------
+Le dépôt porte la version npm 0.1.0, mais le code correspond déjà à une refonte dite V2 dans docs/. La base fonctionnelle est avancée : les principaux parcours sont implémentés, le build de production passe, 108 tests Node et 22 tests Playwright passent.
+
+Sont opérationnels : accueil marketing, scan code-barres/QR, recherche, fiche produit, GreeScore personnalisé, GreeSwap, Battle jusqu’à trois produits, GreeCart, historique, favoris, critères locaux, découverte de commerces, thèmes, FR/EN/AR, SEO de base et PWA.
+
+Restent partiels ou volontairement différés : intégration active de Ciqual/USDA, vraie carte avec marqueurs de résultats, fonctionnement hors ligne au-delà des produits déjà mis en cache, sélection UI de tous les anciens « goals », et rendu serveur complet de la fiche produit. La liste de courses et les publicités demandées dans le cahier des charges d’origine sont absentes ; les documents V2 indiquent qu’elles ont été volontairement retirées. La priorité entre le cahier des charges initial et cette direction V2 est à confirmer.
+
+================================================================================
+2. STACK TECHNIQUE
+================================================================================
+
+Langages
+--------
+- TypeScript 5.9 en mode strict.
+- TSX/React pour l’interface.
+- CSS global et utilitaires Tailwind.
+- JavaScript pour le service worker PWA.
+
+Frameworks et bibliothèques principales
+---------------------------------------
+- Next.js 16.2, App Router et convention proxy de Next.js 16.
+- React 19.2 et React DOM 19.2.
+- Tailwind CSS 3.4, PostCSS et Autoprefixer.
+- next-intl 4 pour les routes et traductions FR/EN/AR.
+- Zustand 5 pour les miroirs d’état en mémoire.
+- Dexie 4 pour IndexedDB.
+- Framer Motion 12 pour les animations.
+- @zxing/browser et @zxing/library pour EAN-8, EAN-13, UPC-A, UPC-E, Code 128 et QR Code.
+- Lucide React pour les icônes.
+- clsx, tailwind-merge et class-variance-authority pour les variantes/styles.
+- L’UI est un design system interne ; shadcn/ui n’est pas installé malgré la recommandation initiale.
+
+Base de données
+---------------
+- Aucune base de données serveur.
+- IndexedDB locale, base « greecheck », pilotée par Dexie.
+- localStorage limité au thème et aux anciennes clés migrées ; la langue active est principalement portée par l’URL.
+
+Services externes
+-----------------
+- Open Food Facts : source produit active, recherche et catégories.
+- Search-a-licious : moteur de recherche primaire d’Open Food Facts.
+- Ancien endpoint de recherche Open Food Facts : fallback serveur.
+- Nominatim/OpenStreetMap : géocodage de ville.
+- Overpass API : commerces proches, avec plusieurs miroirs de secours.
+- Carte embarquée OpenStreetMap pour l’affichage.
+- Google Maps est utilisé uniquement pour générer un lien externe d’itinéraire.
+- Ciqual/ANSES et USDA FoodData Central ont des adaptateurs déclarés mais inactifs.
+
+Outils de développement, tests et déploiement
+----------------------------------------------
+- ESLint 9 avec eslint-config-next/core-web-vitals.
+- Compilateur TypeScript sans émission pour le contrôle de types.
+- node:test exécuté via tsx pour les tests unitaires et d’intégration.
+- fake-indexeddb pour tester Dexie hors navigateur.
+- Playwright Chromium pour les parcours E2E.
+- @axe-core/playwright pour les contrôles WCAG A/AA automatisés.
+- Build Next.js avec Turbopack.
+- Aucun workflow CI, Dockerfile, vercel.json ou configuration d’hébergement spécifique n’a été trouvé. Le déploiement réel est à confirmer ; le projet est compatible avec un hébergement Next.js Node/Vercel standard.
+
+================================================================================
+3. ARCHITECTURE GLOBALE
+================================================================================
+
+Type d’architecture
+-------------------
+Architecture monolithique Next.js, locale-first et local-first, structurée par domaines métier. Le serveur Next.js ne stocke aucune donnée utilisateur : il sert les pages, métadonnées et API proxy stateless. La logique métier déterministe est séparée des entrées/sorties.
+
+Organisation
+------------
+- app/ contient les routes, layouts, shells serveur et îlots client.
+- domains/ contient modèles, moteurs purs et stores propres à chaque métier.
+- services/api/ encapsule les appels aux sources externes.
+- services/storage/ est l’unique couche d’accès à IndexedDB.
+- components/ contient le design system et les composants fonctionnels.
+- i18n/ et messages/ portent le routage et les catalogues de traduction.
+
+Flux produit principal
+----------------------
+1. L’utilisateur scanne, saisit un code ou ouvre une fiche.
+2. Le repository client vérifie le cache IndexedDB (TTL 24 h), déduplique les requêtes simultanées et applique un cooldown après un 429.
+3. À défaut de cache frais, le client appelle /api/product/[barcode].
+4. La route serveur appelle Open Food Facts avec timeout et User-Agent, puis normalise la réponse brute vers le modèle Product unique.
+5. Le produit normalisé est mis en cache localement. En cas de panne ou de limitation, une copie périmée peut être rendue avec un indicateur explicite.
+6. computeGreeScore calcule localement score, grade, verdict, sous-scores, raisons, alertes et confiance selon les critères locaux.
+7. L’interface peut écrire un snapshot dans l’historique, les favoris, le Battle ou le GreeCart via Zustand puis les repositories Dexie.
+
+Flux recherche
+--------------
+La saisie est interprétée par des règles déterministes (intentions et synonymes), envoyée au proxy /api/search après debounce, puis filtrée et classée localement selon pertinence, GreeScore, confiance, critères et marché français. Aucun modèle d’IA n’est utilisé.
+
+Flux alternatives
+-----------------
+GreeSwap ne s’active que pour un produit faible ou incompatible. /api/alternatives récupère des produits de la catégorie la plus précise ; le client recalcule chaque score, rejette les candidats incomplets ou régressifs et conserve seulement les améliorations mesurables.
+
+Flux lieux
+----------
+Le navigateur envoie une ville ou des coordonnées à /api/places. Le serveur géocode éventuellement la ville, interroge Overpass, normalise et filtre les lieux, puis renvoie au client les résultats. Aucune persistance applicative n’est effectuée, mais les coordonnées transitent bien par le serveur GreeCheck et les services OpenStreetMap.
+
+================================================================================
+4. STRUCTURE DU PROJET
+================================================================================
+
+Arborescence simplifiée
+-----------------------
+
+GreeCheck/
+├── src/
+│   ├── app/
+│   │   ├── [locale]/                 Pages FR/EN/AR et manifestes localisés
+│   │   │   ├── page.tsx              Accueil marketing calculé avec les vrais moteurs
+│   │   │   ├── scan/                 GreeLens et scanner caméra
+│   │   │   ├── search/               Recherche, intentions, filtres et tri
+│   │   │   ├── product/[barcode]/    Fiche produit, métadonnées et JSON-LD
+│   │   │   ├── battle/               Comparaison de 2 à 3 produits
+│   │   │   ├── cart/                 Analyse GreeCart et plan d’amélioration
+│   │   │   ├── history/              Historique local filtrable
+│   │   │   ├── favorites/            Favoris locaux
+│   │   │   ├── criteria/             Critères et allergènes locaux
+│   │   │   ├── discover/             Recherche de commerces et carte
+│   │   │   ├── settings/             Langue, thème et effacement local
+│   │   │   ├── methodology/          Explication du score
+│   │   │   ├── privacy/              Politique de confidentialité
+│   │   │   └── offline/              Fallback de navigation PWA
+│   │   ├── api/
+│   │   │   ├── product/[barcode]/    Proxy produit Open Food Facts
+│   │   │   ├── search/               Proxy recherche avec cache mémoire
+│   │   │   ├── alternatives/         Recherche par catégorie
+│   │   │   └── places/               Nominatim + Overpass
+│   │   ├── robots.ts                 robots.txt
+│   │   └── sitemap.ts                Sitemap localisé
+│   ├── domains/
+│   │   ├── product/                  Modèle normalisé, normalizer, repository
+│   │   ├── scoring/                  GreeScore, seuils, détecteurs
+│   │   ├── swap/                     Validation/ranking GreeSwap
+│   │   ├── battle/                   Moteur et brouillon persistant
+│   │   ├── cart/                     Agrégation, groupes et simulations what-if
+│   │   ├── search/                   Intentions et ranking
+│   │   ├── library/                  Historique/favoris
+│   │   ├── criteria/                 Préférences et onboarding
+│   │   └── discover/                 Modèle de lieux
+│   ├── services/
+│   │   ├── api/                      Intégrations externes et erreurs normalisées
+│   │   └── storage/                  Dexie, repositories, migration et reset
+│   ├── components/                   Shell, design system et composants métier
+│   ├── hooks/                        Scanner et garde de montage
+│   ├── i18n/                         Routage next-intl
+│   ├── lib/                          SEO, filtres, constantes, utilitaires
+│   └── proxy.ts                      Négociation/préfixe de locale
+├── messages/                         Catalogues fr.json, en.json, ar.json
+├── tests/e2e/                        Tests Playwright et fixtures
+├── docs/                             Architecture/migration V2, partiellement datée
+├── public/sw.js                      Service worker manuel
+├── public/icons/                     Icônes PWA
+├── package.json                      Dépendances et scripts
+├── next.config.mjs                   Images distantes et redirections
+├── playwright.config.ts              Configuration E2E
+└── .env.example                      Noms des variables optionnelles
+
+================================================================================
+5. FONCTIONNALITÉS EXISTANTES
+================================================================================
+
+Implémentées
+------------
+- Accueil responsive : scan prioritaire sur mobile, recherche prioritaire sur desktop, démonstrations calculées par les vrais moteurs.
+- Scanner caméra GreeLens : permissions, états d’erreur, choix de caméra, torche, zoom, pause/reprise, codes EAN/UPC/Code 128 et QR.
+- Analyse de QR/URL/GS1 contenant un code produit ; fallback de saisie manuelle et recherche texte.
+- Session de scan rapide permettant de consulter, ajouter au Battle/GreeCart ou scanner le suivant.
+- Recherche Open Food Facts avec debounce, presets, compréhension de modificateurs FR/EN/AR, filtres combinables et quatre tris.
+- Fiche produit : identité, labels, GreeScore, verdict, Trust Halo, raisons, alertes, GreeDNA, nutrition, ingrédients, additifs, allergènes, traces, source et contribution Open Food Facts.
+- GreeScore déterministe : Nutri-Score, nutriments, NOVA, additifs, naturalité, environnement et adéquation aux critères. Les alertes halal/allergènes sont séparées de la qualité nutritionnelle.
+- GreeSwap : déclenchement conditionnel, seuil de gain, contrôle de confiance, non-régression et explications mesurables.
+- Battle : 2 ou 3 produits, vérification de comparabilité, score effectif pondéré par la confiance, podium, axes, tableau et actions GreeCart.
+- GreeCart : score agrégé, distributions Nutri-Score/NOVA, compatibilités, groupes conserver/reconsidérer, suggestions et simulation avant/après.
+- Historique local : vues liste/grille/timeline, filtres, réutilisation vers Battle/GreeCart, suppression.
+- Favoris locaux avec ajout au Battle/GreeCart.
+- Critères locaux : bio, halal, réduction sucre/sel/additifs/transformation, protéines, fibres, vegan, végétarien et allergènes.
+- Discover : ville ou géolocalisation, filtres magasins, liste de lieux, carte embarquée et itinéraire.
+- Paramètres : langue, thème clair/sombre/système, installation PWA, effacement par collection ou reset complet.
+- PWA : manifestes localisés, service worker production, icônes, raccourcis et page hors ligne.
+- SEO : canonicals, hreflang, Open Graph, sitemap, robots, JSON-LD WebApplication/WebSite et Product pour les fiches suffisamment complètes.
+- Accessibilité visible : skip link, focus, libellés, RTL, reduced-motion et information non portée uniquement par la couleur.
+
+Partielles ou limitées
+----------------------
+- Le bouton « code-barres / QR » change l’overlay mais pas les formats du décodeur : ZXing écoute les deux modes simultanément.
+- Un QR sans code produit exploitable est rejeté ; les autres contenus QR ne sont pas traités.
+- La carte Discover affiche le centre de recherche, pas les marqueurs de chaque commerce.
+- Le mode hors ligne sert les fiches déjà en cache et une page fallback ; recherche, alternatives et lieux nécessitent le réseau.
+- La fiche produit a des métadonnées/JSON-LD serveur, mais son contenu principal est rechargé côté client.
+- L’historique a le code-barres comme clé primaire : rescanner un même produit remplace son entrée précédente. Il s’agit donc d’un historique des derniers produits uniques, pas d’un journal complet de tous les événements.
+- Les anciens goals existent dans le modèle et le moteur, mais l’interface actuelle expose surtout dix booléens ; perte de poids, prise de muscle, faible calorie et digestion ne sont pas directement sélectionnables.
+- Ciqual et USDA sont seulement des frontières d’architecture inactives.
+- La détection halal/vegan/végétarienne basée sur ingrédients est heuristique ; elle ne remplace pas une certification.
+
+Visibles mais non pleinement fonctionnelles ou absentes
+-------------------------------------------------------
+- NutritionRadar complet est exporté mais non rendu ; seules ses fonctions d’axes et MiniRadar restent utilisées, tandis que GreeDNA est la visualisation principale.
+- LocalPreferences.language est persisté mais n’est pas synchronisé par le sélecteur de langue, qui modifie l’URL.
+- Liste de courses, publicités et consentement publicitaire sont absents. Les documents V2 les déclarent supprimés, contrairement au cahier des charges initial.
+
+Parcours principaux
+-------------------
+- Scanner → résolution produit → résultat rapide → fiche/Battle/GreeCart/nouveau scan.
+- Rechercher → intentions/filtres/tri → fiche → favori/Battle/GreeCart/GreeSwap.
+- Ajouter 2–3 produits → validation de comparabilité → verdict Battle → ajout/remplacement dans GreeCart.
+- Constituer un GreeCart → analyse → rechercher des alternatives → simuler/appliquer un plan.
+- Consulter l’historique/favoris → rouvrir ou réinjecter un produit.
+- Configurer les critères → recalcul local et immédiat des scores/alertes/rankings.
+
+================================================================================
+6. FRONTEND
+================================================================================
+
+Pages et routes principales
+---------------------------
+Toutes les routes utilisateur sont préfixées par /fr, /en ou /ar. Les routes principales sont /, /scan, /search, /product/[barcode], /battle, /cart, /history, /favorites, /criteria, /discover, /settings, /methodology, /privacy et /offline. Une route catch-all rend la 404. /basket et /list redirigent définitivement vers /cart ; /map redirige vers l’accueil.
+
+La navigation mobile comporte Search, History, Scan central, Battle et Cart. Le menu secondaire expose Favorites, Discover, Criteria, Methodology, Settings et Privacy. Sur desktop, une sidebar remplace la bottom bar et affiche aussi les produits récents.
+
+Composants importants
+---------------------
+- components/system : GreeCard, GreeButton, GreeBadge, GreeScoreRing, VerdictCard, TrustHalo, états loading/error/empty, bottom sheet, GreePulse.
+- components/app : shell, top bar, navigation responsive, thème, langue, installation et enregistrement PWA.
+- components/product : ProductCard, GreeDNA, alternatives, sous-scores et radar auxiliaire.
+- components/scan : overlay, résultat rapide et onboarding du premier scan.
+- components/battle et components/cart : visualisation comparative et suggestions de remplacement.
+
+Gestion de l’état
+-----------------
+Zustand contient les miroirs en mémoire de l’historique, des favoris, du panier, du Battle, des critères et de l’onboarding. LocalDataBoot migre d’anciennes clés localStorage puis hydrate tous les stores depuis IndexedDB. Chaque mutation écrit ensuite dans son repository. Le thème est géré séparément avec localStorage pour éviter un flash d’hydratation.
+
+Gestion des formulaires
+-----------------------
+Les formulaires sont contrôlés avec useState et validations manuelles : longueur de requête, code-barres, ville, coordonnées et allergènes. Il n’existe ni bibliothèque de formulaire ni schéma de validation partagé. Les règles serveur sont indépendantes et parfois moins strictes que les règles client.
+
+Appels API
+----------
+Les composants appellent principalement domains/product/repository.ts, qui masque fetch, cache, erreurs et déduplication. Discover appelle directement /api/places. GreeSwap appelle /api/alternatives. Les préférences ne sont jamais jointes aux requêtes produit : calcul et personnalisation restent locaux.
+
+Authentification et autorisations
+---------------------------------
+Aucune authentification et aucun rôle, volontairement. Toutes les pages sont publiques. Les seules permissions navigateur sont caméra et géolocalisation, demandées au moment de l’action.
+
+================================================================================
+7. BACKEND
+================================================================================
+
+Endpoints
+---------
+- GET /api/product/[barcode] : valide/sanétise partiellement le code, appelle Open Food Facts, renvoie un ProductResult normalisé, 404, 429 ou 502.
+- GET /api/search?q=&page=&pageSize= : requête de 2 à 120 caractères, pagination bornée, cache mémoire de 10 minutes limité à 200 entrées, Search-a-licious puis fallback legacy.
+- GET /api/alternatives?category=&exclude= : recherche jusqu’à 16 produits d’une catégorie et exclut le code courant.
+- GET /api/places?city= ou lat=/lon=&types= : Nominatim puis Overpass, jusqu’à 40 lieux normalisés.
+
+Services et logique métier
+--------------------------
+services/api/openfoodfacts.ts applique User-Agent, timeout de 8 secondes, revalidation Next, parsing JSON défensif et mapping unique. services/api/sources.ts définit une chaîne d’adaptateurs ; seul Open Food Facts est actif. La majorité de la logique décisionnelle est volontairement exécutée par des moteurs purs partagés, pas dans les route handlers.
+
+Authentification et autorisations
+---------------------------------
+Aucune, conformément au produit sans compte. Il n’existe pas non plus de limitation par utilisateur ou clé d’API interne.
+
+Validations
+-----------
+- Nettoyage des codes en chiffres et longueur minimale sur la route produit ; aucune borne maximale serveur explicite.
+- Requête de recherche limitée et pagination bornée.
+- Ville tronquée, coordonnées finies et bornées, types de lieux allow-listés.
+- URLs de commerces limitées à HTTP/HTTPS.
+- Catégorie d’alternative non vide, mais sans longueur maximale.
+- Les réponses externes sont typées à la compilation mais ne sont pas validées par un schéma runtime complet.
+
+Gestion des erreurs
+-------------------
+Les erreurs produit/recherche sont normalisées en network, rate_limited, upstream ou invalid_request. Les réponses brutes non JSON sont rejetées. Le client produit peut servir une copie IndexedDB périmée en l’annonçant. Les erreurs de persistance sont généralement absorbées pour maintenir l’application utilisable.
+
+Point faible : /api/alternatives renvoie actuellement le message brut de l’exception, contrairement aux autres routes. Les erreurs de stockage silencieuses n’informent pas l’utilisateur que sa donnée n’a pas été persistée.
+
+Tâches asynchrones et automatisations
+------------------------------------
+Aucune file de messages, cron ou worker serveur. Les écritures IndexedDB sont lancées en arrière-plan côté client. Le service worker gère précache, runtime cache borné et fallback de navigation.
+
+================================================================================
+8. DONNÉES
+================================================================================
+
+Modèles principaux
+------------------
+- Product : identité, catégories, pays, labels, composition, allergènes, additifs, nutriments, Nutri-Score, NOVA, Green-Score, statuts de compatibilité, provenance et qualité des données.
+- GreeScore : score global, grade A–E, verdict codé, sous-scores, confiance, raisons, avertissements et alertes critiques.
+- LocalPreferences : langue legacy, goals, allergènes et préférences booléennes.
+- ScanHistoryItem/FavoriteItem : snapshot autonome du produit et du score au moment du scan.
+- CartItem : produit complet, score snapshot et date d’ajout.
+- BattleDraftItem : produit complet et ordre d’ajout.
+- Place : type, coordonnées, adresse, horaires et site éventuel.
+
+Tables IndexedDB (schéma Dexie v2)
+----------------------------------
+- products : clé barcode, ProductResult et cachedAt ; TTL applicatif de 24 h.
+- history : clé barcode, indexes scannedAt et score ; maximum 500 produits uniques.
+- favorites : clé barcode, index scannedAt.
+- cart : clé product.barcode, index addedAt.
+- battle : clé product.barcode, index addedAt ; store limité à 3 dans Zustand.
+- kv : clé générique pour preferences, onboarding et marqueurs de migration.
+
+Relations et règles métier
+--------------------------
+Il n’existe pas de relations relationnelles ni de jointures : les collections stockent des snapshots dénormalisés pour fonctionner hors ligne. Le code-barres relie logiquement cache, historique, favoris, panier et Battle.
+
+Règles importantes : normalisation unique des données OFF ; données absentes = inconnues ; score pondéré uniquement sur les buckets disponibles ; Nutri-Score évite une double pénalisation des nutriments ; NOVA 4 fortement pénalisé ; bonus bio plafonné sur un produit très mauvais ; halal traité comme compatibilité, pas comme qualité ; confiance faible = verdict données insuffisantes ; alternatives avec gain minimal de 8 points et correction d’une faiblesse réelle.
+
+Migrations
+----------
+Dexie conserve un schéma v1 produit puis ajoute le schéma v2. migrate-legacy.ts copie les anciennes données Zustand/localStorage vers IndexedDB, vérifie les écritures, pose un marqueur idempotent, puis supprime les anciennes clés. En cas d’échec, la source reste intacte pour réessayer au prochain démarrage.
+
+Stockage de fichiers
+--------------------
+Aucun upload ni stockage de fichier. Les images produit sont chargées depuis les domaines Open Food Facts autorisés par next/image.
+
+================================================================================
+9. CONFIGURATION
+================================================================================
+
+Variables d’environnement utilisées
+-----------------------------------
+Toutes sont présentées sans valeur et sont annoncées comme optionnelles dans .env.example :
+- NEXT_PUBLIC_OFF_BASE_URL : base publique Open Food Facts.
+- NEXT_PUBLIC_SITE_URL : origine canonique SEO.
+- OFF_SEARCH_BASE_URL : endpoint de recherche serveur.
+- OFF_USER_AGENT : identification des requêtes Open Food Facts.
+- OVERPASS_API_URL : miroir Overpass préféré.
+- OSM_USER_AGENT : identification Nominatim/Overpass.
+
+Aucune variable de base de données, authentification ou secret applicatif n’est utilisée actuellement. Une future activation USDA nécessiterait une stratégie de clé qui n’existe pas encore.
+
+Scripts disponibles
+-------------------
+- npm run dev : serveur de développement Next.js.
+- npm run build : build de production.
+- npm run start : serveur de production.
+- npm run lint : ESLint sur src.
+- npm run typecheck : TypeScript sans émission.
+- npm test : 13 fichiers de tests Node.
+- npm run test:e2e : suite Playwright.
+- npm run test:e2e:ui : interface Playwright.
+
+Installation et lancement local
+-------------------------------
+Prérequis : Node.js >= 20.19 et npm.
+
+1. npm ci
+2. Copier éventuellement .env.example vers un fichier d’environnement local et adapter uniquement les variables nécessaires.
+3. npm run dev
+4. Ouvrir l’URL locale ; le proxy next-intl redirige vers /fr par défaut.
+
+Pour valider avant livraison :
+1. npm run lint
+2. npm run typecheck
+3. npm test
+4. npm run build
+5. npm run test:e2e
+
+Playwright construit puis démarre l’application sur le port 3100. Le navigateur de test doit être installé via Playwright si nécessaire. La caméra réelle exige HTTPS ou localhost et une permission utilisateur.
+
+================================================================================
+10. QUALITÉ ET ÉTAT TECHNIQUE
+================================================================================
+
+Résultats vérifiés lors de cet audit
+------------------------------------
+- npm run lint : réussi.
+- npm run typecheck : réussi.
+- npm test : 108/108 tests réussis.
+- npm run build : réussi, 46 pages générées/analysées par Next.js.
+- npm run test:e2e : 22/22 tests Chromium réussis.
+- npm audit --omit=dev : aucune vulnérabilité de production connue signalée au moment de l’audit.
+
+Tests existants
+---------------
+Les tests couvrent GreeScore, GreeSwap, Battle, simulation GreeCart, intentions/ranking de recherche, vues d’historique, normalisation produit, cache/repository, migration et repositories IndexedDB, primitives UI et route places. Les E2E couvrent caméra simulée, erreurs scan, PWA/SEO/offline, workflows produit/Battle/GreeCart, recherche, responsive/RTL et axe WCAG.
+
+La couverture chiffrée n’est pas calculée. Plusieurs E2E utilisent des fixtures interceptées, mais le test SEO/offline de Nutella dépend réellement d’Open Food Facts : il peut devenir instable en CI hors réseau ou si la donnée externe change.
+
+Gestion des erreurs
+-------------------
+Globalement robuste : envelopes typées, retries, états vides, skeletons, rate limiting amont, timeout, fallback cache et dégradation si IndexedDB est indisponible. En contrepartie, de nombreuses écritures locales ignorent volontairement les erreurs ; l’UI peut confirmer une action qui n’a existé qu’en mémoire.
+
+Sécurité visible
+----------------
+- Pas de secrets client ni de données santé serveur.
+- Entrées principales encodées ou allow-listées.
+- URLs externes de commerces filtrées par protocole.
+- Liens externes utilisent noreferrer.
+- JSON-LD échappe le caractère « < ».
+- next/image limite les hôtes distants aux domaines Open Food Facts.
+- Pas de tracking ni de publicité dans le code.
+
+Limites : aucune Content-Security-Policy ou politique d’en-têtes de sécurité explicite ; aucune limitation de débit applicative sur les routes publiques ; validation runtime partielle des payloads externes ; message d’exception brut dans alternatives. L’application fournit une information nutritionnelle et non un avis médical, mais les critères allergènes/halal demandent une communication particulièrement prudente.
+
+Problèmes et dette technique constatés
+--------------------------------------
+- README obsolète : Next.js 14 et ancienne structure, alors que package.json/code utilisent Next.js 16 et domains/services.
+- docs/v2-product-architecture.md décrit parfois un état antérieur : il dit notamment que la carte est supprimée alors que Discover et /api/places sont actifs. Le plan de migration n’est plus un état fiable des travaux restants.
+- La fiche produit appelle Open Food Facts côté serveur pour SEO puis récupère de nouveau le produit côté client via l’API interne ; cela augmente latence et quota amont.
+- L’accueil/settings déclarent par endroits que GreeCheck « n’envoie rien à un serveur », alors que codes, recherches et localisation passent par des proxies stateless. Les pages privacy sont plus précises, mais le message global est incohérent.
+- Historique dédupliqué par code-barres alors que le terme « historique de scans » peut laisser attendre plusieurs occurrences datées.
+- LocalPreferences.language n’est pas relié au changement de langue.
+- Modèle goals plus large que l’UI actuelle ; comportements métier présents mais inaccessibles.
+- Libellés de filtres, presets et metadata de locale sont localisés directement dans le code au lieu des catalogues messages.
+- Duplication de gradeTone entre historique et favoris et de quelques mappings/lignes nutritionnelles.
+- NutritionRadar complet semble inutilisé ; seuls MiniRadar/buildRadarAxes sont importés.
+- Alias de compatibilité et champs legacy subsistent (Alternative, FilterDef, legacyScore, verdict localisé dans les snapshots).
+- Le moteur cart/engine.ts est volumineux (plus de 600 lignes) et concentre plusieurs responsabilités.
+- Le plan GreeCart récupère les alternatives séquentiellement, ce qui peut cumuler les latences.
+- Service worker manuel sans stratégie de version/migration documentée au-delà du nom de cache ; la recherche n’est pas mise en cache localement.
+- Aucun pipeline CI ni rapport de couverture.
+- Aucun test direct trouvé pour /api/product, /api/search et /api/alternatives, ni test navigateur sur appareil caméra réel.
+- Nommage « basket » persiste dans certains textes/variables alors que la route et le domaine utilisent « cart ».
+
+================================================================================
+11. POINTS À CLARIFIER
+================================================================================
+
+- Le cahier des charges initial ou la direction V2 est-il prioritaire ? Publicités et liste de courses sont requises dans le premier mais explicitement supprimées dans la seconde.
+- Discover fait-il durablement partie du produit V2 ? Certains documents disent de supprimer la carte, alors que l’implémentation actuelle est complète côté recherche.
+- L’historique doit-il mémoriser chaque événement de scan ou seulement le dernier état par produit ?
+- Les critères doivent-ils modifier le GreeScore global, seulement un sous-score d’objectif, ou uniquement le ranking/les alertes ? Les commentaires de code et la pondération actuelle peuvent être interprétés différemment.
+- Faut-il réexposer tous les goals legacy (perte de poids, prise de muscle, faible calorie, digestion) ou réduire définitivement le modèle aux critères visibles ?
+- La promesse « rien envoyé au serveur » doit-elle signifier « rien de personnel n’est stocké » ? Le fonctionnement réel utilise des proxies pour codes, recherches et coordonnées.
+- La géolocalisation peut-elle légalement/contractuellement transiter vers les services OpenStreetMap comme elle le fait actuellement ? Politique de conservation des fournisseurs : à confirmer.
+- Faut-il conserver une route Favorites séparée ou intégrer les favoris dans History, comme l’indiquait un document V2 ?
+- Ciqual et USDA doivent-ils rester des placeholders ou entrer dans une prochaine version ? Mesure du taux de manque OFF : à confirmer.
+- Quel hébergement, domaine, monitoring d’erreurs et politique de logs sont prévus en production ? Aucun choix n’est visible dans le dépôt.
+- Le score et les seuils ont-ils été validés par un expert nutritionnel/juridique ? À confirmer.
+- Les catégories Open Food Facts doivent-elles être affichées/traduites telles quelles ou normalisées par locale ?
+
+================================================================================
+12. RECOMMANDATIONS PRIORITAIRES
+================================================================================
+
+CRITIQUE
+--------
+1. Aligner immédiatement la promesse de confidentialité avec le flux réel. Remplacer les formulations absolues « rien n’est envoyé » par « aucune donnée utilisateur n’est stockée/synchronisée », expliquer les proxies produit/recherche/localisation et vérifier les politiques des fournisseurs. C’est un risque de confiance et de conformité plus important qu’un simple problème rédactionnel.
+2. Décider et documenter la source de vérité produit entre le cahier des charges V1 et la trajectoire V2. Sans cette décision, une équipe peut réintroduire publicités/liste de courses ou supprimer Discover à contre-courant du produit attendu.
+
+HAUTE
+-----
+1. Durcir les API publiques : borne maximale stricte des codes-barres, longueur de catégorie, limitation de débit/coalescence serveur, erreurs uniformes et suppression du message brut de /api/alternatives.
+2. Ajouter une validation runtime des payloads Open Food Facts/Nominatim/Overpass afin qu’une évolution externe ne produise pas de données incohérentes malgré les types TypeScript.
+3. Éviter le double fetch de la fiche produit : rendre le shell décisionnel avec la donnée serveur puis hydrater seulement les critères/actions locales, ou partager une réponse sérialisée avec l’îlot client.
+4. Mettre en place une CI exécutant lint, typecheck, tests, build et E2E. Séparer les E2E hermétiques des tests d’intégration live Open Food Facts, ces derniers pouvant être planifiés/retryés.
+5. Rendre les échecs IndexedDB observables : état « non enregistré », télémétrie technique respectueuse de la vie privée ou au minimum message local. Ne pas afficher silencieusement une persistance réussie quand seule la mémoire a changé.
+6. Ajouter des tests directs des routes product/search/alternatives : validation, 404, 429, timeout, HTML à la place de JSON, cache headers et non-divulgation d’erreurs.
+
+MOYENNE
+-------
+1. Réconcilier LocalPreferences/goals avec l’UI et supprimer les champs inaccessibles ou fournir le parcours correspondant.
+2. Choisir la sémantique de l’historique. Pour un vrai journal, utiliser un id d’événement et indexer barcode au lieu d’en faire la clé primaire.
+3. Centraliser tous les textes visibles dans messages/, y compris filtres, presets, allergènes et métadonnées de langue ; ajouter un test de parité des clés FR/EN/AR.
+4. Découper cart/engine.ts en analyse produit, agrégation, verdict/insights et compatibilités.
+5. Paralléliser avec une concurrence bornée les recherches d’alternatives du plan GreeCart et ajouter annulation/timeout côté UI.
+6. Améliorer Discover : marqueurs des lieux, distance/tri et accessibilité de la carte, ou renommer clairement la vue actuelle « aperçu du secteur ».
+7. Ajouter une stratégie offline explicite pour les recherches récentes et afficher ce qui est ou non disponible hors ligne.
+8. Tester la caméra sur une matrice réelle Android/iOS Safari, torche, changement de caméra et QR ; les faux médias Chromium ne couvrent pas ces contraintes.
+9. Ajouter CSP et en-têtes de sécurité adaptés après inventaire des domaines image, iframe et connect nécessaires.
+
+FAIBLE
+------
+1. Mettre à jour README et docs V2 pour refléter Next.js 16, les routes et fonctionnalités actuelles.
+2. Supprimer NutritionRadar inutilisé, aliases/champs legacy devenus inutiles et mappings dupliqués.
+3. Harmoniser « basket/cart/GreeCart » dans variables, textes et documentation.
+4. Ajouter un script de couverture et fixer un objectif raisonnable sur les moteurs et routes critiques.
+5. Documenter le déploiement, les environnements, la rotation des noms de cache PWA et la procédure de rollback.
+
+================================================================================
+13. RÉSUMÉ POUR REPRISE DU PROJET
+================================================================================
+
+GreeCheck est un monolithe Next.js local-first : les API serveur ne font que relayer et normaliser des données publiques, tandis que les préférences et collections utilisateur restent dans IndexedDB. Le modèle Product normalisé est la frontière centrale. Tous les moteurs de décision — GreeScore, GreeSwap, Battle et GreeCart — travaillent sur ce modèle et sont majoritairement purs et testables.
+
+Pour modifier un parcours produit, commencer par src/domains/product/model.ts et normalizer.ts, puis src/services/api/openfoodfacts.ts et src/domains/product/repository.ts. Pour modifier la décision, lire src/domains/scoring/gree-score.ts et ses tests avant de toucher les consommateurs. Pour la persistance, passer exclusivement par src/services/storage/repositories.ts et les stores de domaine ; les pages ne doivent pas importer Dexie directement.
+
+Les fichiers à lire en premier sont :
+- package.json
+- src/domains/product/model.ts
+- src/domains/product/normalizer.ts
+- src/domains/product/repository.ts
+- src/domains/scoring/gree-score.ts
+- src/services/api/openfoodfacts.ts
+- src/services/storage/db.ts
+- src/services/storage/repositories.ts
+- src/app/[locale]/layout.tsx
+- src/app/[locale]/scan/scan-client.tsx
+- src/app/[locale]/product/[barcode]/page.tsx
+- src/domains/swap/engine.ts
+- src/domains/battle/engine.ts
+- src/domains/cart/engine.ts
+- messages/fr.json, messages/en.json et messages/ar.json
+
+Avant toute évolution, clarifier la direction V1/V2 et la promesse de confidentialité. Ensuite, préserver les invariants déjà bien établis : aucune donnée utilisateur serveur, données absentes explicitement inconnues, normalisation unique, moteurs déterministes, compatibilité séparée de la qualité et confiance visible. La base est saine et les tests passent, mais la documentation, les contrats de confidentialité, la robustesse des API publiques et le double chargement produit doivent être traités avant d’élargir le périmètre.

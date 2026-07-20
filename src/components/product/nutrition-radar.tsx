@@ -1,7 +1,7 @@
 "use client";
 import { useId } from "react";
 import { useTranslations } from "next-intl";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 /* ─────────────────────────── axis model ──────────────────────────── */
 

@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
 import { localizedAlternates, SITE_URL } from "@/lib/seo";
 import { routing, type Locale } from "@/i18n/routing";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 const getPublicProduct = cache(async (barcode: string) => {
   const code = barcode.replace(/\D/g, "");

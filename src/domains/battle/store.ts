@@ -4,7 +4,7 @@
  * battle repository. Insertion order preserved via addedAt.
  */
 import { create } from "zustand";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 import { battleRepo } from "@/services/storage/repositories";
 
 export const BATTLE_MAX = 3;

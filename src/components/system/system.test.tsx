@@ -20,7 +20,7 @@ import { VerdictCard } from "./verdict-card";
 import { GreeBottomSheet } from "./gree-bottom-sheet";
 import { ScanLine } from "lucide-react";
 import fr from "../../../messages/fr.json" with { type: "json" };
-import type { GreeScore } from "@/domains/scoring/types";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 const withIntl = (node: React.ReactNode) =>
   renderToStaticMarkup(

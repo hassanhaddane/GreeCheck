@@ -21,13 +21,13 @@
  *                       fiber, additives, NOVA, organic, score points).
  *    5. RANKING       — score gain + active-criteria alignment + confidence.
  */
-import type { Product } from "@/domains/product/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import type { GreeScore } from "@/domains/scoring/types";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { NUTRITION_THRESHOLDS as T } from "@/domains/scoring/thresholds";
-import { hasAllergenConflict, halalStatusOf } from "@/domains/scoring/detectors";
-import { computeDataQuality } from "@/domains/product/normalizer";
+import type { Product } from "../product/model";
+import type { LocalPreferences } from "../criteria/model";
+import type { GreeScore } from "../scoring/types";
+import { computeGreeScore } from "../scoring/gree-score";
+import { NUTRITION_THRESHOLDS as T } from "../scoring/thresholds";
+import { hasAllergenConflict, halalStatusOf } from "../scoring/detectors";
+import { computeDataQuality } from "../product/normalizer";
 
 /* ─────────────────────────────── types ─────────────────────────────────── */
 
@@ -250,33 +250,12 @@ export function rankAlternatives(
   return valid.sort((a, b) => sortKey(b, prefs) - sortKey(a, prefs)).slice(0, MAX_RESULTS);
 }
 
-/* ─────────────────────── retrieval (single fetch) ──────────────────────── */
+/* ── retrieval lives in the APP layer (src/domains/swap/service.ts). ──
+   The domain package never fetches: it decides eligibility and ranks
+   candidates the caller retrieved. */
 
-/** The most precise reliable category to search within. */
-function preciseCategory(product: Product): string | undefined {
+/** The most precise reliable category to search within (pure helper). */
+export function preciseCategory(product: Product): string | undefined {
   const cats = product.categories?.filter(Boolean) ?? [];
   return cats.length ? cats[cats.length - 1] : undefined;
-}
-
-/**
- * Suggest validated healthier alternatives. Returns [] when the product is not
- * swap-eligible or when no TRUSTWORTHY alternative exists (the UI then renders
- * nothing — never an empty section).
- */
-export async function getAlternatives(product: Product, prefs: LocalPreferences): Promise<ProductAlternative[]> {
-  const curGree = computeGreeScore(product, prefs);
-  if (!isSwapEligible(product, curGree, prefs).eligible) return [];
-
-  const cat = preciseCategory(product);
-  if (!cat) return [];
-
-  const res = await fetch(`/api/alternatives?category=${encodeURIComponent(cat)}&exclude=${product.barcode}`);
-  if (!res.ok) return [];
-  const data = (await res.json()) as { products?: Product[] };
-
-  const candidates = (data.products ?? [])
-    .filter((p) => p.barcode && p.name)
-    .map((p) => ({ product: p, gree: computeGreeScore(p, prefs) }));
-
-  return rankAlternatives(product, curGree, candidates, prefs);
 }

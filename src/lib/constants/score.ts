@@ -1,4 +1,4 @@
-import type { ScoreGrade } from "@/domains/scoring/types";
+import type { ScoreGrade } from "@greecheck/domain/scoring/types";
 
 /** Grade bands — labels are resolved via i18n ("score.grade.<grade>"). */
 export const SCORE_BANDS: { min: number; grade: ScoreGrade; colorVar: string }[] = [

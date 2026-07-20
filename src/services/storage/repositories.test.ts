@@ -12,7 +12,7 @@ import { resetApp } from "./local-data";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useCartStore } from "@/domains/cart/store";
 import { usePreferencesStore, defaultPreferences } from "@/domains/criteria/store";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 import type { ProductResult } from "@/services/api/openfoodfacts";
 
 const ls = localStorageStub();

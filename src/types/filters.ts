@@ -3,8 +3,8 @@
  * GreeScore (which already reflects the user's LOCAL preferences).
  */
 import type { LucideIcon } from "lucide-react";
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 export type FilterGroup = "diet" | "nutrition" | "smart";
 export type FilterLocale = "fr" | "en" | "ar";

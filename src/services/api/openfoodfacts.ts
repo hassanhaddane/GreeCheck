@@ -3,8 +3,8 @@
  * No data is persisted server-side: every call is a stateless proxy/fetch.
  * Raw→Product mapping lives in `product-normalizer.ts`.
  */
-import type { Product, Confidence, ProductState } from "@/domains/product/model";
-import { OFF_FIELDS, mapOffProduct, assessProduct, type OffRawProduct } from "@/domains/product/normalizer";
+import type { Product, Confidence, ProductState } from "@greecheck/domain/product/model";
+import { OFF_FIELDS, mapOffProduct, assessProduct, type OffRawProduct } from "@greecheck/domain/product/normalizer";
 import { RateLimitedError, retryAfterMs } from "./errors";
 
 // Re-exported for existing consumers of this module.

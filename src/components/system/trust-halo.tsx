@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 import { ShieldCheck, ShieldQuestion, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import type { ConfidenceLevel } from "@/domains/scoring/types";
+import type { ConfidenceLevel } from "@greecheck/domain/scoring/types";
 
 /**
  * TrustHalo — how much the result can be trusted, at a glance.

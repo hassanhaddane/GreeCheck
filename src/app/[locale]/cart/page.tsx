@@ -14,16 +14,16 @@ import { TrustHalo } from "@/components/system/trust-halo";
 import { CartItemCard } from "@/components/cart/cart-item-card";
 import { ReplacementSuggestions } from "@/components/cart/replacement-suggestions";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
-import { computeCartScore } from "@/domains/cart/engine";
-import { buildImprovementPlan, groupBasket, categoryCoverage, type ImprovementPlan, type PlanStep, type ReplacementCandidate } from "@/domains/cart/what-if";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { getAlternatives } from "@/domains/swap/engine";
+import { computeCartScore } from "@greecheck/domain/cart/engine";
+import { buildImprovementPlan, groupBasket, categoryCoverage, type ImprovementPlan, type PlanStep, type ReplacementCandidate } from "@greecheck/domain/cart/what-if";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { getAlternatives } from "@/domains/swap/service";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useMounted } from "@/hooks/use-mounted";
-import type { Product } from "@/domains/product/model";
-import type { CartProductAnalysis } from "@/domains/cart/engine";
+import type { Product } from "@greecheck/domain/product/model";
+import type { CartProductAnalysis } from "@greecheck/domain/cart/engine";
 
 const CONFIDENCE_TO_HALO = { high: "high", medium: "medium", low: "low" } as const;
 

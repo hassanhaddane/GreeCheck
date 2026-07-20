@@ -15,9 +15,10 @@
     "start": "next start",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test src/domains/scoring/gree-score.test.ts src/domains/swap/engine.test.ts src/domains/battle/engine.test.ts src/domains/cart/what-if.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/library/history-view.test.ts src/domains/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx src/app/api/places/route.test.ts",
+    "test": "node --import tsx --test packages/domain/src/impact/engine.test.ts packages/domain/src/purity.test.ts packages/domain/src/scoring/gree-score.test.ts packages/domain/src/swap/engine.test.ts packages/domain/src/battle/engine.test.ts packages/domain/src/cart/what-if.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/library/history-view.test.ts packages/domain/src/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx src/app/api/places/route.test.ts",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "typecheck:domain": "tsc -p packages/domain/tsconfig.json"
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",

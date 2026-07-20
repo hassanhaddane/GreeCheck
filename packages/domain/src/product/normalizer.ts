@@ -6,7 +6,7 @@
 import type {
   Product, Grade, Confidence, AssessmentStatus, HalalStatus, VeganStatus,
   PalmOilStatus, DataAvailability, DataQuality
-} from "@/domains/product/model";
+} from "../product/model";
 
 /** Fields requested from OFF — keeps payloads small and predictable. */
 export const OFF_FIELDS = [

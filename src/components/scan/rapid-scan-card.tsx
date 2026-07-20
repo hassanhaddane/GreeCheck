@@ -7,8 +7,8 @@ import { GreeButton } from "@/components/system/gree-button";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { GreeBadge } from "@/components/system/gree-badge";
 import { TrustHalo } from "@/components/system/trust-halo";
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 export interface RapidScanResult {
   product: Product;

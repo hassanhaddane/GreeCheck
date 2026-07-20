@@ -2,8 +2,8 @@
  * Pure ingredient/label detectors shared by scoring, basket analysis and filters.
  * No React, no I/O — deterministic string heuristics over normalized products.
  */
-import type { Product, HalalStatus } from "@/domains/product/model";
-import { classifyHalal } from "@/domains/product/normalizer";
+import type { Product, HalalStatus } from "../product/model";
+import { classifyHalal } from "../product/normalizer";
 
 /** Ingredient keywords suggesting non-halal content (heuristic). */
 export const HARAM_KEYWORDS = [

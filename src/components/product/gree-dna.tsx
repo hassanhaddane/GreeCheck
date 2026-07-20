@@ -4,8 +4,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { HeartPulse, Factory, FlaskConical, Leaf, Sprout, Globe, Info } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 import { cn } from "@/lib/utils/cn";
 
 type Tone = "good" | "mixed" | "bad" | "neutral" | "unknown";

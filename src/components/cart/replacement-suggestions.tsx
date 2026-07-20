@@ -6,10 +6,11 @@ import { GreeCard } from "@/components/system/gree-card";
 import { GreeButton } from "@/components/system/gree-button";
 import { SectionTitle } from "@/components/ui/section-title";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
-import { getAlternatives, type Alternative } from "@/domains/swap/engine";
-import { computeCartScore, type CartProductAnalysis, type CartScoreResult } from "@/domains/cart/engine";
-import type { Product } from "@/domains/product/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
+import { getAlternatives } from "@/domains/swap/service";
+import type { Alternative } from "@greecheck/domain/swap/engine";
+import { computeCartScore, type CartProductAnalysis, type CartScoreResult } from "@greecheck/domain/cart/engine";
+import type { Product } from "@greecheck/domain/product/model";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
 
 type SuggestionStatus = "loading" | "ok" | "empty" | "error";
 

@@ -9,7 +9,7 @@ import assert from "node:assert/strict";
 import { db } from "@/services/storage/db";
 import { productCacheRepo } from "@/services/storage/repositories";
 import { getProduct, __resetRepositoryForTests } from "./repository";
-import { mapOffProduct } from "./normalizer";
+import { mapOffProduct } from "@greecheck/domain/product/normalizer";
 import type { ProductResult } from "@/services/api/openfoodfacts";
 
 /** Build a realistic normalized result from a raw-ish payload. */

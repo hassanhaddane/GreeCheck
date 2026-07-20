@@ -44,15 +44,15 @@
  *  surfaced with its missing-signal reasons — a low-confidence score is
  *  never presented as authoritative (verdict + UI + explanation).
  */
-import type { Product } from "@/domains/product/model";
-import type { LocalPreferences, UserGoal } from "@/domains/criteria/model";
+import type { Product } from "../product/model";
+import type { LocalPreferences, UserGoal } from "../criteria/model";
 import type {
   GreeScore, ScoreGrade, VerdictCode, ScoreReason, ProductWarning,
   ConfidenceLevel, SubScores, ScoreExplanation
-} from "@/domains/scoring/types";
-import { NUTRITION_THRESHOLDS as T, clamp, round } from "@/domains/scoring/thresholds";
-import { halalStatusOf } from "@/domains/scoring/detectors";
-import { computeDataQuality } from "@/domains/product/normalizer";
+} from "../scoring/types";
+import { NUTRITION_THRESHOLDS as T, clamp, round } from "../scoring/thresholds";
+import { halalStatusOf } from "../scoring/detectors";
+import { computeDataQuality } from "../product/normalizer";
 
 /* ─────────────────────────── tuning constants ──────────────────────────── */
 

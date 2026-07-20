@@ -12,9 +12,9 @@
  */
 import { db } from "./db";
 import type { ScanHistoryItem, FavoriteItem } from "@/domains/library/model";
-import type { CartItem } from "@/domains/cart/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import type { Product } from "@/domains/product/model";
+import type { CartItem } from "@greecheck/domain/cart/model";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 export const LEGACY_KEYS = [
   "greecheck.history",

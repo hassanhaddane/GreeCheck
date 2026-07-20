@@ -4,9 +4,9 @@
  * (GreeCart is a basket analyzer; analysis lives in domains/cart/engine.)
  */
 import { create } from "zustand";
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
-import type { CartItem } from "@/domains/cart/model";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
+import type { CartItem } from "@greecheck/domain/cart/model";
 import { cartRepo } from "@/services/storage/repositories";
 
 export type { CartItem };

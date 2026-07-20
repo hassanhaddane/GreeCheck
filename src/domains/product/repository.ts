@@ -13,8 +13,8 @@
  *     source-specific conditions.
  */
 import type { ProductResult, SearchResult } from "@/services/api/openfoodfacts";
-import type { Product, AssessmentStatus, Confidence } from "@/domains/product/model";
-import { ensureDerived, assessProduct } from "@/domains/product/normalizer";
+import type { Product, AssessmentStatus, Confidence } from "@greecheck/domain/product/model";
+import { ensureDerived, assessProduct } from "@greecheck/domain/product/normalizer";
 import { productCacheRepo } from "@/services/storage/repositories";
 
 /* ───────────────────────── lookup envelope ───────────────────────── */

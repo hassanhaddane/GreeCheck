@@ -4,7 +4,7 @@ import { GreeScoreRing } from "./gree-score-ring";
 import { TrustHalo } from "./trust-halo";
 import { GreeBadge } from "./gree-badge";
 import { cn } from "@/lib/utils/cn";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 export interface VerdictCardProps {
   gree: GreeScore;

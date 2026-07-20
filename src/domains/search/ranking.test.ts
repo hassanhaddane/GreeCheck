@@ -2,9 +2,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { rankSearchResults, relevanceScore, type ScoredProduct } from "./ranking";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { defaultPreferences } from "@/domains/criteria/model";
-import type { Product } from "@/domains/product/model";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { defaultPreferences } from "@greecheck/domain/criteria/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 const PREFS = { ...defaultPreferences };
 function product(o: Partial<Product> = {}): Product {

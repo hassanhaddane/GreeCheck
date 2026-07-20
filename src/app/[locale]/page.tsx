@@ -16,10 +16,10 @@ import { DemoJourney, type DemoData } from "@/components/marketing/demo-journey"
 import { StaticScoreRing } from "@/components/marketing/static-ring";
 import { SearchEntryForm } from "@/components/marketing/search-entry-form";
 import { DEMO_GENERIC, DEMO_BETTER, DEMO_MIDDLE, DEMO_CART_BEFORE, DEMO_CART_AFTER } from "@/components/marketing/fixtures";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { computeBattle } from "@/domains/battle/engine";
-import { computeCartScore } from "@/domains/cart/engine";
-import { defaultPreferences } from "@/domains/criteria/model";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { computeBattle } from "@greecheck/domain/battle/engine";
+import { computeCartScore } from "@greecheck/domain/cart/engine";
+import { defaultPreferences } from "@greecheck/domain/criteria/model";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

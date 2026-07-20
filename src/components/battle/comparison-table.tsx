@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 import { Check, Minus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import type { BattleEntry } from "@/domains/battle/engine";
+import type { BattleEntry } from "@greecheck/domain/battle/engine";
 
 type Dir = "higher" | "lower" | "bool";
 interface Row {

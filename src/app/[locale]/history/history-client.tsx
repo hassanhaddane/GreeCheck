@@ -22,7 +22,7 @@ import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { getProduct } from "@/domains/product/repository";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import {
   filterHistory, groupByDay, historyCategories, DEFAULT_FILTERS,
   type HistoryFilters, type DatePreset, type QualityPreset

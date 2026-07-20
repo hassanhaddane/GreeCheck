@@ -8,10 +8,10 @@ import {
   isSwapEligible, validateCandidate, rankAlternatives, computeImprovements,
   introducesCriticalWeakness, hasSufficientData, MIN_SCORE_GAIN
 } from "./engine";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { defaultPreferences } from "@/domains/criteria/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import type { Product } from "@/domains/product/model";
+import { computeGreeScore } from "../scoring/gree-score";
+import { defaultPreferences } from "../criteria/model";
+import type { LocalPreferences } from "../criteria/model";
+import type { Product } from "../product/model";
 
 const PREFS: LocalPreferences = { ...defaultPreferences };
 const score = (p: Product, prefs: LocalPreferences = PREFS) => computeGreeScore(p, prefs);

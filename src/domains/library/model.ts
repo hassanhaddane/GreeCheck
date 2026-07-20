@@ -2,8 +2,8 @@
  * Library domain — "Mes scans" (history) + favorites.
  * Data lives ONLY on the device (IndexedDB via services/storage).
  */
-import type { Product, Grade } from "@/domains/product/model";
-import type { GreeScore, ScoreGrade, ScoreValues } from "@/domains/scoring/types";
+import type { Product, Grade } from "@greecheck/domain/product/model";
+import type { GreeScore, ScoreGrade, ScoreValues } from "@greecheck/domain/scoring/types";
 
 /**
  * One entry in the local scan history (also reused for favorites).

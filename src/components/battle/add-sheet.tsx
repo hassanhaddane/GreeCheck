@@ -15,7 +15,7 @@ import { useBattleStore, type AddResult } from "@/domains/battle/store";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 type Mode = "search" | "scan" | "manual" | "library";
 export type AddSheetMode = Mode;

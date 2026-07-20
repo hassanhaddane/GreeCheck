@@ -13,8 +13,8 @@ import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 /**
  * ProductCard — the shared premium product row.

@@ -6,7 +6,7 @@ import { PageHeading } from "@/components/app/page-heading";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { usePreferencesStore } from "@/domains/criteria/store";
-import type { PrefKey } from "@/domains/criteria/goals";
+import type { PrefKey } from "@greecheck/domain/criteria/goals";
 import { useMounted } from "@/hooks/use-mounted";
 
 /** The 8 default-visible criteria (order per spec). */

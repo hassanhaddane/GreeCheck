@@ -14,11 +14,12 @@ import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
-import { getAlternatives, type Alternative, type SwapImprovement } from "@/domains/swap/engine";
+import { getAlternatives } from "@/domains/swap/service";
+import type { Alternative, SwapImprovement } from "@greecheck/domain/swap/engine";
 import { useBattleStore } from "@/domains/battle/store";
 import { useCartStore } from "@/domains/cart/store";
-import type { Product } from "@/domains/product/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
+import type { Product } from "@greecheck/domain/product/model";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
 
 /** Measurable, human label for one improvement (values already computed by the engine). */
 function useImprovementLabel() {

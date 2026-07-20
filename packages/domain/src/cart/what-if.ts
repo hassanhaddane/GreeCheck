@@ -7,11 +7,11 @@
  *  only supplies pre-fetched, already-validated GreeSwap candidates.
  * ════════════════════════════════════════════════════════════════════════
  */
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { computeCartScore, type CartInput, type CartProductAnalysis } from "@/domains/cart/engine";
+import type { Product } from "../product/model";
+import type { GreeScore } from "../scoring/types";
+import type { LocalPreferences } from "../criteria/model";
+import { computeGreeScore } from "../scoring/gree-score";
+import { computeCartScore, type CartInput, type CartProductAnalysis } from "../cart/engine";
 
 export const DEFAULT_MIN_GAIN = 2;
 export const DEFAULT_MAX_STEPS = 5;

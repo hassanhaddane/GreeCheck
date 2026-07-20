@@ -1,9 +1,9 @@
-import type { Product } from "@/domains/product/model";
-import type { GreeScore, ScoreGrade } from "@/domains/scoring/types";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { NUTRITION_THRESHOLDS, clamp, round } from "@/domains/scoring/thresholds";
-import { halalStatusOf, hasAllergenConflict, hasAnyNutrition, hasIngredientsData } from "@/domains/scoring/detectors";
+import type { Product } from "../product/model";
+import type { GreeScore, ScoreGrade } from "../scoring/types";
+import type { LocalPreferences } from "../criteria/model";
+import { computeGreeScore } from "../scoring/gree-score";
+import { NUTRITION_THRESHOLDS, clamp, round } from "../scoring/thresholds";
+import { halalStatusOf, hasAllergenConflict, hasAnyNutrition, hasIngredientsData } from "../scoring/detectors";
 
 export type CartLabelKey = "excellent" | "good" | "mixed" | "needsImprovement" | "poor";
 export type CartConfidenceLevel = "high" | "medium" | "low";

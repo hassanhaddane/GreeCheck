@@ -7,7 +7,7 @@ import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { cn } from "@/lib/utils/cn";
-import type { BattleEntry } from "@/domains/battle/engine";
+import type { BattleEntry } from "@greecheck/domain/battle/engine";
 
 /** Compact basket row. `priority` flags an item that should be replaced. */
 export function CartItemCard({ entry, onRemove, priority }: { entry: BattleEntry; onRemove: () => void; priority?: boolean }) {

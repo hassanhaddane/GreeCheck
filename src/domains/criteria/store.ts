@@ -5,8 +5,8 @@
  * and GreeCart — never the base health score.
  */
 import { create } from "zustand";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import { defaultPreferences } from "@/domains/criteria/model";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
+import { defaultPreferences } from "@greecheck/domain/criteria/model";
 
 export { defaultPreferences };
 import { preferencesRepo } from "@/services/storage/repositories";

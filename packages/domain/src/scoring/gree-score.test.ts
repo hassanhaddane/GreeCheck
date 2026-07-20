@@ -5,9 +5,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { computeGreeScore, explainScore, categoryProfileOf } from "./gree-score";
-import { defaultPreferences } from "@/domains/criteria/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import type { Product } from "@/domains/product/model";
+import { defaultPreferences } from "../criteria/model";
+import type { LocalPreferences } from "../criteria/model";
+import type { Product } from "../product/model";
 
 const NO_PREFS: LocalPreferences = { ...defaultPreferences };
 

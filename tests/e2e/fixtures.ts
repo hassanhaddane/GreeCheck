@@ -1,5 +1,5 @@
 import type { Page, Route } from "@playwright/test";
-import type { Product } from "../../src/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 const availability = {
   name: true,

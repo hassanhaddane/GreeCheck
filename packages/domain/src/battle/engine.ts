@@ -10,12 +10,12 @@
  *  low-confidence product from "winning" just because missing data produced
  *  fewer penalties.
  */
-import type { Product } from "@/domains/product/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import type { GreeScore } from "@/domains/scoring/types";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
-import { computeDataQuality } from "@/domains/product/normalizer";
-import { nutriRank } from "@/domains/scoring/thresholds";
+import type { Product } from "../product/model";
+import type { LocalPreferences } from "../criteria/model";
+import type { GreeScore } from "../scoring/types";
+import { computeGreeScore } from "../scoring/gree-score";
+import { computeDataQuality } from "../product/normalizer";
+import { nutriRank } from "../scoring/thresholds";
 
 export interface BattleEntry {
   product: Product;

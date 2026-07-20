@@ -8,10 +8,10 @@
  *  product outranks it.
  * ════════════════════════════════════════════════════════════════════════
  */
-import type { Product } from "@/domains/product/model";
-import type { GreeScore } from "@/domains/scoring/types";
-import type { LocalPreferences } from "@/domains/criteria/model";
-import { computeDataQuality } from "@/domains/product/normalizer";
+import type { Product } from "@greecheck/domain/product/model";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
+import { computeDataQuality } from "@greecheck/domain/product/normalizer";
 import { normalize } from "@/domains/search/intents";
 
 export interface ScoredProduct {

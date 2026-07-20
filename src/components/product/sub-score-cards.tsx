@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { HeartPulse, Factory, FlaskConical, BadgeCheck, Target, Globe } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { GreeCard } from "@/components/system/gree-card";
-import type { GreeScore } from "@/domains/scoring/types";
+import type { GreeScore } from "@greecheck/domain/scoring/types";
 import { cn } from "@/lib/utils/cn";
 
 const band = (v: number) =>

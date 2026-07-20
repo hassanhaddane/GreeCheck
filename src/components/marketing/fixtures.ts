@@ -3,7 +3,7 @@
  * These are real products (captured 2026-07-12); the real domain engines still
  * calculate every displayed score, Battle result and basket change.
  */
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 
 const base = { source: "openfoodfacts" as const };
 

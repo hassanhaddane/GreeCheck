@@ -14,7 +14,7 @@ import { AxisBars } from "@/components/battle/axis-bars";
 import { Podium } from "@/components/battle/podium";
 import { AddSheet } from "@/components/battle/add-sheet";
 import { GreeDNA } from "@/components/product/gree-dna";
-import { computeBattle } from "@/domains/battle/engine";
+import { computeBattle } from "@greecheck/domain/battle/engine";
 import { useBattleStore, BATTLE_MAX } from "@/domains/battle/store";
 import { useCartStore } from "@/domains/cart/store";
 import { usePreferencesStore } from "@/domains/criteria/store";

@@ -16,7 +16,7 @@ import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { getProduct } from "@/domains/product/repository";
-import { computeGreeScore } from "@/domains/scoring/gree-score";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import type { FavoriteItem } from "@/domains/library/model";
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/lib/utils/cn";

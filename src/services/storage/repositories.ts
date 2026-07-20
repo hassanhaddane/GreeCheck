@@ -9,9 +9,9 @@
 import { db, PRODUCT_TTL, type CachedProduct } from "./db";
 import type { ProductResult } from "@/services/api/openfoodfacts";
 import type { ScanHistoryItem, FavoriteItem } from "@/domains/library/model";
-import type { CartItem } from "@/domains/cart/model";
-import type { BattleDraftItem } from "@/domains/battle/model";
-import type { LocalPreferences } from "@/domains/criteria/model";
+import type { CartItem } from "@greecheck/domain/cart/model";
+import type { BattleDraftItem } from "@greecheck/domain/battle/model";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
 
 const HISTORY_MAX = 500;
 

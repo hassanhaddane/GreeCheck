@@ -9,9 +9,9 @@ import {
   Candy, Droplets, Beef, Wheat, Globe, Dumbbell, Scale, Sunrise, Cookie,
   ShieldCheck, Star, Factory, Repeat, CalendarCheck, Users, Store
 } from "lucide-react";
-import type { Product } from "@/domains/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 import type { SmartFilter, FilterGroup, FilterLocale } from "@/types/filters";
-import { NUTRITION_THRESHOLDS as T } from "@/domains/scoring/thresholds";
+import { NUTRITION_THRESHOLDS as T } from "@greecheck/domain/scoring/thresholds";
 
 // Back-compat aliases — canonical types live in types/filters.
 export type { FilterGroup };

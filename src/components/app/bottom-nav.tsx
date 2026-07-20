@@ -14,9 +14,6 @@ export function BottomNav() {
   const t = useTranslations("nav");
   const pathname = usePathname();
 
-  // The public marketing entry stays intentionally lightweight.
-  if (pathname === "/") return null;
-
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="gc-glass gc-edge mx-auto mb-3 flex max-w-md items-center justify-around rounded-[1.75rem] px-2 py-2 shadow-glass">

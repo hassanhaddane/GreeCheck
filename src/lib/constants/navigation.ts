@@ -1,6 +1,6 @@
 import {
-  ScanLine, Search, Swords, ShoppingBasket, History, Heart,
-  Compass, SlidersHorizontal, BookOpenText, Settings, ShieldCheck, type LucideIcon
+  ScanLine, Search, Swords, ShoppingBasket, History, Heart, ListChecks,
+  SlidersHorizontal, BookOpenText, Settings, ShieldCheck, HeartHandshake, type LucideIcon
 } from "lucide-react";
 
 export interface NavItem {
@@ -25,9 +25,10 @@ export const BOTTOM_NAV: NavItem[] = [
 /** Secondary destinations — the compact "More" menu (mobile sheet + desktop rail footer). */
 export const MORE_NAV: NavItem[] = [
   { key: "favorites", href: "/favorites", icon: Heart },
-  { key: "discover", href: "/discover", icon: Compass },
+  { key: "list", href: "/list", icon: ListChecks },
   { key: "criteria", href: "/criteria", icon: SlidersHorizontal },
   { key: "methodology", href: "/methodology", icon: BookOpenText },
   { key: "settings", href: "/settings", icon: Settings },
-  { key: "privacy", href: "/privacy", icon: ShieldCheck }
+  { key: "privacy", href: "/privacy", icon: ShieldCheck },
+  { key: "support", href: "/support", icon: HeartHandshake }
 ];

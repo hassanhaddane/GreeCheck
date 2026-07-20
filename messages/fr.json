@@ -10,7 +10,7 @@
     "home": "Accueil",
     "scan": "Scanner",
     "search": "Rechercher",
-    "battle": "Battle",
+    "battle": "GreeCompare",
     "settings": "Réglages",
     "privacy": "Confidentialité",
     "history": "Mes scans",
@@ -22,7 +22,10 @@
     "searchLabel": "Recherche produit",
     "scanCta": "Scanner",
     "recents": "Récents",
-    "favorites": "Favoris"
+    "favorites": "Favoris",
+    "list": "Liste de courses",
+    "support": "Soutenir",
+    "language": "Langue"
   },
   "scan": {
     "title": "GreeLens",
@@ -1001,5 +1004,70 @@
     "addedCart": "Ajouté au GreeCart",
     "addedBattle": "Ajouté au Battle",
     "actionUnavailable": "Produit indisponible hors ligne"
+  },
+  "home": {
+    "hero": {
+      "title": "Chaque scan améliore vos habitudes.",
+      "subtitle": "Verdict clair en deux secondes, preuves à l'appui.",
+      "cta": "Scanner un produit",
+      "firstHint": "Premier scan ? Visez simplement le code-barres."
+    },
+    "search": {
+      "label": "Recherche produit",
+      "placeholder": "Rechercher un produit ou un code-barres…"
+    },
+    "weekly": {
+      "title": "Votre semaine",
+      "points": "pts",
+      "empty": "Aucun scan cette semaine — le rayon n'attend que vous.",
+      "scans": "{count, plural, one {scan} other {scans}}",
+      "avg": "score moyen",
+      "localNote": "Calculé sur cet appareil. Rien ne quitte votre téléphone."
+    },
+    "recents": {
+      "title": "Produits récents",
+      "all": "Tout voir"
+    },
+    "list": {
+      "title": "Liste de courses",
+      "empty": "Votre liste est vide — ajoutez vos bons choix.",
+      "preview": "{count, plural, one {# article à prendre} other {# articles à prendre}} · {first}"
+    },
+    "independence": {
+      "title": "Indépendant, par construction",
+      "body": "Aucune marque ne paie pour apparaître ici. Pas de compte, pas de pub, pas de traçage : GreeCheck vit de vos dons."
+    }
+  },
+  "list": {
+    "metaTitle": "Liste de courses — GreeCheck",
+    "metaDescription": "Votre liste de courses locale : cochez en magasin, rien ne quitte votre appareil.",
+    "title": "Liste de courses",
+    "subtitle": "Locale, hors-ligne, à vous. Cochez en magasin.",
+    "addLabel": "Ajouter un article",
+    "addPlaceholder": "Ajouter un article…",
+    "add": "Ajouter",
+    "empty": "Rien à acheter pour l'instant. Scannez un produit et ajoutez vos bons choix.",
+    "emptyCta": "Scanner un produit",
+    "remove": "Retirer {name}",
+    "clearChecked": "Retirer {count, plural, one {l'article coché} other {les # articles cochés}}",
+    "localNote": "Cette liste reste sur votre appareil, jusqu'à ce que vous la supprimiez."
+  },
+  "support": {
+    "metaTitle": "Soutenir GreeCheck — Indépendance",
+    "metaDescription": "GreeCheck est gratuit, sans pub et financé par les dons. Découvrez ce que votre soutien protège.",
+    "title": "Soutenir GreeCheck",
+    "subtitle": "Gratuit pour tout le monde. Financé par personne d'autre que vous.",
+    "manifestoTitle": "Notre indépendance n'est pas à vendre.",
+    "manifestoBody": "Aucune marque ne peut acheter une note, une place ou une recommandation. Les scores sortent d'une méthode publique et versionnée — et de rien d'autre.",
+    "pointIndependenceTitle": "Zéro placement payant",
+    "pointIndependenceBody": "Les industriels n'ont aucun canal d'influence sur les scores ni sur les alternatives.",
+    "pointNoAdsTitle": "Zéro pub, zéro traçage",
+    "pointNoAdsBody": "Pas de compte, pas de profil, pas d'analytics. Vos scans restent sur votre appareil.",
+    "pointMethodologyTitle": "Méthode publique",
+    "pointMethodologyBody": "Formule, seuils et registre d'additifs sont documentés et datés. Chaque point est explicable.",
+    "donateTitle": "Les dons ouvriront au lancement",
+    "donateBody": "GreeCheck vivra uniquement de dons volontaires. Un don n'achète rien : ni visibilité, ni fonctionnalité, ni donnée. En attendant, parlez-en autour de vous — c'est déjà un soutien.",
+    "meanwhile": "Envie de vérifier par vous-même ?",
+    "meanwhileLink": "Lisez la méthodologie."
   }
 }

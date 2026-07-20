@@ -48,6 +48,17 @@
   --gc-verdict-negative: var(--gc-score-e);
   --gc-verdict-unknown: 91 101 95;   /* unknown ≠ negative (AA text) */
 
+  /* ── color · pastel dashboard tints (V2 design system) ──────
+     backgrounds ONLY; text on pastel uses the paired *-ink token */
+  --gc-pastel-mint: 220 242 227;
+  --gc-pastel-sage: 230 239 224;
+  --gc-pastel-sand: 243 237 224;
+  --gc-pastel-butter: 248 241 220;
+  --gc-pastel-sky: 225 238 242;
+  --gc-pastel-blush: 246 227 220;
+  --gc-pastel-stone: 236 237 234;
+  --gc-sky-ink: 30 107 122;
+
   --gc-glass: 255 255 255;
 
   /* ── typography ───────────────────────────────────────────── */
@@ -98,6 +109,15 @@
   --gc-score-c-ink: 250 204 21;
   --gc-score-d-ink: 251 146 60;
   --gc-score-e-ink: 248 113 113;
+  --gc-pastel-mint: 22 44 32;
+  --gc-pastel-sage: 26 40 26;
+  --gc-pastel-sand: 42 38 28;
+  --gc-pastel-butter: 44 40 24;
+  --gc-pastel-sky: 22 38 44;
+  --gc-pastel-blush: 46 32 28;
+  --gc-pastel-stone: 34 38 36;
+  --gc-sky-ink: 125 196 212;
+
   --gc-glass: 22 28 25;
 
   --gc-shadow-1: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px -12px rgb(0 0 0 / 0.5);

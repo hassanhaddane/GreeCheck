@@ -183,6 +183,14 @@ export const onboardingRepo = {
   clear: () => kvRemove("onboarding")
 };
 
+
+/** Shopping list — single KV document (small, personal, local-only). */
+export const shoppingListRepo = {
+  get: () => kvGet<import("@/domains/list/model").ShoppingListItem[]>("shoppingList"),
+  set: (items: import("@/domains/list/model").ShoppingListItem[]) => kvSet("shoppingList", items),
+  clear: () => kvRemove("shoppingList")
+};
+
 /** Internal meta flags (schema/migration bookkeeping). */
 export const metaRepo = {
   get: <T>(key: string) => kvGet<T>(`meta.${key}`),

@@ -38,7 +38,16 @@ const config: Config = {
         "verdict-positive": "rgb(var(--gc-verdict-positive) / <alpha-value>)",
         "verdict-caution": "rgb(var(--gc-verdict-caution) / <alpha-value>)",
         "verdict-negative": "rgb(var(--gc-verdict-negative) / <alpha-value>)",
-        "verdict-unknown": "rgb(var(--gc-verdict-unknown) / <alpha-value>)"
+        "verdict-unknown": "rgb(var(--gc-verdict-unknown) / <alpha-value>)",
+        // pastel dashboard tints (backgrounds only; text uses paired inks)
+        "pastel-mint": "rgb(var(--gc-pastel-mint) / <alpha-value>)",
+        "pastel-sage": "rgb(var(--gc-pastel-sage) / <alpha-value>)",
+        "pastel-sand": "rgb(var(--gc-pastel-sand) / <alpha-value>)",
+        "pastel-butter": "rgb(var(--gc-pastel-butter) / <alpha-value>)",
+        "pastel-sky": "rgb(var(--gc-pastel-sky) / <alpha-value>)",
+        "pastel-blush": "rgb(var(--gc-pastel-blush) / <alpha-value>)",
+        "pastel-stone": "rgb(var(--gc-pastel-stone) / <alpha-value>)",
+        "sky-ink": "rgb(var(--gc-sky-ink) / <alpha-value>)"
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "-apple-system", "Segoe UI", "sans-serif"]

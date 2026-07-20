@@ -10,7 +10,7 @@
     "home": "Home",
     "scan": "Scan",
     "search": "Search",
-    "battle": "Battle",
+    "battle": "GreeCompare",
     "settings": "Settings",
     "privacy": "Privacy",
     "history": "My scans",
@@ -22,7 +22,10 @@
     "searchLabel": "Product search",
     "scanCta": "Scan",
     "recents": "Recent",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "list": "Shopping list",
+    "support": "Support",
+    "language": "Language"
   },
   "scan": {
     "title": "GreeLens",
@@ -1001,5 +1004,70 @@
     "addedCart": "Added to GreeCart",
     "addedBattle": "Added to Battle",
     "actionUnavailable": "Product unavailable offline"
+  },
+  "home": {
+    "hero": {
+      "title": "Every scan improves your habits.",
+      "subtitle": "A clear verdict in two seconds, with the proof behind it.",
+      "cta": "Scan a product",
+      "firstHint": "First scan? Just aim at the barcode."
+    },
+    "search": {
+      "label": "Product search",
+      "placeholder": "Search a product or barcode…"
+    },
+    "weekly": {
+      "title": "Your week",
+      "points": "pts",
+      "empty": "No scans this week — the aisle is waiting.",
+      "scans": "{count, plural, one {scan} other {scans}}",
+      "avg": "average score",
+      "localNote": "Computed on this device. Nothing leaves your phone."
+    },
+    "recents": {
+      "title": "Recent products",
+      "all": "See all"
+    },
+    "list": {
+      "title": "Shopping list",
+      "empty": "Your list is empty — add your good choices.",
+      "preview": "{count, plural, one {# item to pick up} other {# items to pick up}} · {first}"
+    },
+    "independence": {
+      "title": "Independent, by construction",
+      "body": "No brand pays to appear here. No account, no ads, no tracking: GreeCheck runs on your donations."
+    }
+  },
+  "list": {
+    "metaTitle": "Shopping list — GreeCheck",
+    "metaDescription": "Your local shopping list: check items off in store, nothing leaves your device.",
+    "title": "Shopping list",
+    "subtitle": "Local, offline, yours. Check items off in store.",
+    "addLabel": "Add an item",
+    "addPlaceholder": "Add an item…",
+    "add": "Add",
+    "empty": "Nothing to buy yet. Scan a product and add your good choices.",
+    "emptyCta": "Scan a product",
+    "remove": "Remove {name}",
+    "clearChecked": "Remove {count, plural, one {the checked item} other {# checked items}}",
+    "localNote": "This list stays on your device until you delete it."
+  },
+  "support": {
+    "metaTitle": "Support GreeCheck — Independence",
+    "metaDescription": "GreeCheck is free, ad-free and donation-funded. See what your support protects.",
+    "title": "Support GreeCheck",
+    "subtitle": "Free for everyone. Funded by no one but you.",
+    "manifestoTitle": "Our independence is not for sale.",
+    "manifestoBody": "No brand can buy a score, a ranking or a recommendation. Scores come from a public, versioned method — and from nothing else.",
+    "pointIndependenceTitle": "Zero paid placement",
+    "pointIndependenceBody": "Manufacturers have no channel of influence over scores or alternatives.",
+    "pointNoAdsTitle": "Zero ads, zero tracking",
+    "pointNoAdsBody": "No account, no profile, no analytics. Your scans stay on your device.",
+    "pointMethodologyTitle": "Public methodology",
+    "pointMethodologyBody": "Formula, thresholds and the additive registry are documented and dated. Every point is explainable.",
+    "donateTitle": "Donations open at launch",
+    "donateBody": "GreeCheck will run on voluntary donations only. A donation buys nothing: no visibility, no feature, no data. Meanwhile, telling people about it already helps.",
+    "meanwhile": "Want to check for yourself?",
+    "meanwhileLink": "Read the methodology."
   }
 }

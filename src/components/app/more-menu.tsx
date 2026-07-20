@@ -1,12 +1,16 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Menu, ChevronRight } from "lucide-react";
+import { Settings, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
+import { LanguageSwitcher } from "./language-switcher";
 import { MORE_NAV } from "@/lib/constants/navigation";
 
-/** Compact "More" menu (mobile): secondary destinations in a bottom sheet. */
+/**
+ * Settings & more (mobile): the secondary destinations in a bottom sheet,
+ * opened from the minimal top header's single settings control.
+ */
 export function MoreMenu() {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
@@ -20,7 +24,7 @@ export function MoreMenu() {
         aria-haspopup="dialog"
         className="gc-pressable grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-surface-2 md:hidden"
       >
-        <Menu className="h-5 w-5" />
+        <Settings className="h-5 w-5" />
       </button>
       <GreeBottomSheet open={open} onClose={() => setOpen(false)} title={t("more")} closeLabel={tc("close")}>
         <nav aria-label={t("more")}>
@@ -45,6 +49,10 @@ export function MoreMenu() {
             })}
           </ul>
         </nav>
+        <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+          <span className="text-sm font-medium text-muted">{t("language")}</span>
+          <LanguageSwitcher />
+        </div>
       </GreeBottomSheet>
     </>
   );

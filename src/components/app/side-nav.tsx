@@ -20,9 +20,6 @@ export function SideNav() {
   const mounted = useMounted();
   const recents = useHistoryStore((s) => s.entries);
 
-  // Marketing home gets the full width (the app is one click away in the bar).
-  if (pathname === "/") return null;
-
   const primary = BOTTOM_NAV.filter((i) => i.key !== "scan");
 
   const linkClass = (active: boolean) =>

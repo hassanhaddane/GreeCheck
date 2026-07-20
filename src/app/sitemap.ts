@@ -8,7 +8,7 @@ import { SITE_URL, localizedAlternates } from "@/lib/seo";
  * (e.g. /search results, dynamic /product/[barcode]) are intentionally excluded
  * so we never advertise low-value or duplicated localized URLs.
  */
-const PATHS = ["", "/methodology", "/privacy"] as const;
+const PATHS = ["", "/methodology", "/privacy", "/support"] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

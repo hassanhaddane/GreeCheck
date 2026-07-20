@@ -20,13 +20,18 @@ test("relevanceScore rewards name/brand/category token overlap", () => {
 });
 
 test("an incomplete product does NOT outrank a well-documented one solely for lacking negatives", () => {
-  // Incomplete: only a great Nutri-Score, nothing else → high raw score, LOW confidence.
-  const incomplete = scored(product({ name: "Yaourt A", categories: ["yogurts"], nutriScore: "a" }));
-  // Complete: full data, slightly lower raw score, HIGH confidence.
+  // Incomplete: official letter A, partial facts → GS-2 grade fallback, MEDIUM
+  // confidence, higher raw score (90).
+  const incomplete = scored(product({
+    name: "Yaourt A", categories: ["yogurts"], nutriScore: "a",
+    ingredientsText: "lait, ferments", additives: [],
+    nutriments: { sugars: 3, salt: 0.05 }
+  }));
+  // Complete: full facts → computed points, HIGH confidence, slightly lower (84).
   const complete = scored(product({
     name: "Yaourt B", categories: ["yogurts"], nutriScore: "b", novaGroup: 2,
     ingredientsText: "lait, ferments", additives: [], imageUrl: "x",
-    nutriments: { sugars: 6, salt: 0.1, proteins: 5, saturatedFat: 2 }
+    nutriments: { energyKcal: 90, sugars: 5, saturatedFat: 1.5, salt: 0.1, fiber: 1, proteins: 6 }
   }));
   assert.ok(incomplete.gree.global >= complete.gree.global, "incomplete must have the higher RAW score to isolate the rule");
   const ranked = rankSearchResults("yaourt", [incomplete, complete], PREFS);

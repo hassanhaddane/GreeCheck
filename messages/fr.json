@@ -690,7 +690,9 @@
       "highEcoImpact": "Impact environnemental élevé ({grade})",
       "bioCapped": "Le bio ne compense pas l'ultra-transformation",
       "criterionMismatch": "En décalage avec ton critère",
-      "criterionMatch": "Aligné avec ton critère"
+      "criterionMatch": "Aligné avec ton critère",
+      "highRiskAdditiveCap": "Additif à risque élevé — note plafonnée à 49",
+      "additivesUnreviewed": "{n} additif(s) non encore évalué(s) par notre registre"
     },
     "warning": {
       "highSugar": "Sucre élevé ({v} g / 100 g)",
@@ -719,7 +721,9 @@
       "limit": "À limiter",
       "poor_fit_for_goal": "Peu adapté à ton objectif",
       "ultra_processed": "Ultra-transformé",
-      "insufficient_data": "Données insuffisantes"
+      "insufficient_data": "Données insuffisantes",
+      "excluded_category": "Catégorie non notée",
+      "unsupported_category": "Catégorie non prise en charge"
     },
     "explain": {
       "highSugarUltraProcessed": "Très sucré et ultra-transformé.",
@@ -730,7 +734,10 @@
       "notIdealForCriterion": "Peu adapté à ton critère « {criterion} ».",
       "solidChoice": "Profil solide sur les critères principaux.",
       "mixedProfile": "Profil mitigé — regarde les raisons principales.",
-      "watchSugar": "Surveille le sucre."
+      "watchSugar": "Surveille le sucre.",
+      "excludedCategory": "Ce type de produit n'est pas noté : aucune méthode d'évaluation fiable n'existe pour cette catégorie.",
+      "unsupportedCategory": "Cette catégorie demande une méthode spécifique que nous n'appliquons pas encore — plutôt que d'inventer une note, nous n'en affichons pas.",
+      "highRiskAdditive": "Contient un additif à risque élevé : la note est plafonnée à 49/100."
     },
     "criterion": {
       "reduceSugar": "réduire le sucre",
@@ -827,8 +834,14 @@
       "increaseFiber": "Plus de fibres"
     },
     "allergenPresets": {
-      "gluten": "Gluten", "milk": "Lait", "lactose": "Lactose", "eggs": "Œufs",
-      "peanuts": "Arachides", "nuts": "Fruits à coque", "soybeans": "Soja", "palm": "Huile de palme"
+      "gluten": "Gluten",
+      "milk": "Lait",
+      "lactose": "Lactose",
+      "eggs": "Œufs",
+      "peanuts": "Arachides",
+      "nuts": "Fruits à coque",
+      "soybeans": "Soja",
+      "palm": "Huile de palme"
     }
   },
   "discover": {

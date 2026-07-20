@@ -690,7 +690,9 @@
       "highEcoImpact": "أثر بيئي مرتفع ({grade})",
       "bioCapped": "العضوي لا يعوّض المعالجة المفرطة",
       "criterionMismatch": "غير متوافق مع معيارك",
-      "criterionMatch": "متوافق مع معيارك"
+      "criterionMatch": "متوافق مع معيارك",
+      "highRiskAdditiveCap": "مادة مضافة عالية الخطورة — النتيجة محدودة عند 49",
+      "additivesUnreviewed": "{n} مادة مضافة لم تُراجَع بعد في سجلنا"
     },
     "warning": {
       "highSugar": "سكر مرتفع ({v} غ / 100 غ)",
@@ -719,7 +721,9 @@
       "limit": "قلّل منه",
       "poor_fit_for_goal": "غير مناسب لهدفك",
       "ultra_processed": "معالج جدًا",
-      "insufficient_data": "بيانات غير كافية"
+      "insufficient_data": "بيانات غير كافية",
+      "excluded_category": "فئة غير مقيَّمة",
+      "unsupported_category": "فئة غير مدعومة"
     },
     "explain": {
       "highSugarUltraProcessed": "غني بالسكر ومعالج جدًا.",
@@ -730,7 +734,10 @@
       "notIdealForCriterion": "غير مثالي لمعيارك «{criterion}».",
       "solidChoice": "ملف قوي على المعايير الرئيسية.",
       "mixedProfile": "ملف متباين — راجع الأسباب الرئيسية.",
-      "watchSugar": "انتبه للسكر."
+      "watchSugar": "انتبه للسكر.",
+      "excludedCategory": "هذا النوع من المنتجات غير مقيَّم: لا توجد طريقة تقييم موثوقة لهذه الفئة.",
+      "unsupportedCategory": "تتطلب هذه الفئة طريقة خاصة لا نطبقها بعد — بدلاً من اختراع نتيجة، لا نعرض أي نتيجة.",
+      "highRiskAdditive": "يحتوي على مادة مضافة عالية الخطورة: النتيجة محدودة عند 49/100."
     },
     "criterion": {
       "reduceSugar": "تقليل السكر",
@@ -827,8 +834,14 @@
       "increaseFiber": "المزيد من الألياف"
     },
     "allergenPresets": {
-      "gluten": "غلوتين", "milk": "حليب", "lactose": "لاكتوز", "eggs": "بيض",
-      "peanuts": "فول سوداني", "nuts": "مكسرات", "soybeans": "صويا", "palm": "زيت النخيل"
+      "gluten": "غلوتين",
+      "milk": "حليب",
+      "lactose": "لاكتوز",
+      "eggs": "بيض",
+      "peanuts": "فول سوداني",
+      "nuts": "مكسرات",
+      "soybeans": "صويا",
+      "palm": "زيت النخيل"
     }
   },
   "discover": {

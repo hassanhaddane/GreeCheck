@@ -15,7 +15,7 @@ const PREFS: LocalPreferences = { ...defaultPreferences };
 function product(o: Partial<Product> = {}): Product {
   return {
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
-    categories: ["snacks"], ingredientsText: "x", additives: [], imageUrl: "i",
+    categories: ["snacks"], ingredientsText: "céréales, sucre", additives: [], imageUrl: "i",
     nutriments: { sugars: 5, salt: 0.1, proteins: 5, saturatedFat: 2 }, nutriScore: "b", novaGroup: 2, ...o
   };
 }
@@ -24,7 +24,7 @@ const input = (p: Product): CartInput => ({ product: p });
 /* poor + good building blocks */
 const soda = product({ barcode: "soda", name: "Soda", categories: ["beverages", "sodas"], nutriScore: "e", novaGroup: 4, additives: ["e150d", "e338"], nutriments: { sugars: 60, salt: 0.1 } });
 const water = product({ barcode: "water", name: "Eau aromatisée", categories: ["beverages", "sodas"], nutriScore: "a", novaGroup: 1, nutriments: { sugars: 2, salt: 0.01 } });
-const oats = product({ barcode: "oats", name: "Flocons avoine", nutriScore: "a", novaGroup: 1, isBio: true, nutriments: { sugars: 1, fiber: 10, proteins: 13, salt: 0.01 } });
+const oats = product({ barcode: "oats", name: "Flocons avoine", nutriScore: "a", novaGroup: 1, isBio: true, nutriments: { energyKcal: 370, sugars: 1, saturatedFat: 1.2, fiber: 10, proteins: 13, salt: 0.01 } });
 
 test("simulateReplacement recalculates and reports a positive gain for a better product", () => {
   const inputs = [input(soda), input(oats)];

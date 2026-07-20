@@ -11,7 +11,6 @@
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 import type { LocalPreferences } from "@greecheck/domain/criteria/model";
-import { computeDataQuality } from "@greecheck/domain/product/normalizer";
 import { normalize } from "@/domains/search/intents";
 
 export interface ScoredProduct {
@@ -79,8 +78,9 @@ export function rankSearchResults(
 ): RankedProduct[] {
   const ranked = scored.map(({ p, gree }) => {
     const relevance = relevanceScore(query, p);
-    const confidence = (p.dataQuality ?? computeDataQuality(p)).confidence;
-    const effectiveScore = gree.global * CONFIDENCE_FACTOR[confidence];
+    // The ENGINE's confidence is authoritative: it also reflects the scoring
+    // path (e.g. GS-2 grade fallback), which raw product completeness cannot.
+    const effectiveScore = gree.global * CONFIDENCE_FACTOR[gree.confidence];
     const rank =
       relevance * W_RELEVANCE +
       effectiveScore * W_SCORE +
@@ -89,6 +89,6 @@ export function rankSearchResults(
     return { p, gree, relevance, rank };
   });
 
-  const conf = (r: RankedProduct) => CONFIDENCE_FACTOR[(r.p.dataQuality ?? computeDataQuality(r.p)).confidence];
+  const conf = (r: RankedProduct) => CONFIDENCE_FACTOR[r.gree.confidence];
   return ranked.sort((a, b) => b.rank - a.rank || conf(b) - conf(a) || a.p.barcode.localeCompare(b.p.barcode));
 }

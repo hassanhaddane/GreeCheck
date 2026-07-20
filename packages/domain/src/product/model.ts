@@ -74,6 +74,8 @@ export interface Product {
   nutriments: Nutriments;
   /* official gradings */
   nutriScore?: Grade;
+  /** Original Nutri-Score RAW points as provided by the source (OFF `nutriscore_score`). */
+  nutriScorePoints?: number;
   novaGroup?: 1 | 2 | 3 | 4;
   greenScore?: Grade;
   /* derived statuses (explicit unknowns) */

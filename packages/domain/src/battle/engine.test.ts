@@ -36,10 +36,11 @@ test("three-product comparison ranks all and picks a winner", () => {
 });
 
 test("CONFIDENCE affects the result: a low-confidence higher-raw product must NOT win", () => {
-  // Incomplete: only a great Nutri-Score (no nutrition, no ingredients) → LOW confidence, high raw score.
-  const incomplete = product({ barcode: "inc", name: "Yaourt A", nutriScore: "a", ingredientsText: undefined, additives: undefined, novaGroup: undefined, nutriments: {} });
-  // Complete: full data, slightly lower raw → HIGH confidence.
-  const complete = product({ barcode: "comp", name: "Yaourt B", nutriScore: "b", novaGroup: 2, nutriments: { sugars: 6, salt: 0.1, proteins: 6, saturatedFat: 2 } });
+  // Incomplete: official letter A but partial facts → GS-2 grade-fallback path,
+  // MEDIUM confidence, high raw score (fallback A → 100/100 nutrition → 90).
+  const incomplete = product({ barcode: "inc", name: "Yaourt A", nutriScore: "a", nutriments: { sugars: 3, salt: 0.05 } });
+  // Complete: full facts → computed points −1 → 90/100 → 84, HIGH confidence.
+  const complete = product({ barcode: "comp", name: "Yaourt B", nutriScore: "b", novaGroup: 2, nutriments: { energyKcal: 90, sugars: 5, saturatedFat: 1.5, salt: 0.1, fiber: 1, proteins: 6 } });
   const gInc = computeGreeScore(incomplete, PREFS), gComp = computeGreeScore(complete, PREFS);
   assert.ok(gInc.global >= gComp.global, "the incomplete product must have the higher RAW score to isolate the rule");
   assert.notEqual(gInc.confidence, "high"); // discounted (medium) — enough to lose to a complete product

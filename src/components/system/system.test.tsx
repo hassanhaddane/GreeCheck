@@ -66,7 +66,9 @@ test("TrustHalo conveys confidence with TEXT (never color alone)", () => {
 
 test("VerdictCard shows numeric score, grade text and confidence text", () => {
   const gree: GreeScore = {
-    global: 78, grade: "B", verdict: "good_choice",
+    status: "scored", methodologyVersion: "GS-2.0.0", registryVersion: "AR-2026.07.0",
+    global: 78, grade: "B", verdict: "good_choice", labelCode: "excellent",
+    cappedByHighRiskAdditive: false,
     subScores: { nutrition: 80, processing: 80, additives: 90, naturality: 70 },
     confidence: "high", confidenceReasons: [],
     topPositives: [], topNegatives: [], reasons: [], warnings: [], alerts: []

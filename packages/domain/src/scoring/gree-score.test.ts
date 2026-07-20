@@ -1,215 +1,281 @@
 /**
- * GreeScore V2 engine tests — every safeguard from the documented formula.
- * Pure engine: fast, deterministic, no React/no I/O.
+ * GreeScore GS-2 engine tests — unit + regression.
+ * Every expected number below is derivable by hand from the documented
+ * methodology (docs/methodology/gree-score-v2.md).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { computeGreeScore, explainScore, categoryProfileOf } from "./gree-score";
-import { defaultPreferences } from "../criteria/model";
-import type { LocalPreferences } from "../criteria/model";
 import type { Product } from "../product/model";
+import type { LocalPreferences } from "../criteria/model";
+import { defaultPreferences } from "../criteria/model";
+import { computeGreeScore, explainScore, additiveSeverityOf, METHODOLOGY_VERSION } from "./gree-score";
 
-const NO_PREFS: LocalPreferences = { ...defaultPreferences };
+const PREFS: LocalPreferences = { ...defaultPreferences };
 
-function product(overrides: Partial<Product> = {}): Product {
-  return { barcode: "0", name: "Test", nutriments: {}, source: "openfoodfacts", ...overrides };
-}
-
-/* ───────────── required scenario: excellent simple food ───────────── */
-const OATS = product({
-  name: "Flocons d'avoine",
-  ingredientsText: "flocons d'avoine complète",
-  additives: [],
-  nutriments: { energyKcal: 370, sugars: 1, salt: 0.01, saturatedFat: 1.2, fiber: 10, proteins: 13 },
-  nutriScore: "a",
-  novaGroup: 1,
-  isBio: true,
-  labels: ["organic"]
+/** Base product: complete facts, ingredients known, no additives, not organic.
+ *  Points: energy 418.4 kJ → 1 · sugars 2 → 0 · satFat 0.5 → 0 · salt 0.1 → 0
+ *  ⇒ N=1 · fiber 3 → 3 · protein 8 → 4 ⇒ points −6 ⇒ solid table ≤ −4 → 100.
+ *  Global = 60 + 30 + 0 = 90 (A, excellent). */
+const base = (over: Partial<Product> = {}): Product => ({
+  barcode: "3000000000001",
+  name: "Produit Test",
+  source: "openfoodfacts",
+  ingredientsText: "flocons d'avoine, eau",
+  categories: ["breakfast cereals"],
+  nutriments: { energyKcal: 100, sugars: 2, saturatedFat: 0.5, salt: 0.1, fiber: 3, proteins: 8 },
+  ...over
 });
 
-/* ───────────── required scenario: poor ultra-processed food ───────────── */
-const SODA_CANDY = product({
-  name: "Bonbons cola",
-  ingredientsText: "sirop de glucose, sucre, gélifiant, colorant e102, e129, arômes",
-  additives: ["e102", "e129", "e330"],
-  nutriments: { energyKcal: 350, sugars: 78, salt: 0.2, saturatedFat: 0.1, fiber: 0, proteins: 3 },
-  nutriScore: "e",
-  novaGroup: 4
-});
+/* ─────────────────────────── general formula ───────────────────────────── */
 
-test("excellent simple food scores A with excellent_choice verdict and positive reasons", () => {
-  const g = computeGreeScore(OATS, NO_PREFS);
-  assert.ok(g.global >= 80, `expected ≥80, got ${g.global}`);
+test("scored result carries version, components and label", () => {
+  const g = computeGreeScore(base(), PREFS);
+  assert.equal(g.status, "scored");
+  assert.equal(g.methodologyVersion, METHODOLOGY_VERSION);
+  assert.match(g.registryVersion, /^AR-/);
+  assert.equal(g.global, 90);
   assert.equal(g.grade, "A");
-  assert.equal(g.verdict, "excellent_choice");
-  assert.equal(g.confidence, "high");
-  assert.ok(g.topPositives.length >= 2);
-  assert.ok(g.topPositives.some((r) => r.code === "bio"));
-  assert.equal(g.topNegatives.length, 0);
+  assert.equal(g.labelCode, "excellent");
+  assert.equal(g.components?.nutrition.score100, 100);
+  assert.equal(g.components?.nutrition.contribution, 60);
+  assert.equal(g.components?.additives.contribution, 30);
+  assert.equal(g.components?.organic.contribution, 0);
+  assert.equal(g.cappedByHighRiskAdditive, false);
 });
 
-test("poor ultra-processed food scores low with ultra_processed verdict and matching negatives", () => {
-  const g = computeGreeScore(SODA_CANDY, NO_PREFS);
-  assert.ok(g.global < 45, `expected <45, got ${g.global}`);
-  assert.equal(g.verdict, "ultra_processed");
-  assert.ok(g.topNegatives.some((r) => r.code === "nova4"));
-  assert.ok(g.topNegatives.some((r) => r.code === "tooSugar"));
-  // reasons match the numeric result: a low score MUST carry negatives
-  assert.ok(g.topNegatives.length > 0);
+test("organic +10 requires an OFFICIAL certification — marketing words never count", () => {
+  const certified = computeGreeScore(base({ labels: ["EU Organic"] }), PREFS);
+  assert.equal(certified.components?.organic.contribution, 10);
+  assert.equal(certified.global, 100);
+
+  const marketing = computeGreeScore(base({ labels: ["100% naturel"], name: "Granola bio-inspiré" }), PREFS);
+  assert.equal(marketing.components?.organic.contribution, 0);
+  assert.equal(marketing.global, 90);
 });
 
-/* ───────────── safeguard: organic must not hide UPF + poor nutrition ───────────── */
-test("organic-but-unhealthy: bio bonus is capped — global stays ≤ 49 (grade ≤ C)", () => {
-  const organicJunk = product({
-    ...SODA_CANDY,
-    isBio: true,
-    labels: ["organic"],
-    greenScore: "a" // even with a great eco grade…
-  });
-  const g = computeGreeScore(organicJunk, NO_PREFS);
-  assert.ok(g.global <= 49, `cap violated: ${g.global}`);
-  assert.ok(g.grade === "C" || g.grade === "D" || g.grade === "E");
-  assert.notEqual(g.verdict, "excellent_choice");
-  assert.notEqual(g.verdict, "good_choice");
-  assert.ok(g.reasons.some((r) => r.code === "bioCapped"));
-  // the bio bonus is still visible in its own bucket (transparency)
-  assert.ok(g.subScores.naturality >= 70);
+test("additive deductions: limited −6, moderate −15, high −30, floor 0", () => {
+  const limited = computeGreeScore(base({ additives: ["en:e621"] }), PREFS);
+  assert.equal(limited.components?.additives.contribution, 24);
+  assert.equal(limited.global, 84);
+
+  const moderate = computeGreeScore(base({ additives: ["en:e951"] }), PREFS);
+  assert.equal(moderate.components?.additives.contribution, 15);
+  assert.equal(moderate.global, 75);
+
+  const floored = computeGreeScore(base({ additives: ["en:e951", "en:e407", "en:e466"] }), PREFS);
+  assert.equal(floored.components?.additives.contribution, 0); // 30 − 45 → floor 0
+  assert.equal(floored.global, 60);
 });
 
-/* ───────────── missing data reduces CONFIDENCE, not quality ───────────── */
-test("missing nutriments: insufficient_data verdict, low confidence, nutrition not punished", () => {
-  const g = computeGreeScore(product({ name: "Mystère", ingredientsText: "farine, eau, sel", novaGroup: 2 }), NO_PREFS);
-  assert.equal(g.confidence, "low");
+test("high-risk additive: −30 AND final cap at 49, flagged and explained", () => {
+  const g = computeGreeScore(base({ additives: ["en:e250"] }), PREFS);
+  // 60 (nutrition) + 0 (additives) + 0 = 60 → capped to 49
+  assert.equal(g.global, 49);
+  assert.equal(g.cappedByHighRiskAdditive, true);
+  assert.ok(g.components?.additives.deductions[0].triggersCap);
+  assert.ok(g.reasons.some((r) => r.code === "highRiskAdditiveCap"));
+  assert.equal(explainScore(g)[0].code, "highRiskAdditive");
+});
+
+test("cap flag stays false when the score was already ≤ 49", () => {
+  const g = computeGreeScore(
+    base({ nutriments: { energyKcal: 550, sugars: 50, saturatedFat: 12, salt: 2.5, fiber: 0.5, proteins: 2 }, additives: ["en:e250"] }),
+    PREFS
+  );
+  assert.ok(g.global <= 49);
+  assert.equal(g.cappedByHighRiskAdditive, false);
+});
+
+test("unreviewed additive: no deduction, no cap, surfaced as info", () => {
+  const g = computeGreeScore(base({ additives: ["en:e9999"] }), PREFS);
+  assert.equal(g.components?.additives.contribution, 30);
+  assert.equal(g.components?.additives.deductions[0].risk, "unreviewed");
+  assert.ok(g.reasons.some((r) => r.code === "additivesUnreviewed"));
+});
+
+/* ─────────────────────────── nutrition paths ───────────────────────────── */
+
+test("provider raw points take priority over the letter (never letter-mapped)", () => {
+  const g = computeGreeScore(base({ nutriScorePoints: -3, nutriScore: "e" }), PREFS);
+  assert.equal(g.components?.nutrition.pointsSource, "provider");
+  assert.equal(g.components?.nutrition.score100, 100);
+});
+
+test("beverages use the liquid column; only water reaches 100", () => {
+  const soda = computeGreeScore(
+    base({ categories: ["beverages", "sodas"], nutriScorePoints: 3 }),
+    PREFS
+  );
+  assert.equal(soda.components?.nutrition.kind, "beverage");
+  assert.equal(soda.components?.nutrition.score100, 49); // liquid col, 3 pts
+
+  const water = computeGreeScore(
+    base({ categories: ["beverages", "mineral waters"], nutriScorePoints: 0 }),
+    PREFS
+  );
+  assert.ok(water.components?.nutrition.isWater);
+  assert.equal(water.components?.nutrition.score100, 100);
+});
+
+test("same points, solid vs beverage: published columns differ", () => {
+  const solid = computeGreeScore(base({ nutriScorePoints: 3 }), PREFS);
+  assert.equal(solid.components?.nutrition.score100, 65);
+  const liquid = computeGreeScore(base({ categories: ["juices"], nutriScorePoints: 3 }), PREFS);
+  assert.equal(liquid.components?.nutrition.score100, 49);
+});
+
+test("grade fallback only when partial facts + official letter; confidence reduced", () => {
+  const g = computeGreeScore(
+    base({
+      nutriments: { energyKcal: 300, sugars: 10 }, // saturatedFat & salt missing
+      nutriScore: "b"
+    }),
+    PREFS
+  );
+  assert.equal(g.status, "scored");
+  assert.equal(g.components?.nutrition.pointsSource, "grade_fallback");
+  assert.notEqual(g.confidence, "high");
+  assert.ok(g.confidenceReasons.includes("nutrition_points_fallback"));
+});
+
+/* ─────────────────────────── unscored results ──────────────────────────── */
+
+test("missing required nutrition facts + no letter ⇒ typed unscored, never a grade", () => {
+  const g = computeGreeScore(base({ nutriments: { energyKcal: 300 } }), PREFS);
+  assert.equal(g.status, "unscored");
+  assert.equal(g.unscored?.code, "missing_nutrition_data");
   assert.equal(g.verdict, "insufficient_data");
-  assert.ok(g.confidenceReasons.includes("missingNutrition"));
-  assert.ok(g.warnings.some((w) => w.code === "partialData"));
+  assert.equal(g.labelCode, "unscored");
+  assert.equal(g.components, undefined);
+  assert.ok(g.confidenceReasons.some((r) => r.startsWith("missing_")));
+  assert.equal(explainScore(g)[0].code, "insufficientData");
 });
 
-test("missing ingredients: additives bucket is ABSENT (unknown ≠ additive-free)", () => {
-  const g = computeGreeScore(product({ name: "X", nutriments: { sugars: 3, salt: 0.1 }, nutriScore: "b", novaGroup: 2 }), NO_PREFS);
-  assert.equal(g.subScores.additives, undefined);
-  assert.ok(!g.reasons.some((r) => r.code === "noAdditive")); // no unearned bonus
-  assert.equal(g.confidence, "medium");
+test("unknown ingredient list ⇒ unscored (unknown is never additive-free)", () => {
+  const g = computeGreeScore(base({ ingredientsText: undefined }), PREFS);
+  assert.equal(g.status, "unscored");
+  assert.equal(g.unscored?.code, "missing_ingredients_data");
 });
 
-test("unknown NOVA: processing bucket absent, no neutral guess in the score", () => {
-  const withNova = computeGreeScore(product({ name: "A", nutriScore: "a", ingredientsText: "pommes", additives: [], nutriments: { sugars: 10 } , novaGroup: 1}), NO_PREFS);
-  const withoutNova = computeGreeScore(product({ name: "A", nutriScore: "a", ingredientsText: "pommes", additives: [], nutriments: { sugars: 10 } }), NO_PREFS);
-  assert.equal(withoutNova.subScores.processing, undefined);
-  assert.ok(withoutNova.confidenceReasons.includes("missingNova"));
-  assert.ok(withNova.global >= withoutNova.global); // NOVA1 can only help; absence never punishes below…
+test("EXCLUSIONS: alcohol, pure sugar, infant formula, supplements, pet food", () => {
+  const cases: Array<[string[], string]> = [
+    [["alcoholic beverages", "beers"], "excluded_alcohol"],
+    [["sugars", "table sugars"], "excluded_pure_sugar"],
+    [["infant formulas"], "excluded_infant_formula"],
+    [["protein powders"], "excluded_protein_supplement"],
+    [["dietary supplements"], "excluded_dietary_supplement"],
+    [["cat food"], "excluded_pet_food"]
+  ];
+  for (const [cats, code] of cases) {
+    const g = computeGreeScore(base({ categories: cats }), PREFS);
+    assert.equal(g.status, "unscored", cats.join());
+    assert.equal(g.unscored?.code, code);
+    assert.equal(g.verdict, "excluded_category");
+    assert.equal(explainScore(g)[0].code, "excludedCategory");
+  }
 });
 
-/* ───────────── halal: compatibility only, NEVER health ───────────── */
-test("halal unknown: identical health score with or without the halal criterion; info alert only", () => {
-  const base = product({ name: "Biscuits", ingredientsText: "farine, sucre, beurre", additives: [], nutriments: { sugars: 20, salt: 0.4 }, nutriScore: "c", novaGroup: 3 });
-  const without = computeGreeScore(base, NO_PREFS);
-  const withHalal = computeGreeScore(base, { ...NO_PREFS, preferHalal: true });
-  assert.equal(withHalal.global, without.global);                 // zero score impact
-  assert.deepEqual(withHalal.subScores, without.subScores);
-  assert.ok(withHalal.warnings.some((w) => w.code === "halalNotConfirmed" && w.level === "info"));
-  assert.equal(withHalal.alerts.length, 0);                       // information, not an alert
+test("SPECIAL CATEGORIES: salt and chocolate are typed unsupported (never invented)", () => {
+  const salt = computeGreeScore(base({ categories: ["salts", "sea salts"] }), PREFS);
+  assert.equal(salt.unscored?.code, "unsupported_special_category_salt");
+  assert.equal(salt.verdict, "unsupported_category");
+
+  const choc = computeGreeScore(base({ categories: ["dark chocolates"] }), PREFS);
+  assert.equal(choc.unscored?.code, "unsupported_special_category_chocolate");
+  assert.equal(explainScore(choc)[0].code, "unsupportedCategory");
 });
 
-test("halal incompatible: critical compatibility ALERT, still no health-score change", () => {
-  const base = product({ name: "Gel", ingredientsText: "gélatine de porc, sucre", nutriments: { sugars: 60 }, nutriScore: "d", novaGroup: 3 });
-  const without = computeGreeScore(base, NO_PREFS);
-  const withHalal = computeGreeScore(base, { ...NO_PREFS, preferHalal: true });
-  assert.equal(withHalal.global, without.global);
-  assert.ok(withHalal.alerts.some((w) => w.code === "haramIngredient" && w.level === "critical"));
+test("compatibility alerts survive unscored results (they are about the person)", () => {
+  const prefs: LocalPreferences = { ...PREFS, avoidAllergens: ["gluten"] };
+  const g = computeGreeScore(
+    base({ categories: ["beers"], allergens: ["en:gluten"] }),
+    prefs
+  );
+  assert.equal(g.status, "unscored");
+  assert.ok(g.alerts.some((a) => a.code === "allergenPresent"));
 });
 
-test("halal confirmed does NOT improve the health score", () => {
-  const plain = product({ name: "P", ingredientsText: "poulet, sel", nutriments: { proteins: 20, salt: 0.5 }, nutriScore: "a", novaGroup: 1 });
-  const certified = { ...plain, labels: ["halal"], isHalal: true, halalStatus: "confirmed" as const };
-  const a = computeGreeScore(plain, { ...NO_PREFS, preferHalal: true });
-  const b = computeGreeScore(certified, { ...NO_PREFS, preferHalal: true });
-  assert.equal(a.global, b.global);
+/* ───────────────────── independence of the channels ────────────────────── */
+
+test("halal preference NEVER moves the health score in any direction", () => {
+  const noPref = computeGreeScore(base(), PREFS);
+  const halalPref = computeGreeScore(base(), { ...PREFS, preferHalal: true });
+  assert.equal(noPref.global, halalPref.global);
 });
 
-/* ───────────── criteria fit ───────────── */
-test("high-protein criterion: goalFit bucket appears and rewards a protein-rich product", () => {
-  const prefs = { ...NO_PREFS, increaseProtein: true };
-  const rich = computeGreeScore(product({ name: "Skyr", ingredientsText: "lait écrémé, ferments", additives: [], nutriments: { proteins: 10, sugars: 4 }, nutriScore: "a", novaGroup: 1 }), prefs);
-  const poor = computeGreeScore(product({ name: "Chips", ingredientsText: "pommes de terre, huile", additives: [], nutriments: { proteins: 2, sugars: 1 }, nutriScore: "a", novaGroup: 1 }), prefs);
-  assert.ok(rich.subScores.goalFit !== undefined && poor.subScores.goalFit !== undefined);
-  assert.ok(rich.subScores.goalFit! > poor.subScores.goalFit!);
+test("user criteria change goalFit/verdict, never the global score", () => {
+  const sugary = base({ nutriments: { energyKcal: 400, sugars: 45, saturatedFat: 2, salt: 0.3, fiber: 1, proteins: 3 } });
+  const plain = computeGreeScore(sugary, PREFS);
+  const withGoal = computeGreeScore(sugary, { ...PREFS, reduceSugar: true });
+  assert.equal(plain.global, withGoal.global);
+  assert.ok((withGoal.subScores.goalFit ?? 100) < 50);
 });
 
-test("low-sugar criterion: sugary product gets poor_fit_for_goal + criterion mismatch reason", () => {
-  const prefs = { ...NO_PREFS, reduceSugar: true };
-  const g = computeGreeScore(product({ name: "Confiture", ingredientsText: "sucre, fraises", additives: [], nutriments: { sugars: 55 }, nutriScore: "c", novaGroup: 3 }), prefs);
-  assert.ok(g.subScores.goalFit !== undefined && g.subScores.goalFit! <= 35);
-  assert.equal(g.verdict, "poor_fit_for_goal");
-  assert.ok(g.reasons.some((r) => r.code === "criterionMismatch" && r.values?.criterion === "reduceSugar"));
-  const sentences = explainScore(g);
-  assert.equal(sentences[0].code, "notIdealForCriterion");
+/* ─────────────────────────── regression fixtures ───────────────────────── */
+
+test("REGRESSION: sweetened cereal (computed 7 pts → 45/100 → 27+30 = 57)", () => {
+  const g = computeGreeScore(
+    base({ nutriments: { energyKcal: 400, sugars: 25, saturatedFat: 2, salt: 0.6, fiber: 5, proteins: 8 } }),
+    PREFS
+  );
+  assert.equal(g.components?.nutrition.points, 7);
+  assert.equal(g.components?.nutrition.score100, 45);
+  assert.equal(g.global, 57);
+  assert.equal(g.grade, "C");
+  assert.equal(g.labelCode, "good");
 });
 
-/* ───────────── no double penalty ───────────── */
-test("with Nutri-Score present, nutrient facts EXPLAIN but never re-deduct (no double penalty)", () => {
-  const sugary = product({ name: "S1", ingredientsText: "sucre", additives: [], nutriments: { sugars: 70 }, nutriScore: "e", novaGroup: 3 });
-  // 12g is below the FSA high-sugar band (22.5g), so it must NOT raise the
-  // "tooSugar" fact — while the Nutri-Score-driven nutrition sub-score is
-  // unchanged (proving facts explain, they don't re-deduct).
-  const lessSugary = { ...sugary, nutriments: { sugars: 12 } };
-  const a = computeGreeScore(sugary, NO_PREFS);
-  const b = computeGreeScore(lessSugary, NO_PREFS);
-  // same Nutri-Score ⇒ identical nutrition sub-score (facts differ only in reasons)
-  assert.equal(a.subScores.nutrition, b.subScores.nutrition);
-  assert.ok(a.reasons.some((r) => r.code === "tooSugar"));
-  assert.ok(!b.reasons.some((r) => r.code === "tooSugar"));
+test("REGRESSION: organic soda with aspartame (liquid 6 pts → 15/100)", () => {
+  // nutrition 15 → 9 · additives 30−15 = 15 · organic 10 ⇒ 34 (D, poor)
+  const g = computeGreeScore(
+    base({
+      categories: ["beverages", "sodas"],
+      nutriScorePoints: 6,
+      additives: ["en:e951"],
+      labels: ["eu organic"]
+    }),
+    PREFS
+  );
+  assert.equal(g.global, 34);
+  assert.equal(g.grade, "D");
+  assert.equal(g.labelCode, "poor");
+  assert.equal(g.cappedByHighRiskAdditive, false);
 });
 
-/* ───────────── category context ───────────── */
-test("category-aware sugar: the same 8g sugar is flagged in a beverage, not in a dessert", () => {
-  const drink = product({ name: "Soda", categories: ["beverages", "sodas"], ingredientsText: "eau, sucre", additives: [], nutriments: { sugars: 8 }, nutriScore: "c", novaGroup: 3 });
-  const dessert = product({ name: "Yaourt", categories: ["desserts"], ingredientsText: "lait, sucre", additives: [], nutriments: { sugars: 8 }, nutriScore: "c", novaGroup: 3 });
-  assert.equal(categoryProfileOf(drink), "beverage");
-  assert.equal(categoryProfileOf(dessert), "default");
-  const gd = computeGreeScore(drink, NO_PREFS);
-  const gy = computeGreeScore(dessert, NO_PREFS);
-  assert.ok(gd.warnings.some((w) => w.code === "highSugar"));
-  assert.ok(!gy.warnings.some((w) => w.code === "highSugar"));
+test("REGRESSION: organic charcuterie with nitrite — bio never rescues high-risk", () => {
+  // nutrition (provider 14 pts → 9/100 → 5.4) + additives 0 + organic 10 = 15
+  const g = computeGreeScore(
+    base({ nutriScorePoints: 14, additives: ["en:e250"], labels: ["ab agriculture biologique"] }),
+    PREFS
+  );
+  assert.equal(g.global, 15);
+  assert.equal(g.grade, "E");
+  assert.equal(g.labelCode, "bad");
+  // the cap is armed (reason emitted) even though it did not constrain here
+  assert.equal(g.cappedByHighRiskAdditive, false);
+  assert.ok(g.reasons.some((r) => r.code === "highRiskAdditiveCap"));
 });
 
-/* ───────────── boundaries, determinism, coherence ───────────── */
-test("grade bands: A≥80, B≥65, C≥45, D≥25, E<25 (boundary check via crafted inputs)", () => {
-  const a = computeGreeScore(OATS, NO_PREFS);
-  assert.equal(a.grade, "A");
-  const e = computeGreeScore(product({ name: "E", ingredientsText: "sucre, e102, e110, e124, e250, e320", additives: ["e102", "e110", "e124", "e250", "e320"], nutriments: { sugars: 80, salt: 3 }, nutriScore: "e", novaGroup: 4, palmOilStatus: "present" }), NO_PREFS);
-  assert.ok(e.global < 25, `expected E-range, got ${e.global}`);
-  assert.equal(e.grade, "E");
-  // mid product lands in B or C, never A/E
-  const mid = computeGreeScore(product({ name: "M", ingredientsText: "blé, sucre", additives: [], nutriments: { sugars: 12 }, nutriScore: "c", novaGroup: 2 }), NO_PREFS);
-  assert.ok(["B", "C"].includes(mid.grade), `got ${mid.grade} (${mid.global})`);
+test("REGRESSION: organic water scores 100", () => {
+  const g = computeGreeScore(
+    base({ categories: ["beverages", "spring waters"], nutriScorePoints: 0, labels: ["eu organic"] }),
+    PREFS
+  );
+  assert.equal(g.global, 100);
+  assert.equal(g.grade, "A");
 });
 
-test("results are stable (deterministic across repeated runs)", () => {
-  const p = SODA_CANDY;
-  const runs = Array.from({ length: 5 }, () => computeGreeScore(p, { ...NO_PREFS, reduceSugar: true }));
-  for (const r of runs.slice(1)) assert.deepEqual(r, runs[0]);
+test("determinism: same product, same result object", () => {
+  const p = base({ additives: ["en:e621"], labels: ["eu organic"] });
+  assert.deepEqual(computeGreeScore(p, PREFS), computeGreeScore(p, PREFS));
 });
 
-test("Trust Halo: low-confidence result is NEVER presented as authoritative", () => {
-  const g = computeGreeScore(product({ name: "Inconnu" }), NO_PREFS);
-  assert.equal(g.confidence, "low");
-  assert.equal(g.verdict, "insufficient_data");
-  assert.ok(g.confidenceReasons.length >= 3); // explains exactly what is missing
-  const s = explainScore(g);
-  assert.equal(s[0].code, "insufficientData");
-});
+/* ─────────────────────────── legacy surface ────────────────────────────── */
 
-test("explanations match the numbers: organic + minimally processed pattern", () => {
-  const g = computeGreeScore(OATS, NO_PREFS);
-  const s = explainScore(g);
-  assert.equal(s[0].code, "organicMinimal");
-});
-
-test("good profile with incomplete data → 'goodButIncomplete' explanation", () => {
-  const g = computeGreeScore(product({ name: "Bon", nutriments: { sugars: 2, proteins: 8, salt: 0.1 }, nutriScore: "a", novaGroup: 1 }), NO_PREFS);
-  // ingredients missing → medium confidence
-  assert.equal(g.confidence, "medium");
-  const s = explainScore(g);
-  assert.equal(s[0].code, "goodButIncomplete");
+test("additiveSeverityOf maps registry risks to display severities", () => {
+  assert.equal(additiveSeverityOf("e250"), "avoid");
+  assert.equal(additiveSeverityOf("e951"), "controversial");
+  assert.equal(additiveSeverityOf("e621"), "watch");
+  assert.equal(additiveSeverityOf("e330"), "neutral");
+  assert.equal(additiveSeverityOf("e9999"), "neutral");
 });

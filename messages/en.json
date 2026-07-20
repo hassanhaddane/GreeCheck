@@ -690,7 +690,9 @@
       "highEcoImpact": "High environmental impact ({grade})",
       "bioCapped": "Organic does not offset ultra-processing",
       "criterionMismatch": "Misaligned with your criterion",
-      "criterionMatch": "Aligned with your criterion"
+      "criterionMatch": "Aligned with your criterion",
+      "highRiskAdditiveCap": "High-risk additive — score capped at 49",
+      "additivesUnreviewed": "{n} additive(s) not yet reviewed in our registry"
     },
     "warning": {
       "highSugar": "High sugar ({v} g / 100 g)",
@@ -719,7 +721,9 @@
       "limit": "Limit it",
       "poor_fit_for_goal": "Poor fit for your goal",
       "ultra_processed": "Ultra-processed",
-      "insufficient_data": "Insufficient data"
+      "insufficient_data": "Insufficient data",
+      "excluded_category": "Category not rated",
+      "unsupported_category": "Category not supported"
     },
     "explain": {
       "highSugarUltraProcessed": "High in sugar and ultra-processed.",
@@ -730,7 +734,10 @@
       "notIdealForCriterion": "Not ideal for your “{criterion}” criterion.",
       "solidChoice": "Solid profile on the main criteria.",
       "mixedProfile": "Mixed profile — check the main reasons.",
-      "watchSugar": "Watch the sugar."
+      "watchSugar": "Watch the sugar.",
+      "excludedCategory": "This type of product is not rated: no reliable rating method exists for this category.",
+      "unsupportedCategory": "This category needs a specific method we don't apply yet — rather than invent a score, we show none.",
+      "highRiskAdditive": "Contains a high-risk additive: the score is capped at 49/100."
     },
     "criterion": {
       "reduceSugar": "reduce sugar",
@@ -827,8 +834,14 @@
       "increaseFiber": "More fiber"
     },
     "allergenPresets": {
-      "gluten": "Gluten", "milk": "Milk", "lactose": "Lactose", "eggs": "Eggs",
-      "peanuts": "Peanuts", "nuts": "Nuts", "soybeans": "Soy", "palm": "Palm oil"
+      "gluten": "Gluten",
+      "milk": "Milk",
+      "lactose": "Lactose",
+      "eggs": "Eggs",
+      "peanuts": "Peanuts",
+      "nuts": "Nuts",
+      "soybeans": "Soy",
+      "palm": "Palm oil"
     }
   },
   "discover": {

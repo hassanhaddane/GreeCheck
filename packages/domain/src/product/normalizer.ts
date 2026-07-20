@@ -29,6 +29,7 @@ export const OFF_FIELDS = [
   "traces_tags",
   "nutriments",
   "nutriscore_grade",
+  "nutriscore_score",
   "nova_group",
   "ecoscore_grade",
   "environmental_score_grade",
@@ -56,6 +57,7 @@ export interface OffRawProduct {
   traces_tags?: string[];
   nutriments?: Record<string, number | string>;
   nutriscore_grade?: string;
+  nutriscore_score?: number;
   nova_group?: number | string;
   ecoscore_grade?: string;
   environmental_score_grade?: string;
@@ -271,6 +273,7 @@ export function mapOffProduct(raw: OffRawProduct): Product {
       proteins: num(n["proteins_100g"])
     },
     nutriScore: grade(raw.nutriscore_grade),
+    nutriScorePoints: typeof raw.nutriscore_score === "number" && Number.isFinite(raw.nutriscore_score) ? raw.nutriscore_score : undefined,
     novaGroup,
     greenScore: grade(raw.green_score) ?? grade(raw.environmental_score_grade) ?? grade(raw.ecoscore_grade),
     halalStatus,

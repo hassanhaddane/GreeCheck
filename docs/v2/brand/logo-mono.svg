@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="GreeCheck monochrome mark">
+  <!-- GreeCheck monochrome mark · single-color use (print, engraving,
+       favicons on colored surfaces). Use currentColor: inherits any ink. -->
+  <g fill="none" stroke="currentColor" color="#101312">
+    <g stroke-width="14" stroke-linecap="round">
+      <path d="M28 76 V48 a20 20 0 0 1 20 -20 h28"/>
+      <path d="M180 28 h28 a20 20 0 0 1 20 20 v28"/>
+      <path d="M228 180 v28 a20 20 0 0 1 -20 20 h-28"/>
+      <path d="M76 228 h-28 a20 20 0 0 1 -20 -20 v-28"/>
+    </g>
+    <path d="M74 138 L114 178 L182 96" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <path d="M182 96 C 186 62, 208 44, 236 40 C 234 74, 214 94, 186 100 Z" fill="currentColor" color="#101312"/>
+</svg>

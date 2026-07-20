@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" role="img" aria-label="GreeCheck organic illustration direction — three examples">
+  <!-- GreeCheck illustration direction · "Organic honesty"
+       Flat organic shapes, pastel fills from the dashboard palette, deep-green
+       ink strokes (2.5–4u, round caps), one neon accent max per scene, warm
+       white canvas. No mascots, no faces, no food anthropomorphism.
+       Three example vignettes: (1) growth, (2) real food, (3) clarity. -->
+
+  <!-- ── vignette 1 · growth (empty states, onboarding) ── -->
+  <g transform="translate(20,30)">
+    <rect width="200" height="300" rx="24" fill="#FAFAF7"/>
+    <ellipse cx="100" cy="252" rx="64" ry="16" fill="#E7F3EA"/>
+    <path d="M100 250 C 98 200, 96 160, 100 120" fill="none" stroke="#0B3D2E" stroke-width="4" stroke-linecap="round"/>
+    <path d="M100 168 C 78 160, 62 142, 58 118 C 84 122, 100 138, 102 162 Z" fill="#CDE8D4"/>
+    <path d="M100 138 C 120 130, 134 114, 138 92 C 114 96, 100 110, 98 132 Z" fill="#2ECC71"/>
+    <path d="M100 120 C 100 100, 108 86, 122 78" fill="none" stroke="#0B3D2E" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+    <circle cx="124" cy="74" r="7" fill="#39FF88"/>
+  </g>
+
+  <!-- ── vignette 2 · real food (education, methodology) ── -->
+  <g transform="translate(260,30)">
+    <rect width="200" height="300" rx="24" fill="#F4EFE7"/>
+    <!-- abstract tomato: organic circle, no face -->
+    <circle cx="70" cy="120" r="42" fill="#F5D9CE"/>
+    <path d="M70 78 C 66 66, 74 58, 84 56" fill="none" stroke="#0B3D2E" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M70 80 C 58 72, 46 74, 40 82 C 52 88, 64 88, 70 80 Z" fill="#CDE8D4"/>
+    <!-- abstract wheat stem -->
+    <path d="M138 210 C 140 160, 142 120, 146 84" fill="none" stroke="#0B3D2E" stroke-width="3.5" stroke-linecap="round"/>
+    <g fill="#EFE3C8">
+      <ellipse cx="134" cy="96" rx="12" ry="20" transform="rotate(-24 134 96)"/>
+      <ellipse cx="156" cy="112" rx="12" ry="20" transform="rotate(22 156 112)"/>
+      <ellipse cx="132" cy="136" rx="12" ry="20" transform="rotate(-22 132 136)"/>
+      <ellipse cx="154" cy="152" rx="12" ry="20" transform="rotate(20 154 152)"/>
+    </g>
+    <ellipse cx="105" cy="252" rx="70" ry="14" fill="#EDE6DA"/>
+  </g>
+
+  <!-- ── vignette 3 · clarity (error/offline states) ── -->
+  <g transform="translate(500,30)">
+    <rect width="200" height="300" rx="24" fill="#FAFAF7"/>
+    <!-- soft cloud: data unavailable, calm not alarming -->
+    <path d="M50 150 a30 30 0 0 1 32 -30 a38 38 0 0 1 72 8 a26 26 0 0 1 -6 51 h-72 a28 28 0 0 1 -26 -29 Z" fill="#E8EAE7"/>
+    <path d="M74 214 l0 16 M104 210 l0 24 M134 214 l0 16" stroke="#B9C1BC" stroke-width="5" stroke-linecap="round"/>
+    <!-- the sprout persists: even in errors, growth is possible -->
+    <path d="M104 264 C 104 254, 110 246, 120 242" fill="none" stroke="#0B3D2E" stroke-width="3" stroke-linecap="round"/>
+    <path d="M120 242 C 122 230, 132 224, 144 222 C 142 234, 134 242, 122 244 Z" fill="#2ECC71"/>
+  </g>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 200" role="img" aria-label="GreeCheck primary logo">
+  <!-- GreeCheck primary logo · Sprout Check mark + editorial wordmark.
+       Clear space = height of the mark's bracket stroke (14u) on all sides. -->
+  <defs>
+    <linearGradient id="gcp-grad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0B3D2E"/>
+      <stop offset="1" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- mark, scaled 0.62, vertically centered -->
+  <g transform="translate(24,22) scale(0.61)">
+    <g stroke="#0B3D2E" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.92">
+      <path d="M28 76 V48 a20 20 0 0 1 20 -20 h28"/>
+      <path d="M180 28 h28 a20 20 0 0 1 20 20 v28"/>
+      <path d="M228 180 v28 a20 20 0 0 1 -20 20 h-28"/>
+      <path d="M76 228 h-28 a20 20 0 0 1 -20 -20 v-28"/>
+    </g>
+    <path d="M74 138 L114 178 L182 96"
+          fill="none" stroke="url(#gcp-grad)" stroke-width="26"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M182 96 C 186 62, 208 44, 236 40 C 234 74, 214 94, 186 100 Z" fill="#2ECC71"/>
+    <path d="M190 92 C 202 76, 216 62, 228 52"
+          fill="none" stroke="#0B3D2E" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="212" y="126"
+        font-family="Fraunces, Georgia, 'Times New Roman', serif"
+        font-size="76" font-weight="600" letter-spacing="-2"
+        fill="#101312">Gree<tspan fill="#15803D">Check</tspan></text>
+  <!-- tagline -->
+  <text x="216" y="164"
+        font-family="Inter, system-ui, sans-serif"
+        font-size="22" font-weight="500" letter-spacing="0.5"
+        fill="#66706A">Every scan improves your habits</text>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="GreeCheck mark — the Sprout Check">
+  <!-- GreeCheck compact mark · "Sprout Check"
+       A check whose rising stroke sprouts a leaf: verification that grows into
+       better habits. Deep green frame brackets echo the scanner. -->
+  <defs>
+    <linearGradient id="gc-natural-grad" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#0B3D2E"/>
+      <stop offset="1" stop-color="#15803D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- scan brackets (frame, 4 corners, rounded) -->
+  <g stroke="#0B3D2E" stroke-width="14" stroke-linecap="round" fill="none" opacity="0.92">
+    <path d="M28 76 V48 a20 20 0 0 1 20 -20 h28"/>
+    <path d="M180 28 h28 a20 20 0 0 1 20 20 v28"/>
+    <path d="M228 180 v28 a20 20 0 0 1 -20 20 h-28"/>
+    <path d="M76 228 h-28 a20 20 0 0 1 -20 -20 v-28"/>
+  </g>
+
+  <!-- the check -->
+  <path d="M74 138 L114 178 L182 96"
+        fill="none" stroke="url(#gc-natural-grad)" stroke-width="26"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- the sprout leaf at the check's tip -->
+  <path d="M182 96 C 186 62, 208 44, 236 40 C 234 74, 214 94, 186 100 Z"
+        fill="#2ECC71"/>
+  <!-- leaf midrib -->
+  <path d="M190 92 C 202 76, 216 62, 228 52"
+        fill="none" stroke="#0B3D2E" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+</svg>

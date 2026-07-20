@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 360" role="img" aria-label="GreeCheck scan-frame motif">
+  <!-- GreeLens scan-frame motif · the brand mark's brackets at UI scale.
+       Resting state: ink brackets, calm. Detection state (shown here on the
+       top-right bracket + sweep line): neon, motion only.
+       The top-right bracket carries the leaf notch — the frame "sprouts"
+       exactly where the mark's leaf lives. -->
+  <defs>
+    <linearGradient id="sweep" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#39FF88" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#39FF88" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#39FF88" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- resting brackets (ink, calm) -->
+  <g stroke="#101312" stroke-width="8" stroke-linecap="round" fill="none" opacity="0.85">
+    <path d="M48 110 V72 a24 24 0 0 1 24 -24 h38"/>
+    <path d="M312 250 v38 a24 24 0 0 1 -24 24 h-38"/>
+    <path d="M110 312 h-38 a24 24 0 0 1 -24 -24 v-38"/>
+  </g>
+
+  <!-- detection bracket (neon, motion state) with sprout notch -->
+  <g stroke="#39FF88" stroke-width="8" stroke-linecap="round" fill="none">
+    <path d="M250 48 h38 a24 24 0 0 1 24 24 v38"/>
+  </g>
+  <path d="M312 48 C 316 30, 330 20, 348 16 C 346 34, 334 46, 316 50 Z" fill="#2ECC71"/>
+
+  <!-- detection sweep line (animates vertically in product; static here) -->
+  <rect x="64" y="168" width="232" height="24" rx="12" fill="url(#sweep)" opacity="0.9"/>
+
+  <!-- center hint: barcode ghost, muted -->
+  <g fill="#66706A" opacity="0.25">
+    <rect x="120" y="140" width="6" height="80" rx="3"/>
+    <rect x="134" y="140" width="10" height="80" rx="3"/>
+    <rect x="152" y="140" width="4" height="80" rx="2"/>
+    <rect x="164" y="140" width="12" height="80" rx="3"/>
+    <rect x="184" y="140" width="6" height="80" rx="3"/>
+    <rect x="198" y="140" width="10" height="80" rx="3"/>
+    <rect x="216" y="140" width="4" height="80" rx="2"/>
+    <rect x="228" y="140" width="8" height="80" rx="3"/>
+  </g>
+</svg>

@@ -29,7 +29,8 @@ import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { getProduct } from "@/domains/product/repository";
-import { parseProductCode } from "@/lib/utils/parse-scan";
+import { parseProductCode, interpretScan } from "@/lib/utils/parse-scan";
+import { createScanGate } from "@/lib/utils/scan-gate";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
@@ -42,7 +43,7 @@ import { FirstScanIntro } from "@/components/scan/first-scan-intro";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
-type LookupState = "idle" | "loading" | "not_found" | "network_error" | "rate_limited" | "unsupported";
+type LookupState = "idle" | "loading" | "not_found" | "network_error" | "offline" | "rate_limited" | "unsupported";
 type ScanSource = "product" | "cart" | "battle";
 
 function sourceFromParam(value: string | null): ScanSource {
@@ -76,7 +77,8 @@ export function ScanClient() {
   const [sessionCount, setSessionCount] = useState(0);
   const [showIntro, setShowIntro] = useState(false);
   const sessionCodesRef = useRef<Set<string>>(new Set());
-  const lastResolvedCodeRef = useRef("");
+  // Time-based duplicate cooldown: same code resolves at most once per window.
+  const scanGateRef = useRef(createScanGate());
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const flashNotice = useCallback((message: string) => {
@@ -106,13 +108,20 @@ export function ScanClient() {
         const result = await getProduct(code);
         if (result.kind !== "product") {
           setPhase("idle");
-          setLookup(result.kind === "not_found" ? "not_found" : result.kind === "rate_limited" ? "rate_limited" : "network_error");
+          const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+          setLookup(
+            result.kind === "not_found" ? "not_found"
+              : result.kind === "rate_limited" ? "rate_limited"
+              : offline ? "offline" : "network_error"
+          );
+          // A failed resolution must not lock the code behind the cooldown.
+          scanGateRef.current.release(code);
           return;
         }
 
         const gree = computeGreeScore(result.product, prefs);
         recordHistory(result.product, gree);
-        lastResolvedCodeRef.current = result.product.barcode;
+
         if (!sessionCodesRef.current.has(result.product.barcode)) {
           sessionCodesRef.current.add(result.product.barcode);
           setSessionCount(sessionCodesRef.current.size);
@@ -139,27 +148,32 @@ export function ScanClient() {
         if (!onboardingSeen) setShowIntro(true);
       } catch {
         setPhase("idle");
-        setLookup("network_error");
+        setLookup(typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "network_error");
+        scanGateRef.current.release(code);
       }
     },
     [addBattle, addProductToCart, onboardingSeen, prefs, recordHistory, router, source]
   );
 
   const handleDetect = useCallback(
-    (raw: string) => {
-      const code = parseProductCode(raw);
-      if (!code) {
+    (raw: string, format?: string) => {
+      const parsed = interpretScan(raw, format);
+      if (parsed.kind !== "product") {
+        // Explicit unsupported state — a QR without a product identifier is
+        // NEVER treated as a product, and an invalid check digit never resolves.
         setLookup("unsupported");
-        flashNotice(t("unsupportedCode"));
+        flashNotice(parsed.reason === "qr_no_product" ? t("qrNoProduct") : t("unsupportedCode"));
         return false; // keep scanning — this frame was not a product code
       }
-      // Prevent duplicate rapid scans: ignore the barcode we just resolved and
-      // keep the camera live so the shopper can aim at a DIFFERENT product.
-      if (code === lastResolvedCodeRef.current) {
+      // Duplicate cooldown: the same code resolves at most once per window,
+      // while the camera stays live for the next product.
+      if (!scanGateRef.current.shouldResolve(parsed.code)) {
         flashNotice(t("rapid.alreadyScanned"));
         return false;
       }
-      void resolveProduct(code);
+      // Physical confirmation that a code was READ (not yet a result claim).
+      try { navigator.vibrate?.(35); } catch { /* unsupported */ }
+      void resolveProduct(parsed.code);
       return true; // handled → the hook pauses the stream until "scan another"
     },
     [flashNotice, resolveProduct, t]
@@ -373,9 +387,11 @@ export function ScanClient() {
               ? t("productNotFound", { code: lastCode })
               : lookup === "network_error"
                 ? t("networkError")
-                : lookup === "rate_limited"
-                  ? t("rateLimited")
-                  : t("unsupportedCode")}
+                : lookup === "offline"
+                  ? t("offline")
+                  : lookup === "rate_limited"
+                    ? t("rateLimited")
+                    : t("unsupportedCode")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <GreeButton variant="neon" size="sm" onClick={retryAll}>

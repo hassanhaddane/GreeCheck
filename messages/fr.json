@@ -99,7 +99,9 @@
       "next": "Suivant",
       "done": "Compris",
       "dismiss": "Ignorer"
-    }
+    },
+    "offline": "Vous êtes hors ligne. Les produits déjà scannés restent disponibles depuis le cache local.",
+    "qrNoProduct": "Ce QR code ne contient pas d'identifiant produit."
   },
   "search": {
     "title": "Rechercher",

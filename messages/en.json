@@ -99,7 +99,9 @@
       "next": "Next",
       "done": "Got it",
       "dismiss": "Dismiss"
-    }
+    },
+    "offline": "You're offline. Previously scanned products remain available from the local cache.",
+    "qrNoProduct": "This QR code doesn't contain a product identifier."
   },
   "search": {
     "title": "Search",

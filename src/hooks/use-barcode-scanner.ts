@@ -59,7 +59,7 @@ function environment(): ScannerEnvironment {
   };
 }
 
-function classifyCameraError(error: unknown): CamState {
+export function classifyCameraError(error: unknown): CamState {
   const name = (error as DOMException | undefined)?.name;
   if (name === "NotAllowedError" || name === "SecurityError") return "denied";
   if (name === "NotFoundError" || name === "OverconstrainedError") return "no-camera";

@@ -18,7 +18,7 @@ export const BOTTOM_NAV: NavItem[] = [
   { key: "search", href: "/search", icon: Search },
   { key: "history", href: "/history", icon: History },
   { key: "scan", href: "/scan", icon: ScanLine, primary: true },
-  { key: "battle", href: "/battle", icon: Swords },
+  { key: "battle", href: "/compare", icon: Swords },
   { key: "cart", href: "/cart", icon: ShoppingBasket }
 ];
 

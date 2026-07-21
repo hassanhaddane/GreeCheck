@@ -32,3 +32,4 @@ export * from "./battle/engine";
 export * from "./cart/model";
 export * from "./cart/engine";
 export * from "./cart/what-if";
+export * from "./compare/engine";

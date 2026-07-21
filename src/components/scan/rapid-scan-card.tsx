@@ -1,12 +1,14 @@
 "use client";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
-import { ArrowRight, Check, Plus, ScanLine, ShoppingBasket, Swords, WifiOff } from "lucide-react";
+import { ArrowRight, Check, Plus, ScanLine, ShoppingBasket, Swords, WifiOff, AlertTriangle } from "lucide-react";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { GreeButton } from "@/components/system/gree-button";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { GreeBadge } from "@/components/system/gree-badge";
 import { TrustHalo } from "@/components/system/trust-halo";
+import { ImpactBadge } from "@/components/product/impact-badge";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
@@ -59,6 +61,11 @@ export function RapidScanCard({
   const tScore = useTranslations("score");
   const { product, gree, stale } = result;
 
+  // One primary reason (most decision-relevant) and one critical warning.
+  const isPoor = gree.global < 50 || gree.grade === "D" || gree.grade === "E" || gree.alerts.length > 0;
+  const primaryReason = (isPoor ? gree.topNegatives[0] : gree.topPositives[0]) ?? gree.topNegatives[0] ?? gree.topPositives[0];
+  const criticalWarning = gree.alerts[0];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -84,11 +91,18 @@ export function RapidScanCard({
           <div className="flex items-center gap-4">
             <GreeScoreRing value={gree.global} size={92} label={tScore(`grade.${gree.grade}`)} />
             <div className="min-w-0 flex-1 space-y-1.5">
-              <p className="gc-title line-clamp-2 text-base">{product.name}</p>
-              {product.brand && <p className="gc-caption truncate">{product.brand}</p>}
+              <div className="flex items-center gap-2.5">
+                {product.imageUrl && (
+                  <span className="aspect-square w-11 shrink-0 overflow-hidden rounded-xl bg-surface-2">
+                    <Image src={product.imageUrl} alt="" width={44} height={44} sizes="44px" className="h-full w-full object-contain" />
+                  </span>
+                )}
+                <p className="gc-title line-clamp-2 text-base">{product.name}</p>
+              </div>
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
                 <GreeBadge tone={verdictTone(gree.verdict)} size="sm">{tScore(`verdict.${gree.verdict}`)}</GreeBadge>
                 <TrustHalo level={gree.confidence} size="sm" />
+                <ImpactBadge product={product} />
               </div>
               {stale && (
                 <p className="inline-flex items-center gap-1 text-xs font-medium text-muted">
@@ -97,6 +111,24 @@ export function RapidScanCard({
               )}
             </div>
           </div>
+
+          {/* One primary reason. */}
+          {primaryReason && (
+            <p className="text-sm text-ink">
+              <span className={primaryReason.kind === "malus" ? "text-score-d-ink" : "text-natural-strong"}>
+                {primaryReason.kind === "malus" ? "– " : "+ "}
+              </span>
+              {tScore(`reason.${primaryReason.code}`, primaryReason.values)}
+            </p>
+          )}
+
+          {/* One critical warning (compatibility alert — never a health verdict). */}
+          {criticalWarning && (
+            <p className="flex items-start gap-1.5 rounded-2xl bg-score-e/5 p-2.5 text-sm font-medium text-score-e-ink">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              {tScore(`warning.${criticalWarning.code}`, criticalWarning.values)}
+            </p>
+          )}
 
           {/* Primary action — view the full decision screen. */}
           <GreeButton variant="neon" className="w-full" onClick={onViewResult}>

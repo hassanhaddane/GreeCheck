@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ShoppingBasket, ScanLine, Search, Trash2, AlertTriangle, Leaf, BadgeCheck,
-  ThumbsUp, Wand2, Sparkles, ArrowRight, Check, X, ShieldCheck, CircleHelp
+  ThumbsUp, Wand2, Sparkles, ArrowRight, Check, X, ShieldCheck, CircleHelp, ListChecks, FlaskConical
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { GreeButton } from "@/components/system/gree-button";
@@ -15,17 +15,21 @@ import { CartItemCard } from "@/components/cart/cart-item-card";
 import { ReplacementSuggestions } from "@/components/cart/replacement-suggestions";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
 import { computeCartScore } from "@greecheck/domain/cart/engine";
+import { analyzeCartExtras } from "@greecheck/domain/cart/analysis";
 import { buildImprovementPlan, groupBasket, categoryCoverage, type ImprovementPlan, type PlanStep, type ReplacementCandidate } from "@greecheck/domain/cart/what-if";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import { getAlternatives } from "@/domains/swap/service";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
+import { useShoppingListStore } from "@/domains/list/store";
+import { logReplacement } from "@/domains/weekly/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useMounted } from "@/hooks/use-mounted";
 import type { Product } from "@greecheck/domain/product/model";
 import type { CartProductAnalysis } from "@greecheck/domain/cart/engine";
 
 const CONFIDENCE_TO_HALO = { high: "high", medium: "medium", low: "low" } as const;
+const ENV_COLORS: Record<string, string> = { a: "#1E6B7A", b: "#3E8FA0", c: "#7DB0BC", d: "#B7CDD3", e: "#D9C7C0", unknown: "#ECEDEA" };
 
 function DistBar({ segments }: { segments: { key: string; n: number; color: string }[] }) {
   const total = segments.reduce((s, x) => s + x.n, 0) || 1;
@@ -56,15 +60,19 @@ export default function CartPage() {
   const remove = cart.remove;
   const addBattle = useBattleStore((s) => s.add);
   const clearBattle = useBattleStore((s) => s.clear);
+  const list = useShoppingListStore();
   const prefs = usePreferencesStore();
 
   const [plan, setPlan] = useState<ImprovementPlan | null>(null);
   const [planState, setPlanState] = useState<PlanState>("idle");
+  const [listNotice, setListNotice] = useState<string | null>(null);
 
   const result = useMemo(() => computeCartScore(items.map((i) => ({ product: i.product })), prefs), [items, prefs]);
+  const extras = useMemo(() => analyzeCartExtras(result.analyses, prefs), [result, prefs]);
   const products = useMemo(() => items.map((i) => i.product), [items]);
   const groups = useMemo(() => groupBasket(result.analyses), [result]);
   const coverage = useMemo(() => categoryCoverage(result.analyses), [result]);
+  const scoreByBarcode = useMemo(() => new Map(result.analyses.map((a) => [a.product.barcode, a.gree.global])), [result]);
 
   const keepCount = groups.strong.length + groups.acceptable.length;
   const reconsiderCount = groups.priority.length;
@@ -76,10 +84,31 @@ export default function CartPage() {
   const halalPct = Math.round(result.compatibility.halal.ratio * 100);
 
   const compareInBattle = (current: Product, alternative: Product) => {
-    clearBattle(); addBattle(current); addBattle(alternative); router.push("/battle");
+    clearBattle(); addBattle(current); addBattle(alternative); router.push("/compare");
   };
   const replaceProduct = (barcode: string, alternative: Product) => {
-    remove(barcode); cart.addProduct(alternative, computeGreeScore(alternative, prefs));
+    const altGree = computeGreeScore(alternative, prefs);
+    logReplacement(scoreByBarcode.get(barcode) ?? 0, altGree.global);
+    remove(barcode); cart.addProduct(alternative, altGree);
+  };
+
+  /** Move the kept (strong + acceptable) products into the shopping list. */
+  const addKeepToList = () => {
+    const keep = [...groups.strong, ...groups.acceptable];
+    if (!keep.length) return;
+    list.addMany(keep.map((a) => ({
+      name: a.product.name, barcode: a.product.barcode, imageUrl: a.product.imageUrl, grade: a.gree.grade, source: "cart" as const
+    })));
+    setListNotice(t("addedKeepToList", { n: keep.length }));
+  };
+
+  /** Move the improvement-plan replacements into the shopping list. */
+  const addPlanToList = () => {
+    if (!plan?.steps.length) return;
+    list.addMany(plan.steps.map((s) => ({
+      name: s.replacement.name, barcode: s.replacement.barcode, imageUrl: s.replacement.imageUrl, grade: s.replacementGree.grade, source: "cart" as const
+    })));
+    setListNotice(t("addedPlanToList", { n: plan.steps.length }));
   };
 
   /** What-if: fetch trustworthy GreeSwap candidates for the priority products,
@@ -101,12 +130,16 @@ export default function CartPage() {
   };
 
   const applyStep = (step: PlanStep) => {
+    logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.global);
     remove(step.targetBarcode);
     cart.addProduct(step.replacement, step.replacementGree);
     setPlan((prev) => (prev ? { ...prev, steps: prev.steps.filter((s) => s.targetBarcode !== step.targetBarcode) } : prev));
   };
   const applyAll = () => {
-    plan?.steps.forEach((step) => { remove(step.targetBarcode); cart.addProduct(step.replacement, step.replacementGree); });
+    plan?.steps.forEach((step) => {
+      logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.global);
+      remove(step.targetBarcode); cart.addProduct(step.replacement, step.replacementGree);
+    });
     setPlan(null); setPlanState("idle");
   };
   const dismissPlan = () => { setPlan(null); setPlanState("idle"); };
@@ -231,6 +264,9 @@ export default function CartPage() {
                 <GreeButton variant="soft" size="sm" className="flex-1" onClick={dismissPlan}><X className="h-4 w-4" /> {t("planDismiss")}</GreeButton>
                 <GreeButton variant="neon" size="sm" className="flex-1" onClick={applyAll}><Check className="h-4 w-4" /> {t("planApplyAll")}</GreeButton>
               </div>
+              <GreeButton variant="ghost" size="sm" className="w-full" onClick={addPlanToList}>
+                <ListChecks className="h-4 w-4" /> {t("addPlanToList", { n: plan.steps.length })}
+              </GreeButton>
             </div>
           )}
         </GreeCardContent>
@@ -257,9 +293,99 @@ export default function CartPage() {
               </div>
             )}
           </div>
+          {/* Environmental distribution — separate from health, unknowns visible */}
+          <div>
+            <p className="mb-1.5 text-xs font-medium">{t("envDist")}</p>
+            <DistBar segments={(["a", "b", "c", "d", "e", "unknown"] as const).map((g) => ({ key: g, n: extras.environmentDistribution[g], color: ENV_COLORS[g] }))} />
+            {extras.environmentKnown === 0 && <p className="mt-1 text-[0.65rem] text-muted">{t("envDistNone")}</p>}
+          </div>
           {coverage.length > 1 && <p className="text-xs text-muted">{t("coverage", { n: coverage.length })}</p>}
         </GreeCardContent>
       </GreeCard>
+
+      {/* ── Critical allergen alerts (compatibility, never a health verdict) ── */}
+      {extras.allergenAlerts.length > 0 && (
+        <GreeCard className="border-score-e/30 bg-score-e/5">
+          <GreeCardContent className="space-y-2">
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold text-score-e-ink"><AlertTriangle className="h-4 w-4" aria-hidden /> {t("allergenAlertsTitle")}</h2>
+            <ul className="space-y-1.5">
+              {extras.allergenAlerts.map((a) => (
+                <li key={a.product.barcode} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="min-w-0 flex-1 truncate font-medium">{a.product.name}</span>
+                  <span className="shrink-0 text-xs font-semibold capitalize text-score-e-ink">{a.allergens.join(", ")}</span>
+                </li>
+              ))}
+            </ul>
+          </GreeCardContent>
+        </GreeCard>
+      )}
+
+      {/* ── Main contributors: sugar + additives + ultra-processed ── */}
+      {(extras.sugarContributors.length > 0 || extras.additiveContributors.length > 0 || extras.ultraProcessedCount > 0) && (
+        <GreeCard>
+          <GreeCardContent className="space-y-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">{t("contributors")}</h2>
+
+            {extras.ultraProcessedCount > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-pastel-sand px-3 py-1 text-xs font-semibold text-score-c-ink">
+                <FlaskConical className="h-3.5 w-3.5" aria-hidden /> {t("ultraProcessed", { n: extras.ultraProcessedCount })}
+              </span>
+            )}
+
+            {extras.sugarContributors.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-xs font-medium">{t("sugarContributors")}</p>
+                <ul className="space-y-1">
+                  {extras.sugarContributors.map((c) => (
+                    <li key={c.product.barcode} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="min-w-0 flex-1 truncate">{c.product.name}</span>
+                      <span className="shrink-0 text-xs font-semibold tabular-nums text-score-c-ink">{c.sugars !== undefined ? `${c.sugars} g` : t("unknownValue")}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 text-[0.6rem] text-muted">{t("per100")}</p>
+              </div>
+            )}
+
+            {extras.additiveContributors.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-xs font-medium">{t("additiveContributors")}</p>
+                <ul className="space-y-1">
+                  {extras.additiveContributors.map((c) => (
+                    <li key={c.product.barcode} className="flex items-center justify-between gap-2 text-sm">
+                      <span className="min-w-0 flex-1 truncate">{c.product.name}</span>
+                      <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
+                        {c.riskyCount > 0 && <span className="text-score-d-ink">{t("riskyN", { n: c.riskyCount })} · </span>}{t("totalN", { n: c.totalCount })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </GreeCardContent>
+        </GreeCard>
+      )}
+
+      {/* ── Move to shopping list ── */}
+      <GreeCard variant="tinted">
+        <GreeCardContent className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="flex items-center gap-1.5 text-sm font-semibold"><ListChecks className="h-4 w-4 text-natural-strong" aria-hidden /> {t("toListTitle")}</h2>
+            <p className="text-xs text-muted">{t("toListHint")}</p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <GreeButton variant="soft" size="sm" onClick={addKeepToList} disabled={groups.strong.length + groups.acceptable.length === 0}>
+              {t("addKeepToList", { n: groups.strong.length + groups.acceptable.length })}
+            </GreeButton>
+            <GreeButton variant="ghost" size="sm" onClick={() => router.push("/list")}>{t("openList")}</GreeButton>
+          </div>
+        </GreeCardContent>
+      </GreeCard>
+      {listNotice && (
+        <p className="flex items-center gap-1.5 rounded-2xl bg-natural/10 px-3 py-2 text-xs font-semibold text-natural-strong">
+          <Check className="h-3.5 w-3.5" aria-hidden /> {listNotice}
+        </p>
+      )}
 
       {/* ── Actions ── */}
       <div className="flex flex-wrap gap-2">

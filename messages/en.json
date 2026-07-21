@@ -521,7 +521,7 @@
     "alerts": "Cumulative alerts",
     "tooSugary": "{n} too sugary",
     "tooSalty": "{n} too salty",
-    "ultraProcessed": "{n} ultra-processed",
+    "ultraProcessed": "{n} ultra-processed product(s)",
     "riskyAdditives": "{n} with additives to watch",
     "allergenAlert": "{n} with an allergen to avoid",
     "toImprove": "Replace first",
@@ -648,7 +648,24 @@
     "planNone": "No reliable replacement found right now.",
     "planApply": "Apply",
     "planApplyAll": "Apply all",
-    "planDismiss": "Cancel"
+    "planDismiss": "Cancel",
+    "envDist": "Environmental distribution",
+    "envDistNone": "No environmental data for these products.",
+    "allergenAlertsTitle": "Allergen alerts",
+    "contributors": "Main contributors",
+    "sugarContributors": "Main sugar sources",
+    "additiveContributors": "Main additive sources",
+    "unknownValue": "n/a",
+    "per100": "per 100 g",
+    "riskyN": "{n} risky",
+    "totalN": "{n} total",
+    "toListTitle": "To the shopping list",
+    "toListHint": "GreeCart analyzes; the list is what you buy.",
+    "addKeepToList": "Add the {n} to keep",
+    "openList": "Open list",
+    "addedKeepToList": "{n} product(s) added to your list.",
+    "addedPlanToList": "{n} replacement(s) added to your list.",
+    "addPlanToList": "Add these {n} improvements to the list"
   },
   "settings": {
     "title": "Settings",
@@ -1113,7 +1130,11 @@
       "empty": "No scans this week — the aisle is waiting.",
       "scans": "{count, plural, one {scan} other {scans}}",
       "avg": "average score",
-      "localNote": "Computed on this device. Nothing leaves your phone."
+      "localNote": "Computed on this device. Nothing leaves your phone.",
+      "sugarDown": "−{n} g sugar",
+      "additivesDown": "Fewer risky additives",
+      "envUp": "Better impact",
+      "replacements": "{n} replacement(s) · +{pts} pts"
     },
     "recents": {
       "title": "Recent products",
@@ -1141,7 +1162,9 @@
     "emptyCta": "Scan a product",
     "remove": "Remove {name}",
     "clearChecked": "Remove {count, plural, one {the checked item} other {# checked items}}",
-    "localNote": "This list stays on your device until you delete it."
+    "localNote": "This list stays on your device until you delete it.",
+    "increase": "Increase quantity of {name}",
+    "decrease": "Decrease quantity of {name}"
   },
   "support": {
     "metaTitle": "Support GreeCheck — Independence",

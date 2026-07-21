@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Plus, Trash2, ScanLine } from "lucide-react";
+import { Plus, Minus, Trash2, ScanLine } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
@@ -11,11 +11,11 @@ import { useShoppingListStore } from "@/domains/list/store";
 import { useMounted } from "@/hooks/use-mounted";
 import { cn } from "@/lib/utils/cn";
 
-/** Shopping list — local, checkable in-store, deletable. Never leaves the device. */
+/** Shopping list — persistent, local, checkable in-store. Never leaves the device. */
 export function ListClient() {
   const t = useTranslations("list");
   const mounted = useMounted();
-  const { items, hydrated, ensureHydrated, add, toggle, remove, clearChecked } = useShoppingListStore();
+  const { items, hydrated, ensureHydrated, add, toggle, remove, setQuantity, clearChecked } = useShoppingListStore();
   const [draft, setDraft] = useState("");
 
   useEffect(() => ensureHydrated(), [ensureHydrated]);
@@ -24,7 +24,7 @@ export function ListClient() {
     e.preventDefault();
     const name = draft.trim();
     if (!name) return;
-    add({ name });
+    add({ name, source: "manual" });
     setDraft("");
   };
 
@@ -34,7 +34,6 @@ export function ListClient() {
     <div className="mx-auto max-w-2xl">
       <PageHeading title={t("title")} subtitle={t("subtitle")} />
 
-      {/* quick manual add */}
       <form onSubmit={submit} className="mb-4 flex gap-2">
         <label htmlFor="list-add" className="sr-only">{t("addLabel")}</label>
         <input
@@ -63,10 +62,7 @@ export function ListClient() {
               <path d="M48 36 C 58 32, 64 24, 66 14 C 55 17, 49 25, 48 34 Z" fill="rgb(var(--gc-natural))" />
             </svg>
             <p className="max-w-xs text-sm text-muted">{t("empty")}</p>
-            <Link
-              href="/scan"
-              className="gc-pressable inline-flex h-11 items-center gap-2 rounded-2xl bg-surface-2 px-4 text-sm font-semibold"
-            >
+            <Link href="/scan" className="gc-pressable inline-flex h-11 items-center gap-2 rounded-2xl bg-surface-2 px-4 text-sm font-semibold">
               <ScanLine className="h-4 w-4 text-natural-strong" aria-hidden /> {t("emptyCta")}
             </Link>
           </GreeCardContent>
@@ -86,9 +82,9 @@ export function ListClient() {
                     onChange={() => toggle(item.id)}
                     className="h-6 w-6 shrink-0 accent-[rgb(var(--gc-natural-strong))]"
                   />
-                  {item.imageUrl !== undefined || item.barcode ? (
+                  {(item.imageUrl !== undefined || item.barcode) && (
                     <ProductThumbnail src={item.imageUrl} size="sm" className="h-9 w-9 shrink-0" />
-                  ) : null}
+                  )}
                   <label
                     htmlFor={`li-${item.id}`}
                     className={cn("min-w-0 flex-1 truncate text-sm font-medium", item.checked && "text-muted line-through")}
@@ -100,13 +96,29 @@ export function ListClient() {
                     )}
                   </label>
                   {item.grade && (
-                    <GreeBadge
-                      size="sm"
-                      tone={item.grade === "A" || item.grade === "B" ? "positive" : item.grade === "C" ? "caution" : "negative"}
-                    >
+                    <GreeBadge size="sm" tone={item.grade === "A" || item.grade === "B" ? "positive" : item.grade === "C" ? "caution" : "negative"}>
                       {item.grade}
                     </GreeBadge>
                   )}
+                  {/* quantity stepper */}
+                  <div className="flex shrink-0 items-center gap-1 rounded-full bg-surface-2 p-0.5">
+                    <button
+                      onClick={() => setQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                      aria-label={t("decrease", { name: item.name })}
+                      className="gc-pressable grid h-7 w-7 place-items-center rounded-full text-muted disabled:opacity-40"
+                    >
+                      <Minus className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                    <span className="w-5 text-center text-sm font-semibold tabular-nums" aria-live="polite">{item.quantity}</span>
+                    <button
+                      onClick={() => setQuantity(item.id, item.quantity + 1)}
+                      aria-label={t("increase", { name: item.name })}
+                      className="gc-pressable grid h-7 w-7 place-items-center rounded-full text-muted"
+                    >
+                      <Plus className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                  </div>
                   <button
                     onClick={() => remove(item.id)}
                     aria-label={t("remove", { name: item.name })}

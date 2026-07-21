@@ -4,6 +4,8 @@
  */
 import type { Product, Grade } from "@greecheck/domain/product/model";
 import type { GreeScore, ScoreGrade, ScoreValues } from "@greecheck/domain/scoring/types";
+import { computeGreeImpact } from "@greecheck/domain/impact/engine";
+import { lookupAdditive } from "@greecheck/domain/scoring/additive-registry";
 
 /**
  * One entry in the local scan history (also reused for favorites).
@@ -30,6 +32,10 @@ export interface ScanHistoryItem {
   warningValues?: ScoreValues;
   /** True when that warning was a critical compatibility alert. */
   critical?: boolean;
+  /** Weekly-progress signals captured at scan time (optional; old rows lack them). */
+  sugars?: number;
+  riskyAdditives?: number;
+  envGrade?: Grade;
   scannedAt: number;
   favorite?: boolean;
 }
@@ -59,6 +65,12 @@ export function buildHistoryItem(product: Product, gree: GreeScore, verdict: str
     warningCode: top?.code,
     warningValues: top?.values,
     critical: top?.level === "critical",
+    sugars: product.nutriments.sugars,
+    riskyAdditives: (product.additives ?? []).filter((c) => {
+      const r = lookupAdditive(c).risk;
+      return r === "high" || r === "moderate";
+    }).length,
+    envGrade: (() => { const i = computeGreeImpact(product); return i.status === "valid" ? i.grade : undefined; })(),
     scannedAt: Date.now()
   };
 }

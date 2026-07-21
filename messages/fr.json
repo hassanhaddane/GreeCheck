@@ -521,7 +521,7 @@
     "alerts": "Alertes cumulées",
     "tooSugary": "{n, plural, one {# trop sucré} other {# trop sucrés}}",
     "tooSalty": "{n, plural, one {# trop salé} other {# trop salés}}",
-    "ultraProcessed": "{n, plural, one {# ultra-transformé} other {# ultra-transformés}}",
+    "ultraProcessed": "{n} produit(s) ultra-transformé(s)",
     "riskyAdditives": "{n} avec additifs à surveiller",
     "allergenAlert": "{n} avec un allergène à éviter",
     "toImprove": "À améliorer",
@@ -648,7 +648,24 @@
     "planNone": "Aucun remplacement fiable trouvé pour l’instant.",
     "planApply": "Appliquer",
     "planApplyAll": "Tout appliquer",
-    "planDismiss": "Annuler"
+    "planDismiss": "Annuler",
+    "envDist": "Distribution environnementale",
+    "envDistNone": "Aucune donnée environnementale pour ces produits.",
+    "allergenAlertsTitle": "Alertes allergènes",
+    "contributors": "Principaux contributeurs",
+    "sugarContributors": "Principales sources de sucre",
+    "additiveContributors": "Principales sources d'additifs",
+    "unknownValue": "n.d.",
+    "per100": "pour 100 g",
+    "riskyN": "{n} à risque",
+    "totalN": "{n} au total",
+    "toListTitle": "Vers la liste de courses",
+    "toListHint": "GreeCart analyse ; la liste est ce que vous achetez.",
+    "addKeepToList": "Ajouter les {n} à garder",
+    "openList": "Ouvrir la liste",
+    "addedKeepToList": "{n} produit(s) ajouté(s) à votre liste.",
+    "addedPlanToList": "{n} remplacement(s) ajouté(s) à votre liste.",
+    "addPlanToList": "Ajouter ces {n} améliorations à la liste"
   },
   "settings": {
     "title": "Réglages",
@@ -1113,7 +1130,11 @@
       "empty": "Aucun scan cette semaine — le rayon n'attend que vous.",
       "scans": "{count, plural, one {scan} other {scans}}",
       "avg": "score moyen",
-      "localNote": "Calculé sur cet appareil. Rien ne quitte votre téléphone."
+      "localNote": "Calculé sur cet appareil. Rien ne quitte votre téléphone.",
+      "sugarDown": "−{n} g de sucre",
+      "additivesDown": "Moins d'additifs à risque",
+      "envUp": "Meilleur impact",
+      "replacements": "{n} remplacement(s) · +{pts} pts"
     },
     "recents": {
       "title": "Produits récents",
@@ -1141,7 +1162,9 @@
     "emptyCta": "Scanner un produit",
     "remove": "Retirer {name}",
     "clearChecked": "Retirer {count, plural, one {l'article coché} other {les # articles cochés}}",
-    "localNote": "Cette liste reste sur votre appareil, jusqu'à ce que vous la supprimiez."
+    "localNote": "Cette liste reste sur votre appareil, jusqu'à ce que vous la supprimiez.",
+    "increase": "Augmenter la quantité de {name}",
+    "decrease": "Réduire la quantité de {name}"
   },
   "support": {
     "metaTitle": "Soutenir GreeCheck — Indépendance",

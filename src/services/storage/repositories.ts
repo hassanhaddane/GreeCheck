@@ -184,6 +184,22 @@ export const onboardingRepo = {
 };
 
 
+
+/** Replacement log — better-alternative swaps, for local weekly progress. */
+export interface ReplacementLogEntry { at: number; fromScore: number; toScore: number }
+export const replacementsRepo = {
+  async all(): Promise<ReplacementLogEntry[]> {
+    return (await kvGet<ReplacementLogEntry[]>("replacements")) ?? [];
+  },
+  async log(entry: ReplacementLogEntry): Promise<void> {
+    const all = await replacementsRepo.all();
+    // keep ~60 days, newest first — small, local, self-pruning
+    const cutoff = Date.now() - 60 * 24 * 3600 * 1000;
+    await kvSet("replacements", [entry, ...all.filter((e) => e.at >= cutoff)].slice(0, 200));
+  },
+  clear: () => kvRemove("replacements")
+};
+
 /** Shopping list — single KV document (small, personal, local-only). */
 export const shoppingListRepo = {
   get: () => kvGet<import("@/domains/list/model").ShoppingListItem[]>("shoppingList"),

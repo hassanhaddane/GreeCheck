@@ -521,7 +521,7 @@
     "alerts": "تنبيهات مجمّعة",
     "tooSugary": "{n} عالي السكر",
     "tooSalty": "{n} عالي الملح",
-    "ultraProcessed": "{n} معالج جداً",
+    "ultraProcessed": "{n} منتج فائق المعالجة",
     "riskyAdditives": "{n} به إضافات للمراقبة",
     "allergenAlert": "{n} به مسبب حساسية لتجنبه",
     "toImprove": "استبدلها أولاً",
@@ -648,7 +648,24 @@
     "planNone": "لا يوجد بديل موثوق حاليًا.",
     "planApply": "تطبيق",
     "planApplyAll": "تطبيق الكل",
-    "planDismiss": "إلغاء"
+    "planDismiss": "إلغاء",
+    "envDist": "التوزيع البيئي",
+    "envDistNone": "لا بيانات بيئية لهذه المنتجات.",
+    "allergenAlertsTitle": "تنبيهات المُحسِّسات",
+    "contributors": "أبرز المساهمين",
+    "sugarContributors": "أبرز مصادر السكر",
+    "additiveContributors": "أبرز مصادر المضافات",
+    "unknownValue": "غير متاح",
+    "per100": "لكل 100 غ",
+    "riskyN": "{n} عالية الخطورة",
+    "totalN": "{n} إجمالًا",
+    "toListTitle": "إلى قائمة التسوق",
+    "toListHint": "GreeCart يحلّل؛ القائمة هي ما تشتريه.",
+    "addKeepToList": "أضِف الـ{n} المُحتفَظ بها",
+    "openList": "افتح القائمة",
+    "addedKeepToList": "أُضيف {n} منتج إلى قائمتك.",
+    "addedPlanToList": "أُضيف {n} بديل إلى قائمتك.",
+    "addPlanToList": "أضِف هذه التحسينات الـ{n} إلى القائمة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -1113,7 +1130,11 @@
       "empty": "لا عمليات مسح هذا الأسبوع — الرف بانتظارك.",
       "scans": "{count, plural, one {مسح} two {مسحان} few {مسحات} other {مسحًا}}",
       "avg": "متوسط النتيجة",
-      "localNote": "يُحسب على هذا الجهاز. لا شيء يغادر هاتفك."
+      "localNote": "يُحسب على هذا الجهاز. لا شيء يغادر هاتفك.",
+      "sugarDown": "−{n} غ سكر",
+      "additivesDown": "مضافات خطرة أقل",
+      "envUp": "أثر أفضل",
+      "replacements": "{n} استبدال · +{pts} نقطة"
     },
     "recents": {
       "title": "منتجات حديثة",
@@ -1141,7 +1162,9 @@
     "emptyCta": "امسح منتجًا",
     "remove": "إزالة {name}",
     "clearChecked": "إزالة {count, plural, one {العنصر المحدد} two {العنصرين المحددين} other {# عناصر محددة}}",
-    "localNote": "تبقى هذه القائمة على جهازك حتى تحذفها."
+    "localNote": "تبقى هذه القائمة على جهازك حتى تحذفها.",
+    "increase": "زيادة كمية {name}",
+    "decrease": "إنقاص كمية {name}"
   },
   "support": {
     "metaTitle": "ادعم GreeCheck — الاستقلالية",

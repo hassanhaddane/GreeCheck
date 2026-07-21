@@ -129,6 +129,13 @@ export interface Product {
   isVegetarian?: boolean;
   /* provenance & quality */
   source: "openfoodfacts" | "ciqual" | "usda";
+  /**
+   * Data origin marker. "user_ocr" flags a product assembled from values a
+   * user photographed AND explicitly confirmed (OCR beta) — never a database
+   * record. Absent for normal source-backed products. Used to label
+   * OCR-derived results everywhere they surface.
+   */
+  origin?: "user_ocr";
   /** Always set by the normalizer; may be absent on old cached rows. */
   dataQuality?: DataQuality;
 }

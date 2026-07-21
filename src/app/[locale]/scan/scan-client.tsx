@@ -31,6 +31,8 @@ import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
 import { getProduct } from "@/domains/product/repository";
 import { parseProductCode, interpretScan } from "@/lib/utils/parse-scan";
 import { createScanGate } from "@/lib/utils/scan-gate";
+import { OCR_BETA_ENABLED } from "@/lib/flags";
+import { OcrBeta } from "@/components/scan/ocr-beta";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
@@ -461,6 +463,9 @@ export function ScanClient() {
           <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
         </button>
       </GreeCard>
+
+      {/* OCR beta — isolated experimental flow, gated behind a build flag. */}
+      {OCR_BETA_ENABLED && <OcrBeta />}
 
     </div>
   );

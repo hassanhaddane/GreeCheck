@@ -101,7 +101,55 @@
       "dismiss": "Ignorer"
     },
     "offline": "Vous êtes hors ligne. Les produits déjà scannés restent disponibles depuis le cache local.",
-    "qrNoProduct": "Ce QR code ne contient pas d'identifiant produit."
+    "qrNoProduct": "Ce QR code ne contient pas d'identifiant produit.",
+    "ocr": {
+      "title": "Photo (bêta)",
+      "beta": "BÊTA",
+      "restart": "Recommencer",
+      "kindLabel": "Type de photo",
+      "kind": {
+        "nutrition": "Tableau nutritionnel",
+        "ingredients": "Liste d'ingrédients"
+      },
+      "privacy": "La photo est analysée sur votre appareil et n'est jamais envoyée ni enregistrée.",
+      "capture": "Prendre une photo",
+      "upload": "Importer",
+      "previewAlt": "Aperçu de la photo à analyser",
+      "adjustHint": "Redressez la photo si besoin avant l'extraction.",
+      "rotateLeft": "Pivoter",
+      "rotateRight": "Pivoter",
+      "retake": "Reprendre",
+      "extract": "Extraire le texte",
+      "extracting": "Lecture du texte sur votre appareil…",
+      "reviewHint": "Vérifiez chaque valeur par rapport à votre photo. Rien n'est enregistré tant que vous n'avez pas confirmé.",
+      "unreadable": "illisible",
+      "per100": "/ 100 g",
+      "reExtract": "Relire",
+      "confirm": "Confirmer ces valeurs",
+      "confirmedLabel": "Données extraites confirmées par vous",
+      "scoreFromOcr": "Calculé à partir de vos valeurs confirmées.",
+      "cannotScore": "Score impossible à calculer",
+      "missingFields": "Il manque : {fields}. Un score n'est calculé que lorsque toutes les valeurs requises sont confirmées.",
+      "needIngredients": "Ajoutez aussi la liste d'ingrédients pour obtenir un score complet.",
+      "resultNote": "Ces informations proviennent de votre photo, pas d'une base de données. Elles ne sont pas enregistrées.",
+      "scanAnother": "Analyser une autre photo",
+      "cannotScoreTitle": "Score indisponible",
+      "field": {
+        "energyKcal": "Énergie (kcal)",
+        "fat": "Matières grasses",
+        "saturatedFat": "Acides gras saturés",
+        "sugars": "Sucres",
+        "fiber": "Fibres",
+        "proteins": "Protéines",
+        "salt": "Sel",
+        "ingredients": "Ingrédients"
+      },
+      "failure": {
+        "engine_error": "La lecture a échoué. Réessayez avec une photo plus nette.",
+        "no_text_found": "Aucun texte lisible n'a été trouvé. Cadrez le tableau ou la liste et réessayez.",
+        "image_unreadable": "Image illisible. Réessayez avec plus de lumière."
+      }
+    }
   },
   "search": {
     "title": "Rechercher",

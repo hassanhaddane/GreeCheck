@@ -101,7 +101,55 @@
       "dismiss": "Dismiss"
     },
     "offline": "You're offline. Previously scanned products remain available from the local cache.",
-    "qrNoProduct": "This QR code doesn't contain a product identifier."
+    "qrNoProduct": "This QR code doesn't contain a product identifier.",
+    "ocr": {
+      "title": "Photo (beta)",
+      "beta": "BETA",
+      "restart": "Start over",
+      "kindLabel": "Photo type",
+      "kind": {
+        "nutrition": "Nutrition table",
+        "ingredients": "Ingredient list"
+      },
+      "privacy": "The photo is analyzed on your device and is never uploaded or saved.",
+      "capture": "Take a photo",
+      "upload": "Upload",
+      "previewAlt": "Preview of the photo to analyze",
+      "adjustHint": "Straighten the photo if needed before extracting.",
+      "rotateLeft": "Rotate",
+      "rotateRight": "Rotate",
+      "retake": "Retake",
+      "extract": "Extract text",
+      "extracting": "Reading text on your device…",
+      "reviewHint": "Check each value against your photo. Nothing is saved until you confirm.",
+      "unreadable": "unreadable",
+      "per100": "/ 100 g",
+      "reExtract": "Re-read",
+      "confirm": "Confirm these values",
+      "confirmedLabel": "Data you confirmed from a photo",
+      "scoreFromOcr": "Computed from your confirmed values.",
+      "cannotScore": "Score can't be calculated",
+      "missingFields": "Missing: {fields}. A score is only calculated once every required value is confirmed.",
+      "needIngredients": "Add the ingredient list too for a full score.",
+      "resultNote": "This information comes from your photo, not a database. It is not saved.",
+      "scanAnother": "Analyze another photo",
+      "cannotScoreTitle": "Score unavailable",
+      "field": {
+        "energyKcal": "Energy (kcal)",
+        "fat": "Fat",
+        "saturatedFat": "Saturated fat",
+        "sugars": "Sugars",
+        "fiber": "Fiber",
+        "proteins": "Protein",
+        "salt": "Salt",
+        "ingredients": "Ingredients"
+      },
+      "failure": {
+        "engine_error": "Reading failed. Try again with a sharper photo.",
+        "no_text_found": "No readable text found. Frame the table or list and try again.",
+        "image_unreadable": "Unreadable image. Try again with more light."
+      }
+    }
   },
   "search": {
     "title": "Search",

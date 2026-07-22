@@ -35,3 +35,6 @@ export * from "./cart/what-if";
 export * from "./compare/engine";
 export * from "./cart/analysis";
 export * from "./weekly/engine";
+export * from "./coach/types";
+export * from "./coach/intents";
+export * from "./coach/engine";

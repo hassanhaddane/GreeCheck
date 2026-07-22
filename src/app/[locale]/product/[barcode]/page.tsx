@@ -23,6 +23,7 @@ import { SubScoreCards } from "@/components/product/sub-score-cards";
 import { Alternatives } from "@/components/product/alternatives";
 import { DataKind } from "@/components/product/data-kind";
 import { ImpactBlock, ImpactDetails } from "@/components/product/impact-block";
+import { GreeCoachButton } from "@/components/coach/gree-coach";
 import { Skeleton } from "@/components/system/loading-state";
 import { EmptyState } from "@/components/system/empty-state";
 import { ErrorState } from "@/components/system/error-state";
@@ -198,6 +199,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {/* ═══ 3 · GreeImpact (environment) — separate from health ═══ */}
       <ImpactBlock impact={impact} />
+
+      {/* GreeCoach — ask about this product (deterministic, no history) */}
+      <GreeCoachButton context={{ kind: "product", product: p, gree, impact, prefs }} className="w-full justify-center" />
 
       {/* ═══ 4 · Data confidence ═══ */}
       <GreeCard>

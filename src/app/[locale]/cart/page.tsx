@@ -12,6 +12,7 @@ import { EmptyState } from "@/components/system/empty-state";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { TrustHalo } from "@/components/system/trust-halo";
 import { CartItemCard } from "@/components/cart/cart-item-card";
+import { GreeCoachButton } from "@/components/coach/gree-coach";
 import { ReplacementSuggestions } from "@/components/cart/replacement-suggestions";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
 import { computeCartScore } from "@greecheck/domain/cart/engine";
@@ -201,6 +202,9 @@ export default function CartPage() {
           )}
         </GreeCardContent>
       </GreeCard>
+
+      {/* GreeCoach — ask how to improve this basket (deterministic, no history) */}
+      <GreeCoachButton context={{ kind: "cart", result, extras }} className="w-full justify-center" />
 
       {/* ── What's good ── */}
       {(result.mainStrength.key !== "none" || result.positiveInsights.length > 0) && <GreeCard variant="tinted" className="p-4">

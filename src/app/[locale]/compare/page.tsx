@@ -17,6 +17,7 @@ import { ComparisonTable } from "@/components/battle/comparison-table";
 import { AxisBars } from "@/components/battle/axis-bars";
 import { Podium } from "@/components/battle/podium";
 import { AddSheet } from "@/components/battle/add-sheet";
+import { GreeCoachButton } from "@/components/coach/gree-coach";
 import { computeComparison, type CompareEntry } from "@greecheck/domain/compare/engine";
 import { useCompareStore, COMPARE_MAX } from "@/domains/compare/store";
 import { useCartStore } from "@/domains/cart/store";
@@ -252,6 +253,8 @@ export default function ComparePage() {
                   <AxisBars entries={entries} />
                 </GreeCardContent>
               </GreeCard>
+              <GreeCoachButton context={{ kind: "compare", result: result! }} className="w-full justify-center" />
+
               <CollapsibleSection title={t("completeCompare")} icon={<GitCompareArrows className="h-5 w-5" />}>
                 <ComparisonTable entries={entries} />
               </CollapsibleSection>

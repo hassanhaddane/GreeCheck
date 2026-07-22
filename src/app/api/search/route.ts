@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { searchProducts, type SearchResult } from "@/services/api/openfoodfacts";
 import { normalizeError } from "@/services/api/errors";
+import { apiError, rateLimit, clampInt } from "@/lib/api/guard";
 
 export const runtime = "nodejs";
 
@@ -30,13 +31,16 @@ function cacheSet(key: string, result: SearchResult) {
 }
 
 export async function GET(req: Request) {
+  const limited = rateLimit(req, "search", { limit: 30, windowMs: 60_000 });
+  if (limited) return limited;
+
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") ?? "").trim();
-  const page = Math.max(1, Number(searchParams.get("page") ?? "1") || 1);
-  const pageSize = Math.min(20, Math.max(1, Number(searchParams.get("pageSize") ?? "20") || 20));
+  const page = clampInt(searchParams.get("page"), 1, 1, 50);
+  const pageSize = clampInt(searchParams.get("pageSize"), 20, 1, 20);
 
   if (q.length > MAX_QUERY_LENGTH) {
-    return NextResponse.json({ error: "invalid_query", message: "Query too long" }, { status: 400 });
+    return apiError("invalid_query", 400);
   }
   // Empty/short query: valid request, empty result — never hit the upstream.
   if (q.length < 2) {
@@ -58,11 +62,8 @@ export async function GET(req: Request) {
   } catch (err) {
     const e = normalizeError(err);
     if (e.code === "rate_limited") {
-      return NextResponse.json(
-        { error: "rate_limited" },
-        { status: 429, headers: e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined }
-      );
+      return apiError("rate_limited", 429, e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined);
     }
-    return NextResponse.json({ error: "upstream_unavailable" }, { status: 502 });
+    return apiError(e.code === "network" ? "upstream_unreachable" : "upstream_unavailable", 502);
   }
 }

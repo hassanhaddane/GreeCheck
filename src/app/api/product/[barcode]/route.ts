@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
 import { normalizeError } from "@/services/api/errors";
+import { apiError, rateLimit } from "@/lib/api/guard";
 
 export const runtime = "nodejs";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ barcode: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ barcode: string }> }) {
+  const limited = rateLimit(req, "product", { limit: 60, windowMs: 60_000 });
+  if (limited) return limited;
+
   const { barcode } = await params;
   const code = (barcode ?? "").replace(/\D/g, "");
 
   if (code.length < 6) {
-    return NextResponse.json({ status: "error", error: "invalid_barcode" }, { status: 400 });
+    return apiError("invalid_barcode", 400);
   }
 
   try {
@@ -27,14 +31,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ barcode
   } catch (err) {
     const e = normalizeError(err);
     if (e.code === "rate_limited") {
-      return NextResponse.json(
-        { status: "rate_limited" },
-        { status: 429, headers: e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined }
-      );
+      return apiError("rate_limited", 429, e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined);
     }
-    return NextResponse.json(
-      { status: "error", error: e.code === "network" ? "upstream_unreachable" : "upstream_unavailable" },
-      { status: 502 }
-    );
+    // Never surface the raw exception message.
+    return apiError(e.code === "network" ? "upstream_unreachable" : "upstream_unavailable", 502);
   }
 }

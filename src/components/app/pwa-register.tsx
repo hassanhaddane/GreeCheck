@@ -18,6 +18,34 @@ export function PwaRegister() {
     };
     navigator.serviceWorker.addEventListener("controllerchange", onControllerChange);
 
+    /**
+     * Obsolete-cache recovery. After a deployment, a cached shell can reference
+     * chunks that no longer exist; the app would then fail to hydrate a route.
+     * On such a failure we ask the worker to drop every cache and reload ONCE
+     * (a single ephemeral session flag guards against reload loops).
+     */
+    const RECOVERY_FLAG = "gc.cacheRecovery";
+    const onCachesCleared = (event: MessageEvent) => {
+      if (event.data === "CACHES_CLEARED") window.location.reload();
+    };
+    navigator.serviceWorker.addEventListener("message", onCachesCleared);
+
+    const looksLikeStaleChunk = (message: string) =>
+      /ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(message);
+
+    const recover = (message: string) => {
+      if (!looksLikeStaleChunk(message)) return;
+      try {
+        if (sessionStorage.getItem(RECOVERY_FLAG)) return; // already tried this session
+        sessionStorage.setItem(RECOVERY_FLAG, "1");
+      } catch { /* storage unavailable — attempt recovery anyway */ }
+      navigator.serviceWorker.controller?.postMessage("CLEAR_CACHES");
+    };
+    const onError = (e: ErrorEvent) => recover(e.message ?? "");
+    const onRejection = (e: PromiseRejectionEvent) => recover(String((e.reason as Error)?.message ?? e.reason ?? ""));
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+
     void navigator.serviceWorker.register("/sw.js").then((registration) => {
       if (registration.waiting && navigator.serviceWorker.controller) setWaiting(registration.waiting);
       registration.addEventListener("updatefound", () => {
@@ -28,7 +56,12 @@ export function PwaRegister() {
       });
     }).catch(() => {});
 
-    return () => navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+    return () => {
+      navigator.serviceWorker.removeEventListener("controllerchange", onControllerChange);
+      navigator.serviceWorker.removeEventListener("message", onCachesCleared);
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    };
   }, []);
 
   if (!waiting) return null;

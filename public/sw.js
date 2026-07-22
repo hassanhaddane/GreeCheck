@@ -34,6 +34,16 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data === "SKIP_WAITING") self.skipWaiting();
+  // Obsolete-cache recovery: the page asks us to drop every cache when it
+  // detects assets that no longer exist (stale shell after a deployment).
+  if (event.data === "CLEAR_CACHES") {
+    event.waitUntil(
+      caches.keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => self.clients.matchAll({ type: "window" }))
+        .then((clients) => clients.forEach((client) => client.postMessage("CACHES_CLEARED")))
+    );
+  }
 });
 
 function isStaticAsset(url) {

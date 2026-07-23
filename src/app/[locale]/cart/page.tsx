@@ -30,7 +30,11 @@ import type { Product } from "@greecheck/domain/product/model";
 import type { CartProductAnalysis } from "@greecheck/domain/cart/engine";
 
 const CONFIDENCE_TO_HALO = { high: "high", medium: "medium", low: "low" } as const;
-const ENV_COLORS: Record<string, string> = { a: "#1E6B7A", b: "#3E8FA0", c: "#7DB0BC", d: "#B7CDD3", e: "#D9C7C0", unknown: "#ECEDEA" };
+// Environmental ramp — design tokens only (see globals.css --gc-env-*).
+const ENV_COLORS: Record<string, string> = {
+  a: "rgb(var(--gc-env-a))", b: "rgb(var(--gc-env-b))", c: "rgb(var(--gc-env-c))",
+  d: "rgb(var(--gc-env-d))", e: "rgb(var(--gc-env-e))", unknown: "rgb(var(--gc-env-unknown))"
+};
 
 function DistBar({ segments }: { segments: { key: string; n: number; color: string }[] }) {
   const total = segments.reduce((s, x) => s + x.n, 0) || 1;

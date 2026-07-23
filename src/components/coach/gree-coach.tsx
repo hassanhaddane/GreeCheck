@@ -19,9 +19,23 @@ import { cn } from "@/lib/utils/cn";
 
 interface Turn { question: string; answer: CoachAnswer }
 
+/**
+ * Maps an answer's topic to a section that ACTUALLY exists on /methodology
+ * (ids: greescore, rules, confidence, sources). Pointing at a non-existent
+ * anchor would silently drop the reader at the top of the page.
+ */
 const METHOD_ANCHOR: Record<MethodologyAnchor, string> = {
-  score: "greescore", nutrition: "nutrition", additives: "additives", organic: "organic",
-  impact: "greeimpact", confidence: "confidence", halal: "halal", compare: "greescore", cart: "greescore"
+  score: "greescore",
+  nutrition: "greescore",
+  additives: "greescore",
+  compare: "greescore",
+  cart: "greescore",
+  // The fairness-rules section is what documents organic and halal-as-compatibility.
+  organic: "rules",
+  halal: "rules",
+  confidence: "confidence",
+  // Environmental data provenance is described in the sources section.
+  impact: "sources"
 };
 
 export function GreeCoach({ open, onClose, context }: { open: boolean; onClose: () => void; context: CoachContext }) {

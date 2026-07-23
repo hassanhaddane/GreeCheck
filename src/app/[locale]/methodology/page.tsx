@@ -25,7 +25,7 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
       <p className="px-1 text-sm leading-relaxed text-muted">{t("intro")}</p>
 
       {/* Score composition */}
-      <GreeCard>
+      <GreeCard id="greescore">
         <GreeCardContent className="space-y-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Calculator className="h-4 w-4 text-natural-strong" aria-hidden /> {t("scoreTitle")}
@@ -42,8 +42,8 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
         </GreeCardContent>
       </GreeCard>
 
-      {/* Fairness rules */}
-      <GreeCard>
+      {/* Fairness rules — covers organic, halal-as-compatibility and missing data */}
+      <GreeCard id="rules">
         <GreeCardContent className="space-y-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Scale className="h-4 w-4 text-natural-strong" aria-hidden /> {t("rulesTitle")}
@@ -60,7 +60,7 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
       </GreeCard>
 
       {/* Confidence */}
-      <GreeCard>
+      <GreeCard id="confidence">
         <GreeCardContent className="space-y-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <ShieldQuestion className="h-4 w-4 text-natural-strong" aria-hidden /> {t("confidenceTitle")}
@@ -70,7 +70,7 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
       </GreeCard>
 
       {/* Sources */}
-      <GreeCard>
+      <GreeCard id="sources">
         <GreeCardContent className="space-y-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Database className="h-4 w-4 text-natural-strong" aria-hidden /> {t("sourcesTitle")}

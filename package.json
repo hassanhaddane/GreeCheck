@@ -53,6 +53,7 @@
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
-    "@parcel/watcher-linux-x64-glibc": "^2.5.6"
+    "@parcel/watcher-linux-x64-glibc": "^2.5.6",
+    "@swc/core-linux-x64-gnu": "1.15.43"
   }
 }

@@ -3,13 +3,35 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ScanLine, ShieldCheck, ChevronRight, Search } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildPageMetadata, SITE_URL } from "@/lib/seo";
 import { InstallPrompt } from "@/components/app/install-prompt";
 import { FirstScanHint, WeeklyProgress, RecentProducts, ShoppingListPreview } from "./home-client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return buildPageMetadata(locale as Locale, "", "app");
+}
+
+/**
+ * Localized WebApplication structured data for the home page.
+ * Serialized with `<` escaped so the JSON can never break out of the script
+ * element or inject markup (safe even though every value here is our own copy).
+ */
+function homeJsonLd(locale: string, name: string, description: string): string {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "GreeCheck",
+    alternateName: name,
+    description,
+    inLanguage: locale,
+    url: `${SITE_URL}/${locale}`,
+    applicationCategory: "HealthApplication",
+    operatingSystem: "Web",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "EUR" },
+    isAccessibleForFree: true
+  };
+  return JSON.stringify(data).replace(/</g, "\\u003c");
 }
 
 /**
@@ -23,9 +45,13 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   setRequestLocale(locale);
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tApp = await getTranslations("app");
+  const jsonLd = homeJsonLd(locale, tApp("metaTitle"), tApp("metaDescription"));
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      {/* Localized WebApplication structured data (server-rendered). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       {/* ── 2 · immersive scan action (the ONE dominant action) ── */}
       <section aria-labelledby="scan-h">
         <Link

@@ -25,7 +25,7 @@ export function ImpactBlock({ impact }: { impact: GreeImpact }) {
               <h2 id="impact-h" className="text-sm font-semibold text-sky-ink">{t("impactTitle")}</h2>
             </div>
             <p className="text-sm font-semibold text-sky-ink">{t("impactInsufficient")}</p>
-            <p className="mt-0.5 text-xs text-sky-ink/80">{t("impactInsufficientBody")}</p>
+            <p className="mt-0.5 text-xs text-sky-ink">{t("impactInsufficientBody")}</p>
           </GreeCardContent>
         </GreeCard>
       </section>
@@ -64,20 +64,20 @@ export function ImpactBlock({ impact }: { impact: GreeImpact }) {
           {(insight.strength || insight.weakness) && (
             <div className="space-y-1.5">
               {insight.strength && (
-                <p className="flex items-start gap-1.5 text-xs text-sky-ink/90">
+                <p className="flex items-start gap-1.5 text-xs text-sky-ink">
                   <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
                   {ti(insight.strength.code, insight.strength.params)}
                 </p>
               )}
               {insight.weakness && (
-                <p className="flex items-start gap-1.5 text-xs text-sky-ink/90">
+                <p className="flex items-start gap-1.5 text-xs text-sky-ink">
                   <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
                   {ti(insight.weakness.code, insight.weakness.params)}
                 </p>
               )}
             </div>
           )}
-          <p className="text-xs text-sky-ink/70">{t("impactSeeDetails")}</p>
+          <p className="text-xs text-sky-ink">{t("impactSeeDetails")}</p>
         </GreeCardContent>
       </GreeCard>
     </section>

@@ -296,7 +296,7 @@ function OcrResult({
       ) : (
         <div className="rounded-2xl bg-pastel-butter p-3">
           <p className="text-sm font-semibold text-score-c-ink">{t("cannotScore")}</p>
-          <p className="mt-1 text-xs text-score-c-ink/85">
+          <p className="mt-1 text-xs text-score-c-ink">
             {readiness.missing.length > 0
               ? t("missingFields", { fields: readiness.missing.map((f) => t(`field.${f}`)).join(", ") })
               : t("needIngredients")}

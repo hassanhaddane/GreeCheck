@@ -20,7 +20,7 @@
   --gc-surface-2: 245 246 244;   /* level 2 · insets, wells       */
   --gc-surface-3: 238 240 236;   /* level 3 · pressed / deep well */
   --gc-ink: 16 19 18;            /* deep neutral text             */
-  --gc-muted: 102 112 106;       /* secondary text                */
+  --gc-muted: 92 101 95;         /* secondary text (AA on stone/pastels) */
   --gc-line: 232 234 231;        /* hairline borders              */
 
   /* ── color · brand ────────────────────────────────────────── */
@@ -36,11 +36,11 @@
   --gc-score-c: 234 179 8;
   --gc-score-d: 249 115 22;
   --gc-score-e: 239 68 68;
-  --gc-score-a-ink: 21 128 61;
-  --gc-score-b-ink: 77 124 15;
-  --gc-score-c-ink: 161 98 7;
-  --gc-score-d-ink: 194 65 12;
-  --gc-score-e-ink: 220 38 38;
+  --gc-score-a-ink: 20 108 52;
+  --gc-score-b-ink: 61 103 12;
+  --gc-score-c-ink: 132 82 6;
+  --gc-score-d-ink: 173 59 10;
+  --gc-score-e-ink: 190 26 26;
 
   /* ── color · verdict semantics (V2 decision layer) ────────── */
   --gc-verdict-positive: var(--gc-score-a);

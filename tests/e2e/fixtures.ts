@@ -14,7 +14,7 @@ const availability = {
 const imageUrl = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.879.100.jpg";
 
 export const poorProduct: Product = {
-  barcode: "11111111",
+  barcode: "11111115",
   name: "Test Choco",
   brand: "GreeCheck QA",
   imageUrl,
@@ -33,7 +33,7 @@ export const poorProduct: Product = {
 };
 
 export const goodProduct: Product = {
-  barcode: "22222222",
+  barcode: "22222220",
   name: "Test Oats",
   brand: "GreeCheck QA",
   imageUrl,
@@ -53,7 +53,7 @@ export const goodProduct: Product = {
 
 export const thirdProduct: Product = {
   ...goodProduct,
-  barcode: "33333333",
+  barcode: "33333335",
   name: "Test Almond Spread",
   nutriments: { ...goodProduct.nutriments, sugars: 5, proteins: 8 },
   nutriScore: "b" as const,
@@ -62,7 +62,7 @@ export const thirdProduct: Product = {
 
 export const incompleteProduct: Product = {
   ...goodProduct,
-  barcode: "44444444",
+  barcode: "44444440",
   name: "Test Partial Product",
   ingredientsText: undefined,
   additives: undefined,
@@ -70,7 +70,7 @@ export const incompleteProduct: Product = {
     availability: { ...availability, ingredients: false },
     completeness: 86,
     confidence: "medium" as const,
-    confidenceReasons: ["missing_ingredients"]
+    confidenceReasons: ["missingIngredients"]
   }
 };
 

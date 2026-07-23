@@ -54,18 +54,18 @@ export function WeeklyProgress() {
       </div>
 
       {w.weekScanCount === 0 ? (
-        <p className="mt-2 text-sm text-score-a-ink/90">{t("empty")}</p>
+        <p className="mt-2 text-sm text-score-a-ink">{t("empty")}</p>
       ) : (
         <>
           <div className="mt-2 flex items-baseline gap-5">
             <div>
               <span className="text-3xl font-semibold tracking-tight text-score-a-ink tabular-nums">{w.weekScanCount}</span>
-              <span className="ms-1.5 text-sm text-score-a-ink/80">{t("scans", { count: w.weekScanCount })}</span>
+              <span className="ms-1.5 text-sm text-score-a-ink">{t("scans", { count: w.weekScanCount })}</span>
             </div>
             {avg.current !== undefined && (
               <div>
                 <span className="text-3xl font-semibold tracking-tight text-score-a-ink tabular-nums">{avg.current}</span>
-                <span className="ms-1.5 text-sm text-score-a-ink/80">{t("avg")}</span>
+                <span className="ms-1.5 text-sm text-score-a-ink">{t("avg")}</span>
               </div>
             )}
           </div>
@@ -80,7 +80,7 @@ export function WeeklyProgress() {
           )}
         </>
       )}
-      <p className="mt-2 text-xs text-score-a-ink/70">{t("localNote")}</p>
+      <p className="mt-2 text-xs text-score-a-ink">{t("localNote")}</p>
     </section>
   );
 }

@@ -23,8 +23,8 @@ test.beforeEach(async ({ page }) => {
 const CRITICAL_SCREENS: Array<{ name: string; path: string }> = [
   { name: "home", path: "/fr" },
   { name: "scan", path: "/fr/scan" },
-  { name: "product-poor", path: "/fr/product/11111111" },
-  { name: "product-good", path: "/fr/product/22222222" },
+  { name: "product-poor", path: "/fr/product/11111115" },
+  { name: "product-good", path: "/fr/product/22222220" },
   { name: "compare-empty", path: "/fr/compare" },
   { name: "cart-empty", path: "/fr/cart" },
   { name: "list-empty", path: "/fr/list" },

@@ -12,7 +12,7 @@ test.describe("GreeLens camera and first scan", () => {
     await expect(page.getByRole("heading", { name: "GreeLens" })).toBeVisible();
     await expect(page.getByText("Recherche d'un code…", { exact: true })).toBeVisible();
 
-    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("11111111");
+    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("11111115");
     await page.getByRole("button", { name: "Entrer le code-barres", exact: true }).click();
     await expect(page.getByLabel("Scan éclair").getByText("Test Choco", { exact: true })).toBeVisible();
     const intro = page.getByRole("dialog", { name: "Bienvenue dans GreeCheck" });
@@ -20,7 +20,7 @@ test.describe("GreeLens camera and first scan", () => {
     await intro.getByRole("button", { name: "Ignorer" }).filter({ hasText: "Ignorer" }).click();
 
     await page.getByRole("button", { name: "Scanner un autre" }).click();
-    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("22222222");
+    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("22222220");
     await page.getByRole("button", { name: "Entrer le code-barres", exact: true }).click();
     await expect(page.getByLabel("Scan éclair").getByText("Test Oats", { exact: true })).toBeVisible();
     await expect(page.getByText("2 scannés dans cette session", { exact: true })).toBeVisible();
@@ -53,7 +53,7 @@ test.describe("GreeLens camera and first scan", () => {
 
   test("product not found is explicit and recoverable", async ({ page }) => {
     await page.goto("/fr/scan");
-    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("99999999");
+    await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("99999995");
     await page.getByRole("button", { name: "Entrer le code-barres", exact: true }).click();
     await expect(page.getByText("Produit introuvable dans Open Food Facts.", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Réessayer" }).first()).toBeVisible();

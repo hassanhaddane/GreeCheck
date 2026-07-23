@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
-for (const route of ["/fr", "/fr/scan", "/fr/discover", "/fr/product/11111111", "/ar/criteria"]) {
+for (const route of ["/fr", "/fr/scan", "/fr/discover", "/fr/product/11111115", "/ar/criteria"]) {
   test(`${route} has no WCAG A/AA violations`, async ({ page }) => {
     await page.goto(route);
     await page.locator("main").waitFor();

@@ -1,0 +1,65 @@
+name: Visual baselines (manual)
+
+# Generates the Linux Chromium visual-regression baselines in the SAME
+# environment the CI `e2e` job compares against (ubuntu-latest +
+# `npx playwright install --with-deps chromium`, pinned Playwright version).
+# This guarantees the committed `*-chromium-linux.png` files match CI exactly —
+# a baseline generated on Windows/macOS (or a mismatched container) would drift
+# on sub-pixel font rendering and fail the 0.02 diff budget.
+#
+# Trigger it from the GitHub UI (Actions ▸ "Visual baselines (manual)" ▸ Run
+# workflow) on the branch that needs baselines. It:
+#   1. renders the 9 critical screens and writes the snapshots,
+#   2. uploads them as an artifact so they can be VISUALLY INSPECTED before trust,
+#   3. commits them back to the triggering branch.
+# The regular `ci.yml` e2e job then validates them with a plain (no
+# --update-snapshots) run.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: visual-baselines-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  baselines:
+    name: Generate Linux visual baselines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci --include=optional
+      # Pinned Playwright version comes from package-lock.json (@playwright/test).
+      - name: Install Playwright Chromium (+ system deps)
+        run: npx playwright install --with-deps chromium
+      - name: Generate baselines
+        run: npx playwright test tests/e2e/visual-regression.spec.ts --update-snapshots
+      # Inspect these before trusting them (Task 3): download the artifact and
+      # confirm no blank pages, skeletons, error states, missing fixtures/fonts,
+      # horizontal overflow, mid-animation frames, or a missing Arabic RTL layout.
+      - name: Upload baselines for visual review
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-visual-baselines
+          path: tests/e2e/visual-regression.spec.ts-snapshots/
+          retention-days: 14
+      - name: Commit baselines to the branch
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/e2e/visual-regression.spec.ts-snapshots/*-chromium-linux.png
+          if git diff --cached --quiet; then
+            echo "No baseline changes to commit."
+          else
+            git commit -m "test(visual): add/update Linux Chromium baselines [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi

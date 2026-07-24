@@ -25,7 +25,7 @@
 
   /* ── color · brand ────────────────────────────────────────── */
   --gc-natural: 46 204 113;      /* natural green — brand accent  */
-  --gc-natural-strong: 21 128 61; /* AA text green on white (5.0:1)*/
+  --gc-natural-strong: 18 116 54; /* AA text green: 5.9:1 on white, >=4.7:1 on every pastel tint */
   --gc-neon: 57 255 136;         /* neon — active motion ONLY     */
   --gc-deep: 11 61 46;           /* deep green — hero surfaces    */
 

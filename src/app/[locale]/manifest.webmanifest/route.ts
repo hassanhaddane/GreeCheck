@@ -31,7 +31,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
     shortcuts: [
       { name: nav("scan"), short_name: nav("scan"), url: `/${locale}/scan?source=pwa`, icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
       { name: nav("search"), short_name: nav("search"), url: `/${locale}/search`, icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: nav("battle"), short_name: nav("battle"), url: `/${locale}/battle`, icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] }
+      { name: nav("products"), short_name: nav("products"), url: `/${locale}/products`, icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] }
     ]
   };
 

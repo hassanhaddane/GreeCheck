@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { searchProducts, type SearchResult } from "@/services/api/openfoodfacts";
+import { searchProducts } from "@/services/api/openfoodfacts";
+import type { SearchResult } from "@/services/api/product-contracts";
 import { normalizeError } from "@/services/api/errors";
 import { apiError, rateLimit, clampInt } from "@/lib/api/guard";
 

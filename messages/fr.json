@@ -7,6 +7,8 @@
     "metaDescription": "Scanne un produit et découvre son GreeScore : verdict clair, raisons principales et meilleures alternatives. Sans compte, données 100 % locales."
   },
   "nav": {
+    "products": "Mes produits",
+    "primary": "Navigation principale",
     "home": "Accueil",
     "scan": "Scanner",
     "search": "Rechercher",
@@ -1237,6 +1239,7 @@
     "impact_source_missing_signal": "Donnée manquante : {signal}"
   },
   "compare": {
+    "advanced": "Comparaison avancée",
     "title": "GreeCompare",
     "subtitle": "Comparez 2 ou 3 produits comparables et choisissez le meilleur, en toute transparence.",
     "emptyTitle": "Lancez une comparaison",

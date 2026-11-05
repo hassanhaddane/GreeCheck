@@ -95,7 +95,7 @@ export function HistoryClient() {
   if (!mounted) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading title={t("title")} />
+        <PageHeading as="h2" title={t("title")} />
         <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /><ProductRowSkeleton /></div>
       </div>
     );
@@ -104,7 +104,7 @@ export function HistoryClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading title={t("title")} />
+        <PageHeading as="h2" title={t("title")} />
         <EmptyState
           icon={ScanLine}
           title={t("empty")}
@@ -117,7 +117,7 @@ export function HistoryClient() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <PageHeading title={t("title")} />
+      <PageHeading as="h2" title={t("title")} />
 
       {/* Toolbar: filters + view switch */}
       <div className="flex items-center gap-2">

@@ -27,6 +27,7 @@ test.describe("GreeLens camera and first scan", () => {
     await expect(intro).toBeHidden();
 
     await page.goto("/fr/history");
+    await expect(page).toHaveURL(/\/fr\/products$/);
     await expect(page.locator("main").getByText("Test Oats", { exact: true }).last()).toBeVisible();
     await expect(page.locator("main").getByText("Test Choco", { exact: true }).last()).toBeVisible();
   });

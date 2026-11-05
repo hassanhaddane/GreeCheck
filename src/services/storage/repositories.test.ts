@@ -6,14 +6,15 @@ import { localStorageStub } from "./test-setup";
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { db, PRODUCT_TTL } from "./db";
-import { historyRepo, cartRepo, productCacheRepo, preferencesRepo } from "./repositories";
+import { historyRepo, cartRepo, productCacheRepo, preferencesRepo, shoppingListRepo } from "./repositories";
 import { bootLocalData, __resetBootForTests } from "./boot";
 import { resetApp } from "./local-data";
+import { useShoppingListStore } from "@/domains/list/store";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useCartStore } from "@/domains/cart/store";
 import { usePreferencesStore, defaultPreferences } from "@/domains/criteria/store";
 import type { Product } from "@greecheck/domain/product/model";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 
 const ls = localStorageStub();
 const product = (barcode: string): Product => ({ barcode, name: `P${barcode}`, nutriments: {}, source: "openfoodfacts" });
@@ -105,4 +106,20 @@ test("local reset clears every store and every repository", async () => {
   assert.deepEqual(await historyRepo.all(), []);
   assert.deepEqual(await cartRepo.all(), []);
   assert.equal(ls.getItem("greecheck.theme"), null);
+});
+
+test("first additions to the shopping list retain saved entries and combine concurrent quantities", async () => {
+  await shoppingListRepo.set([
+    { id: "saved", name: "Pommes", quantity: 2, checked: true, addedAt: 1, source: "manual" }
+  ]);
+  const list = useShoppingListStore.getState();
+  assert.equal(list.hydrated, false);
+
+  const oats = { barcode: "22222220", name: "Avoine" };
+  await Promise.all([list.add(oats), list.addMany([oats, { id: "pears", name: "Poires" }])]);
+
+  const items = await shoppingListRepo.get();
+  assert.equal(items?.find((item) => item.id === "saved")?.checked, true);
+  assert.equal(items?.find((item) => item.id === oats.barcode)?.quantity, 2);
+  assert.equal(items?.find((item) => item.id === "pears")?.quantity, 1);
 });

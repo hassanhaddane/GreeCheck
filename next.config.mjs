@@ -63,9 +63,12 @@ const nextConfig = {
     ];
   },
   async redirects() {
-    // V1 → V2 route moves (kept permanently for old bookmarks / PWA shortcuts).
+    // Keep old bookmarks and installed PWA shortcuts working across releases.
     // NOTE: `/list` is deliberately NOT redirected — it is now the Shopping List.
     return [
+      { source: "/:locale(fr|en|ar)/battle", destination: "/:locale/compare", permanent: true },
+      { source: "/:locale(fr|en|ar)/history", destination: "/:locale/products", permanent: true },
+      { source: "/:locale(fr|en|ar)/favorites", destination: "/:locale/products/favorites", permanent: true },
       { source: "/:locale(fr|en|ar)/basket", destination: "/:locale/cart", permanent: true },
       { source: "/:locale(fr|en|ar)/map", destination: "/:locale", permanent: true }
     ];

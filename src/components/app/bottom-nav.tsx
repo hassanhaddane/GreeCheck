@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
-import { BOTTOM_NAV } from "@/lib/constants/navigation";
+import { PRIMARY_NAV } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils/cn";
 
 /**
@@ -15,10 +15,10 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav aria-label={t("primary")} className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[env(safe-area-inset-bottom)] md:hidden">
       <div className="gc-glass gc-edge mx-auto mb-3 flex max-w-md items-center justify-around rounded-[1.75rem] px-2 py-2 shadow-glass">
-        {BOTTOM_NAV.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        {PRIMARY_NAV.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(item.href + "/");
           const Icon = item.icon;
           if (item.primary) {
             return (
@@ -26,9 +26,10 @@ export function BottomNav() {
                 key={item.key}
                 href={item.href}
                 aria-label={t(item.key)}
+                aria-current={active ? "page" : undefined}
                 className="gc-pressable gc-pulse-ring relative -mt-8 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-natural-grad shadow-raised ring-4 ring-bg"
               >
-                <Icon className="h-7 w-7 text-white" strokeWidth={2.4} />
+                <Icon className="h-7 w-7 text-white" aria-hidden strokeWidth={2.4} />
               </Link>
             );
           }
@@ -49,7 +50,7 @@ export function BottomNav() {
                   transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 />
               )}
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
+              <Icon className="h-5 w-5" aria-hidden strokeWidth={active ? 2.4 : 2} />
               <span className="max-w-full truncate px-0.5">{t(item.key)}</span>
             </Link>
           );

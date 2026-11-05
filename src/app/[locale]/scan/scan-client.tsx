@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
@@ -32,7 +33,7 @@ import { getProduct } from "@/domains/product/repository";
 import { parseProductCode, interpretScan } from "@/lib/utils/parse-scan";
 import { createScanGate } from "@/lib/utils/scan-gate";
 import { OCR_BETA_ENABLED } from "@/lib/flags";
-import { OcrBeta } from "@/components/scan/ocr-beta";
+import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
@@ -44,6 +45,8 @@ import { RapidScanCard, type RapidScanResult } from "@/components/scan/rapid-sca
 import { FirstScanIntro } from "@/components/scan/first-scan-intro";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
+
+const OcrBeta = dynamic(() => import("@/components/scan/ocr-beta").then((module) => module.OcrBeta));
 
 type LookupState = "idle" | "loading" | "not_found" | "network_error" | "offline" | "rate_limited" | "unsupported";
 type ScanSource = "product" | "cart" | "battle";
@@ -138,7 +141,7 @@ export function ScanClient() {
         }
         if (source === "battle") {
           addBattle(result.product);
-          router.push("/battle");
+          router.push("/compare");
           return;
         }
 
@@ -465,7 +468,11 @@ export function ScanClient() {
       </GreeCard>
 
       {/* OCR beta — isolated experimental flow, gated behind a build flag. */}
-      {OCR_BETA_ENABLED && <OcrBeta />}
+      {OCR_BETA_ENABLED && (
+        <CollapsibleSection title={t("ocr.title")}>
+          <OcrBeta />
+        </CollapsibleSection>
+      )}
 
     </div>
   );

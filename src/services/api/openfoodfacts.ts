@@ -1,15 +1,12 @@
 /**
  * Open Food Facts integration (server-side fetchers).
  * No data is persisted server-side: every call is a stateless proxy/fetch.
- * Raw→Product mapping lives in `product-normalizer.ts`.
+ * Raw→Product mapping lives in `the pure domain normalizer`.
  */
-import type { Product, Confidence, ProductState } from "@greecheck/domain/product/model";
+import type { Product } from "@greecheck/domain/product/model";
 import { OFF_FIELDS, mapOffProduct, assessProduct, type OffRawProduct } from "@greecheck/domain/product/normalizer";
 import { RateLimitedError, retryAfterMs } from "./errors";
-
-// Re-exported for existing consumers of this module.
-export { OFF_FIELDS, mapOffProduct, assessProduct };
-export type { OffRawProduct };
+import type { ProductResult, SearchResult } from "./product-contracts";
 
 const BASE = process.env.NEXT_PUBLIC_OFF_BASE_URL || "https://world.openfoodfacts.org";
 // France-first full-text search goes through the fr subdomain (same data, FR-scoped ranking).
@@ -18,10 +15,6 @@ const BASE_FR = "https://fr.openfoodfacts.org";
 const SEARCH_BASE = process.env.OFF_SEARCH_BASE_URL || "https://search.openfoodfacts.org";
 const USER_AGENT = process.env.OFF_USER_AGENT || "GreeCheck/0.1 (contact@greecheck.app)";
 const UPSTREAM_TIMEOUT_MS = 8000;
-
-export type ProductResult =
-  | { status: Exclude<ProductState, "not_found">; product: Product; confidence: Confidence; missing: string[] }
-  | { status: "not_found"; barcode: string };
 
 async function offFetch(url: string, revalidate = 60 * 60): Promise<Response> {
   const res = await fetch(url, {
@@ -68,14 +61,6 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductRes
   const product = mapOffProduct(data.product);
   const { status, confidence, missing } = assessProduct(product);
   return { status, product, confidence, missing };
-}
-
-export interface SearchResult {
-  count: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-  products: Product[];
 }
 
 /** Put products actually sold in France first (without dropping the rest). */

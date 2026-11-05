@@ -98,19 +98,19 @@ export default function CartPage() {
   };
 
   /** Move the kept (strong + acceptable) products into the shopping list. */
-  const addKeepToList = () => {
+  const addKeepToList = async () => {
     const keep = [...groups.strong, ...groups.acceptable];
     if (!keep.length) return;
-    list.addMany(keep.map((a) => ({
+    await list.addMany(keep.map((a) => ({
       name: a.product.name, barcode: a.product.barcode, imageUrl: a.product.imageUrl, grade: a.gree.grade, source: "cart" as const
     })));
     setListNotice(t("addedKeepToList", { n: keep.length }));
   };
 
   /** Move the improvement-plan replacements into the shopping list. */
-  const addPlanToList = () => {
+  const addPlanToList = async () => {
     if (!plan?.steps.length) return;
-    list.addMany(plan.steps.map((s) => ({
+    await list.addMany(plan.steps.map((s) => ({
       name: s.replacement.name, barcode: s.replacement.barcode, imageUrl: s.replacement.imageUrl, grade: s.replacementGree.grade, source: "cart" as const
     })));
     setListNotice(t("addedPlanToList", { n: plan.steps.length }));

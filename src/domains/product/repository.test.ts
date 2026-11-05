@@ -10,7 +10,7 @@ import { db } from "@/services/storage/db";
 import { productCacheRepo } from "@/services/storage/repositories";
 import { getProduct, __resetRepositoryForTests } from "./repository";
 import { mapOffProduct } from "@greecheck/domain/product/normalizer";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 
 /** Build a realistic normalized result from a raw-ish payload. */
 function found(barcode: string): ProductResult {

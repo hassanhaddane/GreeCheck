@@ -21,10 +21,10 @@ export interface AddListInput {
 interface ShoppingListState {
   items: ShoppingListItem[];
   hydrated: boolean;
-  ensureHydrated: () => void;
-  add: (item: AddListInput) => void;
+  ensureHydrated: () => Promise<void>;
+  add: (item: AddListInput) => Promise<void>;
   /** Add several products at once (e.g. GreeCart improvement picks). */
-  addMany: (items: AddListInput[]) => void;
+  addMany: (items: AddListInput[]) => Promise<void>;
   setQuantity: (id: string, quantity: number) => void;
   toggle: (id: string) => void;
   remove: (id: string) => void;
@@ -32,10 +32,9 @@ interface ShoppingListState {
   clear: () => void;
 }
 
-let hydrating = false;
-
 export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
-  const persist = () => void shoppingListRepo.set(get().items);
+  let hydration: Promise<void> | undefined;
+  const persist = () => shoppingListRepo.set(get().items);
 
   /** Merge one input into the list: bump quantity if it already exists. */
   const mergeInput = (list: ShoppingListItem[], input: AddListInput): ShoppingListItem[] => {
@@ -62,27 +61,27 @@ export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
     items: [],
     hydrated: false,
     ensureHydrated: () => {
-      if (get().hydrated || hydrating) return;
-      hydrating = true;
-      void shoppingListRepo.get().then((items) => {
+      hydration ??= shoppingListRepo.get().then((items) => {
         // Backfill quantity for rows written before it existed.
         const safe = (items ?? []).map((i) => ({ ...i, quantity: i.quantity ?? 1 }));
         set({ items: safe, hydrated: true });
-        hydrating = false;
       });
+      return hydration;
     },
-    add: (input) => { set((s) => ({ items: mergeInput(s.items, input) })); persist(); },
-    addMany: (inputs) => {
+    add: (input) => get().addMany([input]),
+    addMany: async (inputs) => {
+      // Compare and GreeCart can add before the list has ever been opened.
+      if (!get().hydrated) await get().ensureHydrated();
       set((s) => ({ items: inputs.reduce(mergeInput, s.items) }));
-      persist();
+      await persist();
     },
     setQuantity: (id, quantity) => {
       set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i)) }));
       persist();
     },
-    toggle: (id) => { set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)) })); persist(); },
-    remove: (id) => { set((s) => ({ items: s.items.filter((i) => i.id !== id) })); persist(); },
-    clearChecked: () => { set((s) => ({ items: s.items.filter((i) => !i.checked) })); persist(); },
+    toggle: (id) => { set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)) })); void persist(); },
+    remove: (id) => { set((s) => ({ items: s.items.filter((i) => i.id !== id) })); void persist(); },
+    clearChecked: () => { set((s) => ({ items: s.items.filter((i) => !i.checked) })); void persist(); },
     clear: () => { set({ items: [] }); void shoppingListRepo.clear(); }
   };
 });

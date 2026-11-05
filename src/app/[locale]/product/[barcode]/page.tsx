@@ -152,7 +152,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
   const confidenceTone = gree.confidence === "high" ? "text-natural-strong" : gree.confidence === "medium" ? "text-score-c-ink" : "text-score-d-ink";
 
-  const goToBattle = () => { addBattle(p); router.push("/battle"); };
+  const goToBattle = () => { addBattle(p); router.push("/compare"); };
   const productInBasket = basket.has(p.barcode);
   const addToBasket = () => setBasketNotice(basket.addProduct(p, gree) === "duplicate" ? "duplicate" : "added");
   const toggleFavorite = () => favorites.toggle(buildHistoryItem(p, gree, tScore(`grade.${gree.grade}`)));
@@ -199,9 +199,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {/* ═══ 3 · GreeImpact (environment) — separate from health ═══ */}
       <ImpactBlock impact={impact} />
-
-      {/* GreeCoach — ask about this product (deterministic, no history) */}
-      <GreeCoachButton context={{ kind: "product", product: p, gree, impact, prefs }} className="w-full justify-center" />
 
       {/* ═══ 4 · Data confidence ═══ */}
       <GreeCard>
@@ -367,6 +364,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             </a>
           </div>
         </div>
+        <div className="mt-3"><GreeCoachButton context={{ kind: "product", product: p, gree, impact, prefs }} className="w-full justify-center" /></div>
       </CollapsibleSection>
 
       {/* ═══ 14 · Report a data issue (through the source provider) ═══ */}

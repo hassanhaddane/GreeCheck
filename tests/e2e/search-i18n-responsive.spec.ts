@@ -68,3 +68,25 @@ test("FR, EN and Arabic RTL render without horizontal overflow at all required v
   await page.goto("/fr/privacy");
   await expect(page.getByText("Aucune publicité", { exact: true })).toBeVisible();
 });
+
+test("primary navigation has three destinations and the secondary menu works on desktop and mobile", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/fr");
+    const nav = page.getByRole("navigation", { name: "Navigation principale" });
+    await expect(nav.getByRole("link")).toHaveCount(3);
+    await expect(nav.getByRole("link", { name: "Scanner", exact: true })).toHaveAttribute("href", "/fr/scan");
+    await expect(nav.getByRole("link", { name: "Rechercher", exact: true })).toHaveAttribute("href", "/fr/search");
+    await nav.getByRole("link", { name: "Mes produits", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Mes produits" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Mes produits", exact: true })).toHaveAttribute("aria-current", "page");
+
+    await page.getByRole("button", { name: "Plus", exact: true }).click();
+    const more = page.getByRole("dialog", { name: "Plus" });
+    await expect(more.getByRole("link", { name: "GreeCompare" })).toHaveAttribute("href", "/fr/compare");
+    await expect(more.getByRole("link", { name: "GreeCart" })).toHaveAttribute("href", "/fr/cart");
+    await more.getByRole("link", { name: "Découvrir" }).click();
+    await expect(page).toHaveURL(/\/fr\/discover$/);
+    await expect(more).toBeHidden();
+  }
+});

@@ -7,6 +7,8 @@
     "metaDescription": "امسح منتجًا غذائيًا واكتشف GreeScore: حكم واضح وأسباب رئيسية وبدائل أفضل. بدون حساب، وتبقى بياناتك على جهازك."
   },
   "nav": {
+    "products": "منتجاتي",
+    "primary": "التنقل الرئيسي",
     "home": "الرئيسية",
     "scan": "مسح",
     "search": "بحث",
@@ -1237,6 +1239,7 @@
     "impact_source_missing_signal": "بيانات ناقصة: {signal}"
   },
   "compare": {
+    "advanced": "مقارنة متقدمة",
     "title": "GreeCompare",
     "subtitle": "قارن منتجين أو ثلاثة قابلة للمقارنة واختر الأفضل بشفافية.",
     "emptyTitle": "ابدأ مقارنة",

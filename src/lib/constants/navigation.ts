@@ -1,5 +1,5 @@
 import {
-  ScanLine, Search, Swords, ShoppingBasket, History, Heart, ListChecks,
+  ScanLine, Search, GitCompareArrows, ShoppingBasket, Library, ListChecks, MapPin,
   SlidersHorizontal, BookOpenText, Settings, ShieldCheck, HeartHandshake, type LucideIcon
 } from "lucide-react";
 
@@ -10,22 +10,19 @@ export interface NavItem {
   primary?: boolean;
 }
 
-/**
- * Primary navigation — exactly the five V2 destinations
- * (Scan is the central primary action on mobile).
- */
-export const BOTTOM_NAV: NavItem[] = [
+/** Shared by the mobile dock and desktop rail. Scan sits at the center on mobile. */
+export const PRIMARY_NAV: NavItem[] = [
   { key: "search", href: "/search", icon: Search },
-  { key: "history", href: "/history", icon: History },
   { key: "scan", href: "/scan", icon: ScanLine, primary: true },
-  { key: "battle", href: "/compare", icon: Swords },
-  { key: "cart", href: "/cart", icon: ShoppingBasket }
+  { key: "products", href: "/products", icon: Library }
 ];
 
-/** Secondary destinations — the compact "More" menu (mobile sheet + desktop rail footer). */
+/** Secondary destinations are reached through the same menu on all viewports. */
 export const MORE_NAV: NavItem[] = [
-  { key: "favorites", href: "/favorites", icon: Heart },
+  { key: "battle", href: "/compare", icon: GitCompareArrows },
+  { key: "cart", href: "/cart", icon: ShoppingBasket },
   { key: "list", href: "/list", icon: ListChecks },
+  { key: "discover", href: "/discover", icon: MapPin },
   { key: "criteria", href: "/criteria", icon: SlidersHorizontal },
   { key: "methodology", href: "/methodology", icon: BookOpenText },
   { key: "settings", href: "/settings", icon: Settings },

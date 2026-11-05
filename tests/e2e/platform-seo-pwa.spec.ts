@@ -13,6 +13,9 @@ test("localized manifests are installable and start standalone in GreeLens", asy
       display: "standalone",
       start_url: `/${locale}/scan?source=pwa`
     });
+    expect(manifest.shortcuts.map((shortcut: { url: string }) => shortcut.url)).toEqual([
+      `/${locale}/scan?source=pwa`, `/${locale}/search`, `/${locale}/products`
+    ]);
     expect(manifest.icons).toEqual(expect.arrayContaining([
       expect.objectContaining({ sizes: "192x192" }),
       expect.objectContaining({ sizes: "512x512" }),

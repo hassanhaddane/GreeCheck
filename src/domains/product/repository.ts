@@ -12,7 +12,7 @@
  *   • one stable normalized envelope (`ProductLookup`) — the UI never needs
  *     source-specific conditions.
  */
-import type { ProductResult, SearchResult } from "@/services/api/openfoodfacts";
+import type { ProductResult, SearchResult } from "@/services/api/product-contracts";
 import type { Product, AssessmentStatus, Confidence } from "@greecheck/domain/product/model";
 import { ensureDerived, assessProduct } from "@greecheck/domain/product/normalizer";
 import { productCacheRepo } from "@/services/storage/repositories";

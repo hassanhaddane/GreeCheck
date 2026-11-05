@@ -13,7 +13,7 @@ import { EmptyState } from "@/components/system/empty-state";
 import { ErrorState } from "@/components/system/error-state";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { FilterPanel } from "@/components/search/filter-panel";
-import { ProductResultCard } from "@/components/search/product-result-card";
+import { ProductCard } from "@/components/product/product-card";
 import { FILTER_DEFS } from "@/lib/filters/definitions";
 import { searchProductsClient } from "@/domains/product/repository";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
@@ -265,7 +265,7 @@ export function SearchClient() {
       {status === "ok" && !isBarcode && visible.length > 0 && (
         <div className="space-y-2">
           {visible.map(({ p, gree }, i) => (
-            <ProductResultCard
+            <ProductCard
               key={p.barcode}
               product={p}
               gree={gree}

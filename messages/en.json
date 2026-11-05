@@ -7,6 +7,8 @@
     "metaDescription": "Scan a food product and get its GreeScore: a clear verdict, the main reasons and better alternatives. No account, 100% on-device data."
   },
   "nav": {
+    "products": "My products",
+    "primary": "Main navigation",
     "home": "Home",
     "scan": "Scan",
     "search": "Search",
@@ -1237,6 +1239,7 @@
     "impact_source_missing_signal": "Missing data: {signal}"
   },
   "compare": {
+    "advanced": "Advanced comparison",
     "title": "GreeCompare",
     "subtitle": "Compare 2 or 3 comparable products and choose the best — transparently.",
     "emptyTitle": "Start a comparison",

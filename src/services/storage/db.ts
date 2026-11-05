@@ -7,7 +7,7 @@
  * the repositories in `./repositories` — never import `db` from UI code.
  */
 import Dexie, { type Table } from "dexie";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 import type { ScanHistoryItem, FavoriteItem } from "@/domains/library/model";
 import type { CartItem } from "@greecheck/domain/cart/model";
 import type { BattleDraftItem } from "@greecheck/domain/battle/model";

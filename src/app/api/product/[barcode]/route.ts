@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
+import { lookupBarcode } from "@/services/api/sources";
 import { normalizeError } from "@/services/api/errors";
 import { apiError, rateLimit } from "@/lib/api/guard";
 
@@ -17,7 +17,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ barcode:
   }
 
   try {
-    const result = await fetchProductByBarcode(code);
+    const result = await lookupBarcode(code);
     if (result.status === "not_found") {
       return NextResponse.json(result, {
         status: 404,

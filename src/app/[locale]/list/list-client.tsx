@@ -18,13 +18,13 @@ export function ListClient() {
   const { items, hydrated, ensureHydrated, add, toggle, remove, setQuantity, clearChecked } = useShoppingListStore();
   const [draft, setDraft] = useState("");
 
-  useEffect(() => ensureHydrated(), [ensureHydrated]);
+  useEffect(() => { void ensureHydrated(); }, [ensureHydrated]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const name = draft.trim();
     if (!name) return;
-    add({ name, source: "manual" });
+    void add({ name, source: "manual" });
     setDraft("");
   };
 

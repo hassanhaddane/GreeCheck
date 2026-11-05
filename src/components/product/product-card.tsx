@@ -48,7 +48,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
     e.preventDefault();
     e.stopPropagation();
     battle.add(p);
-    router.push("/battle");
+    router.push("/compare");
   };
   const addToBasket = (e: React.MouseEvent) => {
     e.preventDefault();

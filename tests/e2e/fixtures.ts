@@ -11,7 +11,16 @@ const availability = {
   categories: true
 };
 
-const imageUrl = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.879.100.jpg";
+// Keep both the Next.js image path and direct thumbnails independent of OFF.
+const productIllustration = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">',
+  '<rect x="18" y="24" width="44" height="48" rx="9" fill="#78533d"/>',
+  '<rect x="16" y="12" width="48" height="16" rx="5" fill="#405e52"/>',
+  '<rect x="18" y="40" width="44" height="20" rx="3" fill="#f4ebdc"/>',
+  '<path d="M32 50h16" stroke="#78533d" stroke-width="3" stroke-linecap="round"/>',
+  '</svg>'
+].join("");
+const imageUrl = "data:image/svg+xml," + encodeURIComponent(productIllustration);
 
 export const poorProduct: Product = {
   barcode: "11111115",

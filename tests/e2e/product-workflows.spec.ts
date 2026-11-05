@@ -34,6 +34,8 @@ test.describe("Product decisions and local library", () => {
             .click();
 
         await page.goto("/fr/favorites");
+        await expect(page).toHaveURL(/\/fr\/products\/favorites$/);
+        await expect(page.getByRole("heading", { name: "Mes produits" })).toBeVisible();
 
         await expect(
             page
@@ -42,7 +44,8 @@ test.describe("Product decisions and local library", () => {
                 .last(),
         ).toBeVisible();
 
-        await page.goto("/fr/history");
+        await page.getByRole("navigation", { name: "Mes produits" }).getByRole("link", { name: "Mes scans" }).click();
+        await expect(page).toHaveURL(/\/fr\/products$/);
 
         await expect(
             page
@@ -208,7 +211,12 @@ test.describe("GreeCompare journeys", () => {
 
         await addToCompare(page, "33333335");
 
-        await page.goto("/fr/compare");
+        await page.goto("/fr/battle");
+        await expect(page).toHaveURL(/\/fr\/compare$/);
+        const advanced = page.getByRole("button", { name: "Comparaison avancée" });
+        await expect(advanced).toHaveAttribute("aria-expanded", "false");
+        await expect(page.getByRole("heading", { name: "Podium" })).toBeHidden();
+        await advanced.click();
 
         await expect(
             page.getByRole("heading", { name: "Podium" }),

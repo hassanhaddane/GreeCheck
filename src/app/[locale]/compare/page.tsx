@@ -57,9 +57,9 @@ export default function ComparePage() {
     basket.addProduct(chosen.product, chosen.gree);
     router.push("/cart");
   };
-  const addChosenToList = () => {
+  const addChosenToList = async () => {
     if (!chosen) return;
-    list.add({ name: chosen.product.name, barcode: chosen.product.barcode, imageUrl: chosen.product.imageUrl, grade: chosen.gree.grade });
+    await list.add({ name: chosen.product.name, barcode: chosen.product.barcode, imageUrl: chosen.product.imageUrl, grade: chosen.gree.grade });
     setNotice(t("addedToList", { name: chosen.product.name }));
   };
   const addEntryToBasket = (entry: CompareEntry) => { basket.addProduct(entry.product, entry.gree); router.push("/cart"); };
@@ -240,23 +240,22 @@ export default function ComparePage() {
                 </GreeCardContent>
               </GreeCard>
 
-              {/* Premium visual comparison (not a spreadsheet on mobile) */}
-              <GreeCard>
-                <GreeCardContent>
-                  <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-muted">{t("podium")}</h2>
-                  <Podium ranking={entries} />
-                </GreeCardContent>
-              </GreeCard>
-              <GreeCard>
-                <GreeCardContent>
-                  <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t("keyMetrics")}</h2>
-                  <AxisBars entries={entries} />
-                </GreeCardContent>
-              </GreeCard>
-              <GreeCoachButton context={{ kind: "compare", result: result! }} className="w-full justify-center" />
-
-              <CollapsibleSection title={t("completeCompare")} icon={<GitCompareArrows className="h-5 w-5" />}>
-                <ComparisonTable entries={entries} />
+              <CollapsibleSection title={t("advanced")} icon={<GitCompareArrows className="h-5 w-5" />}>
+                <div className="space-y-5">
+                  <section>
+                    <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-muted">{t("podium")}</h2>
+                    <Podium ranking={entries} />
+                  </section>
+                  <section>
+                    <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted">{t("keyMetrics")}</h2>
+                    <AxisBars entries={entries} />
+                  </section>
+                  <section>
+                    <h2 className="mb-3 text-sm font-semibold">{t("completeCompare")}</h2>
+                    <ComparisonTable entries={entries} />
+                  </section>
+                  <GreeCoachButton context={{ kind: "compare", result: result! }} className="w-full justify-center" />
+                </div>
               </CollapsibleSection>
 
               <GreeButton variant="outline" className="w-full" onClick={clear}><RotateCcw className="h-4 w-4" /> {t("restart")}</GreeButton>

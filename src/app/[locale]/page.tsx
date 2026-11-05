@@ -5,7 +5,7 @@ import { Link } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata, SITE_URL } from "@/lib/seo";
 import { InstallPrompt } from "@/components/app/install-prompt";
-import { FirstScanHint, WeeklyProgress, RecentProducts, ShoppingListPreview } from "./home-client";
+import { FirstScanHint, RecentProducts } from "./home-client";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -36,7 +36,7 @@ function homeJsonLd(locale: string, name: string, description: string): string {
 
 /**
  * Home — the scanner-first app home (GreeCheck Ultimate shell).
- * Order is the decision loop: scan ▸ search ▸ progress ▸ recents ▸ list ▸ why.
+ * Scan and search lead into the decision loop; recent products provide a return path.
  * Server-rendered frame + small client islands over REAL local data.
  * Light-first, calm: one dominant action, pastel data, no dashboard clutter.
  */
@@ -91,14 +91,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         </Link>
       </section>
 
-      {/* ── 4 · weekly progress (local) ── */}
-      <WeeklyProgress />
-
       {/* ── 5 · recent products (renders only with real history) ── */}
       <RecentProducts />
-
-      {/* ── 6 · shopping-list preview ── */}
-      <ShoppingListPreview />
 
       {/* ── 7 · short independence message ── */}
       <section aria-labelledby="indep-h" className="rounded-3xl bg-pastel-stone p-5">

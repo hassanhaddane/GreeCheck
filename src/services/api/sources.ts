@@ -6,7 +6,7 @@
  * later as justified fallbacks (e.g. generic nutrition for unbranded foods),
  * never as a permanent internal product database.
  */
-import type { ProductResult } from "./openfoodfacts";
+import type { ProductResult } from "./product-contracts";
 import { fetchProductByBarcode } from "./openfoodfacts";
 import { ciqualAdapter } from "./fallback/ciqual";
 import { usdaAdapter } from "./fallback/usda";
@@ -32,11 +32,10 @@ export const offAdapter: ProductSourceAdapter = {
 export const PRODUCT_SOURCES: ProductSourceAdapter[] = [offAdapter, ciqualAdapter, usdaAdapter];
 
 export async function lookupBarcode(barcode: string): Promise<ProductResult> {
-  const chain = PRODUCT_SOURCES.filter((s) => s.active && s.supportsBarcode && s.fetchByBarcode);
-  let last: ProductResult = { status: "not_found", barcode };
-  for (const source of chain) {
-    last = await source.fetchByBarcode!(barcode);
-    if (last.status !== "not_found") return last;
+  for (const source of PRODUCT_SOURCES) {
+    if (!source.active || !source.supportsBarcode || !source.fetchByBarcode) continue;
+    const result = await source.fetchByBarcode(barcode);
+    if (result.status !== "not_found") return result;
   }
-  return last;
+  return { status: "not_found", barcode };
 }

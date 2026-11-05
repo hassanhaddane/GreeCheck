@@ -73,7 +73,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
   const compare = (alt: Alternative) => {
     addBattle(product);
     addBattle(alt.product);
-    router.push("/battle");
+    router.push("/compare");
   };
   const toCart = (alt: Alternative) => {
     addProduct(alt.product, alt.gree);

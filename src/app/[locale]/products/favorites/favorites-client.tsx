@@ -54,7 +54,7 @@ export function FavoritesClient() {
   if (!mounted) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading title={t("title")} />
+        <PageHeading as="h2" title={t("title")} />
         <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /></div>
       </div>
     );
@@ -62,7 +62,7 @@ export function FavoritesClient() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <PageHeading title={t("title")} />
+      <PageHeading as="h2" title={t("title")} />
 
       {notice && <p className="rounded-2xl bg-natural/10 px-3 py-2 text-center text-sm font-medium text-natural-strong" role="status">{notice}</p>}
 

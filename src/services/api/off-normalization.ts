@@ -1,4 +1,4 @@
-import type { Nutriments, Product } from "@greecheck/domain/product/model";
+import type { Grade, Nutriments, Product } from "@greecheck/domain/product/model";
 import { assessProduct, mapOffProduct, type OffRawEnvironmentalData, type OffRawProduct } from "@greecheck/domain/product/normalizer";
 import { gtinIdentity } from "@greecheck/domain/product/gtin";
 import { productProvenance, type DataKind, type NutritionBasis } from "@greecheck/domain/product/provenance";
@@ -95,7 +95,7 @@ export function offProduct(value: unknown, version: string, requested?: string):
       return { value: quantity(input), supplied: input !== undefined, computed: false };
     }
     const item = record(aggregateNutrients?.[id]);
-    const value = !item?.modifier || item.modifier === "=" ? nutrientValue(item?.value, item?.unit, unit) : undefined;
+    const value = item?.source !== "estimate" && (!item?.modifier || item.modifier === "=") ? nutrientValue(item?.value, item?.unit, unit) : undefined;
     return { value, supplied: aggregateNutrients?.[id] !== undefined, computed: item?.unit !== unit || Boolean(item?.source_per && item.source_per !== basis) };
   }
 
@@ -116,7 +116,41 @@ export function offProduct(value: unknown, version: string, requested?: string):
   }
   raw.nutriments = nutriments;
 
+  if (!raw.ingredients_text && !raw.ingredients_text_fr && !raw.ingredients_text_en && raw.additives_tags?.length === 0) {
+    raw.additives_tags = undefined;
+  }
   const product = mapOffProduct(raw);
+  const current = record(record(data.nutriscore)?.["2023"]);
+  const currentData = record(current?.data);
+  if ((current?.nutriscore_computed === 1 || current?.nutriscore_computed === true) && Number.isInteger(current.score)) {
+    const flag = (value: unknown) => value === 0 || value === 1 || typeof value === "boolean";
+    const enabled = (value: unknown) => value === true || value === 1;
+    const profile = enabled(currentData?.is_water) ? "water"
+      : enabled(currentData?.is_beverage) ? "beverage"
+      : enabled(currentData?.is_fat_oil_nuts_seeds) ? "fat"
+      : flag(currentData?.is_beverage) && flag(currentData?.is_fat_oil_nuts_seeds) ? "general" : undefined;
+    const grade = nonEmpty(current.grade)?.toLowerCase();
+    product.nutriScore2023 = {
+      points: current.score as number, grade: grade && /^[a-e]$/.test(grade) ? grade as Grade : undefined, profile,
+      referenceOnly: enabled(current.estimated) || current.preparation === "prepared"
+    };
+  }
+  const fvl = read("fruits-vegetables-legumes", "g").value;
+  if (fvl !== undefined && fvl <= 100) product.fruitVegetableLegumePercent = fvl;
+  const components = record(currentData?.components)?.negative;
+  const sweetener = currentData?.non_nutritive_sweeteners ?? (Array.isArray(components)
+    ? record(components.find(component => record(component)?.id === "non_nutritive_sweeteners"))?.value : undefined);
+  const sweetenerCount = quantity(sweetener);
+  if (sweetener === true || (sweetenerCount !== undefined && sweetenerCount > 0)) product.nonNutritiveSweeteners = true;
+  else if ((sweetener === false || sweetenerCount === 0) && product.ingredientsText) product.nonNutritiveSweeteners = false;
+  if (asSold) {
+    const energy = record(aggregateNutrients?.["energy-kj"] ?? aggregateNutrients?.energy);
+    if (energy?.source !== "estimate" && nonEmpty(energy?.unit)?.toLowerCase() === "kj" && (!energy?.modifier || energy.modifier === "=")) {
+      product.nutritionEnergyKj = quantity(energy?.value);
+    }
+  } else {
+    product.nutritionEnergyKj = quantity(legacy?.["energy-kj_100g"] ?? legacy?.energy_100g);
+  }
   product.nutritionBasis = basis;
   const modified = quantity(data.last_modified_t);
   product.provenance = productProvenance(product, {

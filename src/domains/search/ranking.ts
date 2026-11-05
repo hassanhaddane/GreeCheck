@@ -79,9 +79,8 @@ export function rankSearchResults(
 ): RankedProduct[] {
   const ranked = scored.map(({ p, gree }) => {
     const relevance = relevanceScore(query, p);
-    // The ENGINE's confidence is authoritative: it also reflects the scoring
-    // path (e.g. GS-2 grade fallback), which raw product completeness cannot.
-    const effectiveScore = gree.global * CONFIDENCE_FACTOR[gree.confidence];
+    // Confidence weights search relevance only. The displayed score stays unchanged.
+    const effectiveScore = gree.status === "scored" ? gree.score * CONFIDENCE_FACTOR[gree.confidence] : 0;
     const rank =
       relevance * W_RELEVANCE +
       effectiveScore * W_SCORE +

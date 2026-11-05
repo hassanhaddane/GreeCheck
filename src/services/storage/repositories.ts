@@ -186,7 +186,7 @@ export const onboardingRepo = {
 
 
 /** Replacement log — better-alternative swaps, for local weekly progress. */
-export interface ReplacementLogEntry { at: number; fromScore: number; toScore: number }
+export interface ReplacementLogEntry { at: number; fromScore: number; toScore: number; scoreVersion?: string }
 export const replacementsRepo = {
   async all(): Promise<ReplacementLogEntry[]> {
     return (await kvGet<ReplacementLogEntry[]>("replacements")) ?? [];

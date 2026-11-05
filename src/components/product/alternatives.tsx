@@ -118,7 +118,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
                       {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
                     </Link>
                     <div className="relative shrink-0">
-                      <GreeScoreRing value={alt.gree.global} size={54} label={alt.gree.grade} />
+                      <GreeScoreRing value={alt.gree.score} size={54} label={alt.gree.grade} />
                     </div>
                   </div>
 
@@ -170,7 +170,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
         {sheetFor && (
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <GreeScoreRing value={sheetFor.gree.global} size={56} label={sheetFor.gree.grade} />
+              <GreeScoreRing value={sheetFor.gree.score} size={56} label={sheetFor.gree.grade} />
               <div className="min-w-0">
                 <p className="line-clamp-2 text-sm font-semibold">{sheetFor.product.name}</p>
                 <div className="mt-1"><TrustHalo level={sheetFor.gree.confidence} size="sm" /></div>

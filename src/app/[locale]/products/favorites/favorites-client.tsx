@@ -31,6 +31,7 @@ function gradeTone(grade?: string): "positive" | "caution" | "negative" | "neutr
 /** Favorites — secondary but one tap away. Integrates with Battle & GreeCart. */
 export function FavoritesClient() {
   const t = useTranslations("favorites");
+  const tScore = useTranslations("score");
   const mounted = useMounted();
   const favorites = useFavoritesStore();
   const items = useFavoritesStore((s) => s.items);
@@ -84,7 +85,7 @@ export function FavoritesClient() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{e.name}</p>
                     {e.brand && <p className="truncate text-xs text-muted">{e.brand}</p>}
-                    {e.grade && <div className="mt-1"><GreeBadge tone={gradeTone(e.grade)} size="sm">{e.verdict}</GreeBadge></div>}
+                    <div className="mt-1"><GreeBadge tone={gradeTone(e.grade)} size="sm">{e.grade ? `${tScore(`grade.${e.grade}`)} · ${e.scoreVersion}` : tScore(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}</GreeBadge></div>
                   </div>
                   <GreeScoreRing value={e.score} size={46} label="" />
                 </Link>

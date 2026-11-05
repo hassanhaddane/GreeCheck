@@ -1,5 +1,7 @@
 # GreeCheck Additive Registry — Governance
 
+> Les pénalités décrites ici concernent GS-2. [GS-3](gree-score-v3.md) utilise le registre documentaire AE-1.0.0 pour présenter les avis et évaluations disponibles séparément de la note.
+
 > Registry: `packages/domain/src/scoring/additive-registry.ts`
 > Current version: **`AR-2026.07.0`** (`ADDITIVE_REGISTRY_VERSION`).
 > Every GreeScore result embeds the registry version used.

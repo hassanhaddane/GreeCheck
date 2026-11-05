@@ -8,6 +8,16 @@ import type { DataState, FieldProvenanceMap, NutritionBasis, NutrientConflict } 
 
 export type Grade = "a" | "b" | "c" | "d" | "e";
 
+export type NutritionProfile2023 = "general" | "beverage" | "fat" | "water";
+
+export interface NutriScore2023Reading {
+  points: number;
+  grade?: Grade;
+  profile?: NutritionProfile2023;
+  /** Source marks this reading as estimated or calculated for a prepared state. */
+  referenceOnly?: boolean;
+}
+
 export interface Nutriments {
   energyKcal?: number;
   sugars?: number;
@@ -115,6 +125,12 @@ export interface Product {
   traces?: string[];
   nutriments: Nutriments;
   nutritionBasis?: NutritionBasis;
+  /** Published kJ on the same as-sold basis; separate from label kcal. */
+  nutritionEnergyKj?: number;
+  /** Explicit percentage as defined by the updated algorithm for this category. */
+  fruitVegetableLegumePercent?: number;
+  nonNutritiveSweeteners?: boolean;
+  nutriScore2023?: NutriScore2023Reading;
   /* official gradings */
   nutriScore?: Grade;
   nutriScoreVersion?: string;

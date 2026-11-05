@@ -33,9 +33,9 @@ interface RapidScanCardProps {
 }
 
 function verdictTone(verdict: GreeScore["verdict"]) {
-  if (verdict === "insufficient_data") return "unknown" as const;
+  if (verdict === "insufficient_data" || verdict === "excluded_category" || verdict === "unsupported_category") return "unknown" as const;
   if (verdict === "excellent_choice" || verdict === "good_choice") return "positive" as const;
-  if (verdict === "limit" || verdict === "poor_fit_for_goal") return "caution" as const;
+  if (verdict === "limit" || verdict === "mixed_profile") return "caution" as const;
   return "negative" as const;
 }
 
@@ -62,7 +62,7 @@ export function RapidScanCard({
   const { product, gree, stale } = result;
 
   // One primary reason (most decision-relevant) and one critical warning.
-  const isPoor = gree.global < 50 || gree.grade === "D" || gree.grade === "E" || gree.alerts.length > 0;
+  const isPoor = (gree.status === "scored" && gree.score < 50) || gree.grade === "D" || gree.grade === "E" || gree.alerts.length > 0;
   const primaryReason = (isPoor ? gree.topNegatives[0] : gree.topPositives[0]) ?? gree.topNegatives[0] ?? gree.topPositives[0];
   const criticalWarning = gree.alerts[0];
 
@@ -88,8 +88,16 @@ export function RapidScanCard({
             )}
           </div>
 
+          {/* One critical warning (compatibility alert — never a health verdict). */}
+          {criticalWarning && (
+            <p role="alert" className="flex items-start gap-1.5 rounded-2xl bg-score-e/5 p-2.5 text-sm font-medium text-score-e-ink">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              {tScore(`warning.${criticalWarning.code}`, criticalWarning.values)}
+            </p>
+          )}
+
           <div className="flex items-center gap-4">
-            <GreeScoreRing value={gree.global} size={92} label={tScore(`grade.${gree.grade}`)} />
+            <GreeScoreRing value={gree.score} size={92} label={(gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))} />
             <div className="min-w-0 flex-1 space-y-1.5">
               <div className="flex items-center gap-2.5">
                 {product.imageUrl && (
@@ -119,14 +127,6 @@ export function RapidScanCard({
                 {primaryReason.kind === "malus" ? "– " : "+ "}
               </span>
               {tScore(`reason.${primaryReason.code}`, primaryReason.values)}
-            </p>
-          )}
-
-          {/* One critical warning (compatibility alert — never a health verdict). */}
-          {criticalWarning && (
-            <p className="flex items-start gap-1.5 rounded-2xl bg-score-e/5 p-2.5 text-sm font-medium text-score-e-ink">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-              {tScore(`warning.${criticalWarning.code}`, criticalWarning.values)}
             </p>
           )}
 

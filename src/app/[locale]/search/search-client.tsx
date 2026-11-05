@@ -111,13 +111,13 @@ export function SearchClient() {
     const list = scored.filter(({ p, gree }) => {
       if (effNutri.size && !(p.nutriScore && effNutri.has(p.nutriScore))) return false;
       if (effNova.size && !(p.novaGroup && effNova.has(p.novaGroup))) return false;
-      if (minScore > 0 && gree.global < minScore) return false;
+      if (minScore > 0 && (gree.status === "unscored" || gree.score < minScore)) return false;
       if (confidentOnly && gree.confidence === "low") return false;
       return activeDefs.every((def) => def.match(p, gree));
     });
     if (sort === "best") return rankSearchResults(searchTerm, list, prefs, locale === "fr");
     return [...list].sort((a, b) => {
-      if (sort === "gree") return b.gree.global - a.gree.global;
+      if (sort === "gree") return (b.gree.score ?? -1) - (a.gree.score ?? -1);
       if (sort === "nutri") return nutriRank(a.p.nutriScore) - nutriRank(b.p.nutriScore);
       return novaRank(a.p.novaGroup) - novaRank(b.p.novaGroup);
     });
@@ -270,8 +270,8 @@ export function SearchClient() {
               key={p.barcode}
               product={p}
               gree={gree}
-              bestChoice={sort === "best" && i === 0 && gree.global >= 65 && visible.length > 1}
-              betterAvailable={gree.global < 50 && visible.some((x) => x.gree.global >= 65)}
+              bestChoice={sort === "best" && i === 0 && (gree.score ?? -1) >= 65 && visible.length > 1}
+              betterAvailable={gree.status === "scored" && gree.score < 50 && visible.some((x) => (x.gree.score ?? -1) >= 65)}
             />
           ))}
         </div>

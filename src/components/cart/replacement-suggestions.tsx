@@ -33,7 +33,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
   const t = useTranslations("cart");
   const candidates = result.recommendedReplacements;
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const candidateKey = candidates.map((candidate) => `${candidate.product.barcode}:${candidate.effectiveScore}`).join("|");
+  const candidateKey = candidates.map((candidate) => `${candidate.product.barcode}:${candidate.gree.score}`).join("|");
   const productKey = products.map((product) => product.barcode).join("|");
 
   useEffect(() => {
@@ -67,7 +67,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
               candidate,
               status: "ok",
               alternative,
-              expectedGain: Math.max(0, nextScore - result.global)
+              expectedGain: nextScore !== undefined && result.global !== undefined ? Math.max(0, nextScore - result.global) : undefined
             };
           } catch {
             return { candidate, status: "error" };
@@ -103,7 +103,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
           {orderedSuggestions.map((suggestion) => {
             const current = suggestion.candidate.product;
             const alternative = suggestion.alternative;
-            const gain = suggestion.expectedGain ?? Math.ceil(suggestion.candidate.estimatedUpgradeGain / Math.max(1, products.length));
+            const gain = suggestion.expectedGain;
 
             return (
               <GreeCard key={current.barcode} className="overflow-hidden p-4">
@@ -116,9 +116,9 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                     <p className="line-clamp-1 text-sm font-bold">{current.name}</p>
                     <p className="mt-0.5 text-xs text-muted">{t(`replacementReason.${suggestion.candidate.replacementReasonKey}`)}</p>
                   </div>
-                  <span className="rounded-full bg-score-d/10 px-2.5 py-1 text-xs font-bold text-score-d-ink">
+                  {gain !== undefined && <span className="rounded-full bg-score-d/10 px-2.5 py-1 text-xs font-bold text-score-d-ink">
                     {t("upgradeGain", { gain })}
-                  </span>
+                  </span>}
                 </div>
 
                 {suggestion.status === "loading" ? (
@@ -149,7 +149,7 @@ export function ReplacementSuggestions({ result, products, prefs, onCompare, onR
                         <p className="line-clamp-2 text-sm font-bold">{alternative.product.name}</p>
                         <p className="truncate text-xs text-muted">{alternative.product.brand || t("unknownBrand")}</p>
                       </div>
-                      <GreeScoreRing value={alternative.gree.global} size={56} label="" tone="brand" />
+                      <GreeScoreRing value={alternative.gree.score} size={56} label="" tone="brand" />
                     </div>
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <GreeButton variant="soft" size="sm" onClick={() => onCompare(current, alternative.product)}>

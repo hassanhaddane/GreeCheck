@@ -17,7 +17,7 @@ export function WeeklyProgress() {
   // Improvement chips — framed positively, only when data supports them.
   const chips: { label: string; up: boolean }[] = [];
   if (w.sugar.available && w.sugar.delta !== undefined && w.sugar.delta < 0) chips.push({ label: t("sugarDown", { n: Math.abs(w.sugar.delta) }), up: true });
-  if (w.riskyAdditives.available && w.riskyAdditives.delta !== undefined && w.riskyAdditives.delta < 0) chips.push({ label: t("additivesDown"), up: true });
+  if (w.declaredAdditives.available && w.declaredAdditives.delta !== undefined && w.declaredAdditives.delta < 0) chips.push({ label: t("additivesDown"), up: true });
   if (w.environment.available && w.environment.delta !== undefined && w.environment.delta < 0) chips.push({ label: t("envUp"), up: true });
   if (w.replacements.count > 0) chips.push({ label: t("replacements", { n: w.replacements.count, pts: w.replacements.pointsGained }), up: true });
 

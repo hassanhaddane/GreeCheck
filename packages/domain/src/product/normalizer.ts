@@ -35,6 +35,7 @@ export const OFF_FIELDS = [
   "nutriscore_grade",
   "nutriscore_score",
   "nutriscore_version",
+  "nutriscore",
   "nova_group",
   "ecoscore_grade",
   "ecoscore_score",

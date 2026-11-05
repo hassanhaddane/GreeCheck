@@ -120,7 +120,7 @@ test("USDA requires exact GTIN in search and details and keeps units and attribu
     assert.match(p.provenance?.barcode?.sourceUrl ?? "", /410122/);
     assert.doesNotMatch(JSON.stringify(result), /fixture-key/);
     assert.equal(p.nutriScore, undefined);
-    assert.equal(computeGreeScore(p, defaultPreferences).unscored?.code, "missing_additives_data");
+    assert.equal(computeGreeScore(p, defaultPreferences).status, "unscored");
   }
 });
 
@@ -220,4 +220,26 @@ test("Ciqual is category-only and scientific references are explicit and version
   assert.equal(additiveEvidenceFor("e249")?.issuedAt, "2022-07-06");
   assert.equal(additiveEvidenceFor("E 951")?.authority, "EFSA");
   assert.equal(additiveEvidenceFor("e999")?.url, undefined);
+});
+
+test("OFF 2023 points cannot bypass estimated provenance or unknown beverage sweeteners", () => {
+  const flat = { nutriscore_version: "2023", nutriscore_grade: "e", nutriscore_score: 12 };
+  const response = {
+    ...moroccanProduct, ...flat, ingredients_text: undefined,
+    nutriscore: { "2023": { nutriscore_computed: 1, grade: "e", score: 12, data: {
+      is_beverage: 1, is_water: 0, components: { negative: [{ id: "non_nutritive_sweeteners", value: 0 }] }
+    } } }
+  };
+  const unknown = offProduct(response, "v3", MA_GTIN)!;
+  assert.equal(unknown.nonNutritiveSweeteners, undefined);
+  assert.equal(computeGreeScore(unknown, defaultPreferences).status, "unscored");
+  const declared = offProduct({ ...response, ingredients_text: "Eau, sucre" }, "v3", MA_GTIN)!;
+  assert.equal(declared.nonNutritiveSweeteners, false);
+  assert.equal(computeGreeScore(declared, defaultPreferences).status, "scored");
+  const estimated = offProduct({
+    ...response, ingredients_text: "Eau, sucre",
+    nutriscore: { "2023": { ...response.nutriscore["2023"], estimated: 1 } }
+  }, "v3", MA_GTIN)!;
+  assert.equal(estimated.nutriScore2023?.referenceOnly, true);
+  assert.equal(computeGreeScore(estimated, defaultPreferences).status, "unscored");
 });

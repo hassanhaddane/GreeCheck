@@ -23,7 +23,7 @@
  */
 import type { Product } from "../product/model";
 import type { LocalPreferences } from "../criteria/model";
-import type { GreeScore } from "../scoring/types";
+import type { GreeScore, ScoredGreeScore } from "../scoring/types";
 import { computeGreeScore } from "../scoring/gree-score";
 import { NUTRITION_THRESHOLDS as T } from "../scoring/thresholds";
 import { hasAllergenConflict, halalStatusOf } from "../scoring/detectors";
@@ -54,7 +54,7 @@ export interface SwapImprovement {
 
 export interface ProductAlternative {
   product: Product;
-  gree: GreeScore;
+  gree: ScoredGreeScore;
   /** Ordered, strongest first. */
   improvements: SwapImprovement[];
   /** Headline improvement (never a bare "betterScore" when a real fix exists). */
@@ -96,7 +96,8 @@ export function hasCriticalConflict(p: Product, prefs: LocalPreferences): boolea
 /* ──────────────────────────── eligibility ──────────────────────────────── */
 
 export function isSwapEligible(product: Product, gree: GreeScore, prefs: LocalPreferences): SwapEligibility {
-  if (gree.global < 50) return { eligible: true, trigger: "lowScore" };
+  if (gree.status === "unscored") return { eligible: false, trigger: null };
+  if (gree.score < 50) return { eligible: true, trigger: "lowScore" };
   if (gree.grade === "D" || gree.grade === "E") return { eligible: true, trigger: "lowGrade" };
   if (hasCriticalConflict(product, prefs)) return { eligible: true, trigger: "incompatible" };
   return { eligible: false, trigger: null };
@@ -186,8 +187,8 @@ export function computeImprovements(
   if (gf) out.push({ code: "moreFiber", grams: gf, weakness: (prefs.increaseFiber || prefs.goals.includes("high_fiber")) && (cn.fiber ?? 0) < T.fiberHigh });
 
   // Score points — informational; never counts as a weakness fix.
-  const points = altGree.global - curGree.global;
-  if (points > 0) out.push({ code: "betterScore", points, weakness: false });
+  const points = altGree.status === "scored" && curGree.status === "scored" ? altGree.score - curGree.score : undefined;
+  if (points !== undefined && points > 0) out.push({ code: "betterScore", points, weakness: false });
 
   return out.sort((a, b) => rank(b) - rank(a));
 }
@@ -206,10 +207,12 @@ export function validateCandidate(
   altGree: GreeScore,
   prefs: LocalPreferences
 ): ProductAlternative | null {
+  if (curGree.status !== "scored" || altGree.status !== "scored") return null;
+  if (current.nutritionBasis && alt.nutritionBasis && current.nutritionBasis !== alt.nutritionBasis) return null;
   if (!alt.barcode || alt.barcode === current.barcode) return null;
   if (!relatedCategory(current, alt)) return null;      // unrelated category
   if (!hasSufficientData(alt)) return null;             // insufficient data / no image
-  if (altGree.global < curGree.global + MIN_SCORE_GAIN) return null; // not meaningfully higher / lower
+  if (altGree.score < curGree.score + MIN_SCORE_GAIN) return null; // not meaningfully higher / lower
   if (hasCriticalConflict(alt, prefs)) return null;     // conflicts with a critical criterion
   if (introducesCriticalWeakness(current, alt)) return null; // trades one problem for another
 
@@ -219,7 +222,7 @@ export function validateCandidate(
   if (!improvements.some((i) => i.weakness)) return null;
 
   const strongest = improvements.find((i) => i.weakness) ?? improvements[0];
-  return { product: alt, gree: altGree, improvements, strongest, scoreGain: altGree.global - curGree.global };
+  return { product: alt, gree: altGree, improvements, strongest, scoreGain: altGree.score - curGree.score };
 }
 
 /* ───────────────────────────── ranking ─────────────────────────────────── */

@@ -256,6 +256,10 @@
       "low": "ثقة منخفضة"
     },
     "fields": {
+      "nutriScore2023": "نقاط Nutri-Score 2023",
+      "nutritionEnergyKj": "الطاقة (كيلوجول)",
+      "fruitVegetableLegumePercent": "نسبة الفواكه والخضروات والبقوليات",
+      "nonNutritiveSweeteners": "حالة المحليات غير المغذية",
       "barcode": "الرمز الشريطي",
       "name": "الاسم",
       "localizedNames_fr": "الاسم بالفرنسية",
@@ -479,7 +483,7 @@
     "environmentalDetails": "تفاصيل بيئية",
     "confidenceHint": "موثوقية النتيجة وفق البيانات المتاحة.",
     "whatsMissing": "ما الناقص",
-    "confidenceExplain": "نقص البيانات يخفض الثقة، لا نتيجة الصحة نفسها.",
+    "confidenceExplain": "تعتمد الثقة على المصدر والمدخلات. قد تحول البيانات الناقصة دون حساب الدرجة.",
     "compatibility": "التوافق",
     "halalLabel": "حلال",
     "halalVerified": "مُوثَّق",
@@ -496,6 +500,7 @@
     "addedBattle": "أُضيف إلى GreeCompare"
   },
   "battle": {
+    "issue_differentNutritionBasis": "يختلف أساس القيم الغذائية (100 غ و100 مل).",
     "title": "GreeCompare",
     "subtitle": "قارن حتى 3 منتجات ودع GreeCheck يساعدك على الاختيار.",
     "addProduct": "أضف منتجاً",
@@ -592,6 +597,7 @@
     "dnaCompare": "مقارنة GreeDNA"
   },
   "cart": {
+    "gs3Coverage": "تم تقييم {rated, number} من أصل {total, number} منتجًا",
     "title": "السلة الذكية",
     "subtitle": "امسح عدة منتجات واحصل على تقييم شامل.",
     "score": "تقييم السلة",
@@ -638,6 +644,7 @@
       "low": "منخفضة"
     },
     "verdict": {
+      "unscored": "البيانات غير كافية لحساب متوسط التقييم الغذائي للسلة.",
       "empty": "سلتك فارغة.",
       "excellentClean": "سلة ممتازة: صحية وقليلة المعالجة وبدون تنبيهات.",
       "halalMatch": "سلة متوافقة 100% مع الحلال.",
@@ -804,7 +811,7 @@
     "localHistory": "سجل المسح — مخزن محلياً وقابل للحذف في أي وقت.",
     "localFavorites": "المفضلة — محفوظة على جهازك فقط.",
     "localBasket": "السلة وقوائم التسوق — لا تُرسل أبداً إلى خادم.",
-    "localPrefs": "التفضيلات والأهداف ومسببات الحساسية — تُستخدم محلياً لتخصيص GreeScore.",
+    "localPrefs": "تُستخدم التفضيلات والأهداف ومسببات الحساسية على الجهاز لتخصيص التنبيهات والاقتراحات.",
     "noHealthServer": "لا تُخزن أي بيانات صحية على الخادم: لا قاعدة مستخدمين ولا ملفات شخصية.",
     "geoTitle": "الموقع",
     "geoBody": "لا يُطلب موقعك إلا بعد إجراء واضح داخل «استكشف». يمر عبر وسيط GreeCheck عديم الحالة إلى OpenStreetMap فقط للعثور على الأماكن القريبة؛ ولا يحتفظ به GreeCheck أو يضيفه إلى سجلك.",
@@ -862,6 +869,38 @@
     "offlineAction": "إعادة المحاولة"
   },
   "score": {
+    "gs3Unavailable": "غير قابل للتقييم",
+    "gs3Obsolete": "تمت أرشفة التقييم السابق",
+    "gs3ReportedCertification": "الشهادة المذكورة · {label}",
+    "gs3HalalReported": "ذُكرت علامة حلال",
+    "gs3EvidenceAvailable": "مرجع علمي متاح",
+    "gs3EvidenceUnavailable": "لا يوجد مرجع علمي في السجل",
+    "gs3Method": "تعكس درجة GS-3 الخصائص الغذائية. وتُعرض المعلومات الأخرى بصورة منفصلة.",
+    "gs3Path": {
+      "provider_2023": "نقاط Nutri-Score 2023 التي أوردها المصدر",
+      "computed_2023": "أُعيد حساب نقاط Nutri-Score 2023",
+      "plain_water": "تم تحديد المنتج كماء خالص"
+    },
+    "gs3Raw": "نقاط Nutri-Score 2023 الخام · {points, number}",
+    "gs3OfficialMethod": "القواعد الرسمية لـ Nutri-Score",
+    "gs3Missing": {
+      "productNutrition": "قيم غذائية خاصة بالمنتج",
+      "ingredients": "المكونات",
+      "additives": "المضافات المعلنة",
+      "nova": "مجموعة NOVA",
+      "nutritionBasis": "الأساس لكل 100 غ أو 100 مل",
+      "nutritionCategory": "الفئة الغذائية",
+      "plainWater": "التأكد من أن المنتج ماء خالص",
+      "sugars": "السكريات",
+      "saturatedFat": "الدهون المشبعة",
+      "salt": "الملح",
+      "fiber": "الألياف",
+      "fruitVegetableLegumePercent": "نسبة الفواكه والخضروات والبقوليات",
+      "energyKj": "الطاقة بالكيلوجول",
+      "fat": "الدهون",
+      "nonNutritiveSweeteners": "وجود أو غياب المحليات غير المغذية",
+      "proteins": "البروتين"
+    },
     "grade": {
       "A": "ممتاز",
       "B": "خيار جيد",
@@ -870,6 +909,17 @@
       "E": "تجنّب"
     },
     "reason": {
+      "gs3Energy": "الطاقة بالكيلوجول · {points, number} نقطة خام",
+      "gs3Sugars": "السكريات · {points, number} نقطة خام",
+      "gs3Saturated": "الدهون المشبعة · {points, number} نقطة خام",
+      "gs3Salt": "الملح · {points, number} نقطة خام",
+      "gs3Sweeteners": "المحليات غير المغذية · {points, number} نقطة خام",
+      "gs3Fiber": "الألياف · {points, number} نقطة خام",
+      "gs3Fvl": "نسبة الفواكه والخضروات والبقوليات · {points, number} نقطة خام",
+      "gs3Proteins": "البروتين · {points, number} نقطة خام",
+      "gs3Water": "تُعرّف بيانات المنتج هذا المنتج على أنه ماء خالص.",
+      "gs3ReportedSugar": "السكريات المعلنة · {value, number} غ لكل 100 {unit}.",
+      "gs3ReportedSalt": "الملح المعلن · {value, number} غ لكل 100 {unit}.",
       "nutriScore": "Nutri-Score {grade}",
       "tooSugar": "سكر زائد",
       "richFiber": "غني بالألياف",
@@ -897,12 +947,14 @@
       "additivesUnreviewed": "{n} مادة مضافة لم تُراجَع بعد في سجلنا"
     },
     "warning": {
+      "veganMismatch": "تشير البيانات إلى أن المنتج لا يتوافق مع تفضيلك للنظام النباتي الصرف.",
+      "vegetarianMismatch": "تشير البيانات إلى أن المنتج لا يتوافق مع تفضيلك للنظام النباتي.",
       "highSugar": "سكر مرتفع ({v} غ / 100 غ)",
       "highSalt": "ملح مرتفع ({v} غ / 100 غ)",
       "highSatFat": "غني بالدهون المشبعة",
       "additiveAvoid": "إضافة يُنصح بتجنبها: {code}",
       "palmOil": "يحتوي زيت النخيل",
-      "allergenPresent": "مسبب حساسية موجود: {name}",
+      "allergenPresent": "مسبب حساسية مذكور أو أثر محتمل · {name}",
       "haramIngredient": "مكوّن قد يكون غير حلال",
       "partialData": "التقييم مبني على بيانات جزئية",
       "halalCheckRequired": "مكوّن يحتاج إلى التحقق بالنسبة للحلال (يجب تأكيد المصدر)",
@@ -918,6 +970,8 @@
       "low": "بيانات غير كافية"
     },
     "verdict": {
+      "mixed_profile": "خصائص متوسطة",
+      "low_profile": "خصائص منخفضة",
       "excellent_choice": "خيار ممتاز",
       "good_choice": "خيار جيد",
       "limit": "قلّل منه",
@@ -928,6 +982,7 @@
       "unsupported_category": "فئة غير مدعومة"
     },
     "explain": {
+      "gs3Explanation": "تعكس درجة GS-3 الخصائص الغذائية. وتُعرض المعلومات الأخرى بصورة منفصلة.",
       "highSugarUltraProcessed": "غني بالسكر ومعالج جدًا.",
       "ultraProcessed": "منتج معالج جدًا.",
       "organicMinimal": "عضوي وقليل المعالجة.",
@@ -958,6 +1013,9 @@
       "betterDigestion": "هضم أفضل"
     },
     "unscored": {
+      "conflicting_nutrition_data": "البيانات الغذائية متضاربة",
+      "invalid_nutrition_data": "بعض القيم غير صالحة أو غير متسقة",
+      "unknown_nutrition_category": "يتعذر تحديد الفئة الغذائية",
       "missing_nutrition_data": "القيم الغذائية المطلوبة غير متوفرة",
       "missing_ingredients_data": "قائمة المكوّنات غير متاحة",
       "missing_additives_data": "بيانات المضافات غير متاحة",
@@ -1103,6 +1161,15 @@
     "websiteFor": "موقع {name}"
   },
   "methodology": {
+    "gs3Body": "تشكل التغذية 100٪ من الدرجة. نستخدم النقاط الخام لـ Nutri-Score 2023 عندما يحدد المصدر هذه النسخة، أو نعيد حسابها من البيانات اللازمة.",
+    "gs3Limit": "مقياس 0–100 اختيار تحريري من GreeCheck. ولا يمثل مقياسًا صحيًا رسميًا أو نسبة أمان.",
+    "gs3Rules": {
+      "formula": "اضرب (مرجع النتيجة الأدنى − النقاط الخام) ÷ (مرجع النتيجة الأدنى − مرجع النتيجة الأعلى) في 100، ثم احصر النتيجة وقرّبها إلى أقرب عدد صحيح.",
+      "anchors": "مرجعا النتيجتين الأعلى والأدنى · الأغذية −5 و30، والدهون −10 و30، والمشروبات −6 و20. درجة الماء الخالص 100، والحد الأقصى للمشروبات الأخرى 99.",
+      "missing": "الدرجة الحرفية وحدها أو البيانات الناقصة أو المتضاربة أو الفئة المجهولة تؤدي إلى نتيجة غير قابلة للتقييم.",
+      "axes": "تُعرض المضافات والمنتجات العضوية وNOVA وGreeImpact والتفضيلات بصورة منفصلة. ويؤدي رصد مسببات الحساسية إلى تنبيه ذي أولوية."
+    },
+    "gs3Confidence": "ثقة عالية عند إمكان إعادة الحساب والتحقق من الهوية، ومتوسطة للنتائج القابلة للتقييم الأخرى، ومنخفضة عند تعذر إسناد درجة.",
     "metaTitle": "منهجية GreeScore — GreeCheck",
     "metaDescription": "كيفية حساب GreeScore: التغذية، والمعالجة، والإضافات، والملصقات، وموثوقية البيانات والمصادر.",
     "title": "المنهجية",
@@ -1163,7 +1230,7 @@
     },
     "score": {
       "title": "GreeScore + هالة الثقة",
-      "body": "درجة صحية من 0 إلى 100، حتمية وقابلة للتفسير: التغذية، ومعالجة NOVA، والإضافات، والملصقات. تعرض هالة الثقة موثوقية البيانات بشكل منفصل — المعلومات الناقصة تقلل الثقة، لا الدرجة أبدًا.",
+      "body": "يستخدم GreeScore نقاط Nutri-Score 2023 لإنتاج مؤشر غذائي من 0 إلى 100. وتعتمد النتيجة على البيانات المتاحة. وتُعرض المضافات وNOVA والعلامات بصورة منفصلة.",
       "explain": "كل درجة قابلة للتفسير، سطرًا بسطر."
     },
     "swap": {
@@ -1237,7 +1304,7 @@
       "avg": "متوسط النتيجة",
       "localNote": "يُحسب على هذا الجهاز. لا شيء يغادر هاتفك.",
       "sugarDown": "−{n} غ سكر",
-      "additivesDown": "مضافات خطرة أقل",
+      "additivesDown": "مضافات معلنة أقل",
       "envUp": "أثر أفضل",
       "replacements": "{n} استبدال · +{pts} نقطة"
     },
@@ -1329,6 +1396,7 @@
     "impact_source_missing_signal": "بيانات ناقصة: {signal}"
   },
   "compare": {
+    "issue_differentNutritionBasis": "يختلف أساس القيم الغذائية (100 غ و100 مل).",
     "advanced": "مقارنة متقدمة",
     "title": "GreeCompare",
     "subtitle": "قارن منتجين أو ثلاثة قابلة للمقارنة واختر الأفضل بشفافية.",
@@ -1351,7 +1419,7 @@
     "keyMetrics": "مؤشرات رئيسية",
     "podium": "المنصة",
     "lowConfidenceWinner": "يستند الفائز صحيًا إلى بيانات ناقصة — تحقّق قبل القرار.",
-    "healthWinner": "الفائز صحيًا",
+    "healthWinner": "الأفضل غذائيًا",
     "healthWinnerClose": "الفائز صحيًا (بفارق ضئيل)",
     "environmentWinner": "الفائز بيئيًا",
     "sameWinnerBoth": "الفائز نفسه صحيًا وبيئيًا.",
@@ -1398,6 +1466,9 @@
       "explainSimpler": "اشرح ببساطة"
     },
     "line": {
+      "gs3Method": "يعتمد الإصدار {version} على نقاط Nutri-Score 2023 أو تحديد المنتج كماء خالص.",
+      "gs3Additives": "عدد المضافات المعلنة {count, number}. يغطي السجل {reviewed, number} منها.",
+      "cartUnscored": "لا توجد درجة GS-3 لأي منتج في هذه السلة.",
       "unsupported": "يمكنني الإجابة فقط من بيانات هذا المنتج. اختر أحد الأسئلة المقترحة.",
       "verdictIs": "الحكم: {ref} ({score}/100).",
       "reasonMinus": "− {ref}",
@@ -1417,7 +1488,7 @@
       "actuallyScored": "هذا المنتج مُقيَّم فعلًا: {score}/100 (درجة {ref}).",
       "noScoreBecause": "لا نتيجة لأن {ref}.",
       "noScoreUncertain": "البيانات الناقصة لا تُحسب أبدًا ضد المنتج.",
-      "halalConfirmed": "شهادة حلال مؤكَّدة بملصق رسمي.",
+      "halalConfirmed": "يذكر المصدر وجود علامة حلال. لا تزال الشهادة بحاجة إلى التحقق.",
       "halalIncompatible": "رُصد مكوّن غير متوافق بوضوح.",
       "halalCheck": "مكوّن غامض يستحق التحقّق.",
       "halalUncertain": "«غير مُوثَّق» لا يعني «غير حلال» — البيانات ببساطة غائبة.",

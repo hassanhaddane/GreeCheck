@@ -8,6 +8,7 @@
  * NEVER throws: a broken IndexedDB must not crash the app — the stores simply
  * keep their empty defaults and the UI shows its normal empty states.
  */
+import { migrateScoreSnapshots } from "./migrate-score";
 import { migrateLegacyLocalStorage } from "./migrate-legacy";
 import {
   historyRepo, favoritesRepo, cartRepo, battleRepo,
@@ -39,6 +40,8 @@ export async function bootLocalData(): Promise<void> {
 
   try {
     await migrateLegacyLocalStorage(); // never throws; "failed" retries next boot
+
+    await migrateScoreSnapshots();
 
     const [history, favorites, cart, battle, prefs, onboarding] = await Promise.all([
       historyRepo.all(),

@@ -118,7 +118,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "weight_loss", group: "smart", icon: Scale,
     label: { fr: "Best for weight loss", en: "Best for weight loss", ar: "الأفضل لإنقاص الوزن" },
     description: { fr: "Peu calorique, peu sucré, sain", en: "Low calorie, low sugar, healthy", ar: "سعرات وسكر منخفضان" },
-    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.subScores.nutrition >= 55
+    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.status === "scored" && g.score >= 55
   },
   {
     id: "breakfast", group: "smart", icon: Sunrise,
@@ -130,7 +130,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "healthy_snack", group: "smart", icon: Cookie,
     label: { fr: "Smart snack", en: "Smart snack", ar: "وجبة خفيفة ذكية" },
     description: { fr: "Bon score, léger, peu transformé", en: "Good score, light, low processed", ar: "نتيجة جيدة وخفيف" },
-    match: (p, g) => g.global >= 60 && (g.subScores.processing ?? 0) >= 50 && (p.nutriments.energyKcal ?? 999) <= 250
+    match: (p, g) => g.status === "scored" && g.score >= 60 && p.novaGroup !== undefined && p.novaGroup <= 2 && (p.nutriments.energyKcal ?? 999) <= 250
   },
   {
     id: "halal_ok", group: "smart", icon: ShieldCheck,
@@ -142,7 +142,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "best_bio", group: "smart", icon: Star,
     label: { fr: "Bio first", en: "Bio first", ar: "عضوي أولاً" },
     description: { fr: "Bio avec un bon GreeScore", en: "Organic with a good GreeScore", ar: "عضوي بنتيجة جيدة" },
-    match: (p, g) => !!p.isBio && g.global >= 55
+    match: (p, g) => !!p.isBio && g.status === "scored" && g.score >= 55
   },
   {
     id: "less_processed", group: "smart", icon: Factory,
@@ -154,25 +154,25 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "low_sugar_swap", group: "smart", icon: Repeat,
     label: { fr: "Low sugar swap", en: "Low sugar swap", ar: "بديل قليل السكر" },
     description: { fr: "Alternative peu sucrée et correcte", en: "Low-sugar, decent alternative", ar: "بديل قليل السكر وجيد" },
-    match: (p, g) => num(p.nutriments.sugars) !== null && p.nutriments.sugars! <= T.sugarLow && g.global >= 55
+    match: (p, g) => num(p.nutriments.sugars) !== null && p.nutriments.sugars! <= T.sugarLow && g.status === "scored" && g.score >= 55
   },
   {
     id: "daily_use", group: "smart", icon: CalendarCheck,
     label: { fr: "Better for daily use", en: "Better for daily use", ar: "أفضل للاستخدام اليومي" },
     description: { fr: "Sain au quotidien, sans alerte majeure", en: "Healthy every day, no major warning", ar: "صحي يومياً بدون تحذير كبير" },
-    match: (p, g) => g.global >= 65 && g.warnings.every((w) => w.level === "info") && (p.novaGroup ?? 4) <= 3
+    match: (p, g) => g.status === "scored" && g.score >= 65 && g.warnings.every((w) => w.level === "info") && (p.novaGroup ?? 4) <= 3
   },
   {
     id: "family_safe", group: "smart", icon: Users,
     label: { fr: "Family safe", en: "Family safe", ar: "آمن للعائلة" },
     description: { fr: "Sans additif à risque, sucre et sel maîtrisés", en: "No risky additives, controlled sugar & salt", ar: "بدون إضافات خطرة وسكر وملح معتدلان" },
-    match: (p, g) => (g.subScores.additives ?? 0) >= 80 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
+    match: (p) => p.additives?.length === 0 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
   },
   {
     id: "supermarket_best", group: "smart", icon: Store,
     label: { fr: "Supermarket best choice", en: "Supermarket best choice", ar: "أفضل خيار في السوبرماركت" },
     description: { fr: "Le haut du panier : score ≥ 70", en: "Top of the shelf: score ≥ 70", ar: "الأفضل على الرف: نتيجة ≥ 70" },
-    match: (_p, g) => g.global >= 70
+    match: (_p, g) => g.status === "scored" && g.score >= 70
   }
 ];
 

@@ -7,6 +7,8 @@ import type { Product } from "../product/model";
 /** One product in the cart (GreeScore snapshot at add time). */
 export interface CartItem {
   product: Product;
-  score: number;
+  score?: number;
+  scoreVersion?: string;
+  previousScore?: { score: number; version: string };
   addedAt: number;
 }

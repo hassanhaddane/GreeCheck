@@ -22,7 +22,7 @@ export async function fetchProductByBarcode(code: string): Promise<ProductResult
   const v2 = process.env.OFF_PRODUCT_API_VERSION === "v2";
   const version = v2 ? "v2" : "v3";
   const url = new URL("/api/" + version + "/product/" + code, offBase());
-  url.searchParams.set("fields", OFF_FIELDS + ",product_quantity_unit" + (v2 ? "" : ",nutrition,nutriscore"));
+  url.searchParams.set("fields", OFF_FIELDS + ",product_quantity_unit" + (v2 ? "" : ",nutrition"));
   if (!v2) url.searchParams.set("product_type", "food");
   const response = await productRequest(url, headers(), timeout);
   if (!response.ok && response.status !== 404) throw new ApiError("upstream", "OFF product request failed");

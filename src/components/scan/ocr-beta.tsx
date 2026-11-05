@@ -275,9 +275,7 @@ function OcrResult({
   const readiness = scoreReadiness(data);
 
   const product = buildOcrProduct(data);
-  // A score also needs an ingredient list to leave the "unscored" ingredients gate.
-  const canScore = readiness.ready && Boolean(product.ingredientsText);
-  const gree = canScore ? computeGreeScore(product, prefs) : undefined;
+  const gree = computeGreeScore(product, prefs);
 
   return (
     <div className="space-y-3">
@@ -285,9 +283,9 @@ function OcrResult({
         <FlaskConical className="h-3.5 w-3.5" aria-hidden /> {t("confirmedLabel")}
       </div>
 
-      {gree && gree.status === "scored" ? (
+      {gree.status === "scored" ? (
         <div className="flex items-center gap-3 rounded-2xl bg-surface-2 p-3">
-          <GreeScoreRing value={gree.global} size={56} label={gree.grade} />
+          <GreeScoreRing value={gree.score} size={56} label={gree.grade} />
           <div className="min-w-0">
             <p className="text-sm font-semibold">{tScore(`verdict.${gree.verdict}`)}</p>
             <p className="text-xs text-muted">{t("scoreFromOcr")}</p>
@@ -299,7 +297,7 @@ function OcrResult({
           <p className="mt-1 text-xs text-score-c-ink">
             {readiness.missing.length > 0
               ? t("missingFields", { fields: readiness.missing.map((f) => t(`field.${f}`)).join(", ") })
-              : t("needIngredients")}
+              : tScore(`unscored.${gree.reason.code}`)}
           </p>
         </div>
       )}

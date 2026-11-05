@@ -33,13 +33,13 @@ export function Podium({ ranking }: { ranking: BattleEntry[] }) {
                 { }
                 {e.product.imageUrl ? <img src={e.product.imageUrl} alt={e.product.name} className="h-full w-full object-contain" loading="lazy" /> : null}
               </div>
-              <span className={cn("absolute -right-1 -top-1 grid place-items-center rounded-lg text-[0.6rem] font-extrabold text-white", isWinner ? "h-5 w-5" : "h-4 w-4 text-[0.55rem]", GRADE_BG[e.gree.grade])}>
+              {e.gree.status === "scored" && <span className={cn("absolute -right-1 -top-1 grid place-items-center rounded-lg text-[0.6rem] font-extrabold text-white", isWinner ? "h-5 w-5" : "h-4 w-4 text-[0.55rem]", GRADE_BG[e.gree.grade])}>
                 {e.gree.grade}
-              </span>
+              </span>}
             </div>
 
             <p className="mt-1.5 line-clamp-2 text-center text-[0.65rem] font-semibold leading-tight">{e.product.name}</p>
-            <p className="text-sm font-extrabold tabular-nums" style={{ color: isWinner ? "rgb(var(--gc-natural))" : undefined }}>{e.gree.global}</p>
+            <p className="text-sm font-extrabold tabular-nums" style={{ color: isWinner ? "rgb(var(--gc-natural))" : undefined }}>{e.gree.score ?? "—"}</p>
 
             {/* pedestal */}
             <div className={cn("mt-1 flex w-full items-start justify-center rounded-t-xl pt-1.5", PED_H[idx], isWinner ? "bg-neon-grad" : "bg-surface-2")}>

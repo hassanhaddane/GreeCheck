@@ -13,10 +13,10 @@
  */
 import type { Product } from "../product/model";
 import type { LocalPreferences } from "../criteria/model";
-import type { GreeScore } from "../scoring/types";
+import type { GreeScore, ScoredGreeScore } from "../scoring/types";
 import type { GreeImpact } from "../impact/types";
 import { computeGreeImpact } from "../impact/engine";
-import { computeBattle, effectiveScore, type BattleEntry, type BattleValidation } from "../battle/engine";
+import { computeBattle, type BattleEntry, type BattleValidation } from "../battle/engine";
 
 export interface CompareEntry extends BattleEntry {
   impact: GreeImpact;
@@ -28,8 +28,8 @@ export interface CompareResult {
   validation: BattleValidation;
 
   /** Health winner (GreeScore) — null when < 2 products. */
-  healthWinner: CompareEntry | null;
-  healthRunnerUp: CompareEntry | null;
+  healthWinner: (CompareEntry & { gree: ScoredGreeScore }) | null;
+  healthRunnerUp: (CompareEntry & { gree: ScoredGreeScore }) | null;
   /** Measurable health differences, winner vs runner-up (i18n reason codes). */
   healthReasons: string[];
   /** True when the health winner rests on LOW-confidence data (UI must warn). */
@@ -87,8 +87,7 @@ function environmentReasons(env: CompareEntry, health: CompareEntry): string[] {
 /* ─────────────────────────── entry point ──────────────────────────── */
 
 export function computeComparison(products: Product[], prefs: LocalPreferences): CompareResult {
-  // Health ranking, winner, reasons and comparability come from the (unchanged)
-  // Battle engine — GreeScore is computed exactly as before.
+  // Both comparison entry points use the same nutrition and comparability rules.
   const battle = computeBattle(products, prefs);
   const impactByBarcode = new Map(products.map((p) => [p.barcode, computeGreeImpact(p)]));
 
@@ -97,8 +96,8 @@ export function computeComparison(products: Product[], prefs: LocalPreferences):
     impact: impactByBarcode.get(e.product.barcode)!
   }));
 
-  const healthWinner = entries[0] ?? null;
-  const healthRunnerUp = entries[1] ?? null;
+  const healthWinner = battle.winner ? { ...battle.winner, impact: impactByBarcode.get(battle.winner.product.barcode)! } : null;
+  const healthRunnerUp = battle.runnerUp ? { ...battle.runnerUp, impact: impactByBarcode.get(battle.runnerUp.product.barcode)! } : null;
   const environmentWinner = pickEnvironmentWinner(entries);
 
   return {
@@ -114,5 +113,3 @@ export function computeComparison(products: Product[], prefs: LocalPreferences):
     winnersDiffer: Boolean(environmentWinner && healthWinner && environmentWinner.product.barcode !== healthWinner.product.barcode)
   };
 }
-
-export { effectiveScore };

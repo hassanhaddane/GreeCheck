@@ -117,7 +117,7 @@ test.describe("Product decisions and local library", () => {
   );
 
   test(
-      "incomplete product is unscored and names the missing ingredient list",
+      "incomplete product has no numeric score and lists missing evidence",
       async ({ page }) => {
         await page.goto("/fr/product/44444440");
 
@@ -128,9 +128,8 @@ test.describe("Product decisions and local library", () => {
         ).toBeVisible();
 
         // Required data missing => no score.
-        await expect(page.locator("main")).toContainText(
-            "Données insuffisantes",
-        );
+        await expect(page.getByText("Non évaluable", { exact: true }).last()).toBeVisible();
+        await expect(page.locator("main")).toContainText("les valeurs nutritionnelles nécessaires sont absentes");
 
         // The exact missing-data reason is disclosed on demand.
         await page
@@ -138,7 +137,7 @@ test.describe("Product decisions and local library", () => {
             .click();
 
         await expect(page.getByRole("dialog")).toContainText(
-            "Liste d’ingrédients manquante",
+            "Ingrédients",
         );
       },
   );
@@ -205,7 +204,7 @@ test.describe("GreeCompare journeys", () => {
 
         const main = page.locator("main");
 
-        await expect(main).toContainText("Gagnant santé");
+        await expect(main).toContainText("Gagnant nutritionnel");
         await expect(main).toContainText("Test Oats");
         await expect(main).toContainText("Test Choco");
 
@@ -223,7 +222,7 @@ test.describe("GreeCompare journeys", () => {
         ).toBeVisible();
 
         await expect(main).toContainText("Test Almond Spread");
-        await expect(main).toContainText("Gagnant santé");
+        await expect(main).toContainText("Gagnant nutritionnel");
       },
   );
 
@@ -251,7 +250,7 @@ test.describe("GreeCompare journeys", () => {
 
         // No health winner may be declared for incompatible categories.
         await expect(
-            main.getByText("Gagnant santé", { exact: true }),
+            main.getByText("Gagnant nutritionnel", { exact: true }),
         ).toHaveCount(0);
       },
   );

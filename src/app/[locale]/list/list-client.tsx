@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { METHODOLOGY_VERSION } from "@greecheck/domain/scoring/methodology";
 import { useTranslations } from "next-intl";
 import { Plus, Minus, Trash2, ScanLine } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -95,7 +96,7 @@ export function ListClient() {
                       item.name
                     )}
                   </label>
-                  {item.grade && (
+                  {item.grade && item.scoreVersion === METHODOLOGY_VERSION && (
                     <GreeBadge size="sm" tone={item.grade === "A" || item.grade === "B" ? "positive" : item.grade === "C" ? "caution" : "negative"}>
                       {item.grade}
                     </GreeBadge>

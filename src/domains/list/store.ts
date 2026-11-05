@@ -6,6 +6,7 @@
  */
 import { create } from "zustand";
 import type { ShoppingListItem } from "@/domains/list/model";
+import { METHODOLOGY_VERSION } from "@greecheck/domain/scoring/methodology";
 import { shoppingListRepo } from "@/services/storage/repositories";
 
 export interface AddListInput {
@@ -41,7 +42,7 @@ export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
     const id = input.id ?? input.barcode ?? `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const existing = list.find((i) => i.id === id);
     if (existing) {
-      return list.map((i) => (i.id === id ? { ...i, quantity: i.quantity + (input.quantity ?? 1), checked: false } : i));
+      return list.map((i) => (i.id === id ? { ...i, quantity: i.quantity + (input.quantity ?? 1), checked: false, ...(input.grade && { grade: input.grade, scoreVersion: METHODOLOGY_VERSION }) } : i));
     }
     const item: ShoppingListItem = {
       id,
@@ -49,6 +50,7 @@ export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
       barcode: input.barcode,
       imageUrl: input.imageUrl,
       grade: input.grade,
+      scoreVersion: input.grade && METHODOLOGY_VERSION,
       quantity: Math.max(1, input.quantity ?? 1),
       checked: false,
       addedAt: Date.now(),

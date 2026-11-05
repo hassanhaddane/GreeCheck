@@ -127,13 +127,14 @@ test("buildOcrProduct flags origin user_ocr and writes only confirmed values", (
   assert.equal(p.nutriments.fiber, undefined); // absent stays absent
 });
 
-test("a full OCR product scores through the real engine; a partial one does not", () => {
+test("OCR confirmation preserves facts without inventing a nutrition category", () => {
   const full = buildConfirmed("nutrition", { nutrition: { energyKcal: 400, sugars: 21, saturatedFat: 3.1, salt: 0.6 } })!;
   assert.equal(scoreReadiness(full).ready, true);
   const product = buildOcrProduct(full, { name: "Test OCR" });
-  product.ingredientsText = "farine, sucre"; // ingredient list present ⇒ scoreable
+  product.ingredientsText = "farine, sucre";
   const gree = computeGreeScore(product, { ...defaultPreferences });
-  assert.equal(gree.status, "scored");
+  assert.equal(gree.status, "unscored");
+  assert.equal(gree.reason.code, "unknown_nutrition_category");
 
   const partial = buildConfirmed("nutrition", { nutrition: { energyKcal: 400, sugars: 21 } })!;
   assert.equal(scoreReadiness(partial).ready, false); // UI must block scoring here

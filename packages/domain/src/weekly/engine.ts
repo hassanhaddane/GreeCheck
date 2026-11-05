@@ -14,11 +14,11 @@ export type WeeklyGrade = "a" | "b" | "c" | "d" | "e";
  *  fields degrade gracefully when older rows lack them). */
 export interface WeeklyScan {
   scannedAt: number;
-  score: number;
+  score?: number;
   /** Sugars per 100 g at scan time, when captured. */
   sugars?: number;
-  /** Count of high/moderate-risk additives at scan time, when captured. */
-  riskyAdditives?: number;
+  /** Count of declared additives at scan time, when captured. */
+  declaredAdditives?: number;
   /** Environmental grade at scan time, when captured. */
   envGrade?: WeeklyGrade;
 }
@@ -44,8 +44,8 @@ export interface WeeklyProgress {
   averageScore: WeeklyMetric;
   /** Average sugar/100 g — a DROP is an improvement. */
   sugar: WeeklyMetric;
-  /** Avoided high/moderate-risk additives: fewer risky additives per scan is better. */
-  riskyAdditives: WeeklyMetric;
+  /** Average number of declared additives per scan. */
+  declaredAdditives: WeeklyMetric;
   /** Average environmental grade rank (0=a … 4=e) — a drop is an improvement. */
   environment: WeeklyMetric;
   /** Products replaced with a better alternative this week, and total points gained. */
@@ -88,7 +88,7 @@ export function computeWeeklyProgress(
     weekScanCount: thisWeek.length,
     averageScore: metric(avg(thisWeek, (s) => s.score), avg(lastWeek, (s) => s.score)),
     sugar: metric(avg(thisWeek, (s) => s.sugars), avg(lastWeek, (s) => s.sugars)),
-    riskyAdditives: metric(avg(thisWeek, (s) => s.riskyAdditives), avg(lastWeek, (s) => s.riskyAdditives)),
+    declaredAdditives: metric(avg(thisWeek, (s) => s.declaredAdditives), avg(lastWeek, (s) => s.declaredAdditives)),
     environment: metric(envAvg(thisWeek), envAvg(lastWeek)),
     replacements: {
       count: repThisWeek.length,

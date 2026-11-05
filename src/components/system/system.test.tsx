@@ -20,7 +20,8 @@ import { VerdictCard } from "./verdict-card";
 import { GreeBottomSheet } from "./gree-bottom-sheet";
 import { ScanLine } from "lucide-react";
 import fr from "../../../messages/fr.json" with { type: "json" };
-import type { GreeScore } from "@greecheck/domain/scoring/types";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { defaultPreferences } from "@greecheck/domain/criteria/model";
 
 const withIntl = (node: React.ReactNode) =>
   renderToStaticMarkup(
@@ -65,18 +66,14 @@ test("TrustHalo conveys confidence with TEXT (never color alone)", () => {
 });
 
 test("VerdictCard shows numeric score, grade text and confidence text", () => {
-  const gree: GreeScore = {
-    status: "scored", methodologyVersion: "GS-2.0.0", registryVersion: "AR-2026.07.0",
-    global: 78, grade: "B", verdict: "good_choice", labelCode: "excellent",
-    cappedByHighRiskAdditive: false,
-    subScores: { nutrition: 80, processing: 80, additives: 90, naturality: 70 },
-    confidence: "high", confidenceReasons: [],
-    topPositives: [], topNegatives: [], reasons: [], warnings: [], alerts: []
-  };
+  const gree = computeGreeScore({
+    barcode: "1", name: "Yaourt nature", source: "openfoodfacts", categories: ["yogurts"],
+    nutriments: {}, nutriScore2023: { points: 5, grade: "c" }
+  }, defaultPreferences);
   const html = withIntl(<VerdictCard gree={gree} title="Yaourt nature" />);
-  assert.match(html, />78</);                 // numeric score as text
+  assert.match(html, />71</);                 // numeric score as text
   assert.match(html, /Bon choix/);            // verdict as text
-  assert.match(html, /Confiance élevée/);     // confidence as text
+  assert.match(html, /Données partielles/);   // confidence as text
   assert.match(html, /Yaourt nature/);
 });
 

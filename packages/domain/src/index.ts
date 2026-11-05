@@ -12,7 +12,7 @@ export * from "./product/normalizer";
 
 /* health score */
 export * from "./scoring/types";
-export { computeGreeScore, additiveSeverityOf } from "./scoring/gree-score";
+export { computeGreeScore } from "./scoring/gree-score";
 export { NUTRITION_THRESHOLDS, clamp, round, nutriRank } from "./scoring/thresholds";
 export { halalStatusOf } from "./scoring/detectors";
 

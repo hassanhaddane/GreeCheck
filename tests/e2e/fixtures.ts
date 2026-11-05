@@ -33,6 +33,8 @@ export const poorProduct: Product = {
   additives: ["e322"],
   nutriments: { energyKcal: 560, sugars: 58, salt: 0.12, saturatedFat: 11, fiber: 2, proteins: 6 },
   nutriScore: "e" as const,
+  nutriScore2023: { points: 25, grade: "e", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 4 as const,
   greenScore: "d" as const,
   isBio: false,
@@ -52,6 +54,8 @@ export const goodProduct: Product = {
   additives: [],
   nutriments: { energyKcal: 180, sugars: 2, salt: 0.03, saturatedFat: 0.4, fiber: 8, proteins: 10 },
   nutriScore: "a" as const,
+  nutriScore2023: { points: -4, grade: "a", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 1 as const,
   greenScore: "a" as const,
   isBio: true,
@@ -66,6 +70,8 @@ export const thirdProduct: Product = {
   name: "Test Almond Spread",
   nutriments: { ...goodProduct.nutriments, sugars: 5, proteins: 8 },
   nutriScore: "b" as const,
+  nutriScore2023: { points: 2, grade: "b", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 2 as const
 };
 
@@ -73,6 +79,7 @@ export const incompleteProduct: Product = {
   ...goodProduct,
   barcode: "44444440",
   name: "Test Partial Product",
+  nutriScore2023: undefined,
   ingredientsText: undefined,
   additives: undefined,
   dataQuality: {

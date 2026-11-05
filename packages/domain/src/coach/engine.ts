@@ -6,7 +6,7 @@
  * stated explicitly, and each answer points at the relevant methodology
  * section. Same input → same answer.
  */
-import { halalStatusOf } from "../scoring/detectors";
+import { halalStatusOf, matchingAllergens } from "../scoring/detectors";
 import type {
   CoachAnswer, CoachContext, CoachIntent, CoachLine, ProductContext,
   CompareContext, CartContext, MethodologyAnchor
@@ -32,19 +32,13 @@ function productAnswer(intent: CoachIntent, ctx: ProductContext): CoachAnswer {
     case "whyRated": {
       if (!scored) return whyNoScore(ctx);
       const lines: CoachLine[] = [
-        line("verdictIs", { score: gree.global }, { ns: "verdict", code: gree.verdict })
+        line("verdictIs", { score: gree.score }, { ns: "verdict", code: gree.verdict })
       ];
       const reasons = [...gree.topNegatives, ...gree.topPositives].slice(0, 3);
       for (const r of reasons) {
         lines.push(line(r.kind === "malus" ? "reasonMinus" : "reasonPlus", undefined, { ns: "reason", code: r.code, values: r.values }));
       }
-      if (gree.components) {
-        const c = gree.components;
-        lines.push(line("componentBreakdown", {
-          nutrition: c.nutrition.contribution, additives: c.additives.contribution, organic: c.organic.contribution
-        }));
-      }
-      if (gree.cappedByHighRiskAdditive) lines.push(line("cappedByAdditive"));
+      lines.push(line("gs3Method", { version: gree.methodologyVersion }));
       const unc = gree.confidence !== "high" ? line("confidencePartial", undefined, undefined) : undefined;
       return build(intent, lines, { methodology: "score", uncertainty: unc });
     }
@@ -62,15 +56,9 @@ function productAnswer(intent: CoachIntent, ctx: ProductContext): CoachAnswer {
     }
 
     case "whichAdditive": {
-      if (!scored || !gree.components) {
-        return build(intent, [line("additivesUnknown")], { methodology: "additives", uncertainty: line("ingredientsUnavailable") });
-      }
-      const impactful = gree.components.additives.deductions.filter((d) => d.deduction > 0 || d.triggersCap);
-      if (!impactful.length) return build(intent, [line("noAdditiveImpact")], { methodology: "additives" });
-      const lines = impactful.map((d) =>
-        line(d.triggersCap ? "additiveCapped" : "additivePenalty", { code: d.code.toUpperCase(), points: d.deduction })
-      );
-      return build(intent, lines, { methodology: "additives" });
+      if (!gree.evidence.additives) return build(intent, [line("additivesUnknown")], { methodology: "additives" });
+      const reviewed = gree.evidence.additives.filter(a => a.reference);
+      return build(intent, [line("gs3Additives", { count: gree.evidence.additives.length, reviewed: reviewed.length })], { methodology: "additives" });
     }
 
     case "whyNoScore":
@@ -89,17 +77,16 @@ function productAnswer(intent: CoachIntent, ctx: ProductContext): CoachAnswer {
       const avoid = prefs.avoidAllergens.map((a) => a.trim().toLowerCase()).filter(Boolean);
       if (!avoid.length) return build(intent, [line("noAllergenDeclared")]);
       const known = Boolean(product.ingredientsText || product.allergens?.length);
-      const hay = [product.ingredientsText ?? "", ...(product.allergens ?? []), ...(product.traces ?? [])].join(" ").toLowerCase();
-      const hits = avoid.filter((a) => hay.includes(a));
+      const hits = matchingAllergens(product, avoid);
       if (hits.length) return build(intent, [line("allergenFound", { allergens: hits.join(", ") })]);
       if (!known) return build(intent, [line("allergenCannotConfirm")], { uncertainty: line("ingredientsUnavailable") });
       return build(intent, [line("allergenNoneFound", { allergens: avoid.join(", ") })]);
     }
 
     case "whyAlternativeBetter": {
-      if (!ctx.alternative) return build(intent, [line("noAlternative")], { methodology: "score", uncertainty: line("noAlternative") });
       const a = ctx.alternative;
-      const lines: CoachLine[] = [line("alternativeScore", { from: gree.global, to: a.gree.global, gain: Math.max(0, a.gree.global - gree.global) })];
+      if (gree.status !== "scored" || a?.gree.status !== "scored") return build(intent, [line("noAlternative")], { methodology: "score", uncertainty: line("noAlternative") });
+      const lines: CoachLine[] = [line("alternativeScore", { from: gree.score, to: a.gree.score, gain: Math.max(0, a.gree.score - gree.score) })];
       const wn = product.nutriments, an = a.product.nutriments;
       const less = (x?: number, y?: number) => x !== undefined && y !== undefined && y < x - 0.01;
       if (less(wn.sugars, an.sugars)) lines.push(line("altLessSugar", { v: Math.round((wn.sugars! - an.sugars!) * 10) / 10 }));
@@ -113,7 +100,7 @@ function productAnswer(intent: CoachIntent, ctx: ProductContext): CoachAnswer {
         const anc = whyNoScore(ctx);
         return build(intent, [line("simpleNoScore"), ...anc.lines], { methodology: "score" });
       }
-      const lines: CoachLine[] = [line("simpleVerdict", { score: gree.global }, { ns: "verdict", code: gree.verdict })];
+      const lines: CoachLine[] = [line("simpleVerdict", { score: gree.score }, { ns: "verdict", code: gree.verdict })];
       const top = gree.topNegatives[0] ?? gree.topPositives[0];
       if (top) lines.push(line("simpleReason", undefined, { ns: "reason", code: top.code, values: top.values }));
       if (gree.confidence !== "high") lines.push(line("simpleConfidence"));
@@ -129,9 +116,9 @@ function productAnswer(intent: CoachIntent, ctx: ProductContext): CoachAnswer {
 function whyNoScore(ctx: ProductContext): CoachAnswer {
   const { gree } = ctx;
   if (gree.status === "scored") {
-    return build("whyNoScore", [line("actuallyScored", { score: gree.global }, { ns: "grade", code: gree.grade })], { methodology: "score" });
+    return build("whyNoScore", [line("actuallyScored", { score: gree.score }, { ns: "grade", code: gree.grade })], { methodology: "score" });
   }
-  const code = gree.unscored?.code ?? "insufficient_data";
+  const code = gree.reason.code;
   return build("whyNoScore", [line("noScoreBecause", undefined, { ns: "unscored", code })], { methodology: "score", uncertainty: line("noScoreUncertain") });
 }
 
@@ -141,7 +128,7 @@ function compareAnswer(intent: CoachIntent, ctx: CompareContext): CoachAnswer {
   const r = ctx.result;
   if (intent === "compareHealth") {
     if (!r.validation.comparable || !r.healthWinner) return build(intent, [line("notComparable")], { methodology: "compare", uncertainty: line("notComparable") });
-    const lines: CoachLine[] = [line("healthWinnerIs", { name: r.healthWinner.product.name, score: r.healthWinner.gree.global })];
+    const lines: CoachLine[] = [line("healthWinnerIs", { name: r.healthWinner.product.name, score: r.healthWinner.gree.score })];
     for (const code of r.healthReasons.slice(0, 3)) lines.push(line("healthReason", undefined, { ns: "reason", code }));
     const unc = r.healthWinnerLowConfidence ? line("winnerLowConfidence") : undefined;
     return build(intent, lines, { methodology: "score", uncertainty: unc });
@@ -162,14 +149,14 @@ function cartAnswer(intent: CoachIntent, ctx: CartContext): CoachAnswer {
   const { result, extras } = ctx;
   if (!result.metrics.productCount) return build(intent, [line("cartEmpty")], { methodology: "cart" });
 
-  const lines: CoachLine[] = [line("cartScoreIs", { score: result.global })];
+  const lines: CoachLine[] = result.global === undefined ? [line("cartUnscored")] : [line("cartScoreIs", { score: result.global })];
   if (result.mainRisk.key !== "none") lines.push(line("cartMainRisk", result.mainRisk.values, { ns: "cartRisk", code: result.mainRisk.key }));
 
   const priority = result.recommendedReplacements[0];
   if (priority) lines.push(line("cartReplaceFirst", { name: priority.product.name }));
   if (extras.allergenAlerts.length) lines.push(line("cartAllergenAlert", { n: extras.allergenAlerts.length }));
   if (extras.ultraProcessedCount) lines.push(line("cartUltraProcessed", { n: extras.ultraProcessedCount }));
-  if (!priority && result.global >= 70) lines.push(line("cartAlreadyGood"));
+  if (!priority && result.global !== undefined && result.global >= 70) lines.push(line("cartAlreadyGood"));
 
   const unc = result.metrics.missingCriticalData ? line("cartPartialData", { n: result.metrics.missingCriticalData }) : undefined;
   return build(intent, lines, { methodology: "cart", uncertainty: unc });

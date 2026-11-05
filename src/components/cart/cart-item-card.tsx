@@ -31,7 +31,7 @@ export function CartItemCard({ entry, onRemove, priority }: { entry: BattleEntry
           </div>
         </div>
       </Link>
-      <GreeScoreRing value={gree.global} size={42} label="" />
+      <GreeScoreRing value={gree.score} size={42} label="" />
       <button onClick={onRemove} aria-label={t("remove")} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-surface-2 text-muted gc-pressable hover:text-score-e-ink">
         <X className="h-3.5 w-3.5" />
       </button>

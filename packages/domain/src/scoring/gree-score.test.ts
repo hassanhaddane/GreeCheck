@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import type { Product } from "../product/model";
 import type { LocalPreferences } from "../criteria/model";
 import { defaultPreferences } from "../criteria/model";
-import { computeGreeScore, explainScore, additiveSeverityOf, METHODOLOGY_VERSION } from "./gree-score";
+import { computeGreeScoreV2 as computeGreeScore, explainScore, additiveSeverityOf, METHODOLOGY_VERSION } from "./gree-score-v2";
 
 const PREFS: LocalPreferences = { ...defaultPreferences };
 

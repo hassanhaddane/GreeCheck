@@ -42,7 +42,7 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
   // Search-result intelligence: real signals from the scoring engine.
   const topReason = gree.reasons.find((r) => r.kind === "bonus");
   const blockingWarning = gree.warnings.find((w) => w.level !== "info");
-  const lowScore = gree.global < 45;
+  const lowScore = (gree.status === "scored" && gree.score < 45);
 
   const addToBattle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -78,11 +78,11 @@ export function ProductCard({ product: p, gree, showActions = true, bestChoice, 
                 p.isHalal ? <LabelBadge key="halal" kind="halal" className="px-1.5 py-0 text-[0.65rem]" /> : null
               ].filter(Boolean).slice(0, 3)}
               <TrustHalo level={gree.confidence} size="sm" />
-              <span className="text-[0.65rem] font-medium text-muted">{tScore(`grade.${gree.grade}`)}</span>
+              <span className="text-[0.65rem] font-medium text-muted">{(gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))}</span>
             </div>
           </div>
           <span className="hidden shrink-0 sm:block" aria-hidden><MiniRadar product={p} size={40} /></span>
-          <GreeScoreRing value={gree.global} size={46} label="" />
+          <GreeScoreRing value={gree.score} size={46} label="" />
           <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted rtl:rotate-180 sm:block" />
         </Link>
         {showActions && (

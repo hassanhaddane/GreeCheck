@@ -95,7 +95,7 @@ export function ScanClient() {
   // History is written locally on EVERY successful resolve (dedupes by barcode).
   const recordHistory = useCallback(
     (product: Product, gree: GreeScore) => {
-      addHistory(buildHistoryItem(product, gree, tScore(`grade.${gree.grade}`)));
+      addHistory(buildHistoryItem(product, gree, (gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))));
     },
     [addHistory, tScore]
   );

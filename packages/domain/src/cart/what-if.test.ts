@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /** GreeCart What-if — deterministic simulation, planning and grouping. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -13,11 +14,11 @@ import type { Product } from "../product/model";
 
 const PREFS: LocalPreferences = { ...defaultPreferences };
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
     categories: ["snacks"], ingredientsText: "céréales, sucre", additives: [], imageUrl: "i",
     nutriments: { sugars: 5, salt: 0.1, proteins: 5, saturatedFat: 2 }, nutriScore: "b", novaGroup: 2, ...o
-  };
+  });
 }
 const input = (p: Product): CartInput => ({ product: p });
 
@@ -30,13 +31,13 @@ test("simulateReplacement recalculates and reports a positive gain for a better 
   const inputs = [input(soda), input(oats)];
   const r = simulateReplacement(inputs, PREFS, "soda", water);
   assert.equal(r.before, computeCartScore(inputs, PREFS).global);
-  assert.ok(r.after > r.before, `expected improvement, got ${r.before} → ${r.after}`);
+  assert.ok(r.after !== undefined && r.before !== undefined && r.after > r.before, `expected improvement, got ${r.before} → ${r.after}`);
   assert.equal(r.gain, r.after - r.before);
 });
 
 test("a poor one-product basket never invents a positive strength", () => {
   const result = computeCartScore([input(soda)], PREFS);
-  assert.ok(result.global < 35);
+  assert.ok(result.global !== undefined && result.global < 35);
   assert.equal(result.mainStrength.key, "none");
   assert.deepEqual(result.positiveInsights, []);
 });
@@ -45,7 +46,7 @@ test("simulateReplacement is neutral/negative for a worse replacement", () => {
   const worse = product({ barcode: "worse", nutriScore: "e", novaGroup: 4, additives: ["e150d"], nutriments: { sugars: 70 } });
   const inputs = [input(oats), input(water)];
   const r = simulateReplacement(inputs, PREFS, "oats", worse);
-  assert.ok(r.gain <= 0);
+  assert.ok(r.gain !== undefined && r.gain <= 0);
 });
 
 test("buildImprovementPlan is prioritized (biggest gain first) and deterministic", () => {

@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /**
  * GreeSwap engine tests — eligibility, candidate validation and ranking.
  * Pure engine: no fetch, no React. Deterministic via the real GreeScore.
@@ -18,7 +19,7 @@ const score = (p: Product, prefs: LocalPreferences = PREFS) => computeGreeScore(
 
 /** Candidate defaults: image + nutrition + ingredients so data is "sufficient". */
 function product(overrides: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12),
     name: "Test",
     imageUrl: "https://img/x.jpg",
@@ -28,7 +29,7 @@ function product(overrides: Partial<Product> = {}): Product {
     nutriments: { sugars: 5, salt: 0.1, proteins: 1 },
     source: "openfoodfacts",
     ...overrides
-  };
+  });
 }
 
 /* ── the poor current product every swap starts from ── */
@@ -51,6 +52,7 @@ test("eligible when GreeScore < 50", () => {
 
 test("eligible when grade is D or E even if borderline", () => {
   const g = score(SODA);
+  assert.equal(g.status, "scored");
   assert.ok(["D", "E"].includes(g.grade));
   assert.equal(isSwapEligible(SODA, g, PREFS).eligible, true);
 });
@@ -109,11 +111,11 @@ test("rejects a low-confidence candidate (no nutrition at all)", () => {
 test("rejects a candidate that only looks better because data is MISSING", () => {
   // High Nutri-Score but no sugar/NOVA/additive data → higher aggregate, yet no
   // measurable weakness of the soda is actually improved.
-  const missing = product({ name: "Boisson incomplète", nutriScore: "a",
+  const missing = product({ name: "Boisson incomplète", nutriScore: undefined,
     ingredientsText: undefined, additives: undefined, novaGroup: undefined,
     nutriments: { proteins: 4 } });
   const g = score(missing);
-  assert.ok(g.global >= curGree.global + MIN_SCORE_GAIN, "candidate must out-score current to isolate the rule");
+  assert.equal(g.status, "unscored");
   assert.equal(validateCandidate(cur, curGree, missing, g, PREFS), null);
 });
 

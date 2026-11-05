@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { bandForScore } from "@/lib/constants/score";
@@ -6,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { DUR, EASE } from "./motion";
 
 interface GreeScoreRingProps {
-  value: number;
+  value?: number;
   size?: number;
   label?: string;
   /** "band" = grade color (default), "brand" = natural gradient (heroes) */
@@ -18,6 +19,12 @@ interface GreeScoreRingProps {
 export function GreeScoreRing({ value, size = 132, label, tone = "band", showValue = true, className }: GreeScoreRingProps) {
   const id = useId();
   const reduce = useReducedMotion();
+  const t = useTranslations("score");
+  if (value === undefined) {
+    return <span className={cn("inline-grid shrink-0 place-items-center rounded-full border border-line text-muted", className)} style={{ width: size, height: size }}>
+      <span aria-hidden>—</span><span className="sr-only">{t("gs3Unavailable")}</span>
+    </span>;
+  }
   const v = Math.min(100, Math.max(0, value));
   const band = bandForScore(value);
   const stroke = Math.max(5, size * 0.085);

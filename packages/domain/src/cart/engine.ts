@@ -46,15 +46,11 @@ export interface CartInput {
 export interface CartProductAnalysis {
   product: Product;
   gree: GreeScore;
-  baseScore: number;
-  effectiveScore: number;
-  dragPenalty: number;
   issues: CartProductIssue[];
   missingCriticalData: boolean;
   allergenConflict: boolean;
   preferenceConflict: boolean;
   replacementReasonKey: CartIssueKey | "betterFit";
-  estimatedUpgradeGain: number;
 }
 
 export interface CartCompatibility {
@@ -75,9 +71,9 @@ export interface CartNutritionMetric {
 }
 
 export interface CartScoreResult {
-  global: number;
-  grade: ScoreGrade;
-  labelKey: CartLabelKey;
+  global?: number;
+  grade?: ScoreGrade;
+  labelKey?: CartLabelKey;
   confidenceLevel: CartConfidenceLevel;
   confidenceScore: number;
   verdict: CartMessage;
@@ -93,7 +89,8 @@ export interface CartScoreResult {
     productCount: number;
     excellentProducts: number;
     productsToImprove: number;
-    averageGreeScore: number;
+    averageGreeScore?: number;
+    ratedProducts: number;
     averageNova?: number;
     novaKnown: number;
     missingCriticalData: number;
@@ -198,10 +195,10 @@ function analyzeProduct(input: CartInput, prefs: LocalPreferences): CartProductA
     }
     // not_confirmed / unknown: NEUTRAL — never penalized as "not halal".
   }
-  if (activeVegan && !product.isVegan) {
+  if (activeVegan && product.veganStatus === "incompatible") {
     addIssue(issues, "veganConflict", "critical", 26);
   }
-  if (activeVegetarian && !product.isVegetarian && !product.isVegan) {
+  if (activeVegetarian && product.vegetarianStatus === "incompatible") {
     addIssue(issues, "vegetarianConflict", "warning", 18);
   }
   if (product.novaGroup === 4) {
@@ -229,32 +226,17 @@ function analyzeProduct(input: CartInput, prefs: LocalPreferences): CartProductA
   if (activeBio && !product.isBio) {
     addIssue(issues, "notBio", "info", activeBio ? 6 : 3);
   }
-  if (gree.global < 35) {
-    addIssue(issues, "lowScore", "warning", 14, { score: gree.global });
-  } else if (gree.global < 50) {
-    addIssue(issues, "lowScore", "info", 7, { score: gree.global });
+  if (gree.status === "scored" && gree.score < 35) {
+    addIssue(issues, "lowScore", "warning", 14, { score: gree.score });
+  } else if (gree.status === "scored" && gree.score < 50) {
+    addIssue(issues, "lowScore", "info", 7, { score: gree.score });
   }
 
-  const baseScore = round(
-    gree.global * 0.38 +
-      gree.subScores.nutrition * 0.18 +
-      (gree.subScores.processing ?? 50) * 0.15 +
-      (gree.subScores.additives ?? 50) * 0.12 +
-      (gree.subScores.goalFit ?? 50) * 0.1 +
-      gree.subScores.naturality * 0.07
-  );
-  const penalty = issues.reduce((sum, issue) => sum + issue.penalty, 0);
-  const effectiveScore = clamp(round(baseScore - penalty));
   const replacementReasonKey = issueReason(issues);
-  const estimatedTarget = clamp(Math.max(72, Math.min(90, effectiveScore + 28)));
-  const estimatedUpgradeGain = Math.max(0, round(estimatedTarget - effectiveScore));
 
   return {
     product,
     gree,
-    baseScore,
-    effectiveScore,
-    dragPenalty: Math.max(0, baseScore - effectiveScore),
     issues,
     missingCriticalData,
     allergenConflict: issues.some((issue) => issue.key === "allergenConflict"),
@@ -262,7 +244,6 @@ function analyzeProduct(input: CartInput, prefs: LocalPreferences): CartProductA
       ["halalConflict", "veganConflict", "vegetarianConflict"].includes(issue.key)
     ),
     replacementReasonKey,
-    estimatedUpgradeGain
   };
 }
 
@@ -355,7 +336,7 @@ function buildDistributions(analyses: CartProductAnalysis[]): CartScoreResult["d
     nutri ? nutriScore[nutri]++ : nutriScore.unknown++;
     const novaGroup = analysis.product.novaGroup;
     novaGroup ? nova[String(novaGroup) as "1" | "2" | "3" | "4"]++ : nova.unknown++;
-    greeScore[analysis.gree.grade]++;
+    if (analysis.gree.status === "scored") greeScore[analysis.gree.grade]++;
   }
 
   return { nutriScore, nova, greeScore };
@@ -435,9 +416,6 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
     const emptyCompatibility = { active: false, compatible: 0, incompatible: 0, unknown: 0, ratio: 0 };
     const emptyMetric = { known: 0, high: 0, low: 0, status: "missing", preferenceActive: false } as const;
     return {
-      global: 0,
-      grade: "E",
-      labelKey: "poor",
       confidenceLevel: "low",
       confidenceScore: 0,
       verdict: message("empty"),
@@ -453,7 +431,7 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
         productCount: 0,
         excellentProducts: 0,
         productsToImprove: 0,
-        averageGreeScore: 0,
+        ratedProducts: 0,
         novaKnown: 0,
         missingCriticalData: 0,
         allergenConflicts: 0,
@@ -508,13 +486,13 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
     fiber: nutritionMetric(analyses, "fiber", T.fiberOk, T.fiberHigh, prefs.increaseFiber || hasGoal(prefs, "high_fiber"), true)
   };
 
-  const effectiveAverage = round(analyses.reduce((sum, analysis) => sum + analysis.effectiveScore, 0) / productCount);
-  const averageGreeScore = round(analyses.reduce((sum, analysis) => sum + analysis.gree.global, 0) / productCount);
+  const scores = analyses.flatMap(analysis => analysis.gree.status === "scored" ? [analysis.gree.score] : []);
+  const averageGreeScore = scores.length ? round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : undefined;
   const knownNova = analyses.map((analysis) => analysis.product.novaGroup).filter((value): value is 1 | 2 | 3 | 4 => Boolean(value));
   const averageNova = average(knownNova);
-  const excellentProducts = analyses.filter((analysis) => analysis.gree.global >= 80).length;
+  const excellentProducts = scores.filter(score => score >= 80).length;
   const productsToImprove = analyses.filter(
-    (analysis) => analysis.effectiveScore < 62 || analysis.issues.some((issue) => issue.severity !== "info")
+    (analysis) => (analysis.gree.status === "scored" && analysis.gree.score < 62) || analysis.issues.some((issue) => issue.severity !== "info")
   ).length;
   const missingCriticalData = analyses.filter((analysis) => analysis.missingCriticalData).length;
   const allergenConflicts = analyses.filter((analysis) => analysis.issues.some((issue) => issue.key === "allergenConflict")).length;
@@ -522,13 +500,14 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
   const highSaltProducts = analyses.filter((analysis) => analysis.issues.some((issue) => issue.key === "highSalt")).length;
   const nova4Products = distributions.nova["4"];
   const manyAdditivesProducts = analyses.filter((analysis) => analysis.issues.some((issue) => issue.key === "manyAdditives")).length;
-  const lowScoreProducts = analyses.filter((analysis) => analysis.gree.global < 50).length;
+  const lowScoreProducts = scores.filter(score => score < 50).length;
 
   const metrics: CartScoreResult["metrics"] = {
     productCount,
     excellentProducts,
     productsToImprove,
     averageGreeScore,
+    ratedProducts: scores.length,
     averageNova: averageNova === undefined ? undefined : Number(averageNova.toFixed(1)),
     novaKnown: knownNova.length,
     missingCriticalData,
@@ -542,27 +521,10 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
     halalRatio: compatibility.halal.ratio
   };
 
-  let global = effectiveAverage;
   const warnings: CartMessage[] = [];
   const addWarning = (key: string, count: number, severity: CartSeverity = "warning") => {
     if (count > 0) warnings.push(message(key, { count }, severity));
   };
-
-  if (allergenConflicts) global -= Math.min(30, 18 + allergenConflicts * 8);
-  if (nova4Products) global -= Math.min(18, nova4Products * (prefs.reduceUltraProcessed || hasGoal(prefs, "avoid_ultraprocessed") ? 8 : 5));
-  if (highSugarProducts) global -= Math.min(16, highSugarProducts * (prefs.reduceSugar || hasGoal(prefs, "reduce_sugar") ? 7 : 4));
-  if (highSaltProducts) global -= Math.min(12, highSaltProducts * (prefs.reduceSalt || hasGoal(prefs, "reduce_salt") ? 6 : 3));
-  if (manyAdditivesProducts) global -= Math.min(14, manyAdditivesProducts * (prefs.reduceAdditives || hasGoal(prefs, "reduce_additives") ? 6 : 3));
-  if (missingCriticalData) global -= Math.min(16, missingCriticalData * 5);
-  if (lowScoreProducts) global -= Math.min(12, lowScoreProducts * 4);
-  if (compatibility.vegan.active && compatibility.vegan.incompatible) global -= Math.min(20, compatibility.vegan.incompatible * 8);
-  if (compatibility.vegetarian.active && compatibility.vegetarian.incompatible) global -= Math.min(16, compatibility.vegetarian.incompatible * 6);
-  if (compatibility.bio.active && compatibility.bio.ratio >= 0.6) global += 4;
-  if (compatibility.halal.active && compatibility.halal.ratio >= 0.6 && compatibility.halal.incompatible === 0) global += 3;
-  if (ratio(excellentProducts, productCount) >= 0.5) global += 5;
-  if (ratio(distributions.nova["1"] + distributions.nova["2"], productCount) >= 0.6) global += 4;
-  if (nutritionBalance.protein.preferenceActive && nutritionBalance.protein.status === "good") global += 3;
-  if (nutritionBalance.fiber.preferenceActive && nutritionBalance.fiber.status === "good") global += 3;
 
   addWarning("allergenConflicts", allergenConflicts, "critical");
   addWarning("nova4", nova4Products);
@@ -580,9 +542,7 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
       analyses.filter((analysis) => analysis.gree.confidence === "medium").length * 5 -
       distributions.nova.unknown * 4
   );
-  const hasCriticalIssue = analyses.some((analysis) => analysis.issues.some((issue) => issue.severity === "critical"));
-  const roundedGlobal = clamp(round(global), hasCriticalIssue ? 0 : 10);
-  const { grade, labelKey } = gradeForCart(roundedGlobal);
+  const grade = averageGreeScore === undefined ? undefined : gradeForCart(averageGreeScore);
   const mainRisk = chooseMainRisk(metrics);
   const mainStrength = chooseMainStrength(analyses, metrics, compatibility, nutritionBalance, prefs);
 
@@ -598,20 +558,22 @@ export function computeCartScore(inputs: CartInput[], prefs: LocalPreferences): 
   if (nutritionBalance.protein.preferenceActive && nutritionBalance.protein.status === "good") positiveInsights.push(message("protein"));
   if (nutritionBalance.fiber.preferenceActive && nutritionBalance.fiber.status === "good") positiveInsights.push(message("fiber"));
 
-  const productsDraggingScore = [...analyses]
-    .filter((analysis) => analysis.effectiveScore < 68 || analysis.issues.some((issue) => issue.severity !== "info"))
-    .sort((a, b) => b.dragPenalty + (100 - b.effectiveScore) - (a.dragPenalty + (100 - a.effectiveScore)));
-  const productsImprovingCart = [...analyses]
-    .filter((analysis) => analysis.effectiveScore >= 70 && analysis.issues.every((issue) => issue.severity === "info"))
-    .sort((a, b) => b.effectiveScore - a.effectiveScore);
+  const rated = analyses.flatMap(analysis => analysis.gree.status === "scored" ? [{ analysis, score: analysis.gree.score }] : []);
+  const productsDraggingScore = rated
+    .filter(({ analysis, score }) => score < 68 || analysis.issues.some(issue => issue.severity !== "info"))
+    .sort((a, b) => a.score - b.score)
+    .map(({ analysis }) => analysis);
+  const productsImprovingCart = rated
+    .filter(({ analysis, score }) => score >= 70 && analysis.issues.every(issue => issue.severity === "info"))
+    .sort((a, b) => b.score - a.score)
+    .map(({ analysis }) => analysis);
 
   return {
-    global: roundedGlobal,
-    grade,
-    labelKey,
+    global: averageGreeScore,
+    ...grade,
     confidenceLevel: confidenceLevel(confidenceScore),
     confidenceScore,
-    verdict: chooseVerdict(roundedGlobal, metrics, prefs),
+    verdict: averageGreeScore === undefined ? message("unscored") : chooseVerdict(averageGreeScore, metrics, prefs),
     positiveInsights: positiveInsights.slice(0, 4),
     warnings,
     mainRisk,

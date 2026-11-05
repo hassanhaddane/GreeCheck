@@ -256,6 +256,10 @@
       "low": "Low confidence"
     },
     "fields": {
+      "nutriScore2023": "Nutri-Score 2023 points",
+      "nutritionEnergyKj": "Energy (kJ)",
+      "fruitVegetableLegumePercent": "Fruit, vegetable and legume percentage",
+      "nonNutritiveSweeteners": "Non-nutritive sweetener status",
       "barcode": "Barcode",
       "name": "Name",
       "localizedNames_fr": "French name",
@@ -479,7 +483,7 @@
     "environmentalDetails": "Environmental details",
     "confidenceHint": "Reliability of the result given the available data.",
     "whatsMissing": "What's missing",
-    "confidenceExplain": "Missing data lowers confidence, never the health score itself.",
+    "confidenceExplain": "Confidence depends on the source and inputs. Missing data can prevent a score.",
     "compatibility": "Compatibility",
     "halalLabel": "Halal",
     "halalVerified": "Verified",
@@ -496,6 +500,7 @@
     "addedBattle": "Added to GreeCompare"
   },
   "battle": {
+    "issue_differentNutritionBasis": "Nutrition bases differ (100 g and 100 ml).",
     "title": "GreeCompare",
     "subtitle": "Compare up to 3 products and let GreeCheck help you choose.",
     "addProduct": "Add a product",
@@ -592,6 +597,7 @@
     "dnaCompare": "GreeDNA comparison"
   },
   "cart": {
+    "gs3Coverage": "{rated, number} of {total, number} products scored",
     "title": "Smart basket",
     "subtitle": "Scan several products and get an overall score.",
     "score": "Basket score",
@@ -638,6 +644,7 @@
       "low": "low"
     },
     "verdict": {
+      "unscored": "There is too little information to calculate a basket nutrition average.",
       "empty": "Your basket is empty.",
       "excellentClean": "Excellent basket: healthy, minimally processed, no alerts.",
       "halalMatch": "Basket 100% halal-compatible.",
@@ -804,7 +811,7 @@
     "localHistory": "Scan history — stored locally, erasable anytime.",
     "localFavorites": "Favorites — saved on your device only.",
     "localBasket": "Basket & shopping lists — never sent to a server.",
-    "localPrefs": "Preferences, goals and allergens — used locally to personalize your GreeScore.",
+    "localPrefs": "Preferences, goals and allergens are used locally to tailor alerts and suggestions.",
     "noHealthServer": "No health data is stored server-side: GreeCheck has no user database and no profiles.",
     "geoTitle": "Location",
     "geoBody": "Your position is requested only after your action in Discover. It passes through GreeCheck's stateless proxy to OpenStreetMap solely to find nearby places; GreeCheck never keeps it or adds it to your history.",
@@ -862,6 +869,38 @@
     "offlineAction": "Try again"
   },
   "score": {
+    "gs3Unavailable": "Unscored",
+    "gs3Obsolete": "Previous assessment archived",
+    "gs3ReportedCertification": "Certification reported · {label}",
+    "gs3HalalReported": "Halal label reported",
+    "gs3EvidenceAvailable": "Scientific reference available",
+    "gs3EvidenceUnavailable": "Scientific reference not catalogued",
+    "gs3Method": "GS-3 reflects the nutritional profile. Other information is shown separately.",
+    "gs3Path": {
+      "provider_2023": "Nutri-Score 2023 points reported by the source",
+      "computed_2023": "Nutri-Score 2023 points recalculated",
+      "plain_water": "Plain water identified"
+    },
+    "gs3Raw": "Raw Nutri-Score 2023 points · {points, number}",
+    "gs3OfficialMethod": "Official Nutri-Score rules",
+    "gs3Missing": {
+      "productNutrition": "Product-specific nutrition data",
+      "ingredients": "Ingredients",
+      "additives": "Declared additives",
+      "nova": "NOVA group",
+      "nutritionBasis": "Per 100 g or 100 ml basis",
+      "nutritionCategory": "Nutrition category",
+      "plainWater": "Confirmation of plain water",
+      "sugars": "Sugars",
+      "saturatedFat": "Saturated fat",
+      "salt": "Salt",
+      "fiber": "Fibre",
+      "fruitVegetableLegumePercent": "Fruit, vegetable and legume percentage",
+      "energyKj": "Energy in kJ",
+      "fat": "Fat",
+      "nonNutritiveSweeteners": "Presence or absence of non-nutritive sweeteners",
+      "proteins": "Protein"
+    },
     "grade": {
       "A": "Excellent",
       "B": "Good choice",
@@ -870,6 +909,17 @@
       "E": "Avoid"
     },
     "reason": {
+      "gs3Energy": "Energy in kJ · {points, number} raw points",
+      "gs3Sugars": "Sugars · {points, number} raw points",
+      "gs3Saturated": "Saturated fat · {points, number} raw points",
+      "gs3Salt": "Salt · {points, number} raw points",
+      "gs3Sweeteners": "Non-nutritive sweeteners · {points, number} raw points",
+      "gs3Fiber": "Fibre · {points, number} raw points",
+      "gs3Fvl": "Fruit, vegetable and legume percentage · {points, number} raw points",
+      "gs3Proteins": "Protein · {points, number} raw points",
+      "gs3Water": "Plain water identified from the product data.",
+      "gs3ReportedSugar": "Declared sugars · {value, number} g per 100 {unit}.",
+      "gs3ReportedSalt": "Declared salt · {value, number} g per 100 {unit}.",
       "nutriScore": "Nutri-Score {grade}",
       "tooSugar": "Too much sugar",
       "richFiber": "High in fiber",
@@ -897,12 +947,14 @@
       "additivesUnreviewed": "{n} additive(s) not yet reviewed in our registry"
     },
     "warning": {
+      "veganMismatch": "The data indicate a conflict with your vegan preference.",
+      "vegetarianMismatch": "The data indicate a conflict with your vegetarian preference.",
       "highSugar": "High sugar ({v} g / 100 g)",
       "highSalt": "High salt ({v} g / 100 g)",
       "highSatFat": "High in saturated fat",
       "additiveAvoid": "Additive to avoid: {code}",
       "palmOil": "Contains palm oil",
-      "allergenPresent": "Allergen present: {name}",
+      "allergenPresent": "Reported allergen or possible trace · {name}",
       "haramIngredient": "Potentially non-halal ingredient",
       "partialData": "Score based on partial data",
       "halalCheckRequired": "Ingredient to verify for halal (origin to confirm)",
@@ -918,6 +970,8 @@
       "low": "Insufficient data"
     },
     "verdict": {
+      "mixed_profile": "Mixed profile",
+      "low_profile": "Low profile",
       "excellent_choice": "Excellent choice",
       "good_choice": "Good choice",
       "limit": "Limit it",
@@ -928,6 +982,7 @@
       "unsupported_category": "Category not supported"
     },
     "explain": {
+      "gs3Explanation": "GS-3 reflects the nutritional profile. Other information is shown separately.",
       "highSugarUltraProcessed": "High in sugar and ultra-processed.",
       "ultraProcessed": "Ultra-processed product.",
       "organicMinimal": "Organic and minimally processed.",
@@ -958,6 +1013,9 @@
       "betterDigestion": "better digestion"
     },
     "unscored": {
+      "conflicting_nutrition_data": "the nutrition data conflict",
+      "invalid_nutrition_data": "some values are invalid or inconsistent",
+      "unknown_nutrition_category": "the nutrition category cannot be determined",
       "missing_nutrition_data": "the required nutrition values are missing",
       "missing_ingredients_data": "the ingredient list is unavailable",
       "missing_additives_data": "additive data is unavailable",
@@ -1103,6 +1161,15 @@
     "websiteFor": "Website for {name}"
   },
   "methodology": {
+    "gs3Body": "Nutrition accounts for 100% of the score. We use raw Nutri-Score 2023 points when the source specifies that version, or recalculate them from the required data.",
+    "gs3Limit": "The 0–100 scale is GreeCheck’s editorial choice. It does not represent an official health measure or a safety percentage.",
+    "gs3Rules": {
+      "formula": "Multiply (worst anchor − raw points) / (worst anchor − best anchor) by 100, then clamp and round to the nearest integer.",
+      "anchors": "Best and worst raw anchors · foods −5 and 30, fats −10 and 30, drinks −6 and 20. Plain water gets 100, other drinks are capped at 99.",
+      "missing": "A letter alone, insufficient or conflicting data, or an undetermined category results in an unscored product.",
+      "axes": "Additives, organic labels, NOVA, GreeImpact and preferences are separate. Detected allergens trigger a priority alert."
+    },
+    "gs3Confidence": "High confidence for reproducible calculations with a checked identity, medium for other scored results, and low when a score cannot be established.",
     "metaTitle": "GreeScore methodology — GreeCheck",
     "metaDescription": "How the GreeScore is calculated: nutrition, processing, additives, labels, data confidence and sources.",
     "title": "Methodology",
@@ -1163,7 +1230,7 @@
     },
     "score": {
       "title": "GreeScore + Trust Halo",
-      "body": "A deterministic, explainable 0–100 health score: nutrition, NOVA processing, additives, labels. The Trust Halo separately shows data reliability — missing information lowers confidence, never the score.",
+      "body": "GreeScore uses Nutri-Score 2023 points to produce a nutrition index from 0 to 100. The result depends on the available data. Additives, NOVA and labels are shown separately.",
       "explain": "Every score can be explained, line by line."
     },
     "swap": {
@@ -1237,7 +1304,7 @@
       "avg": "average score",
       "localNote": "Computed on this device. Nothing leaves your phone.",
       "sugarDown": "−{n} g sugar",
-      "additivesDown": "Fewer risky additives",
+      "additivesDown": "Fewer declared additives",
       "envUp": "Better impact",
       "replacements": "{n} replacement(s) · +{pts} pts"
     },
@@ -1329,6 +1396,7 @@
     "impact_source_missing_signal": "Missing data: {signal}"
   },
   "compare": {
+    "issue_differentNutritionBasis": "Nutrition bases differ (100 g and 100 ml).",
     "advanced": "Advanced comparison",
     "title": "GreeCompare",
     "subtitle": "Compare 2 or 3 comparable products and choose the best — transparently.",
@@ -1351,7 +1419,7 @@
     "keyMetrics": "Key metrics",
     "podium": "Podium",
     "lowConfidenceWinner": "The health winner rests on incomplete data — confirm before deciding.",
-    "healthWinner": "Health winner",
+    "healthWinner": "Nutrition winner",
     "healthWinnerClose": "Health winner (neck and neck)",
     "environmentWinner": "Environment winner",
     "sameWinnerBoth": "Same winner on health and environment.",
@@ -1398,6 +1466,9 @@
       "explainSimpler": "Explain more simply"
     },
     "line": {
+      "gs3Method": "Version {version} uses Nutri-Score 2023 points or identification as plain water.",
+      "gs3Additives": "{count, number} additives declared. The register covers {reviewed, number}.",
+      "cartUnscored": "None of the products in this basket have a GS-3 score.",
       "unsupported": "I can only answer from this product's data. Please pick one of the suggested questions.",
       "verdictIs": "Verdict: {ref} ({score}/100).",
       "reasonMinus": "− {ref}",
@@ -1417,7 +1488,7 @@
       "actuallyScored": "This product IS scored: {score}/100 (grade {ref}).",
       "noScoreBecause": "No score because {ref}.",
       "noScoreUncertain": "Missing data is never counted against the product.",
-      "halalConfirmed": "Halal certification confirmed by an official label.",
+      "halalConfirmed": "The source reports a halal label. The certification still needs checking.",
       "halalIncompatible": "A clearly incompatible ingredient was detected.",
       "halalCheck": "An ambiguous ingredient is worth verifying.",
       "halalUncertain": "\"Not verified\" doesn't mean \"not halal\" — the data is simply absent.",

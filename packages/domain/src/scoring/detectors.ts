@@ -34,16 +34,34 @@ export function hasPalmOil(p: Product): boolean {
   return /palm/.test(hay) && !/sans huile de palme|palm oil free|no palm/.test(hay);
 }
 
-/** True when the product matches one of the user's avoided allergens. */
+const allergenWords = (value: string) => value.normalize("NFKD").toLowerCase().replace(/\p{M}/gu, "")
+  .replace(/^[a-z]{2,3}:/, "").match(/[\p{L}\p{N}]+/gu)?.join(" ") ?? "";
+
+const allergenAliases: Record<string, string[]> = {
+  gluten: ["gluten", "glúten", "غلوتين", "جلوتين"],
+  milk: ["milk", "lait", "leche", "حليب"],
+  lactose: ["lactose", "lactosa", "لاكتوز"],
+  eggs: ["egg", "eggs", "œuf", "œufs", "oeuf", "oeufs", "huevo", "huevos", "بيض"],
+  peanuts: ["peanut", "peanuts", "arachide", "arachides", "cacahuète", "cacahuètes", "cacahuete", "cacahuetes", "فول سوداني"],
+  nuts: ["nuts", "tree nuts", "fruits à coque", "fruits a coque", "frutos secos", "مكسرات"],
+  soybeans: ["soybeans", "soy", "soya", "soja", "صويا"],
+  palm: ["palm", "palme", "palma", "نخيل"]
+};
+
+/** Match reported tags and whole phrases, including reported traces. */
+export function matchingAllergens(p: Product, avoidAllergens: readonly string[]): string[] {
+  const facts = [p.ingredientsText ?? "", ...(p.allergens ?? []), ...(p.traces ?? [])]
+    .map(value => " " + allergenWords(value) + " ");
+  return [...new Set(avoidAllergens.filter(value => {
+    const term = allergenWords(value);
+    const aliases = Object.hasOwn(allergenAliases, term) ? allergenAliases[term] : [term];
+    return term.length > 0 && aliases.some(alias =>
+      facts.some(fact => fact.includes(" " + allergenWords(alias) + " ")));
+  }))];
+}
+
 export function hasAllergenConflict(p: Product, avoidAllergens: string[]): boolean {
-  if (!avoidAllergens.length) return false;
-  const haystack = [p.ingredientsText ?? "", ...(p.allergens ?? []), ...(p.traces ?? [])]
-    .join(" ")
-    .toLowerCase();
-  return avoidAllergens.some((a) => {
-    const needle = a.trim().toLowerCase();
-    return Boolean(needle) && haystack.includes(needle);
-  });
+  return matchingAllergens(p, avoidAllergens).length > 0;
 }
 
 /** True when at least one nutriment value is known. */

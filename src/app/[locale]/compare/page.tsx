@@ -168,7 +168,7 @@ export default function ComparePage() {
                 kind="health"
                 name={health.product.name}
                 grade={tScore(`grade.${health.gree.grade}`)}
-                score={health.gree.global}
+                score={health.gree.score}
                 close={result!.closeness === "close"}
                 reasons={result!.healthReasons.map((k) => tb(`reason.${k}`))}
               />
@@ -223,7 +223,7 @@ export default function ComparePage() {
                               {isEnv && <GreeBadge size="sm" tone="neutral"><Leaf className="h-3 w-3" /> {t("envPick")}</GreeBadge>}
                             </span>
                           </span>
-                          <span className="shrink-0 text-sm font-bold tabular-nums">{e.gree.global}</span>
+                          <span className="shrink-0 text-sm font-bold tabular-nums">{e.gree.score}</span>
                         </button>
                       );
                     })}

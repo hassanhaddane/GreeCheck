@@ -159,7 +159,7 @@ export function HistoryClient() {
                 <ProductThumbnail src={e.imageUrl} size="lg" className="h-16 w-16" />
                 <GreeScoreRing value={e.score} size={44} label={e.grade ?? ""} />
                 <p className="line-clamp-2 text-xs font-semibold">{e.name}</p>
-                {e.grade && <GreeBadge tone={gradeTone(e.grade)} size="sm">{e.verdict}</GreeBadge>}
+                {e.grade ? <GreeBadge tone={gradeTone(e.grade)} size="sm">{tScore(`grade.${e.grade}`)} · {e.scoreVersion}</GreeBadge> : <GreeBadge tone="unknown" size="sm">{tScore(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}</GreeBadge>}
               </GreeCard>
             </Link>
           ))}
@@ -265,7 +265,7 @@ function HistoryRow({
           <p className="truncate text-sm font-semibold">{e.name}</p>
           {e.brand && <p className="truncate text-xs text-muted">{e.brand}</p>}
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            {e.grade && <GreeBadge tone={gradeTone(e.grade)} size="sm">{e.verdict}</GreeBadge>}
+            {e.grade ? <GreeBadge tone={gradeTone(e.grade)} size="sm">{tScore(`grade.${e.grade}`)} · {e.scoreVersion}</GreeBadge> : <GreeBadge tone="unknown" size="sm">{tScore(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}</GreeBadge>}
             <span className="text-[0.65rem] text-muted">{fmtDate(e.scannedAt)}</span>
           </div>
           {e.warningCode && (

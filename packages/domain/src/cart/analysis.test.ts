@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /** GreeCart analysis extras — env distribution, contributors, allergen alerts. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,12 +12,12 @@ const PREFS: LocalPreferences = { ...defaultPreferences };
 const env = (e: Omit<ProductEnvironment, "provider">): ProductEnvironment => ({ provider: "openfoodfacts", ...e });
 
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
     categories: ["snacks"], ingredientsText: "x", additives: [],
     nutriments: { energyKcal: 200, sugars: 5, salt: 0.2, saturatedFat: 2, proteins: 4 },
     nutriScore: "b", novaGroup: 2, ...o
-  };
+  });
 }
 const extras = (products: Product[], prefs = PREFS) => {
   const inputs: CartInput[] = products.map((p) => ({ product: p }));
@@ -52,7 +53,6 @@ test("main additive contributors ranked by risky-additive count", () => {
   const none = product({ barcode: "none", additives: [] });
   const r = extras([mild, risky, none]);
   assert.equal(r.additiveContributors[0].product.barcode, "risky");
-  assert.equal(r.additiveContributors[0].riskyCount, 2);
   assert.equal(r.additiveContributors[0].totalCount, 3);
   assert.ok(!r.additiveContributors.some((c) => c.product.barcode === "none")); // no additives → not listed
 });

@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /** GreeCompare — comparability, health/environment winners, low-confidence warning. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,12 +12,12 @@ const PREFS: LocalPreferences = { ...defaultPreferences };
 const env = (e: Omit<ProductEnvironment, "provider">): ProductEnvironment => ({ provider: "openfoodfacts", ...e });
 
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
     categories: ["dairy", "yogurts"], ingredientsText: "lait, ferments", additives: [], imageUrl: "x",
     nutriments: { energyKcal: 90, sugars: 6, salt: 0.1, proteins: 6, saturatedFat: 2, fiber: 1 },
     nutriScore: "b", novaGroup: 2, ...o
-  };
+  });
 }
 
 /* ───────────────────────── comparability ───────────────────────── */

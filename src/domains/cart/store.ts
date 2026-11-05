@@ -27,7 +27,7 @@ export const useCartStore = create<CartState>()((set, get) => ({
   hydrate: (items) => set({ items }),
   addProduct: (product, gree) => {
     if (get().items.some((i) => i.product.barcode === product.barcode)) return "duplicate";
-    const item: CartItem = { product, score: gree.global, addedAt: Date.now() };
+    const item: CartItem = { product, score: gree.score, scoreVersion: gree.methodologyVersion, addedAt: Date.now() };
     set((s) => ({ items: [...s.items, item] }));
     void cartRepo.put(item);
     return "added";

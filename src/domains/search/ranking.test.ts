@@ -3,6 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { rankSearchResults, relevanceScore, type ScoredProduct } from "./ranking";
 import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { with2023Points } from "@greecheck/domain/scoring/test-products";
 import { defaultPreferences } from "@greecheck/domain/criteria/model";
 import type { Product } from "@greecheck/domain/product/model";
 
@@ -28,12 +29,13 @@ test("an incomplete product does NOT outrank a well-documented one solely for la
     nutriments: { sugars: 3, salt: 0.05 }
   }));
   // Complete: full facts → computed points, HIGH confidence, slightly lower (84).
-  const complete = scored(product({
+  const complete = scored(with2023Points(product({
     name: "Yaourt B", categories: ["yogurts"], nutriScore: "b", novaGroup: 2,
     ingredientsText: "lait, ferments", additives: [], imageUrl: "x",
     nutriments: { energyKcal: 90, sugars: 5, saturatedFat: 1.5, salt: 0.1, fiber: 1, proteins: 6 }
-  }));
-  assert.ok(incomplete.gree.global >= complete.gree.global, "incomplete must have the higher RAW score to isolate the rule");
+  })));
+  assert.equal(incomplete.gree.status, "unscored");
+  assert.equal(complete.gree.status, "scored");
   const ranked = rankSearchResults("yaourt", [incomplete, complete], PREFS);
   assert.equal(ranked[0].p.name, "Yaourt B", "the well-documented product must rank first");
 });

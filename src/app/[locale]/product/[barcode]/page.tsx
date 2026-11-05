@@ -19,7 +19,6 @@ import { GreeBadge } from "@/components/system/gree-badge";
 import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
 import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
-import { SubScoreCards } from "@/components/product/sub-score-cards";
 import { Alternatives } from "@/components/product/alternatives";
 import { ProductSourceDetails } from "@/components/product/source-details";
 import { additiveEvidenceFor } from "@greecheck/domain/scoring/additive-evidence";
@@ -33,9 +32,9 @@ import { getProduct, type ProductLookup } from "@/domains/product/repository";
 import { productAddUrl, productContributionUrl } from "@/domains/product/contribute";
 import type { Product } from "@greecheck/domain/product/model";
 import type { ScoreReason } from "@greecheck/domain/scoring/types";
-import { additiveSeverityOf, computeGreeScore, explainScore } from "@greecheck/domain/scoring/gree-score";
+import { computeGreeScore, explainScore } from "@greecheck/domain/scoring/gree-score";
 import { computeGreeImpact } from "@greecheck/domain/impact/engine";
-import { organicCertificationOf } from "@greecheck/domain/scoring/organic";
+import { specificOrganicLabelOf } from "@greecheck/domain/scoring/organic";
 import { halalStatusOf } from "@greecheck/domain/scoring/detectors";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
@@ -94,7 +93,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     setLookup(result);
     if (result.kind === "product") {
       const gree = computeGreeScore(result.product, prefsRef.current);
-      addHistory(buildHistoryItem({ ...result.product, name: result.product.localizedNames?.[locale] ?? result.product.name }, gree, tScore(`grade.${gree.grade}`)));
+      addHistory(buildHistoryItem({ ...result.product, name: result.product.localizedNames?.[locale] ?? result.product.name }, gree, (gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))));
     }
   }, [barcode, addHistory, tScore, locale]);
 
@@ -131,31 +130,29 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const p = { ...lookup.product, name: lookup.product.localizedNames?.[locale] ?? (lookup.product.name || barcode) };
   const per100 = p.nutritionBasis
     ? data(p.nutritionBasis === "100ml" ? "perVolume" : "perMass")
-    : p.provenance ? data("unknownBasis") : t("per100");
+    : data("unknownBasis");
   const sourceUrl = p.provenance?.barcode?.sourceUrl ?? productContributionUrl(barcode);
   const gree = computeGreeScore(p, prefs);
   const impact = computeGreeImpact(p);
-  const score = gree.global;
 
   const ingredientsKnown = Boolean(p.ingredientsText && p.ingredientsText.trim().length > 2);
   const additiveCount = p.additives?.length ?? 0;
   const hasNutrition = Object.values(p.nutriments).some((v) => v !== undefined);
-  const usedGradeFallback = gree.components?.nutrition.pointsSource === "grade_fallback";
 
   const criticalAlert = gree.alerts.length > 0;
-  const isPoor = score < 50 || gree.grade === "D" || gree.grade === "E" || criticalAlert;
+  const isPoor = (gree.status === "scored" && gree.score < 50) || gree.grade === "D" || gree.grade === "E" || criticalAlert;
 
   const primaryReasons: ScoreReason[] = (
     isPoor ? [...gree.topNegatives, ...gree.topPositives] : [...gree.topPositives, ...gree.topNegatives]
   ).slice(0, 3);
-  const blockingWarnings = gree.warnings.filter((w) => w.level !== "info");
+  const blockingWarnings = gree.warnings.filter((w) => w.level === "warning");
 
   // Halal is a COMPATIBILITY fact; unknown/not-confirmed must read "not verified".
   const halal = halalStatusOf(p);
-  const halalVerified = halal === "confirmed";
+  const halalReported = halal === "confirmed";
   const halalNotVerified = halal === "not_confirmed" || halal === "unknown";
 
-  const cert = organicCertificationOf(p.labels);
+  const cert = specificOrganicLabelOf(p.labels);
   const otherLabels = (p.labels ?? []).filter((l) => l && !/^(en:)?$/.test(l));
 
   const confidenceTone = gree.confidence === "high" ? "text-natural-strong" : gree.confidence === "medium" ? "text-score-c-ink" : "text-score-d-ink";
@@ -163,7 +160,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const goToBattle = () => { addBattle(p); router.push("/compare"); };
   const productInBasket = basket.has(p.barcode);
   const addToBasket = () => setBasketNotice(basket.addProduct(p, gree) === "duplicate" ? "duplicate" : "added");
-  const toggleFavorite = () => favorites.toggle(buildHistoryItem(p, gree, tScore(`grade.${gree.grade}`)));
+  const toggleFavorite = () => favorites.toggle(buildHistoryItem(p, gree, (gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))));
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 pb-4">
@@ -196,21 +193,27 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       ) : null}
 
       {/* ═══ 2 · GreeScore (health) — opinion, method in a sheet ═══ */}
+      {gree.alerts.map(alert => (
+        <p key={alert.code} role="alert" className="rounded-2xl border border-score-e/30 bg-surface px-4 py-3 font-semibold text-score-e-ink">
+          {tScore("warning." + alert.code, alert.values)}
+        </p>
+      ))}
       <VerdictCard gree={gree}>
         <div className="flex flex-wrap items-center gap-1.5 pt-1.5">
-          <DataKind kind={usedGradeFallback ? "estimate" : "opinion"} />
+          <DataKind kind="opinion" />
+          <span className="text-xs text-muted">{gree.methodologyVersion}</span>
           <button onClick={() => setSheet("method")} className="gc-pressable inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[0.65rem] font-semibold text-muted">
             <Info className="h-3 w-3" aria-hidden /> {t("howComputed")}
           </button>
         </div>
         <p className="mt-2 rounded-2xl bg-surface-2/80 p-3 text-sm leading-relaxed">
           <Sparkles className="me-1 inline h-4 w-4 text-natural-strong" aria-hidden />
-          {explainScore(gree).map((e) => tScore(`explain.${e.code}`, e.values?.criterion !== undefined ? { criterion: tScore(`criterion.${e.values.criterion}`) } : undefined)).join(" ")}
+          {gree.status === "unscored" ? tScore("unscored." + gree.reason.code, gree.reason.values) : explainScore(gree).map((e) => tScore(`explain.${e.code}`, e.values?.criterion !== undefined ? { criterion: tScore(`criterion.${e.values.criterion}`) } : undefined)).join(" ")}
         </p>
       </VerdictCard>
 
       {/* ═══ 3 · GreeImpact (environment) — separate from health ═══ */}
-      <ImpactBlock impact={impact} />
+      {impact.status === "valid" && <ImpactBlock impact={impact} />}
 
       {/* ═══ 4 · Data confidence ═══ */}
       <GreeCard>
@@ -225,7 +228,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       </GreeCard>
 
       {/* ═══ 5 · Critical compatibility alerts (never a health verdict) ═══ */}
-      {(blockingWarnings.length > 0 || halalNotVerified || halalVerified) && (
+      {(blockingWarnings.length > 0 || halalNotVerified || halalReported) && (
         <section aria-label={t("compatibility")} className="space-y-2">
           {blockingWarnings.map((w, i) => (
             <GreeCard key={i} className={`flex items-center gap-3 p-4 ${w.level === "critical" ? "border-score-e/30 bg-score-e/5" : "border-score-d/30 bg-score-d/5"}`}>
@@ -233,11 +236,11 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
               <p className="text-sm font-medium">{tScore(`warning.${w.code}`, w.values)}</p>
             </GreeCard>
           ))}
-          {(halalVerified || halalNotVerified) && (
+          {(halalReported || halalNotVerified) && (
             <div className="flex items-center gap-2 rounded-2xl bg-surface-2 px-3 py-2.5">
               <span className="text-sm font-medium text-muted">{t("halalLabel")}</span>
-              <GreeBadge size="sm" tone={halalVerified ? "positive" : "unknown"}>
-                {halalVerified ? t("halalVerified") : t("halalNotVerified")}
+              <GreeBadge size="sm" tone={halalReported ? "positive" : "unknown"}>
+                {halalReported ? tScore("gs3HalalReported") : t("halalNotVerified")}
               </GreeBadge>
             </div>
           )}
@@ -268,9 +271,6 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           </GreeCardContent>
         </GreeCard>
       )}
-
-      {/* Visible sub-scores (health breakdown) */}
-      <SubScoreCards gree={gree} hasGoals={prefs.goals.length > 0} />
 
       {/* ═══ 7 · Nutrition details ═══ */}
       {hasNutrition && (
@@ -306,15 +306,13 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           {additiveCount > 0 ? (
             <ul className="space-y-2">
               {p.additives!.map((a) => {
-                const severity = additiveSeverityOf(a);
                 const evidence = additiveEvidenceFor(a);
                 return (
                   <li key={a} className="rounded-2xl border border-line bg-surface-2 p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="gc-chip text-xs font-bold">{a.toUpperCase()}</span>
-                      <span className="text-xs font-semibold text-muted">{t(`additiveSeverity.${severity}`)}</span>
+                      <span className="text-xs font-semibold text-muted">{tScore(evidence ? "gs3EvidenceAvailable" : "gs3EvidenceUnavailable")}</span>
                     </div>
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted">{t(`additiveExplanation.${severity}`)}</p>
                     {evidence && (
                       <a href={evidence.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs underline">
                         {data("scientificEvidence", { authority: evidence.authority, date: evidence.issuedAt })}
@@ -324,7 +322,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
                 );
               })}
             </ul>
-          ) : <p className="text-sm text-muted">{p.provenance?.additives?.validationStatus === "missing" ? data("additivesUnavailable") : t("noAdditives")}</p>}
+          ) : <p className="text-sm text-muted">{p.additives === undefined ? data("additivesUnavailable") : t("noAdditives")}</p>}
         </CollapsibleSection>
       )}
 
@@ -336,18 +334,18 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       )}
 
       {/* ═══ 10 · Certifications ═══ */}
-      {(cert.certified || otherLabels.length > 0) && (
+      {(cert || otherLabels.length > 0) && (
         <CollapsibleSection title={t("certifications")} icon={<Award className="h-5 w-5" />} badge={<DataKind kind={p.provenance ? "declared" : "fact"} />}>
-          {cert.certified && (
+          {cert && (
             <div className="mb-2 flex items-center gap-2 rounded-2xl bg-pastel-sage p-3">
               <Leaf className="h-4 w-4 shrink-0 text-score-b-ink" aria-hidden />
-              <span className="text-sm font-semibold text-score-b-ink capitalize">{cert.label ?? t("organicCertified")}</span>
+              <span className="text-sm font-semibold text-score-b-ink capitalize">{tScore("gs3ReportedCertification", { label: cert })}</span>
             </div>
           )}
           <div className="flex flex-wrap gap-1.5">
             {(p.isBio || p.isHalal || p.isVegan || p.isVegetarian) && (
               <>
-                {p.isBio && <LabelBadge kind="bio" />}
+                {cert && <LabelBadge kind="bio" />}
                 {p.isHalal && <LabelBadge kind="halal" />}
                 {p.isVegan && <LabelBadge kind="vegan" />}
                 {p.isVegetarian && !p.isVegan && <LabelBadge kind="vegetarian" />}
@@ -359,9 +357,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       )}
 
       {/* ═══ 11 · Environmental details ═══ */}
-      <CollapsibleSection title={t("environmentalDetails")} icon={<Leaf className="h-5 w-5" />} badge={<DataKind kind="estimate" />}>
+      {impact.status === "valid" && <CollapsibleSection title={t("environmentalDetails")} icon={<Leaf className="h-5 w-5" />} badge={<DataKind kind="estimate" />}>
         <ImpactDetails impact={impact} />
-      </CollapsibleSection>
+      </CollapsibleSection>}
 
       {/* ═══ 12 · Better alternatives (only when poor/incompatible) ═══ */}
       {isPoor && <Alternatives product={p} prefs={prefs} />}
@@ -426,7 +424,15 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       {/* ═══ Technical-explanation sheets ═══ */}
       <GreeBottomSheet open={sheet === "method"} onClose={() => setSheet(null)} title={t("methodTitle")} closeLabel={t("close")}>
         <div className="space-y-3 text-sm">
-          <p className="text-muted">{t("methodBody")}</p>
+          <p className="text-muted">{tScore("gs3Method")}</p>
+          <p>{gree.methodologyVersion} · {gree.methodologyUpdatedAt} · {gree.registryVersion}</p>
+          {gree.status === "scored" && (
+            <div className="space-y-1">
+              <p>{tScore("gs3Path." + gree.components.nutrition.pointsSource)}</p>
+              {gree.components.nutrition.points !== undefined && <p>{tScore("gs3Raw", { points: gree.components.nutrition.points })}</p>}
+            </div>
+          )}
+          <a className="underline" href={gree.evidence.officialMethod.url} target="_blank" rel="noreferrer">{tScore("gs3OfficialMethod")}</a>
           <div className="flex flex-wrap gap-1.5">
             {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" />}
             {p.novaGroup && <NovaBadge group={p.novaGroup} />}
@@ -449,16 +455,18 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <p className="text-xs text-muted">{t("confidenceExplain")}</p>
           {gree.confidenceReasons.length > 0 && (
             <ul className="space-y-1.5">
-              {gree.confidenceReasons.map((code) => (
+              {gree.missingData.map((code) => (
                 <li key={code} className="flex items-center gap-2 text-xs text-muted">
-                  <HelpCircle className="h-3 w-3 shrink-0" aria-hidden /> {t(`missing.${code}`)}
+                  <HelpCircle className="h-3 w-3 shrink-0" aria-hidden /> {tScore("gs3Missing." + code)}
                 </li>
               ))}
             </ul>
           )}
-          <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-natural-strong">
-            <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {t("contributeEdit")}
-          </a>
+          {p.source === "openfoodfacts" && (
+            <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-natural-strong">
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {t("contributeEdit")}
+            </a>
+          )}
         </div>
       </GreeBottomSheet>
 

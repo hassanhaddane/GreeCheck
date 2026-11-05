@@ -1,7 +1,8 @@
+import { with2023Points } from "../scoring/test-products";
 /** Scan Battle — confidence-aware winner + comparability validation. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { computeBattle, validateBattle, effectiveScore } from "./engine";
+import { computeBattle, validateBattle } from "./engine";
 import { computeGreeScore } from "../scoring/gree-score";
 import { defaultPreferences } from "../criteria/model";
 import type { LocalPreferences } from "../criteria/model";
@@ -9,11 +10,11 @@ import type { Product } from "../product/model";
 
 const PREFS: LocalPreferences = { ...defaultPreferences };
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
     categories: ["dairy", "yogurts"], ingredientsText: "lait, ferments", additives: [], imageUrl: "x",
     nutriments: { sugars: 6, salt: 0.1, proteins: 5, saturatedFat: 2 }, nutriScore: "b", novaGroup: 2, ...o
-  };
+  });
 }
 const entry = (p: Product) => ({ product: p, gree: computeGreeScore(p, PREFS) });
 
@@ -35,18 +36,13 @@ test("three-product comparison ranks all and picks a winner", () => {
   assert.deepEqual(r.ranking.map((e) => e.product.barcode), ["a", "b", "c"]);
 });
 
-test("CONFIDENCE affects the result: a low-confidence higher-raw product must NOT win", () => {
-  // Incomplete: official letter A but partial facts → GS-2 grade-fallback path,
-  // MEDIUM confidence, high raw score (fallback A → 100/100 nutrition → 90).
-  const incomplete = product({ barcode: "inc", name: "Yaourt A", nutriScore: "a", nutriments: { sugars: 3, salt: 0.05 } });
-  // Complete: full facts → computed points −1 → 90/100 → 84, HIGH confidence.
-  const complete = product({ barcode: "comp", name: "Yaourt B", nutriScore: "b", novaGroup: 2, nutriments: { energyKcal: 90, sugars: 5, saturatedFat: 1.5, salt: 0.1, fiber: 1, proteins: 6 } });
-  const gInc = computeGreeScore(incomplete, PREFS), gComp = computeGreeScore(complete, PREFS);
-  assert.ok(gInc.global >= gComp.global, "the incomplete product must have the higher RAW score to isolate the rule");
-  assert.notEqual(gInc.confidence, "high"); // discounted (medium) — enough to lose to a complete product
-  const r = computeBattle([incomplete, complete], PREFS);
-  assert.equal(r.winner?.product.barcode, "comp", "the well-documented product must win");
-  assert.ok(effectiveScore(entry(incomplete)) < effectiveScore(entry(complete)));
+test("an old letter alone cannot create a winner against a scored product", () => {
+  const incomplete = { ...product({ barcode: "inc", nutriScore: "a" }), nutriScore2023: undefined };
+  const complete = product({ barcode: "comp", nutriScore: "b" });
+  const result = computeBattle([incomplete, complete], PREFS);
+  assert.equal(result.winner, null);
+  assert.equal(result.ranking[0].product.barcode, "comp");
+  assert.ok(result.validation.issues.includes("insufficientData"));
 });
 
 test("incomparable: products from different categories are flagged", () => {

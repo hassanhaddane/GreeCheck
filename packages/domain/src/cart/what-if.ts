@@ -36,8 +36,8 @@ export interface PlanStep {
 }
 
 export interface ImprovementPlan {
-  baseScore: number;
-  finalScore: number;
+  baseScore?: number;
+  finalScore?: number;
   totalGain: number;
   steps: PlanStep[];
 }
@@ -52,14 +52,16 @@ export function simulateReplacement(
   targetBarcode: string,
   replacement: Product,
   replacementGree?: GreeScore
-): { before: number; after: number; gain: number } {
+): { before?: number; after?: number; gain?: number } {
+  const target = inputs.find(i => i.product.barcode === targetBarcode);
   const before = scoreOf(inputs, prefs);
   const gree = replacementGree ?? computeGreeScore(replacement, prefs);
+  if (!target || (target.gree ?? computeGreeScore(target.product, prefs)).status === "unscored" || gree.status === "unscored") return { before };
   const swapped = inputs.map((i) =>
     i.product.barcode === targetBarcode ? { product: replacement, gree } : i
   );
   const after = scoreOf(swapped, prefs);
-  return { before, after, gain: after - before };
+  return { before, after, gain: before !== undefined && after !== undefined ? after - before : undefined };
 }
 
 /**
@@ -78,12 +80,15 @@ export function buildImprovementPlan(
   const maxSteps = opts.maxSteps ?? DEFAULT_MAX_STEPS;
   const baseScore = scoreOf(inputs, prefs);
 
+  if (baseScore === undefined) return { totalGain: 0, steps: [] };
+
   let current: CartInput[] = inputs.map((i) => ({ ...i }));
   const usedTargets = new Set<string>();
   const steps: PlanStep[] = [];
 
   while (steps.length < maxSteps) {
     const before = scoreOf(current, prefs);
+    if (before === undefined) break;
     let best: { c: ReplacementCandidate; gree: GreeScore; after: number; gain: number } | null = null;
 
     for (const c of candidates) {
@@ -92,11 +97,8 @@ export function buildImprovementPlan(
       if (current.some((i) => i.product.barcode === c.replacement.barcode)) continue;
 
       const gree = greeOf(c, prefs);
-      const swapped = current.map((i) =>
-        i.product.barcode === c.targetBarcode ? { product: c.replacement, gree } : i
-      );
-      const after = scoreOf(swapped, prefs);
-      const gain = after - before;
+      const { after, gain } = simulateReplacement(current, prefs, c.targetBarcode, c.replacement, gree);
+      if (after === undefined || gain === undefined) continue;
       if (gain < minGain) continue;
       if (!best || gain > best.gain || (gain === best.gain && c.targetBarcode.localeCompare(best.c.targetBarcode) < 0)) {
         best = { c, gree, after, gain };
@@ -136,17 +138,17 @@ export type BasketGroup = "strong" | "acceptable" | "priority" | "insufficient";
  */
 export function classifyEntry(a: CartProductAnalysis): BasketGroup {
   if (a.issues.some((i) => i.severity === "critical")) return "priority";
-  if (a.gree.confidence === "low" || a.missingCriticalData) return "insufficient";
-  if (a.issues.some((i) => i.severity === "warning") || a.effectiveScore < 50) return "priority";
-  if (a.effectiveScore >= 70) return "strong";
+  if (a.gree.status === "unscored" || a.missingCriticalData) return "insufficient";
+  if (a.issues.some((i) => i.severity === "warning") || a.gree.score < 50) return "priority";
+  if (a.gree.score >= 70) return "strong";
   return "acceptable";
 }
 
 export function groupBasket(analyses: CartProductAnalysis[]): Record<BasketGroup, CartProductAnalysis[]> {
   const groups: Record<BasketGroup, CartProductAnalysis[]> = { strong: [], acceptable: [], priority: [], insufficient: [] };
   for (const a of analyses) groups[classifyEntry(a)].push(a);
-  groups.priority.sort((x, y) => x.effectiveScore - y.effectiveScore);
-  groups.strong.sort((x, y) => y.effectiveScore - x.effectiveScore);
+  groups.priority.sort((x, y) => (x.gree.score ?? Infinity) - (y.gree.score ?? Infinity));
+  groups.strong.sort((x, y) => (y.gree.score ?? -1) - (x.gree.score ?? -1));
   return groups;
 }
 

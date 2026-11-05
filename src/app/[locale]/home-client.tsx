@@ -22,6 +22,7 @@ function gradeTone(grade?: string) {
 
 export function RecentProducts() {
   const t = useTranslations("home.recents");
+  const score = useTranslations("score");
   const mounted = useMounted();
   const entries = useHistoryStore((s) => s.entries);
   if (!mounted || entries.length === 0) return null;
@@ -43,7 +44,7 @@ export function RecentProducts() {
                   <ProductThumbnail src={e.imageUrl} size="md" className="h-16 w-16" />
                   <span className="line-clamp-2 min-h-[2.1rem] text-xs font-medium leading-tight">{e.name}</span>
                   <GreeBadge size="sm" tone={gradeTone(e.grade)}>
-                    {e.grade ?? "–"} · {e.score}
+                    {e.score !== undefined ? `${e.grade} · ${e.score}` : score(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}
                   </GreeBadge>
                 </GreeCardContent>
               </GreeCard>

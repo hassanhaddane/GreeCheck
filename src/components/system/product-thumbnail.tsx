@@ -19,8 +19,7 @@ export function ProductThumbnail({ src, alt = "", size = "md", className }: Prod
   const px = SIZES[size];
   return (
     <span
-      className={cn("gc-well grid shrink-0 place-items-center overflow-hidden", className)}
-      style={{ width: px, height: px }}
+      className={cn("gc-well grid shrink-0 place-items-center overflow-hidden", size === "sm" ? "h-10 w-10" : size === "lg" ? "h-16 w-16" : "h-12 w-12", className)}
     >
       {src ? (
         <Image src={src} alt={alt} width={px} height={px} className="h-full w-full object-contain" unoptimized />

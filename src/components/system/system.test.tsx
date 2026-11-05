@@ -45,9 +45,8 @@ test("GreeBadge and GreeButton render server-side with tone/variant classes", ()
   assert.match(badge, /text-score-a-ink/);
   const btn = renderToStaticMarkup(<GreeButton variant="neon">Scanner</GreeButton>);
   assert.match(btn, /Scanner/);
-  // neon rule: static surface is the natural gradient; glow only on interaction states
-  assert.match(btn, /bg-natural-grad/);
-  assert.doesNotMatch(btn, /(?<!hover:|active:|focus-visible:)shadow-glow/);
+  assert.match(btn, /bg-deep/);
+  assert.match(btn, /focus-visible:ring-2/);
 });
 
 test("GreeIcon exposes an accessible name when labelled, and hides when decorative", () => {

@@ -7,14 +7,12 @@ import {
 } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import type { Locale } from "@/i18n/routing";
-import { PageHeading } from "@/components/app/page-heading";
-import { GreeButton } from "@/components/system/gree-button";
+import { GreeButton, greeButtonVariants } from "@/components/system/gree-button";
 import { GreeCard } from "@/components/system/gree-card";
 import { GreeBadge } from "@/components/system/gree-badge";
 import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
 import { EmptyState } from "@/components/system/empty-state";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
-import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
@@ -95,7 +93,7 @@ export function HistoryClient() {
   if (!mounted) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading as="h2" title={t("title")} />
+        <h2 className="sr-only">{t("title")}</h2>
         <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /><ProductRowSkeleton /></div>
       </div>
     );
@@ -104,12 +102,12 @@ export function HistoryClient() {
   if (entries.length === 0) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading as="h2" title={t("title")} />
+        <h2 className="sr-only">{t("title")}</h2>
         <EmptyState
           icon={ScanLine}
           title={t("empty")}
           description={t("emptyBody")}
-          action={<Link href="/scan"><GreeButton variant="neon" size="sm"><ScanLine className="h-4 w-4" /> {t("scanCta")}</GreeButton></Link>}
+          action={<Link href="/scan" className={greeButtonVariants({ size: "sm" })}><ScanLine className="h-4 w-4" aria-hidden /> {t("scanCta")}</Link>}
         />
       </div>
     );
@@ -117,7 +115,7 @@ export function HistoryClient() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <PageHeading as="h2" title={t("title")} />
+      <h2 className="sr-only">{t("title")}</h2>
 
       {/* Toolbar: filters + view switch */}
       <div className="flex items-center gap-2">
@@ -157,7 +155,7 @@ export function HistoryClient() {
             <Link key={e.barcode} href={`/product/${e.barcode}`}>
               <GreeCard interactive className="flex flex-col items-center gap-2 p-3 text-center">
                 <ProductThumbnail src={e.imageUrl} size="lg" className="h-16 w-16" />
-                <GreeScoreRing value={e.score} size={44} label={e.grade ?? ""} />
+                <>{e.score !== undefined && <GreeBadge tone={gradeTone(e.grade)} className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{e.score}/100</bdi></GreeBadge>}</>
                 <p className="line-clamp-2 text-xs font-semibold">{e.name}</p>
                 {e.grade ? <GreeBadge tone={gradeTone(e.grade)} size="sm">{tScore(`grade.${e.grade}`)} · {e.scoreVersion}</GreeBadge> : <GreeBadge tone="unknown" size="sm">{tScore(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}</GreeBadge>}
               </GreeCard>
@@ -275,17 +273,17 @@ function HistoryRow({
             </p>
           )}
         </div>
-        <GreeScoreRing value={e.score} size={46} label="" />
+        <>{e.score !== undefined && <GreeBadge tone={gradeTone(e.grade)} className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{e.score}/100</bdi></GreeBadge>}</>
       </Link>
       <div className="flex shrink-0 flex-col gap-1">
         <button onClick={onFav} aria-label={isFav ? t("unfavorite") : t("favorite")} aria-pressed={isFav}
           className={cn("gc-pressable grid h-8 w-8 place-items-center rounded-xl", isFav ? "bg-natural/15 text-natural-strong" : "bg-surface-2 text-muted")}>
           <Heart className={cn("h-4 w-4", isFav && "fill-current")} />
         </button>
-        <button onClick={onMore} aria-label={t("moreActions")} className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted">
+        <button onClick={onMore} aria-label={t("moreActions")} className="gc-pressable grid min-h-9 min-w-9 place-items-center rounded-xl bg-surface-2 text-muted">
           <MoreHorizontal className="h-4 w-4" />
         </button>
-        <button onClick={onRemove} aria-label={t("remove")} className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted">
+        <button onClick={onRemove} aria-label={t("remove")} className="gc-pressable grid min-h-9 min-w-9 place-items-center rounded-xl bg-surface-2 text-muted">
           <Trash2 className="h-4 w-4" />
         </button>
       </div>

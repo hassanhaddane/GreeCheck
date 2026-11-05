@@ -2,19 +2,20 @@ import { Link } from "@/i18n/routing";
 import { Logo } from "./logo";
 import { GlobalSearch } from "./global-search";
 import { MoreMenu } from "./more-menu";
-import { PrivacyPill } from "@/components/ui/privacy-pill";
+import { PrimaryNav } from "./bottom-nav";
 
 export function TopBar() {
   return (
-    <header className="sticky top-0 z-40 gc-glass border-x-0 border-t-0 pt-[env(safe-area-inset-top)]">
-      <div className="container flex h-14 items-center gap-2">
-        <Link href="/" aria-label="GreeCheck" className="gc-pressable shrink-0">
-          <Logo size={32} withWordmark />
+    <header className="gc-header sticky top-0 z-40 border-b border-line bg-bg pt-[env(safe-area-inset-top)]">
+      <div className="gc-container grid min-h-14 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3">
+        <Link href="/" aria-label="GreeCheck" className="flex min-h-11 shrink-0 items-center">
+          <Logo size={29} withWordmark />
         </Link>
-        <div className="flex-1" />
-        <GlobalSearch />
-        <PrivacyPill className="hidden lg:inline-flex" />
-        <MoreMenu />
+        <PrimaryNav />
+        <div className="col-start-3 flex items-center gap-2 justify-self-end">
+          <GlobalSearch />
+          <MoreMenu />
+        </div>
       </div>
     </header>
   );

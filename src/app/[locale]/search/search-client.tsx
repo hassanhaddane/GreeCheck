@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Search as SearchIcon, SlidersHorizontal, X, RotateCcw, ArrowDownWideNarrow, ScanBarcode, Clock, Sparkles, ChevronRight } from "lucide-react";
-import { Link, useRouter } from "@/i18n/routing";
-import { PageHeading } from "@/components/app/page-heading";
+import { Search as SearchIcon, SlidersHorizontal, X, RotateCcw, ScanBarcode, Clock, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { Chip } from "@/components/ui/chip";
 import { GreeButton } from "@/components/system/gree-button";
 import { GreeCard } from "@/components/system/gree-card";
 import { GreeBadge } from "@/components/system/gree-badge";
@@ -24,10 +24,11 @@ import { parseIntent, isBarcodeQuery, INTENT_PRESETS } from "@/domains/search/in
 import { rankSearchResults } from "@/domains/search/ranking";
 import type { FilterLocale } from "@/types/filters";
 import type { Product } from "@greecheck/domain/product/model";
-import type { GreeScore } from "@greecheck/domain/scoring/types";
 
 type Status = "idle" | "loading" | "ok" | "error";
 type SortMode = "best" | "gree" | "nutri" | "nova";
+
+const QUICK_FILTERS = ["bio", "no_additives", "supermarket_best"] as const;
 
 const novaRank = (n?: number) => n ?? 9;
 const union = <T,>(a: Set<T>, b: T[]) => new Set<T>([...a, ...b]);
@@ -37,12 +38,13 @@ export function SearchClient() {
   const tc = useTranslations("common");
   const locale = useLocale() as FilterLocale;
   const prefs = usePreferencesStore();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const recent = useHistoryStore((s) => s.entries);
 
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
-  const [status, setStatus] = useState<Status>("idle");
+  const [responseStatus, setStatus] = useState<Status>("idle");
+  const [responseKey, setResponseKey] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const [results, setResults] = useState<Product[]>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [sort, setSort] = useState<SortMode>("best");
@@ -59,28 +61,26 @@ export function SearchClient() {
   const intent = useMemo(() => parseIntent(query), [query]);
   const isBarcode = isBarcodeQuery(query);
   const searchTerm = intent.textQuery || query.trim();
+  const searchable = !isBarcode && searchTerm.length >= 2;
+  const requestKey = JSON.stringify([searchTerm, locale, attempt]);
+  const status: Status = !searchable ? "idle" : responseKey === requestKey ? responseStatus : "loading";
 
   useEffect(() => {
     let current = true;
-    const searchable = !isBarcode && searchTerm.length >= 2;
+    if (!searchable) return;
     const timer = setTimeout(async () => {
-      if (!searchable) {
-        setStatus("idle");
-        setResults([]);
-        return;
-      }
-      setStatus("loading");
       try {
         const data = await searchProductsClient(searchTerm, 1, locale);
         if (!current) return;
         setResults(data.products.map(product => ({ ...product, name: product.localizedNames?.[locale] ?? product.name })));
+        setResponseKey(requestKey);
         setStatus("ok");
       } catch {
-        if (current) setStatus("error");
+        if (current) { setResponseKey(requestKey); setStatus("error"); }
       }
-    }, searchable ? 600 : 0);
+    }, 600);
     return () => { current = false; clearTimeout(timer); };
-  }, [searchTerm, isBarcode, attempt, locale]);
+  }, [searchTerm, searchable, requestKey, locale]);
 
   const toggleIn = <T,>(set: Set<T>, value: T): Set<T> => {
     const next = new Set(set);
@@ -102,7 +102,7 @@ export function SearchClient() {
   const activeCount = active.size + nutriSel.size + novaSel.size + (minScore > 0 ? 1 : 0) + (confidentOnly ? 1 : 0);
 
   const scored = useMemo(
-    () => results.map((p) => ({ p, gree: computeGreeScore(p, prefs) as GreeScore })),
+    () => results.map((p) => ({ p, gree: computeGreeScore(p, prefs) })),
     [results, prefs]
   );
   const activeDefs = useMemo(() => FILTER_DEFS.filter((f) => effActive.has(f.id)), [effActive]);
@@ -131,33 +131,43 @@ export function SearchClient() {
   ];
 
   return (
-    <div className="space-y-5">
-      <PageHeading title={t("title")} />
-
-      {/* Search bar */}
-      <div className="sticky top-14 z-30 -mx-1 bg-bg/85 px-1 py-2 backdrop-blur">
-        <div className="flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 shadow-soft">
-          <SearchIcon className="h-5 w-5 text-muted" aria-hidden />
+    <div className="mx-auto max-w-3xl space-y-4">
+      <h1 className="gc-editorial text-[clamp(1.85rem,4vw,2.75rem)]">{t("title")}</h1>
+      <div className="flex gap-2">
+        <div role="search" aria-label={t("title")} className="gc-field flex min-w-0 flex-1 items-center gap-2 ps-3">
+          <SearchIcon className="h-5 w-5 shrink-0 text-natural-strong" aria-hidden />
           <input
+            ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={t("placeholder")}
-            className="h-12 flex-1 bg-transparent text-sm outline-none"
-            autoFocus
+            className="h-12 min-w-0 flex-1 bg-transparent pe-2 text-base outline-none placeholder:text-muted"
             aria-label={t("title")}
             inputMode="search"
+            autoComplete="off"
           />
-          {query && <button onClick={() => setQuery("")} aria-label={t("clear")}><X className="h-4 w-4 text-muted" /></button>}
+          {query && <button type="button" className="grid h-11 w-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-surface-2" onClick={() => { setQuery(""); inputRef.current?.focus(); }} aria-label={t("clear")}><X className="h-4 w-4" aria-hidden /></button>}
         </div>
-        {intent.recognized.length > 0 && !isBarcode && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 px-1">
-            <span className="text-[0.7rem] font-medium text-muted">{t("intentApplied")}</span>
-            {intent.recognized.map((r) => (
-              <GreeBadge key={r} tone="brand" size="sm">{t(`intent.${r}`)}</GreeBadge>
-            ))}
-          </div>
-        )}
+        <Link href="/scan" aria-label={t("openScanner")} className="grid min-h-12 w-12 shrink-0 place-items-center rounded-xl bg-deep text-white hover:brightness-110">
+          <ScanBarcode className="h-5 w-5" aria-hidden />
+        </Link>
       </div>
+      {!isBarcode && (
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t("filters")}>
+          <Chip active={activeCount === 0} onClick={resetAll}>{t("quickAll")}</Chip>
+          {QUICK_FILTERS.map(id => {
+            const def = FILTER_DEFS.find(filter => filter.id === id)!;
+            return <Chip key={id} active={effActive.has(id)} title={def.description[locale]}
+              disabled={intent.filters.includes(id)} onClick={() => setActive(items => toggleIn(items, id))}>{def.label[locale]}</Chip>;
+          })}
+        </div>
+      )}
+      {intent.recognized.length > 0 && !isBarcode && (
+        <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
+          {t("intentApplied")}
+          {intent.recognized.map(key => <GreeBadge key={key} tone="brand" size="sm">{t(`intent.${key}`)}</GreeBadge>)}
+        </p>
+      )}
 
       {/* Barcode shortcut — deterministic, never auto-navigates */}
       {isBarcode && (
@@ -175,35 +185,27 @@ export function SearchClient() {
         </Link>
       )}
 
-      {/* Toolbar: filters + sort (only when results are on screen) */}
       {!isBarcode && (status === "ok" || activeCount > 0) && (
-        <div className="flex items-center gap-2">
-          <GreeButton variant={activeCount ? "primary" : "soft"} size="sm" onClick={() => setPanelOpen(true)}>
-            <SlidersHorizontal className="h-4 w-4" /> {t("filters")}
-            {activeCount > 0 && <span className="ms-1 rounded-full bg-white/25 px-1.5 text-xs">{activeCount}</span>}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line pb-2">
+          <p role="status" className="me-auto text-sm font-semibold">{status === "ok" ? t("results", { n: visible.length }) : ""}</p>
+          {activeCount > 0 && (
+            <GreeButton variant="ghost" size="sm" onClick={resetAll}>{t("reset")}</GreeButton>
+          )}
+          <GreeButton variant="outline" size="sm" onClick={() => setPanelOpen(true)}>
+            <SlidersHorizontal className="h-4 w-4" aria-hidden /> {t("filters")}{activeCount > 0 && <span className="tabular-nums">{activeCount}</span>}
           </GreeButton>
-          <div className="ms-auto flex items-center gap-1 overflow-x-auto rounded-2xl border border-line bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <ArrowDownWideNarrow className="ms-1 h-4 w-4 shrink-0 text-muted" aria-hidden />
-            {sorts.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSort(s.id)}
-                data-active={sort === s.id}
-                className="gc-pressable shrink-0 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-muted data-[active=true]:bg-deep data-[active=true]:text-white"
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <select aria-label={t("sortLabel")} className="gc-field min-h-9 max-w-full px-2 text-sm" value={sort} onChange={e => setSort(e.target.value as SortMode)}>
+            {sorts.map(option => <option key={option.id} value={option.id}>{option.label}</option>)}
+          </select>
         </div>
       )}
 
       {/* Idle: intent presets + recent scans (search-first, never empty) */}
       {status === "idle" && !isBarcode && (
-        <div className="space-y-6">
+        <div className="space-y-5">
           <section>
-            <h2 className="mb-2.5 flex items-center gap-1.5 px-1 text-sm font-semibold uppercase tracking-wide text-muted">
-              <Sparkles className="h-4 w-4 text-natural-strong" aria-hidden /> {t("presetsTitle")}
+            <h2 className="gc-heading mb-2">
+              {t("presetsTitle")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {INTENT_PRESETS.map((p) => (
@@ -211,7 +213,7 @@ export function SearchClient() {
                   key={p.id}
                   type="button"
                   onClick={() => setQuery(p.query[locale])}
-                  className="gc-pressable rounded-2xl border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink hover:border-natural/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/50"
+                  className="gc-chip min-h-10 hover:border-natural-strong"
                 >
                   {p.label[locale]}
                 </button>
@@ -221,7 +223,7 @@ export function SearchClient() {
 
           {recent.length > 0 ? (
             <section>
-              <h2 className="mb-2.5 flex items-center gap-1.5 px-1 text-sm font-semibold uppercase tracking-wide text-muted">
+              <h2 className="gc-heading mb-2">
                 <Clock className="h-4 w-4" aria-hidden /> {t("recentTitle")}
               </h2>
               <div className="space-y-2">
@@ -245,14 +247,9 @@ export function SearchClient() {
         </div>
       )}
 
-      {/* Results count */}
-      {status === "ok" && !isBarcode && (
-        <p className="px-1 text-xs text-muted">{t("results", { n: visible.length })}</p>
-      )}
-
       {/* Results */}
       {status === "loading" && (
-        <div className="space-y-2">{Array.from({ length: 6 }).map((_, i) => <ProductRowSkeleton key={i} />)}</div>
+        <div className="space-y-2" role="status" aria-label={tc("loading")}>{Array.from({ length: 3 }).map((_, i) => <ProductRowSkeleton key={i} />)}</div>
       )}
       {status === "error" && <ErrorState onRetry={() => setAttempt((a) => a + 1)} />}
       {status === "ok" && !isBarcode && visible.length === 0 && (
@@ -264,17 +261,9 @@ export function SearchClient() {
         />
       )}
       {status === "ok" && !isBarcode && visible.length > 0 && (
-        <div className="space-y-2">
-          {visible.map(({ p, gree }, i) => (
-            <ProductCard
-              key={p.barcode}
-              product={p}
-              gree={gree}
-              bestChoice={sort === "best" && i === 0 && (gree.score ?? -1) >= 65 && visible.length > 1}
-              betterAvailable={gree.status === "scored" && gree.score < 50 && visible.some((x) => (x.gree.score ?? -1) >= 65)}
-            />
-          ))}
-        </div>
+        <ul className="divide-y divide-line rounded-2xl border border-line bg-surface">
+          {visible.map(({ p, gree }) => <li key={p.barcode}><ProductCard product={p} gree={gree} /></li>)}
+        </ul>
       )}
 
       {/* Progressive filters — responsive bottom sheet (mobile) / panel (desktop) */}

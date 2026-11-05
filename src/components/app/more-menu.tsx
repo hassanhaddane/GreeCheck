@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Settings, ChevronRight } from "lucide-react";
+import { Menu, ChevronRight } from "lucide-react";
 import { Link, usePathname } from "@/i18n/routing";
 import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
 import { LanguageSwitcher } from "./language-switcher";
@@ -21,9 +21,10 @@ export function MoreMenu() {
         onClick={() => setOpen(true)}
         aria-label={t("more")}
         aria-haspopup="dialog"
+        aria-expanded={open}
         className="gc-pressable grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-surface-2"
       >
-        <Settings className="h-5 w-5" />
+        <Menu className="h-5 w-5" aria-hidden />
       </button>
       <GreeBottomSheet open={open} onClose={close} title={t("more")} closeLabel={tc("close")}>
         <nav aria-label={t("more")}>
@@ -36,7 +37,7 @@ export function MoreMenu() {
                     href={item.href}
                     aria-current={pathname === item.href ? "page" : undefined}
                     onClick={close}
-                    className="gc-pressable flex items-center gap-3 py-1.5"
+                    className="gc-pressable flex min-h-11 items-center gap-3 py-1.5"
                   >
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-muted">
                       <Icon className="h-4 w-4" aria-hidden />

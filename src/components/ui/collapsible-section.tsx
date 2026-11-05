@@ -1,8 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { GreeCard } from "@/components/system/gree-card";
 
 interface Props {
   title: string;
@@ -12,35 +10,21 @@ interface Props {
   children: React.ReactNode;
 }
 
-/** Premium collapsible card — keeps the product sheet scannable, details on demand. */
 export function CollapsibleSection({ title, icon, badge, defaultOpen = false, children }: Props) {
   const [open, setOpen] = useState(defaultOpen);
+  const id = useId();
   return (
-    <GreeCard className="overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="flex w-full items-center gap-3 p-5 text-start gc-pressable focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/50"
-      >
-        {icon && <span className="text-natural-strong">{icon}</span>}
-        <span className="flex-1 font-semibold tracking-tight">{title}</span>
+    <div className="rounded-xl border border-line bg-surface">
+      <button type="button" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-controls={id}
+        className="flex min-h-12 w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start sm:px-4">
+        {icon && <span aria-hidden className="shrink-0 text-natural-strong [&>svg]:size-4">{icon}</span>}
+        <span className="min-w-0 flex-1 text-sm font-semibold sm:text-base">{title}</span>
         {badge}
-        <ChevronDown className={`h-5 w-5 shrink-0 text-muted transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown aria-hidden className={`h-4 w-4 shrink-0 text-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden"
-          >
-            <div className="px-5 pb-5 pt-0">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </GreeCard>
+      <div id={id} hidden={!open} className="border-t border-line px-3 py-3 sm:px-4">
+        {open && children}
+      </div>
+    </div>
   );
 }

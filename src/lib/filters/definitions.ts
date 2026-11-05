@@ -19,17 +19,14 @@ export type Locale = FilterLocale;
 export type FilterDef = SmartFilter;
 
 const labels = (p: Product) => (p.labels ?? []).join(" ").toLowerCase();
-const ing = (p: Product) => (p.ingredientsText ?? "").toLowerCase();
 const num = (v: number | undefined) => (v === undefined ? null : v);
-const additiveCount = (p: Product) => p.additives?.length ?? 0;
-const hasIngredientData = (p: Product) => Boolean(p.ingredientsText) || p.additives !== undefined;
 
 export const FILTER_DEFS: SmartFilter[] = [
   /* ── Diet & labels ── */
   {
     id: "bio", group: "diet", icon: Leaf,
     label: { fr: "Bio", en: "Organic", ar: "عضوي" },
-    description: { fr: "Label agriculture biologique", en: "Certified organic label", ar: "حاصل على شهادة عضوية" },
+    description: { fr: "Label bio signalé", en: "Reported organic label", ar: "علامة عضوية مُبلّغ عنها" },
     match: (p) => !!p.isBio
   },
   {
@@ -54,25 +51,25 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "gluten_free", group: "diet", icon: WheatOff,
     label: { fr: "Sans gluten", en: "Gluten-free", ar: "خالٍ من الغلوتين" },
     description: { fr: "Aucun gluten détecté", en: "No gluten detected", ar: "لا غلوتين" },
-    match: (p) => /gluten[- ]?free|sans gluten|no gluten/.test(labels(p)) || (!!p.allergens && !p.allergens.some((a) => /gluten|wheat|blé/i.test(a)) && (p.allergens.length > 0 || ing(p).length > 0))
+    match: (p) => /gluten[- ]?free|sans gluten|no gluten/.test(labels(p))
   },
   {
     id: "lactose_free", group: "diet", icon: MilkOff,
     label: { fr: "Sans lactose", en: "Lactose-free", ar: "خالٍ من اللاكتوز" },
     description: { fr: "Aucun lactose détecté", en: "No lactose detected", ar: "لا لاكتوز" },
-    match: (p) => /lactose[- ]?free|sans lactose|no lactose/.test(labels(p)) || (!!p.allergens && !p.allergens.some((a) => /milk|lactose|lait/i.test(a)) && p.allergens.length > 0)
+    match: (p) => /lactose[- ]?free|sans lactose|no lactose/.test(labels(p))
   },
   {
     id: "no_palm_oil", group: "diet", icon: TreePalm,
     label: { fr: "Sans huile de palme", en: "No palm oil", ar: "بدون زيت النخيل" },
     description: { fr: "Ingrédients sans palme", en: "Palm-free ingredients", ar: "مكونات بدون نخيل" },
-    match: (p) => /palm oil free|no palm|sans huile de palme/.test(labels(p)) || (ing(p).length > 0 && !/palm/.test(ing(p)))
+    match: (p) => /palm oil free|no palm|sans huile de palme/.test(labels(p))
   },
   {
     id: "no_additives", group: "diet", icon: FlaskConical,
-    label: { fr: "Sans additifs", en: "No additives", ar: "بدون إضافات" },
-    description: { fr: "Zéro additif détecté", en: "Zero additives detected", ar: "صفر إضافات" },
-    match: (p) => additiveCount(p) === 0 && hasIngredientData(p)
+    label: { fr: "Sans additifs signalés", en: "No additives reported", ar: "لا مضافات مُبلّغ عنها" },
+    description: { fr: "La source indique une liste d’additifs vide", en: "The source reports an empty additive list", ar: "يُظهر المصدر قائمة مضافات فارغة" },
+    match: (p) => p.additives?.length === 0
   },
 
   /* ── Nutrition ── */
@@ -170,8 +167,8 @@ export const FILTER_DEFS: SmartFilter[] = [
   },
   {
     id: "supermarket_best", group: "smart", icon: Store,
-    label: { fr: "Supermarket best choice", en: "Supermarket best choice", ar: "أفضل خيار في السوبرماركت" },
-    description: { fr: "Le haut du panier : score ≥ 70", en: "Top of the shelf: score ≥ 70", ar: "الأفضل على الرف: نتيجة ≥ 70" },
+    label: { fr: "GreeScore ≥ 70", en: "GreeScore ≥ 70", ar: "GreeScore ≥ 70" },
+    description: { fr: "Note nutritionnelle d’au moins 70 sur 100", en: "Nutrition score of at least 70 out of 100", ar: "درجة غذائية لا تقل عن 70 من 100" },
     match: (_p, g) => g.status === "scored" && g.score >= 70
   }
 ];

@@ -1,14 +1,11 @@
 "use client";
-import Image from "next/image";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Plus, ScanLine, ShoppingBasket, Swords, WifiOff, AlertTriangle } from "lucide-react";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { GreeButton } from "@/components/system/gree-button";
-import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { GreeBadge } from "@/components/system/gree-badge";
-import { TrustHalo } from "@/components/system/trust-halo";
-import { ImpactBadge } from "@/components/product/impact-badge";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
@@ -74,9 +71,8 @@ export function RapidScanCard({
       role="region"
       aria-label={t("rapid.heading")}
     >
-      <GreeCard variant="glass" className="relative overflow-hidden">
-        <span aria-hidden className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-natural/10 blur-3xl" />
-        <GreeCardContent className="space-y-4">
+      <GreeCard className="relative">
+        <GreeCardContent className="space-y-3 p-3 sm:p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="gc-overline inline-flex items-center gap-1.5 text-natural-strong">
               <ScanLine className="h-3.5 w-3.5" aria-hidden /> {t("rapid.heading")}
@@ -96,29 +92,20 @@ export function RapidScanCard({
             </p>
           )}
 
-          <div className="flex items-center gap-4">
-            <GreeScoreRing value={gree.score} size={92} label={(gree.status === "scored" ? tScore(`grade.${gree.grade}`) : tScore("gs3Unavailable"))} />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="flex items-center gap-2.5">
-                {product.imageUrl && (
-                  <span className="aspect-square w-11 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                    <Image src={product.imageUrl} alt="" width={44} height={44} sizes="44px" className="h-full w-full object-contain" />
-                  </span>
-                )}
-                <p className="gc-title line-clamp-2 text-base">{product.name}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <GreeBadge tone={verdictTone(gree.verdict)} size="sm">{tScore(`verdict.${gree.verdict}`)}</GreeBadge>
-                <TrustHalo level={gree.confidence} size="sm" />
-                <ImpactBadge product={product} />
-              </div>
-              {stale && (
-                <p className="inline-flex items-center gap-1 text-xs font-medium text-muted">
-                  <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden /> {t("rapid.cached")}
-                </p>
-              )}
+          <div className="flex items-center gap-3">
+            <ProductThumbnail src={product.imageUrl} />
+            <div className="min-w-0 flex-1">
+              <p className="break-words font-semibold">{product.name}</p>
+              {product.brand && <p className="text-xs text-muted">{product.brand}</p>}
             </div>
+            {gree.status === "scored" && <GreeBadge tone={verdictTone(gree.verdict)} size="sm" className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{gree.score}/100</bdi></GreeBadge>}
           </div>
+          <p className="text-sm font-semibold">{gree.status === "scored" ? tScore(`verdict.${gree.verdict}`) : tScore("gs3Unavailable")}</p>
+          {stale && (
+            <p className="inline-flex items-center gap-1 text-xs font-medium text-muted">
+              <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden /> {t("rapid.cached")}
+            </p>
+          )}
 
           {/* One primary reason. */}
           {primaryReason && (
@@ -136,7 +123,7 @@ export function RapidScanCard({
           </GreeButton>
 
           {/* Secondary quick-add actions — no navigation, stay in the session. */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-wrap gap-2">
             <GreeButton
               variant={inCart ? "soft" : "outline"}
               onClick={onAddToCart}
@@ -144,7 +131,7 @@ export function RapidScanCard({
               aria-label={inCart ? t("rapid.inCart") : t("rapid.addToCart")}
             >
               {inCart ? <Check className="h-4 w-4 text-natural-strong" aria-hidden /> : <ShoppingBasket className="h-4 w-4" aria-hidden />}
-              <span className="truncate">{inCart ? t("rapid.inCart") : t("rapid.addToCart")}</span>
+              <span>{inCart ? t("rapid.inCart") : t("rapid.addToCart")}</span>
             </GreeButton>
             <GreeButton
               variant={inBattle ? "soft" : "outline"}
@@ -153,7 +140,7 @@ export function RapidScanCard({
               aria-label={inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}
             >
               {inBattle ? <Check className="h-4 w-4 text-natural-strong" aria-hidden /> : <Swords className="h-4 w-4" aria-hidden />}
-              <span className="truncate">{inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}</span>
+              <span>{inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}</span>
             </GreeButton>
           </div>
 

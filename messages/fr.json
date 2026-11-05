@@ -30,6 +30,7 @@
     "language": "Langue"
   },
   "scan": {
+    "scannerLabel": "Scanner de produits",
     "title": "GreeLens",
     "instruction": "Place le code-barres dans le cadre",
     "analyzing": "Analyse du produit…",
@@ -90,6 +91,7 @@
       "sessionCount": "{n} scannés dans cette session"
     },
     "intro": {
+      "open": "Comment lire le résultat ?",
       "title": "Bienvenue dans GreeCheck",
       "stepLabel": "Étape {n} / 3",
       "step1Title": "Comprends le GreeScore",
@@ -154,6 +156,8 @@
     }
   },
   "search": {
+    "quickAll": "Tous",
+    "openScanner": "Ouvrir le scanner",
     "title": "Rechercher",
     "placeholder": "Produit, marque, besoin…",
     "filters": "Filtres",
@@ -163,7 +167,7 @@
     "sortGree": "GreeScore",
     "sortNutri": "Nutri-Score",
     "sortNova": "NOVA",
-    "sortLabel": "Trier",
+    "sortLabel": "Trier les résultats",
     "groupNutriScore": "Nutri-Score",
     "groupNova": "NOVA",
     "groupDiet": "Régime & labels",
@@ -299,6 +303,19 @@
     }
   },
   "product": {
+    "noAlternative": "Aucune alternative comparable et mieux notée n’a été trouvée.",
+    "alternativeError": "La recherche d’alternatives est indisponible.",
+    "otherActions": "Autres actions",
+    "evaluationDetails": "Comprendre le GreeScore",
+    "productDetails": "Détails du produit",
+    "reportedAdditives": "{count, plural, one {# additif signalé} other {# additifs signalés}}",
+    "processing": "Degré de transformation",
+    "productFacts": "À retenir",
+    "viewList": "Voir ma liste",
+    "addToList": "Ajouter à ma liste",
+    "findAlternative": "Trouver une alternative",
+    "scoreSummary": "La note résume le profil nutritionnel à partir des données disponibles.",
+    "loadingProduct": "Chargement de la fiche",
     "metaTitle": "{name} — analyse nutritionnelle | GreeCheck",
     "metaDescription": "Découvre les données nutritionnelles, ingrédients, additifs, Nutri-Score et niveau de transformation de {name}.",
     "title": "Fiche produit",
@@ -1286,15 +1303,16 @@
     "actionUnavailable": "Produit indisponible hors ligne"
   },
   "home": {
+    "privacyShort": "Ton historique reste sur ton appareil.",
     "hero": {
-      "title": "Chaque scan améliore vos habitudes.",
-      "subtitle": "Verdict clair en deux secondes, preuves à l'appui.",
-      "cta": "Scanner un produit",
+      "title": "Scanner un produit",
+      "subtitle": "Cadre le code-barres ou le QR code de l’emballage.",
+      "cta": "Ouvrir le scanner",
       "firstHint": "Premier scan ? Visez simplement le code-barres."
     },
     "search": {
-      "label": "Recherche produit",
-      "placeholder": "Rechercher un produit ou un code-barres…"
+      "label": "Rechercher un produit",
+      "placeholder": "Produit, marque ou code"
     },
     "weekly": {
       "title": "Votre semaine",

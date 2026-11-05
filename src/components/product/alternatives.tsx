@@ -1,8 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
-import { Sparkles, GitCompareArrows, ShoppingBasket, Check, Info, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { GitCompareArrows, ShoppingBasket, ArrowRight } from "lucide-react";
 import { Link, useRouter } from "@/i18n/routing";
 import { GreeCard } from "@/components/system/gree-card";
 import { GreeButton } from "@/components/system/gree-button";
@@ -10,9 +9,7 @@ import { GreeBadge } from "@/components/system/gree-badge";
 import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { TrustHalo } from "@/components/system/trust-halo";
 import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
-import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
-import { NovaBadge } from "@/components/badges/nova-badge";
-import { LabelBadge } from "@/components/badges/label-badge";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { getAlternatives } from "@/domains/swap/service";
 import type { Alternative, SwapImprovement } from "@greecheck/domain/swap/engine";
@@ -48,27 +45,25 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
   const addProduct = useCartStore((s) => s.addProduct);
   const label = useImprovementLabel();
 
-  const [loading, setLoading] = useState(true);
+  const locale = useLocale() as LocalPreferences["language"];
+  const heading = useRef<HTMLHeadingElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
   const [items, setItems] = useState<Alternative[]>([]);
   const [added, setAdded] = useState<Set<string>>(new Set());
   const [sheetFor, setSheetFor] = useState<Alternative | null>(null);
 
   useEffect(() => {
-    let alive = true;
-    const timer = setTimeout(() => {
-      setLoading(true);
-      getAlternatives(product, prefs)
-        .then((r) => alive && (setItems(r), setLoading(false)))
-        .catch(() => alive && (setItems([]), setLoading(false)));
-    }, 0);
-    return () => {
-      alive = false;
-      clearTimeout(timer);
-    };
-  }, [product, prefs]);
+    heading.current?.focus();
+  }, []);
 
-  // Never render an empty section — only trustworthy alternatives, or nothing.
-  if (!loading && items.length === 0) return null;
+  useEffect(() => {
+    const request = new AbortController();
+    getAlternatives(product, prefs, request.signal)
+      .then(result => { if (!request.signal.aborted) { setItems(result); setStatus("ready"); } })
+      .catch(() => { if (!request.signal.aborted) setStatus("error"); });
+    return () => request.abort();
+  }, [product, prefs, attempt]);
 
   const compare = (alt: Alternative) => {
     addBattle(product);
@@ -81,89 +76,43 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
   };
 
   return (
-    <section aria-label={t("swap.title")}>
-      <div className="mb-2.5 flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-natural/12 text-natural-strong">
-          <Sparkles className="h-4 w-4" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 className="gc-title text-base">{t("swap.title")}</h2>
-          <p className="gc-caption truncate">{t("swap.subtitle")}</p>
-        </div>
-      </div>
+    <section className="min-w-0 space-y-2" aria-labelledby="alternatives-heading">
+      <h2 id="alternatives-heading" ref={heading} tabIndex={-1} className="gc-heading">{t("swap.title")}</h2>
 
-      {loading ? (
-        <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /></div>
-      ) : (
-        <div
-          className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          role="list"
-        >
-          {items.map((alt, i) => {
-            const p = alt.product;
-            const isAdded = added.has(p.barcode);
-            return (
-              <motion.div
-                key={p.barcode}
-                role="listitem"
-                initial={{ opacity: 0, x: 12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.25, delay: i * 0.05 }}
-                className="w-[15.5rem] shrink-0 snap-start"
-              >
-                <GreeCard className="flex h-full flex-col gap-3 p-3">
-                  <div className="flex items-center gap-3">
-                    <Link href={`/product/${p.barcode}`} className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                      { }
-                      {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="h-full w-full object-contain" loading="lazy" /> : null}
+      {status === "loading" ? <div role="status" aria-label={tc("loading")}><ProductRowSkeleton /></div>
+        : status === "error" ? (
+          <GreeCard className="space-y-2 p-3">
+            <p role="status" className="text-sm text-muted">{t("alternativeError")}</p>
+            <GreeButton variant="outline" size="sm" onClick={() => { setStatus("loading"); setAttempt(a => a + 1); }}>{tc("retry")}</GreeButton>
+          </GreeCard>
+        ) : items.length === 0 ? <p role="status" className="rounded-xl border border-line bg-surface p-3 text-sm text-muted">{t("noAlternative")}</p>
+        : (
+          <ul className="space-y-2">
+            {items.slice(0, 1).map(alt => {
+              const p = alt.product;
+              const name = p.localizedNames?.[locale] ?? p.name;
+              return (
+                <li key={p.barcode}>
+                  <GreeCard className="space-y-2 p-3">
+                    <Link href={`/product/${p.barcode}`} className="flex min-h-12 items-center gap-2.5 rounded-lg hover:text-natural-strong">
+                      <ProductThumbnail src={p.imageUrl} size="md" />
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words text-sm font-semibold">{name}</p>
+                        {p.brand && <p className="break-words text-xs text-muted">{p.brand}</p>}
+                      </div>
+                      <GreeBadge tone="positive" size="sm" className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{alt.gree.score}/100</bdi></GreeBadge>
                     </Link>
-                    <div className="relative shrink-0">
-                      <GreeScoreRing value={alt.gree.score} size={54} label={alt.gree.grade} />
+                    <p className="rounded-lg bg-pastel-sage px-2.5 py-1.5 text-sm font-medium">{label(alt.strongest)}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <GreeButton variant="outline" size="sm" onClick={() => compare(alt)}>{t("compare")}</GreeButton>
+                      <GreeButton variant="ghost" size="sm" onClick={() => setSheetFor(alt)}>{t("swap.whyBetter")}</GreeButton>
                     </div>
-                  </div>
-
-                  <Link href={`/product/${p.barcode}`} className="min-w-0">
-                    <p className="line-clamp-2 text-sm font-semibold">{p.name}</p>
-                    <p className="truncate text-xs text-muted">{p.brand || "—"}</p>
-                  </Link>
-
-                  {/* strongest improvement — the headline reason */}
-                  <p className="flex items-start gap-1.5 rounded-xl bg-natural/10 px-2.5 py-1.5 text-xs font-semibold text-natural-strong">
-                    <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                    <span>{label(alt.strongest)}</span>
-                  </p>
-
-                  {/* key badges + trust halo */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <TrustHalo level={alt.gree.confidence} size="sm" />
-                    {p.nutriScore && <NutriScoreBadge grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded text-[0.6rem]" />}
-                    {p.novaGroup && <NovaBadge group={p.novaGroup} />}
-                    {p.isBio && <LabelBadge kind="bio" />}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setSheetFor(alt)}
-                    className="inline-flex items-center gap-1 self-start text-xs font-semibold text-natural-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/50"
-                  >
-                    <Info className="h-3.5 w-3.5" aria-hidden /> {t("swap.whyBetter")}
-                  </button>
-
-                  <div className="mt-auto flex gap-2 pt-1">
-                    <GreeButton variant="soft" size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => compare(alt)}>
-                      <GitCompareArrows className="h-3.5 w-3.5" aria-hidden /> {t("compare")}
-                    </GreeButton>
-                    <GreeButton variant={isAdded ? "neon" : "primary"} size="sm" className="h-8 flex-1 px-2 text-xs" onClick={() => toCart(alt)} disabled={isAdded}>
-                      {isAdded ? <Check className="h-3.5 w-3.5" aria-hidden /> : <ShoppingBasket className="h-3.5 w-3.5" aria-hidden />}
-                      {isAdded ? t("addedToBasket") : t("addToBasket")}
-                    </GreeButton>
-                  </div>
-                </GreeCard>
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
+                  </GreeCard>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
       {/* "Why better?" — measurable breakdown */}
       <GreeBottomSheet open={sheetFor !== null} onClose={() => setSheetFor(null)} title={t("swap.whyBetterTitle")} closeLabel={tc("close")}>
@@ -190,7 +139,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
               <GreeButton variant="soft" className="flex-1" onClick={() => { compare(sheetFor); }}>
                 <GitCompareArrows className="h-4 w-4" aria-hidden /> {t("compare")}
               </GreeButton>
-              <GreeButton variant="primary" className="flex-1" onClick={() => { toCart(sheetFor); setSheetFor(null); }}>
+              <GreeButton variant="primary" className="flex-1" onClick={() => { toCart(sheetFor); setSheetFor(null); }} disabled={added.has(sheetFor.product.barcode)}>
                 <ShoppingBasket className="h-4 w-4" aria-hidden /> {t("addToBasket")}
               </GreeButton>
             </div>

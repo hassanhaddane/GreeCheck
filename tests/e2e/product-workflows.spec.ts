@@ -14,7 +14,7 @@ test.describe("Product decisions and local library", () => {
             page.getByRole("heading", { name: "Test Choco" }),
         ).toBeVisible();
 
-        // A poor product surfaces alternatives; the alternative appears as a list item.
+        await page.getByRole("button", { name: "Trouver une alternative" }).click();
         await expect(
             page.getByRole("heading", { name: "Meilleures alternatives" }),
         ).toBeVisible();
@@ -26,7 +26,13 @@ test.describe("Product decisions and local library", () => {
                 .first(),
         ).toBeVisible();
 
-        await page.getByRole("button", { name: "Favori" }).first().click();
+        await page.getByRole("button", { name: "Favori" }).click();
+        await page.getByRole("button", { name: "Ajouter à ma liste" }).click();
+        await page.getByRole("button", { name: "Voir ma liste" }).click();
+        await expect(page).toHaveURL(/\/fr\/list$/);
+        await expect(page.getByText("Test Choco", { exact: true })).toBeVisible();
+        await page.goto("/fr/product/11111115");
+        await page.getByRole("button", { name: "Autres actions" }).click();
 
         await page
             .getByRole("button", { name: "Ajouter au panier" })
@@ -105,13 +111,14 @@ test.describe("Product decisions and local library", () => {
             page.getByRole("heading", { name: "Meilleures alternatives" }),
         ).toHaveCount(0);
 
+        await page.getByRole("button", { name: "Autres actions" }).click();
         // It must still expose the relevant decision actions.
         await expect(
             page.getByRole("button", { name: "Ajouter au panier" }),
         ).toBeVisible();
 
         await expect(
-            page.getByRole("button", { name: "GreeCompare" }),
+            page.getByRole("button", { name: "Comparer", exact: true }),
         ).toBeVisible();
       },
   );
@@ -141,6 +148,15 @@ test.describe("Product decisions and local library", () => {
         );
       },
   );
+
+  test("product lookup recovers after a network error", async ({ page }) => {
+    await page.route("**/api/product/22222220", route => route.abort(), { times: 1 });
+    await page.goto("/fr/product/22222220");
+    const error = page.getByRole("alert");
+    await expect(error.getByRole("button", { name: "Réessayer" })).toBeVisible();
+    await error.getByRole("button", { name: "Réessayer" }).click();
+    await expect(page.getByRole("heading", { name: "Test Oats" })).toBeVisible();
+  });
 
   test("empty GreeCart has a useful recovery action", async ({ page }) => {
     await page.goto("/fr/cart");

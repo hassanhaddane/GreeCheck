@@ -30,6 +30,7 @@
     "language": "Language"
   },
   "scan": {
+    "scannerLabel": "Product scanner",
     "title": "GreeLens",
     "instruction": "Place the barcode inside the frame",
     "analyzing": "Analyzing product…",
@@ -90,6 +91,7 @@
       "sessionCount": "{n} scanned this session"
     },
     "intro": {
+      "open": "How do I read the result?",
       "title": "Welcome to GreeCheck",
       "stepLabel": "Step {n} / 3",
       "step1Title": "Understand the GreeScore",
@@ -154,6 +156,8 @@
     }
   },
   "search": {
+    "quickAll": "All",
+    "openScanner": "Open the scanner",
     "title": "Search",
     "placeholder": "Product, brand, need…",
     "filters": "Filters",
@@ -163,7 +167,7 @@
     "sortGree": "GreeScore",
     "sortNutri": "Nutri-Score",
     "sortNova": "NOVA",
-    "sortLabel": "Sort",
+    "sortLabel": "Sort results",
     "groupNutriScore": "Nutri-Score",
     "groupNova": "NOVA",
     "groupDiet": "Diet & labels",
@@ -299,6 +303,19 @@
     }
   },
   "product": {
+    "noAlternative": "No comparable product with a higher score was found.",
+    "alternativeError": "Alternative search is unavailable.",
+    "otherActions": "More actions",
+    "evaluationDetails": "Understand the GreeScore",
+    "productDetails": "Product details",
+    "reportedAdditives": "{count, plural, one {# additive reported} other {# additives reported}}",
+    "processing": "Degree of processing",
+    "productFacts": "At a glance",
+    "viewList": "View my list",
+    "addToList": "Add to my list",
+    "findAlternative": "Find an alternative",
+    "scoreSummary": "The score summarizes the nutrition profile using the available data.",
+    "loadingProduct": "Loading product details",
     "metaTitle": "{name} — nutrition analysis | GreeCheck",
     "metaDescription": "See the nutrition facts, ingredients, additives, Nutri-Score and processing level for {name}.",
     "title": "Product",
@@ -1286,15 +1303,16 @@
     "actionUnavailable": "Product unavailable offline"
   },
   "home": {
+    "privacyShort": "Your history stays on your device.",
     "hero": {
-      "title": "Every scan improves your habits.",
-      "subtitle": "A clear verdict in two seconds, with the proof behind it.",
-      "cta": "Scan a product",
+      "title": "Scan a product",
+      "subtitle": "Line up the barcode or QR code on the packaging.",
+      "cta": "Open the scanner",
       "firstHint": "First scan? Just aim at the barcode."
     },
     "search": {
-      "label": "Product search",
-      "placeholder": "Search a product or barcode…"
+      "label": "Find a product",
+      "placeholder": "Product, brand or code"
     },
     "weekly": {
       "title": "Your week",

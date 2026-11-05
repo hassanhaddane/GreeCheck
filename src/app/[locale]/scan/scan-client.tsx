@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "@/i18n/routing";
 import { GreeButton } from "@/components/system/gree-button";
-import { GreePulse } from "@/components/system/gree-pulse";
 import { GreeCard } from "@/components/system/gree-card";
 import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
@@ -149,15 +148,13 @@ export function ScanClient() {
         setPhase("idle");
         setLookup("idle");
         setRapid({ product: result.product, gree, stale: result.stale });
-        // First-scan onboarding: once only, AFTER a successful scan.
-        if (!onboardingSeen) setShowIntro(true);
       } catch {
         setPhase("idle");
         setLookup(typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "network_error");
         scanGateRef.current.release(code);
       }
     },
-    [addBattle, addProductToCart, onboardingSeen, prefs, recordHistory, router, source]
+    [addBattle, addProductToCart, prefs, recordHistory, router, source]
   );
 
   const handleDetect = useCallback(
@@ -271,16 +268,13 @@ export function ScanClient() {
   };
   const phaseText = phase === "detected" ? t("productDetected") : phase === "analyzing" ? t("analyzingNutrition") : "";
   const liveStatus = detected ? phaseText : statusText[state];
+  const cameraPreview = state === "active" || state === "checking" || state === "requesting" || detected;
 
   return (
-    <div className="mx-auto max-w-md space-y-5 pb-4">
-      <div className="flex items-center justify-center gap-2.5">
-        <GreePulse
-          size={36}
-          state={phase === "analyzing" ? "success" : state === "active" ? "scanning" : "idle"}
-          label={liveStatus}
-        />
-        <h1 className="text-xl font-bold tracking-tight gc-gradient-text">{t("title")}</h1>
+    <div className="mx-auto max-w-xl space-y-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h1 className="gc-editorial text-[clamp(1.85rem,4vw,2.75rem)]">{t("title")}</h1>
+        <span className="text-sm text-muted">{t("scannerLabel")}</span>
       </div>
 
       <p className="sr-only" role="status" aria-live="polite">{liveStatus}</p>
@@ -302,11 +296,38 @@ export function ScanClient() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {showIntro && <FirstScanIntro key="intro" onDone={dismissIntro} />}
-      </AnimatePresence>
+      {rapid && !onboardingSeen && (
+        <button type="button" onClick={() => setShowIntro(true)} className="min-h-10 text-sm font-semibold text-natural-strong hover:underline">
+          {t("intro.open")}
+        </button>
+      )}
+      {showIntro && <FirstScanIntro onDone={dismissIntro} />}
 
-      <GreeCard className="relative h-[clamp(18rem,43svh,28rem)] overflow-hidden bg-deep-grad p-0" role="region" aria-label={t("title")}>
+      {!rapid && (
+      <div className="grid grid-cols-2 gap-1 rounded-xl bg-surface-2 p-1" role="group" aria-label={`${t("barcode")} / ${t("qr")}`}>
+        {modes.map((m) => {
+          const Icon = m.icon;
+          const active = mode === m.id;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              onClick={() => setMode(m.id)}
+              data-active={active}
+              aria-pressed={active}
+              aria-label={t(m.id)}
+              className="gc-pressable flex items-center justify-center gap-2 min-h-11 rounded-lg border border-transparent py-1.5 text-sm font-semibold text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60 data-[active=true]:border-line data-[active=true]:bg-surface data-[active=true]:text-ink"
+            >
+              <Icon className="h-5 w-5" aria-hidden />
+              {t(m.id)}
+            </button>
+          );
+        })}
+      </div>
+
+      )}
+
+      <GreeCard className={`relative overflow-hidden ${rapid ? "hidden" : ""} ${cameraPreview ? "h-[clamp(14rem,37svh,20rem)] bg-deep" : "bg-surface"}`} role="region" aria-label={t("title")}>
         <video
           ref={videoRef}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${state === "active" ? "opacity-100" : "opacity-0"}`}
@@ -315,16 +336,13 @@ export function ScanClient() {
           autoPlay
           aria-hidden
         />
-        <div className="absolute inset-0 bg-deep/30" aria-hidden />
+        {cameraPreview && <div className="absolute inset-0 bg-deep/20" aria-hidden />}
 
         {(state === "active" || state === "requesting") && <ScanOverlay mode={mode} detected={detected} />}
 
         {state === "active" && !detected && (
-          <div className="absolute inset-x-4 bottom-4 space-y-2 text-center text-white">
+          <div className="absolute inset-x-4 bottom-3 rounded-xl bg-black/75 px-3 py-2 text-center text-white">
             <p className="text-sm font-semibold">{t("searchingCode")}</p>
-            <p className="rounded-2xl bg-black/35 px-3 py-2 text-xs leading-relaxed text-white/78 backdrop-blur">
-              {t("scanGuidance")}
-            </p>
           </div>
         )}
 
@@ -338,7 +356,7 @@ export function ScanClient() {
               transition={{ duration: 0.25 }}
               className="absolute inset-x-0 bottom-6 flex items-center justify-center gap-2 text-sm font-semibold text-neon"
             >
-              <span className="h-2 w-2 animate-ping rounded-full bg-neon" aria-hidden />
+              <span className="h-2 w-2 rounded-full bg-neon" aria-hidden />
               {phaseText}
             </motion.div>
           )}
@@ -347,7 +365,7 @@ export function ScanClient() {
         {(state === "checking" || state === "requesting") && (
           <div className="absolute inset-0 grid place-items-center text-white/75">
             <div className="flex flex-col items-center gap-2">
-              <Camera className="h-6 w-6 animate-pulse" aria-hidden />
+              <Camera className="h-6 w-6" aria-hidden />
               <span className="text-sm">{state === "checking" ? t("checkingEnvironment") : t("requesting")}</span>
             </div>
           </div>
@@ -370,7 +388,11 @@ export function ScanClient() {
         </AnimatePresence>
       </GreeCard>
 
-      {state === "active" && (
+      {state === "active" && !detected && !rapid && (
+        <p className="px-1 text-sm leading-relaxed text-muted">{t("scanGuidance")}</p>
+      )}
+
+      {state === "active" && !rapid && (devices.length > 1 || torchSupported || zoomSupported) && (
         <ScannerControls
           devices={devices}
           selectedDeviceId={selectedDeviceId}
@@ -409,31 +431,6 @@ export function ScanClient() {
         </GreeCard>
       )}
 
-      <p className="flex items-center justify-center gap-1.5 px-2 text-center text-xs text-muted">
-        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-natural-strong" aria-hidden />
-        {t("privacyNote")}
-      </p>
-
-      <div className="grid grid-cols-2 gap-2" role="group" aria-label={`${t("barcode")} / ${t("qr")}`}>
-        {modes.map((m) => {
-          const Icon = m.icon;
-          const active = mode === m.id;
-          return (
-            <button
-              key={m.id}
-              type="button"
-              onClick={() => setMode(m.id)}
-              data-active={active}
-              aria-pressed={active}
-              aria-label={t(m.id)}
-              className="gc-pressable flex items-center justify-center gap-2 rounded-2xl border border-line bg-surface py-3 text-sm font-semibold text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60 data-[active=true]:border-transparent data-[active=true]:bg-deep data-[active=true]:text-white"
-            >
-              <Icon className="h-5 w-5" aria-hidden />
-              {t(m.id)}
-            </button>
-          );
-        })}
-      </div>
 
       <GreeCard className="p-4">
         <label htmlFor="manual-barcode" className="flex items-center gap-1.5 text-xs font-medium text-muted">
@@ -447,9 +444,10 @@ export function ScanClient() {
             onKeyDown={(e) => e.key === "Enter" && goManual()}
             inputMode="text"
             autoComplete="off"
+            dir="ltr"
             aria-invalid={manual.length > 0 && !manualValid}
             placeholder={t("manualPlaceholder")}
-            className="h-11 flex-1 rounded-2xl border border-line bg-surface-2 px-4 text-sm outline-none focus:ring-2 focus:ring-neon/50"
+            className="gc-field h-11 min-w-0 flex-1 px-3 text-base"
           />
           <GreeButton variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("enterBarcode")}>
             <ArrowRight className="h-5 w-5 rtl:rotate-180" aria-hidden />
@@ -461,11 +459,16 @@ export function ScanClient() {
             stop();
             router.push("/search");
           }}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-1 text-sm font-medium text-natural-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon/60"
+          className="mt-1 flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-natural-strong hover:underline"
         >
           <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
         </button>
       </GreeCard>
+
+      <p className="flex items-center justify-center gap-1.5 px-2 text-center text-xs text-muted">
+        <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-natural-strong" aria-hidden />
+        {t("privacyNote")}
+      </p>
 
       {/* OCR beta — isolated experimental flow, gated behind a build flag. */}
       {OCR_BETA_ENABLED && (
@@ -484,8 +487,7 @@ function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void
   const fallbackStates = ["denied", "no-camera", "in-use", "unsupported", "error", "insecure"];
   const focusManual = () => {
     const el = document.getElementById("manual-barcode") as HTMLInputElement | null;
-    el?.scrollIntoView({ behavior: "smooth", block: "center" });
-    el?.focus({ preventScroll: true });
+    el?.focus();
   };
   if (!["insecure", "denied", "no-camera", "in-use", "unsupported", "error", "paused"].includes(state)) return null;
 
@@ -534,28 +536,20 @@ function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void
 
   const item = copy[state];
   return (
-    <div className="absolute inset-0 grid place-items-center p-5">
-      <div className="flex max-w-xs flex-col items-center gap-3 rounded-3xl bg-black/45 p-5 text-center text-white backdrop-blur">
-        <span className="grid h-16 w-16 place-items-center rounded-3xl bg-white/10" aria-hidden>{item.icon}</span>
+    <div className="space-y-2 p-4">
+      <div className="flex items-center gap-2 text-ink">
+        <span aria-hidden className="shrink-0 text-natural-strong [&>svg]:size-5">{item.icon}</span>
         <p className="font-semibold">{item.title}</p>
-        <p className="text-sm leading-relaxed text-white/72">{item.body}</p>
-        {state === "insecure" && (
-          <p className="rounded-2xl bg-neon/10 px-3 py-2 text-xs font-medium text-neon">{t("httpsTunnelHelp")}</p>
-        )}
-        {item.retry && (
-          <GreeButton variant="neon" size="sm" onClick={retry}>
-            <RotateCw className="h-4 w-4" aria-hidden /> {t("retry")}
-          </GreeButton>
-        )}
+      </div>
+      <p className="text-sm leading-relaxed text-muted">{item.body}</p>
+      {state === "insecure" && <p className="text-sm text-muted">{t("httpsTunnelHelp")}</p>}
+      <div className="flex flex-wrap gap-2 pt-1">
+        {item.retry && <GreeButton variant="outline" size="sm" onClick={retry}>{t("retry")}</GreeButton>}
         {fallbackStates.includes(state) && (
-          <div className="flex flex-wrap justify-center gap-2 pt-1">
-            <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}>
-              <Search className="h-4 w-4" aria-hidden /> {t("searchInstead")}
-            </GreeButton>
-            <GreeButton variant="soft" size="sm" onClick={focusManual}>
-              <Keyboard className="h-4 w-4" aria-hidden /> {t("enterBarcode")}
-            </GreeButton>
-          </div>
+          <>
+            <GreeButton variant="outline" size="sm" onClick={() => router.push("/search")}>{t("searchInstead")}</GreeButton>
+            <GreeButton variant="ghost" size="sm" onClick={focusManual}>{t("enterBarcode")}</GreeButton>
+          </>
         )}
       </div>
     </div>

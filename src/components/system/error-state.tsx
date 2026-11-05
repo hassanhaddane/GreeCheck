@@ -16,11 +16,11 @@ interface ErrorStateProps {
 export function ErrorState({ title, description, onRetry, retryLabel, className }: ErrorStateProps) {
   const t = useTranslations("common");
   return (
-    <div className={cn("gc-card flex flex-col items-center gap-3 border-score-e/25 bg-score-e/5 px-6 py-12 text-center", className)}>
-      <GreeIcon icon={AlertTriangle} tone="negative" size="lg" className="h-16 w-16 rounded-3xl" />
+    <div role="alert" className={cn("gc-card flex flex-col items-start gap-3 border-score-e/25 bg-score-e/5 px-4 py-5 text-start sm:px-5", className)}>
+      <GreeIcon icon={AlertTriangle} tone="negative" size="lg" className="h-10 w-10 rounded-xl" />
       <div className="space-y-1">
         <p className="gc-heading">{title ?? t("error")}</p>
-        {description && <p className="gc-body mx-auto max-w-xs text-muted">{description}</p>}
+        {description && <p className="gc-body max-w-prose text-muted">{description}</p>}
       </div>
       {onRetry && (
         <GreeButton variant="soft" size="sm" onClick={onRetry}>

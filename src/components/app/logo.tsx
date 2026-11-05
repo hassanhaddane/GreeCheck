@@ -6,22 +6,22 @@ interface LogoProps {
   className?: string;
 }
 
-/** GreeCheck mark — neon-gradient rounded tile with a leaf-check glyph. */
+/** GreeCheck mark — forest-green tile with a leaf-check glyph. */
 export function Logo({ size = 36, withWordmark = false, className }: LogoProps) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span
-        className="grid place-items-center rounded-2xl bg-natural-grad shadow-raised"
+        className="grid place-items-center rounded-xl bg-deep"
         style={{ width: size, height: size }}
       >
-        <svg width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none">
+        <svg aria-hidden="true" width={size * 0.6} height={size * 0.6} viewBox="0 0 24 24" fill="none">
           <path
             d="M20 6.5C16 4 8.5 4.5 5.5 9c-2.4 3.6-1 8.4 3 10.2"
-            stroke="#0B3D2E"
+            stroke="var(--gc-ticket-accent)"
             strokeWidth="2.4"
             strokeLinecap="round"
           />
-          <path d="M8.5 12.5l3 3 6-6.5" stroke="#0B3D2E" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M8.5 12.5l3 3 6-6.5" stroke="var(--gc-ticket-accent)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </span>
       {withWordmark && (

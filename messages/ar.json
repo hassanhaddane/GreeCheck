@@ -30,6 +30,7 @@
     "language": "اللغة"
   },
   "scan": {
+    "scannerLabel": "ماسح المنتجات",
     "title": "GreeLens",
     "instruction": "ضع الباركود داخل الإطار",
     "analyzing": "جارٍ تحليل المنتج…",
@@ -90,6 +91,7 @@
       "sessionCount": "{n} تم مسحها في هذه الجلسة"
     },
     "intro": {
+      "open": "كيف أقرأ النتيجة؟",
       "title": "مرحبًا بك في GreeCheck",
       "stepLabel": "الخطوة {n} / 3",
       "step1Title": "افهم GreeScore",
@@ -154,6 +156,8 @@
     }
   },
   "search": {
+    "quickAll": "الكل",
+    "openScanner": "فتح الماسح",
     "title": "بحث",
     "placeholder": "منتج، علامة، حاجة…",
     "filters": "عوامل التصفية",
@@ -163,7 +167,7 @@
     "sortGree": "GreeScore",
     "sortNutri": "Nutri-Score",
     "sortNova": "NOVA",
-    "sortLabel": "ترتيب",
+    "sortLabel": "ترتيب النتائج",
     "groupNutriScore": "Nutri-Score",
     "groupNova": "NOVA",
     "groupDiet": "النظام والعلامات",
@@ -299,6 +303,19 @@
     }
   },
   "product": {
+    "noAlternative": "لم نجد منتجًا مماثلًا بدرجة أعلى.",
+    "alternativeError": "البحث عن البدائل غير متاح.",
+    "otherActions": "إجراءات أخرى",
+    "evaluationDetails": "افهم درجة GreeScore",
+    "productDetails": "تفاصيل المنتج",
+    "reportedAdditives": "عدد المضافات المُبلّغ عنها · {count, number}",
+    "processing": "درجة المعالجة",
+    "productFacts": "لمحة سريعة",
+    "viewList": "عرض قائمتي",
+    "addToList": "أضف إلى قائمتي",
+    "findAlternative": "ابحث عن بديل",
+    "scoreSummary": "تلخّص الدرجة الخصائص الغذائية بناءً على البيانات المتاحة.",
+    "loadingProduct": "جارٍ تحميل تفاصيل المنتج",
     "metaTitle": "{name} — تحليل غذائي | GreeCheck",
     "metaDescription": "اطّلع على القيم الغذائية والمكونات والإضافات وNutri-Score ومستوى معالجة {name}.",
     "title": "المنتج",
@@ -1286,15 +1303,16 @@
     "actionUnavailable": "المنتج غير متاح دون اتصال"
   },
   "home": {
+    "privacyShort": "يبقى سجلّك على جهازك.",
     "hero": {
-      "title": "كل مسح يحسّن عاداتك.",
-      "subtitle": "حكم واضح في ثانيتين، مع الدليل.",
-      "cta": "امسح منتجًا",
+      "title": "امسح منتجًا",
+      "subtitle": "ضع الرمز الشريطي أو رمز QR على العبوة داخل الإطار.",
+      "cta": "افتح الماسح",
       "firstHint": "أول مسح؟ وجّه الكاميرا نحو الرمز الشريطي."
     },
     "search": {
       "label": "البحث عن منتج",
-      "placeholder": "ابحث عن منتج أو رمز شريطي…"
+      "placeholder": "منتج أو علامة أو رمز"
     },
     "weekly": {
       "title": "أسبوعك",

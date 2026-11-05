@@ -7,7 +7,7 @@ test.describe("GreeLens camera and first scan", () => {
     await page.setViewportSize({ width: 390, height: 844 });
   });
 
-  test("accepted camera, first successful scan, onboarding and rapid session", async ({ page }) => {
+  test("accepted camera, first successful scan, optional help and rapid session", async ({ page }) => {
     await page.goto("/fr/scan?source=pwa");
     await expect(page.getByRole("heading", { name: "GreeLens" })).toBeVisible();
     await expect(page.getByText("Recherche d'un code…", { exact: true })).toBeVisible();
@@ -16,6 +16,8 @@ test.describe("GreeLens camera and first scan", () => {
     await page.getByRole("button", { name: "Entrer le code-barres", exact: true }).click();
     await expect(page.getByLabel("Scan éclair").getByText("Test Choco", { exact: true })).toBeVisible();
     const intro = page.getByRole("dialog", { name: "Bienvenue dans GreeCheck" });
+    await expect(intro).toBeHidden();
+    await page.getByRole("button", { name: "Comment lire le résultat ?" }).click();
     await expect(intro).toBeVisible();
     await intro.getByRole("button", { name: "Ignorer" }).filter({ hasText: "Ignorer" }).click();
 

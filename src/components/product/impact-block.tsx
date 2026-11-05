@@ -1,85 +1,25 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { Leaf, TrendingUp, TrendingDown, HelpCircle } from "lucide-react";
-import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
+import { Leaf, HelpCircle } from "lucide-react";
 import { DataKind } from "./data-kind";
 import type { GreeImpact, ImpactIndicator } from "@greecheck/domain/impact/types";
 import { cn } from "@/lib/utils/cn";
 
-/**
- * GreeImpact headline (section 3) — the environmental assessment, kept
- * visually SEPARATE from the health GreeScore: sky pastel + a horizontal bar,
- * never the health ring. Deep breakdown lives in <ImpactDetails> (section 11).
- */
+/** Show the available environmental assessment separately from nutrition. */
 export function ImpactBlock({ impact }: { impact: GreeImpact }) {
   const t = useTranslations("product");
   const ti = useTranslations("impact");
-
-  if (impact.status === "insufficient") {
-    return (
-      <section aria-labelledby="impact-h">
-        <GreeCard className="bg-pastel-sky/60">
-          <GreeCardContent className="py-4">
-            <div className="mb-1 flex items-center gap-2">
-              <Leaf className="h-4 w-4 text-sky-ink" aria-hidden />
-              <h2 id="impact-h" className="text-sm font-semibold text-sky-ink">{t("impactTitle")}</h2>
-            </div>
-            <p className="text-sm font-semibold text-sky-ink">{t("impactInsufficient")}</p>
-            <p className="mt-0.5 text-xs text-sky-ink">{t("impactInsufficientBody")}</p>
-          </GreeCardContent>
-        </GreeCard>
-      </section>
-    );
-  }
-
-  const grade = impact.grade!;
-  const { score, insight } = impact;
+  if (impact.status !== "valid" || !impact.grade) return null;
 
   return (
-    <section aria-labelledby="impact-h">
-      <GreeCard className="bg-pastel-sky/60">
-        <GreeCardContent className="space-y-3 py-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Leaf className="h-4 w-4 text-sky-ink" aria-hidden />
-              <h2 id="impact-h" className="text-sm font-semibold text-sky-ink">{t("impactTitle")}</h2>
-            </div>
-            <DataKind kind="estimate" />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-sky-ink text-lg font-bold text-white" aria-hidden>
-              {grade.toUpperCase()}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-sky-ink">{grade.toUpperCase()} · {ti(impact.labelCode)}</p>
-              {score !== undefined && (
-                <div className="mt-1.5 h-2 rounded-full bg-sky-ink/15" role="img" aria-label={`${score}/100`}>
-                  <div className="h-full rounded-full bg-sky-ink" style={{ width: `${score}%` }} />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {(insight.strength || insight.weakness) && (
-            <div className="space-y-1.5">
-              {insight.strength && (
-                <p className="flex items-start gap-1.5 text-xs text-sky-ink">
-                  <TrendingUp className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {ti(insight.strength.code, insight.strength.params)}
-                </p>
-              )}
-              {insight.weakness && (
-                <p className="flex items-start gap-1.5 text-xs text-sky-ink">
-                  <TrendingDown className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                  {ti(insight.weakness.code, insight.weakness.params)}
-                </p>
-              )}
-            </div>
-          )}
-          <p className="text-xs text-sky-ink">{t("impactSeeDetails")}</p>
-        </GreeCardContent>
-      </GreeCard>
+    <section aria-labelledby="impact-h" className="space-y-2 rounded-xl border border-line bg-pastel-sky p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="impact-h" className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-sky-ink">
+          <Leaf aria-hidden className="h-4 w-4 shrink-0" /> {t("impactTitle")}
+        </h2>
+        <DataKind kind="estimate" />
+      </div>
+      <p className="break-words text-sm font-semibold text-sky-ink"><bdi>{impact.grade.toUpperCase()}</bdi> · {ti(impact.labelCode)}</p>
     </section>
   );
 }

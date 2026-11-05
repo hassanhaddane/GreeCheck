@@ -1,3 +1,6 @@
+import { hasValidGs1CheckDigit } from "@greecheck/domain/product/gtin";
+export { hasValidGs1CheckDigit } from "@greecheck/domain/product/gtin";
+
 /**
  * Scan-input interpreter — the ONLY authority on what counts as a product code.
  *
@@ -28,15 +31,6 @@ export type ScanInterpretation =
   | { kind: "unsupported"; reason: UnsupportedReason };
 
 /* ───────────────────────── GS1 check digit ───────────────────────── */
-
-/** GS1 mod-10: from the right, weights 3,1,3,1… on the digits before the check. */
-export function hasValidGs1CheckDigit(code: string): boolean {
-  if (!/^\d{8}$|^\d{12,14}$/.test(code)) return false;
-  const digits = code.split("").map(Number);
-  const check = digits.pop()!;
-  const sum = digits.reverse().reduce((acc, d, i) => acc + d * (i % 2 === 0 ? 3 : 1), 0);
-  return (10 - (sum % 10)) % 10 === check;
-}
 
 /** GTIN-14 with a single leading zero is the same article as its GTIN-13. */
 function normalizeGtin(code: string): string {

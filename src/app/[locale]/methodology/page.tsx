@@ -14,10 +14,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 const BUCKET_KEYS = ["nutrition", "processing", "additives", "labels", "goal", "ecology"] as const;
 const RULE_KEYS = ["nova", "bio", "halal", "missing"] as const;
 
+const dataSources = [
+  { id: "off", name: "Open Food Facts", url: "https://openfoodfacts.github.io/openfoodfacts-server/api/" },
+  { id: "usda", name: "USDA FoodData Central", url: "https://fdc.nal.usda.gov/api-guide/" },
+  { id: "ciqual", name: "Anses · Ciqual 2025", url: "https://doi.org/10.57745/RDMHWY" },
+  { id: "science", name: "EFSA / Anses", url: "https://www.efsa.europa.eu/en/topics/topic/food-additives" }
+] as const;
+
 export default async function MethodologyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("methodology");
+  const data = await getTranslations("dataMethodology");
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -75,15 +83,21 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Database className="h-4 w-4 text-natural-strong" aria-hidden /> {t("sourcesTitle")}
           </h2>
-          <p className="text-sm leading-relaxed text-muted">{t("sourcesBody")}</p>
-          <a
-            href="https://world.openfoodfacts.org"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline underline-offset-2"
-          >
-            Open Food Facts <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-          </a>
+          <ul className="space-y-3">
+            {dataSources.map(({ id, name, url }) => (
+              <li key={id}>
+                <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline underline-offset-2">
+                  {name} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                </a>
+                <p className="text-sm leading-relaxed text-muted">{data(id)}</p>
+              </li>
+            ))}
+          </ul>
+          <h3 className="pt-2 text-sm font-semibold">{data("qualityTitle")}</h3>
+          <p className="text-sm leading-relaxed text-muted">{data("quality")}</p>
+          <p className="text-sm leading-relaxed text-muted">{data("conflict")}</p>
+          <h3 className="pt-2 text-sm font-semibold">{data("coverageTitle")}</h3>
+          <p className="text-sm leading-relaxed text-muted">{data("coverage")}</p>
         </GreeCardContent>
       </GreeCard>
 

@@ -207,6 +207,93 @@
       "greenScore": "Faible impact"
     }
   },
+  "dataMethodology": {
+    "off": "Catalogue contributif prioritaire. Données sous ODbL et photos sous CC BY-SA selon les conditions d’Open Food Facts.",
+    "usda": "Source complémentaire facultative. GreeCheck vérifie le même GTIN dans les deux réponses USDA avant d’utiliser une fiche de marque. Données sous CC0.",
+    "ciqual": "Valeurs génériques pour quelques catégories d’aliments bruts, sous Licence Ouverte. Elles restent séparées des valeurs du produit et ne modifient pas son GreeScore.",
+    "science": "Les avis scientifiques sont datés et liés à la source. L’autorisation et la présence d’un additif ne suffisent pas pour établir un risque individuel.",
+    "qualityTitle": "Confiance et divergences",
+    "quality": "Confiance élevée pour le contrôle de l’identifiant, moyenne pour les valeurs déclarées ou calculées et faible pour les données manquantes ou les références génériques. Une copie ancienne est signalée.",
+    "conflict": "À base et unité identiques, un écart supérieur à 20 % et au seuil absolu est signalé. Les seuils sont de 10 kcal pour l’énergie, 0,1 g pour le sel et 0,5 g pour les autres nutriments.",
+    "coverageTitle": "Couverture internationale",
+    "coverage": "Les noms FR, EN et AR sont affichés quand le catalogue les fournit. Les marques et les marchés varient selon les sources. Le Green-Score combine des données de produit et des estimations de catégorie. Les valeurs environnementales manquantes restent indisponibles."
+  },
+  "productData": {
+    "additivesUnavailable": "Données sur les additifs indisponibles.",
+    "perMass": "Pour 100 g",
+    "perVolume": "Pour 100 ml",
+    "unknownBasis": "Base de la source non précisée (100 g ou 100 ml)",
+    "retrieved": "Récupéré le {date}",
+    "sourceUpdated": "Source mise à jour le {date}",
+    "conflictTitle": "Divergences entre sources",
+    "conflictBody": "Les valeurs sont présentées séparément. La fiche conserve la lecture principale d’Open Food Facts.",
+    "conflictBanner": "Des sources donnent des valeurs différentes. Voir Source et méthodologie.",
+    "referenceTitle": "Valeurs génériques de référence",
+    "referenceBody": "Composition moyenne de la catégorie. Ces valeurs sont exclues de la fiche nutritionnelle et du GreeScore.",
+    "viewRecord": "Consulter la fiche source",
+    "scientificEvidence": "Évaluation scientifique · {authority} · {date}",
+    "searchError": "Recherche temporairement indisponible",
+    "state": {
+      "VERIFIED": "Identité et champs contrôlés",
+      "PARTIAL": "Données partielles",
+      "CONFLICTED": "Sources divergentes",
+      "UNAVAILABLE": "Données indisponibles",
+      "STALE": "Copie locale ancienne"
+    },
+    "kind": {
+      "measured": "Mesuré",
+      "declared": "Déclaré par la source",
+      "computed": "Calculé",
+      "category_reference": "Référence de catégorie"
+    },
+    "missing": {
+      "not_reported": "Non fourni",
+      "invalid_or_unsupported": "Valeur ou unité inexploitable"
+    },
+    "confidence": {
+      "high": "Confiance élevée",
+      "medium": "Confiance moyenne",
+      "low": "Confiance faible"
+    },
+    "fields": {
+      "barcode": "Code-barres",
+      "name": "Nom",
+      "localizedNames_fr": "Nom français",
+      "localizedNames_en": "Nom anglais",
+      "localizedNames_ar": "Nom arabe",
+      "brand": "Marque",
+      "imageUrl": "Image",
+      "quantity": "Quantité",
+      "categoryIds": "Identifiants de catégorie",
+      "categories": "Catégories",
+      "countries": "Marchés",
+      "labels": "Labels",
+      "ingredientsText": "Ingrédients",
+      "allergens": "Allergènes",
+      "traces": "Traces",
+      "additives": "Additifs",
+      "nutriScore": "Nutri-Score",
+      "nutriScorePoints": "Points Nutri-Score",
+      "nutriScoreVersion": "Version Nutri-Score",
+      "novaGroup": "NOVA",
+      "greenScore": "Green-Score",
+      "environment_normalizedScore": "Score environnemental",
+      "environment_adjustments": "Ajustements environnementaux",
+      "environment_lifecycleScore": "Cycle de vie de la catégorie",
+      "halalStatus": "Indication halal",
+      "veganStatus": "Indication vegan",
+      "vegetarianStatus": "Indication végétarienne",
+      "palmOilStatus": "Huile de palme",
+      "nutritionBasis": "Base nutritionnelle",
+      "nutriments_energyKcal": "Énergie",
+      "nutriments_sugars": "Sucres",
+      "nutriments_salt": "Sel",
+      "nutriments_saturatedFat": "Acides gras saturés",
+      "nutriments_fat": "Matières grasses",
+      "nutriments_fiber": "Fibres",
+      "nutriments_proteins": "Protéines"
+    }
+  },
   "product": {
     "metaTitle": "{name} — analyse nutritionnelle | GreeCheck",
     "metaDescription": "Découvre les données nutritionnelles, ingrédients, additifs, Nutri-Score et niveau de transformation de {name}.",
@@ -292,7 +379,7 @@
       "medium": "moyenne",
       "low": "faible"
     },
-    "staleBanner": "Résultat en cache du {date} — réseau indisponible",
+    "staleBanner": "Copie locale du {date} · données anciennes",
     "staleRefresh": "Actualiser",
     "rateLimited": "Service temporairement limité",
     "rateLimitedBody": "La source de données limite les requêtes. Réessaie dans un instant.",
@@ -365,6 +452,8 @@
       "betterScore": "GreeScore +{n} points"
     },
     "dataKind": {
+      "declared": "Déclaré",
+      "declaredHelp": "Information publiée par la source pour ce produit.",
       "fact": "Fait",
       "estimate": "Estimation",
       "opinion": "Avis GreeCheck",
@@ -871,6 +960,7 @@
     "unscored": {
       "missing_nutrition_data": "les valeurs nutritionnelles nécessaires sont absentes",
       "missing_ingredients_data": "la liste d'ingrédients est indisponible",
+      "missing_additives_data": "les données sur les additifs sont indisponibles",
       "excluded_alcohol": "les boissons alcoolisées ne sont pas notées",
       "excluded_pure_sugar": "le sucre pur n'est pas noté",
       "excluded_infant_formula": "les laits infantiles ne sont pas notés",

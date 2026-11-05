@@ -1,3 +1,4 @@
+import { assessProduct } from "@greecheck/domain/product/normalizer";
 import type { AssessmentStatus, Confidence, Product } from "@greecheck/domain/product/model";
 
 export type ProductResult =
@@ -10,4 +11,10 @@ export interface SearchResult {
   pageSize: number;
   hasMore: boolean;
   products: Product[];
+}
+export type DataLocale = "fr" | "en" | "ar";
+
+export function asProductResult(product: Product): ProductResult {
+  const { status, confidence, missing } = assessProduct(product);
+  return { status, product, confidence, missing };
 }

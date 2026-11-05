@@ -1,36 +1,10 @@
 import { NextResponse } from "next/server";
 import { searchProducts } from "@/services/api/openfoodfacts";
-import type { SearchResult } from "@/services/api/product-contracts";
-import { normalizeError } from "@/services/api/errors";
-import { apiError, rateLimit, clampInt } from "@/lib/api/guard";
+import { apiError, rateLimit, clampInt, upstreamApiError } from "@/lib/api/guard";
 
 export const runtime = "nodejs";
 
 const MAX_QUERY_LENGTH = 120;
-const CACHE_TTL_MS = 10 * 60 * 1000;
-const CACHE_MAX_ENTRIES = 200;
-
-// Tiny in-memory cache (per server instance). No user data — only public queries.
-const cache = new Map<string, { at: number; result: SearchResult }>();
-
-function cacheGet(key: string): SearchResult | undefined {
-  const hit = cache.get(key);
-  if (!hit) return undefined;
-  if (Date.now() - hit.at > CACHE_TTL_MS) {
-    cache.delete(key);
-    return undefined;
-  }
-  return hit.result;
-}
-
-function cacheSet(key: string, result: SearchResult) {
-  if (cache.size >= CACHE_MAX_ENTRIES) {
-    const oldest = cache.keys().next().value;
-    if (oldest) cache.delete(oldest);
-  }
-  cache.set(key, { at: Date.now(), result });
-}
-
 export async function GET(req: Request) {
   const limited = rateLimit(req, "search", { limit: 30, windowMs: 60_000 });
   if (limited) return limited;
@@ -48,23 +22,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ count: 0, page, pageSize, hasMore: false, products: [] });
   }
 
-  const key = `${q.toLowerCase()}|${page}|${pageSize}`;
-  const cached = cacheGet(key);
-  if (cached) {
-    return NextResponse.json(cached, { headers: { "Cache-Control": "public, max-age=600", "X-Cache": "HIT" } });
-  }
+  const requestedLocale = searchParams.get("locale");
+  const locale = requestedLocale === "ar" || requestedLocale === "en" ? requestedLocale : "fr";
 
   try {
-    const result = await searchProducts(q, page, pageSize);
-    cacheSet(key, result);
-    return NextResponse.json(result, {
-      headers: { "Cache-Control": "public, max-age=600, stale-while-revalidate=86400" }
-    });
+    const result = await searchProducts(q, page, pageSize, locale);
+    return NextResponse.json(result, { headers: { "Cache-Control": "private, max-age=300" } });
   } catch (err) {
-    const e = normalizeError(err);
-    if (e.code === "rate_limited") {
-      return apiError("rate_limited", 429, e.retryAfterMs ? { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) } : undefined);
-    }
-    return apiError(e.code === "network" ? "upstream_unreachable" : "upstream_unavailable", 502);
+    return upstreamApiError(err);
   }
 }

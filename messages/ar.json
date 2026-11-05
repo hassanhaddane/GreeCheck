@@ -207,6 +207,93 @@
       "greenScore": "أثر منخفض"
     }
   },
+  "dataMethodology": {
+    "off": "الدليل التشاركي الأساسي. البيانات وفق ODbL والصور وفق CC BY-SA حسب شروط Open Food Facts.",
+    "usda": "مصدر تكميلي اختياري. يتحقق GreeCheck من تطابق GTIN في ردّي USDA قبل استخدام سجل منتج ذي علامة تجارية. البيانات وفق CC0.",
+    "ciqual": "قيم عامة لبعض فئات الأغذية النيئة وفق الرخصة الفرنسية المفتوحة. تُعرض منفصلة عن قيم المنتج ولا تغيّر GreeScore.",
+    "science": "التقييمات العلمية مؤرخة ومرتبطة بمصادرها. الترخيص بمواد مضافة ووجودها لا يكفيان لتحديد الخطر الفردي.",
+    "qualityTitle": "الثقة والاختلافات",
+    "quality": "الثقة عالية عند التحقق من الهوية، ومتوسطة للقيم المصرح بها أو المحسوبة، ومنخفضة للبيانات المفقودة أو المراجع العامة. تُميّز النسخ القديمة بوضوح.",
+    "conflict": "عند تطابق أساس القياس والوحدة، يُعرض الاختلاف إذا تجاوز 20٪ والحد المطلق معًا. الحدود هي 10 كيلو كالوري للطاقة و0.1 غ للملح و0.5 غ لبقية المغذيات.",
+    "coverageTitle": "التغطية الدولية",
+    "coverage": "تُعرض الأسماء بالفرنسية والإنجليزية والعربية عند توفرها في الدليل. تختلف العلامات والأسواق حسب المصدر. يجمع Green-Score بيانات المنتج وتقديرات الفئة. القيم البيئية الناقصة تبقى غير متاحة."
+  },
+  "productData": {
+    "additivesUnavailable": "بيانات المضافات غير متاحة.",
+    "perMass": "لكل 100 غ",
+    "perVolume": "لكل 100 مل",
+    "unknownBasis": "أساس القياس غير محدد (100 غ أو 100 مل)",
+    "retrieved": "تاريخ الاسترجاع {date}",
+    "sourceUpdated": "تاريخ تحديث المصدر {date}",
+    "conflictTitle": "اختلاف بين المصادر",
+    "conflictBody": "تُعرض القيم منفصلة. تعرض صفحة المنتج القيم الأساسية من Open Food Facts.",
+    "conflictBanner": "تعرض المصادر قيمًا مختلفة. راجع المصدر والمنهجية.",
+    "referenceTitle": "قيم مرجعية عامة",
+    "referenceBody": "متوسط تركيب الفئة. لا تدخل هذه القيم في جدول تغذية المنتج أو GreeScore.",
+    "viewRecord": "عرض سجل المصدر",
+    "scientificEvidence": "تقييم علمي · {authority} · {date}",
+    "searchError": "البحث غير متاح مؤقتًا",
+    "state": {
+      "VERIFIED": "تم التحقق من الهوية والحقول",
+      "PARTIAL": "بيانات جزئية",
+      "CONFLICTED": "اختلاف المصادر",
+      "UNAVAILABLE": "البيانات غير متاحة",
+      "STALE": "نسخة محلية قديمة"
+    },
+    "kind": {
+      "measured": "مقاس",
+      "declared": "مصرح به من المصدر",
+      "computed": "محسوب",
+      "category_reference": "مرجع للفئة"
+    },
+    "missing": {
+      "not_reported": "غير متوفر",
+      "invalid_or_unsupported": "قيمة أو وحدة غير قابلة للاستخدام"
+    },
+    "confidence": {
+      "high": "ثقة عالية",
+      "medium": "ثقة متوسطة",
+      "low": "ثقة منخفضة"
+    },
+    "fields": {
+      "barcode": "الرمز الشريطي",
+      "name": "الاسم",
+      "localizedNames_fr": "الاسم بالفرنسية",
+      "localizedNames_en": "الاسم بالإنجليزية",
+      "localizedNames_ar": "الاسم بالعربية",
+      "brand": "العلامة التجارية",
+      "imageUrl": "الصورة",
+      "quantity": "الكمية",
+      "categoryIds": "معرّفات الفئات",
+      "categories": "الفئات",
+      "countries": "الأسواق",
+      "labels": "الملصقات",
+      "ingredientsText": "المكونات",
+      "allergens": "مسببات الحساسية",
+      "traces": "الآثار المحتملة",
+      "additives": "المضافات",
+      "nutriScore": "Nutri-Score",
+      "nutriScorePoints": "نقاط Nutri-Score",
+      "nutriScoreVersion": "إصدار Nutri-Score",
+      "novaGroup": "NOVA",
+      "greenScore": "Green-Score",
+      "environment_normalizedScore": "النتيجة البيئية",
+      "environment_adjustments": "التعديلات البيئية",
+      "environment_lifecycleScore": "دورة حياة الفئة",
+      "halalStatus": "حالة الحلال",
+      "veganStatus": "حالة النظام النباتي الصرف",
+      "vegetarianStatus": "حالة النظام النباتي",
+      "palmOilStatus": "زيت النخيل",
+      "nutritionBasis": "أساس القيم الغذائية",
+      "nutriments_energyKcal": "الطاقة",
+      "nutriments_sugars": "السكريات",
+      "nutriments_salt": "الملح",
+      "nutriments_saturatedFat": "الدهون المشبعة",
+      "nutriments_fat": "الدهون",
+      "nutriments_fiber": "الألياف",
+      "nutriments_proteins": "البروتينات"
+    }
+  },
   "product": {
     "metaTitle": "{name} — تحليل غذائي | GreeCheck",
     "metaDescription": "اطّلع على القيم الغذائية والمكونات والإضافات وNutri-Score ومستوى معالجة {name}.",
@@ -292,7 +379,7 @@
       "medium": "متوسطة",
       "low": "منخفضة"
     },
-    "staleBanner": "نتيجة مخزنة من {date} — الشبكة غير متاحة",
+    "staleBanner": "نسخة محلية من {date} · بيانات قديمة",
     "staleRefresh": "تحديث",
     "rateLimited": "الخدمة محدودة مؤقتًا",
     "rateLimitedBody": "مصدر البيانات يقيد الطلبات. حاول مرة أخرى بعد قليل.",
@@ -365,6 +452,8 @@
       "betterScore": "‏GreeScore ‏+{n} نقطة"
     },
     "dataKind": {
+      "declared": "مصرح به",
+      "declaredHelp": "معلومات نشرها المصدر لهذا المنتج.",
       "fact": "حقيقة",
       "estimate": "تقدير",
       "opinion": "رأي GreeCheck",
@@ -871,6 +960,7 @@
     "unscored": {
       "missing_nutrition_data": "القيم الغذائية المطلوبة غير متوفرة",
       "missing_ingredients_data": "قائمة المكوّنات غير متاحة",
+      "missing_additives_data": "بيانات المضافات غير متاحة",
       "excluded_alcohol": "المشروبات الكحولية غير مقيَّمة",
       "excluded_pure_sugar": "السكر النقي غير مقيَّم",
       "excluded_infant_formula": "حليب الرضّع غير مقيَّم",

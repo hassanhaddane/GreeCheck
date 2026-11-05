@@ -57,6 +57,7 @@ export type ScoreLabelCode = "excellent" | "good" | "poor" | "bad" | "unscored";
 export type UnscoredReasonCode =
   | "missing_nutrition_data"
   | "missing_ingredients_data"
+  | "missing_additives_data"
   | "excluded_alcohol"
   | "excluded_pure_sugar"
   | "excluded_infant_formula"

@@ -28,7 +28,7 @@ export async function getAlternatives(
   const curGree = computeGreeScore(product, prefs);
   if (!isSwapEligible(product, curGree, prefs).eligible) return [];
 
-  const cat = preciseCategory(product);
+  const cat = product.categoryIds?.at(-1) ?? preciseCategory(product);
   if (!cat) return [];
 
   const res = await fetch(

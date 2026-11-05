@@ -1,13 +1,13 @@
 "use client";
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Heart, ShoppingBasket, AlertTriangle, Swords, ShieldQuestion, ExternalLink,
   ScanLine, List, FlaskConical, BarChart3, GitCompareArrows, BookOpenText,
   Sparkles, Leaf, Info, Award, FlagTriangleRight, HelpCircle
 } from "lucide-react";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link, useRouter, type Locale } from "@/i18n/routing";
 import { ActionDock } from "@/components/system/action-dock";
 import { GreeButton } from "@/components/system/gree-button";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
@@ -21,6 +21,8 @@ import { NovaBadge } from "@/components/badges/nova-badge";
 import { LabelBadge } from "@/components/badges/label-badge";
 import { SubScoreCards } from "@/components/product/sub-score-cards";
 import { Alternatives } from "@/components/product/alternatives";
+import { ProductSourceDetails } from "@/components/product/source-details";
+import { additiveEvidenceFor } from "@greecheck/domain/scoring/additive-evidence";
 import { DataKind } from "@/components/product/data-kind";
 import { ImpactBlock, ImpactDetails } from "@/components/product/impact-block";
 import { GreeCoachButton } from "@/components/coach/gree-coach";
@@ -66,6 +68,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const { barcode } = use(params);
   const t = useTranslations("product");
   const tScore = useTranslations("score");
+  const data = useTranslations("productData");
+  const locale = useLocale() as Locale;
   const router = useRouter();
 
   const [lookup, setLookup] = useState<ProductLookup | null>(null); // null = loading
@@ -90,9 +94,9 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
     setLookup(result);
     if (result.kind === "product") {
       const gree = computeGreeScore(result.product, prefsRef.current);
-      addHistory(buildHistoryItem(result.product, gree, tScore(`grade.${gree.grade}`)));
+      addHistory(buildHistoryItem({ ...result.product, name: result.product.localizedNames?.[locale] ?? result.product.name }, gree, tScore(`grade.${gree.grade}`)));
     }
-  }, [barcode, addHistory, tScore]);
+  }, [barcode, addHistory, tScore, locale]);
 
   useEffect(() => {
     const id = setTimeout(load, 0);
@@ -124,7 +128,11 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   }
 
   /* ------------------------------ found ------------------------------ */
-  const p = lookup.product;
+  const p = { ...lookup.product, name: lookup.product.localizedNames?.[locale] ?? (lookup.product.name || barcode) };
+  const per100 = p.nutritionBasis
+    ? data(p.nutritionBasis === "100ml" ? "perVolume" : "perMass")
+    : p.provenance ? data("unknownBasis") : t("per100");
+  const sourceUrl = p.provenance?.barcode?.sourceUrl ?? productContributionUrl(barcode);
   const gree = computeGreeScore(p, prefs);
   const impact = computeGreeImpact(p);
   const score = gree.global;
@@ -182,6 +190,10 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
           <GreeButton variant="soft" size="sm" onClick={() => void getProduct(barcode, { force: true }).then(setLookup)}>{t("staleRefresh")}</GreeButton>
         </GreeCard>
       )}
+
+      {p.conflicts?.length ? (
+        <p className="rounded-2xl border border-line bg-surface px-4 py-3 text-sm font-medium" role="status">{data("conflictBanner")}</p>
+      ) : null}
 
       {/* ═══ 2 · GreeScore (health) — opinion, method in a sheet ═══ */}
       <VerdictCard gree={gree}>
@@ -262,8 +274,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
 
       {/* ═══ 7 · Nutrition details ═══ */}
       {hasNutrition && (
-        <CollapsibleSection title={t("keyNutrition")} icon={<BarChart3 className="h-5 w-5" />} defaultOpen badge={<DataKind kind="fact" />}>
-          <p className="mb-2 text-xs text-muted">{t("per100")}</p>
+        <CollapsibleSection title={t("keyNutrition")} icon={<BarChart3 className="h-5 w-5" />} defaultOpen badge={<DataKind kind={p.provenance ? "declared" : "fact"} />}>
+          <p className="mb-2 text-xs text-muted">{per100}</p>
           <div className="divide-y divide-line">
             {KEY_NUTRI_ROWS.filter((row) => p.nutriments[row.key] !== undefined).map((row) => (
               <div key={row.key} className="flex items-center justify-between py-2.5 text-sm">
@@ -275,8 +287,8 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
         </CollapsibleSection>
       )}
       {hasNutrition && (
-        <CollapsibleSection title={t("completeNutrition")} icon={<BarChart3 className="h-5 w-5" />} badge={<DataKind kind="fact" />}>
-          <p className="mb-2 text-xs text-muted">{t("per100")}</p>
+        <CollapsibleSection title={t("completeNutrition")} icon={<BarChart3 className="h-5 w-5" />} badge={<DataKind kind={p.provenance ? "declared" : "fact"} />}>
+          <p className="mb-2 text-xs text-muted">{per100}</p>
           <div className="divide-y divide-line">
             {FULL_NUTRI_ROWS.filter((row) => p.nutriments[row.key] !== undefined).map((row) => (
               <div key={row.key} className="flex items-center justify-between py-2.5 text-sm">
@@ -295,6 +307,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
             <ul className="space-y-2">
               {p.additives!.map((a) => {
                 const severity = additiveSeverityOf(a);
+                const evidence = additiveEvidenceFor(a);
                 return (
                   <li key={a} className="rounded-2xl border border-line bg-surface-2 p-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -302,24 +315,29 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
                       <span className="text-xs font-semibold text-muted">{t(`additiveSeverity.${severity}`)}</span>
                     </div>
                     <p className="mt-1.5 text-xs leading-relaxed text-muted">{t(`additiveExplanation.${severity}`)}</p>
+                    {evidence && (
+                      <a href={evidence.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs underline">
+                        {data("scientificEvidence", { authority: evidence.authority, date: evidence.issuedAt })}
+                      </a>
+                    )}
                   </li>
                 );
               })}
             </ul>
-          ) : <p className="text-sm text-muted">{t("noAdditives")}</p>}
+          ) : <p className="text-sm text-muted">{p.provenance?.additives?.validationStatus === "missing" ? data("additivesUnavailable") : t("noAdditives")}</p>}
         </CollapsibleSection>
       )}
 
       {/* ═══ 9 · Ingredients ═══ */}
       {ingredientsKnown && (
-        <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />} badge={<DataKind kind="fact" />}>
+        <CollapsibleSection title={t("ingredients")} icon={<List className="h-5 w-5" />} badge={<DataKind kind={p.provenance ? "declared" : "fact"} />}>
           <p className="text-sm leading-relaxed text-ink/90">{p.ingredientsText}</p>
         </CollapsibleSection>
       )}
 
       {/* ═══ 10 · Certifications ═══ */}
       {(cert.certified || otherLabels.length > 0) && (
-        <CollapsibleSection title={t("certifications")} icon={<Award className="h-5 w-5" />} badge={<DataKind kind="fact" />}>
+        <CollapsibleSection title={t("certifications")} icon={<Award className="h-5 w-5" />} badge={<DataKind kind={p.provenance ? "declared" : "fact"} />}>
           {cert.certified && (
             <div className="mb-2 flex items-center gap-2 rounded-2xl bg-pastel-sage p-3">
               <Leaf className="h-4 w-4 shrink-0 text-score-b-ink" aria-hidden />
@@ -351,16 +369,17 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       {/* ═══ 13 · Source and last data update ═══ */}
       <CollapsibleSection title={t("sourceMethodology")} icon={<BookOpenText className="h-5 w-5" />}>
         <div className="space-y-3 text-sm">
-          <p className="text-muted">{t("sourceLabel")}: <strong className="text-ink">{t("sourceOpenFoodFacts")}</strong></p>
-          <p className="text-xs text-muted">
+          <p className="text-muted">{t("sourceLabel")}: <strong className="text-ink">{p.source === "usda" ? "USDA FoodData Central" : t("sourceOpenFoodFacts")}</strong></p>
+          {!p.provenance && <p className="text-xs text-muted">
             {lookup.stale && lookup.cachedAt ? t("lastUpdateCached", { date: new Date(lookup.cachedAt).toLocaleDateString() }) : t("lastUpdateLive")}
-          </p>
+          </p>}
+          <ProductSourceDetails product={p} state={lookup.dataState} />
           <div className="flex flex-wrap gap-2">
-            <Link href="/methodology" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
+            <Link href="/methodology#sources" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
               <BookOpenText className="h-3.5 w-3.5" aria-hidden /> {t("methodologyLink")}
             </Link>
-            <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {t("viewOnOff")}
+            <a href={sourceUrl} target="_blank" rel="noreferrer" className="gc-pressable inline-flex h-9 items-center gap-1.5 rounded-2xl bg-surface-2 px-3 text-xs font-semibold">
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden /> {p.source === "usda" ? data("viewRecord") : t("viewOnOff")}
             </a>
           </div>
         </div>
@@ -368,12 +387,14 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
       </CollapsibleSection>
 
       {/* ═══ 14 · Report a data issue (through the source provider) ═══ */}
-      <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer"
-        className="gc-pressable flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-muted shadow-soft">
-        <FlagTriangleRight className="h-4 w-4 shrink-0 text-natural-strong" aria-hidden />
-        <span className="flex-1">{t("reportIssue")}</span>
-        <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
-      </a>
+      {p.source === "openfoodfacts" && (
+        <a href={productContributionUrl(barcode)} target="_blank" rel="noreferrer"
+          className="gc-pressable flex items-center gap-2 rounded-2xl border border-line bg-surface px-4 py-3 text-sm text-muted shadow-soft">
+          <FlagTriangleRight className="h-4 w-4 shrink-0 text-natural-strong" aria-hidden />
+          <span className="flex-1">{t("reportIssue")}</span>
+          <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        </a>
+      )}
 
       {/* ═══ Sticky contextual action dock ═══ */}
       <ActionDock>

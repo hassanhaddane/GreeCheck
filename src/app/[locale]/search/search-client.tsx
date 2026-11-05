@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Search as SearchIcon, SlidersHorizontal, X, RotateCcw, ArrowDownWideNarrow, ScanBarcode, Clock, Sparkles, ChevronRight } from "lucide-react";
@@ -53,7 +53,6 @@ export function SearchClient() {
   const [minScore, setMinScore] = useState(0);
   const [confidentOnly, setConfidentOnly] = useState(false);
   const [attempt, setAttempt] = useState(0);
-  const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Deterministic taxonomy mapping: recognized modifiers become structured
   // constraints; the remainder is the free-text subject for OFF.
@@ -62,24 +61,26 @@ export function SearchClient() {
   const searchTerm = intent.textQuery || query.trim();
 
   useEffect(() => {
-    clearTimeout(debounce.current);
-    const q = searchTerm;
-    if (isBarcode || q.length < 2) {
-      debounce.current = setTimeout(() => { setStatus("idle"); setResults([]); }, 0);
-      return () => clearTimeout(debounce.current);
-    }
-    debounce.current = setTimeout(async () => {
+    let current = true;
+    const searchable = !isBarcode && searchTerm.length >= 2;
+    const timer = setTimeout(async () => {
+      if (!searchable) {
+        setStatus("idle");
+        setResults([]);
+        return;
+      }
       setStatus("loading");
       try {
-        const data = await searchProductsClient(q);
-        setResults(data.products);
+        const data = await searchProductsClient(searchTerm, 1, locale);
+        if (!current) return;
+        setResults(data.products.map(product => ({ ...product, name: product.localizedNames?.[locale] ?? product.name })));
         setStatus("ok");
       } catch {
-        setStatus("error");
+        if (current) setStatus("error");
       }
-    }, 600);
-    return () => clearTimeout(debounce.current);
-  }, [searchTerm, isBarcode, attempt]);
+    }, searchable ? 600 : 0);
+    return () => { current = false; clearTimeout(timer); };
+  }, [searchTerm, isBarcode, attempt, locale]);
 
   const toggleIn = <T,>(set: Set<T>, value: T): Set<T> => {
     const next = new Set(set);
@@ -114,13 +115,13 @@ export function SearchClient() {
       if (confidentOnly && gree.confidence === "low") return false;
       return activeDefs.every((def) => def.match(p, gree));
     });
-    if (sort === "best") return rankSearchResults(searchTerm, list, prefs);
+    if (sort === "best") return rankSearchResults(searchTerm, list, prefs, locale === "fr");
     return [...list].sort((a, b) => {
       if (sort === "gree") return b.gree.global - a.gree.global;
       if (sort === "nutri") return nutriRank(a.p.nutriScore) - nutriRank(b.p.nutriScore);
       return novaRank(a.p.novaGroup) - novaRank(b.p.novaGroup);
     });
-  }, [scored, activeDefs, effNutri, effNova, minScore, confidentOnly, sort, searchTerm, prefs]);
+  }, [scored, activeDefs, effNutri, effNova, minScore, confidentOnly, sort, searchTerm, prefs, locale]);
 
   const sorts: { id: SortMode; label: string }[] = [
     { id: "best", label: t("sortBest") },

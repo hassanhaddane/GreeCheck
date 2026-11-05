@@ -25,10 +25,16 @@ export default defineConfig({
       }
     }
   ],
-  webServer: {
-    command: "npm run build && npm run start -- -p 3100",
-    url: "http://127.0.0.1:3100/fr",
-    reuseExistingServer: true,
-    timeout: 180_000
-  }
+  webServer: [
+    {
+      command: "node --import tsx tests/e2e/off-fixture-server.ts",
+      url: "http://127.0.0.1:3101/ready"
+    },
+    {
+      command: "npm run build && npm run start -- -p 3100",
+      url: "http://127.0.0.1:3100/fr",
+      env: { OFF_BASE_URL: "http://127.0.0.1:3101", OFF_PRODUCT_API_VERSION: "v3", USDA_FDC_API_KEY: "" },
+      timeout: 180_000
+    }
+  ]
 });

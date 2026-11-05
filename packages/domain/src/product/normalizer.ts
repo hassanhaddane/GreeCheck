@@ -14,6 +14,7 @@ export const OFF_FIELDS = [
   "product_name",
   "product_name_fr",
   "product_name_en",
+  "product_name_ar",
   "brands",
   "image_front_url",
   "image_url",
@@ -26,10 +27,14 @@ export const OFF_FIELDS = [
   "ingredients_text_en",
   "allergens_tags",
   "additives_tags",
+  "additives_n",
   "traces_tags",
   "nutriments",
+  "nutrition_data_per",
+  "last_modified_t",
   "nutriscore_grade",
   "nutriscore_score",
+  "nutriscore_version",
   "nova_group",
   "ecoscore_grade",
   "ecoscore_score",
@@ -37,7 +42,10 @@ export const OFF_FIELDS = [
   "environmental_score_grade",
   "environmental_score_score",
   "environmental_score_data",
-  "green_score"
+  "green_score",
+  "greenscore_grade",
+  "greenscore_score",
+  "greenscore_data"
 ].join(",");
 
 
@@ -62,6 +70,7 @@ export interface OffRawProduct {
   product_name?: string;
   product_name_fr?: string;
   product_name_en?: string;
+  product_name_ar?: string;
   brands?: string;
   image_front_url?: string;
   image_url?: string;
@@ -78,6 +87,7 @@ export interface OffRawProduct {
   nutriments?: Record<string, number | string>;
   nutriscore_grade?: string;
   nutriscore_score?: number;
+  nutriscore_version?: string;
   nova_group?: number | string;
   ecoscore_grade?: string;
   environmental_score_grade?: string;
@@ -86,6 +96,9 @@ export interface OffRawProduct {
   ecoscore_score?: number;
   ecoscore_data?: OffRawEnvironmentalData;
   green_score?: string;
+  greenscore_grade?: string;
+  greenscore_score?: number;
+  greenscore_data?: OffRawEnvironmentalData;
 }
 
 /* ------------------------------- helpers -------------------------------- */
@@ -99,7 +112,7 @@ function cleanTags(tags?: string[]): string[] {
   return (tags ?? []).map(cleanTag).filter(Boolean);
 }
 function num(v: unknown): number | undefined {
-  const n = typeof v === "string" ? parseFloat(v) : (v as number);
+  const n = typeof v === "string" ? (v.trim() ? Number(v) : NaN) : (v as number);
   return Number.isFinite(n) ? n : undefined;
 }
 
@@ -111,12 +124,12 @@ function num(v: unknown): number | undefined {
  * source provides no environmental signal at all.
  */
 export function normalizeEnvironment(raw: OffRawProduct): ProductEnvironment | undefined {
-  const data = raw.environmental_score_data ?? raw.ecoscore_data;
+  const data = raw.greenscore_data ?? raw.environmental_score_data ?? raw.ecoscore_data;
   const sourceScore =
-    raw.environmental_score_score ?? raw.ecoscore_score ??
+    raw.greenscore_score ?? raw.environmental_score_score ?? raw.ecoscore_score ??
     (typeof data?.score === "number" ? data.score : undefined);
   const sourceGradeRaw =
-    raw.green_score ?? raw.environmental_score_grade ?? raw.ecoscore_grade ?? data?.grade;
+    raw.greenscore_grade ?? raw.green_score ?? raw.environmental_score_grade ?? raw.ecoscore_grade ?? data?.grade;
 
   if (sourceScore === undefined && !grade(sourceGradeRaw) && !data) return undefined;
 
@@ -311,10 +324,10 @@ export function mapOffProduct(raw: OffRawProduct): Product {
   const labelTags = raw.labels_tags;
 
   const nova = num(raw.nova_group);
-  const novaGroup = nova && nova >= 1 && nova <= 4 ? (Math.round(nova) as 1 | 2 | 3 | 4) : undefined;
+  const novaGroup = nova && Number.isInteger(nova) && nova >= 1 && nova <= 4 ? (nova as 1 | 2 | 3 | 4) : undefined;
 
   const ingredientsText = raw.ingredients_text || raw.ingredients_text_fr || raw.ingredients_text_en || undefined;
-  const labels = cleanTags(raw.labels_tags);
+  const labels = raw.labels_tags ? cleanTags(raw.labels_tags) : undefined;
 
   const halalStatus = classifyHalal(ingredientsText, labels);
   const veganStatus = classifyVegan(ingredientsText, labels);
@@ -323,17 +336,19 @@ export function mapOffProduct(raw: OffRawProduct): Product {
 
   const product: Product = {
     barcode: raw.code ?? "",
-    name: raw.product_name || raw.product_name_fr || raw.product_name_en || "",
+    name: raw.product_name || raw.product_name_fr || raw.product_name_en || raw.product_name_ar || "",
+    localizedNames: { fr: raw.product_name_fr, en: raw.product_name_en, ar: raw.product_name_ar },
     brand: raw.brands?.split(",")[0]?.trim() || undefined,
     imageUrl: raw.image_front_url || raw.image_url || undefined,
     quantity: raw.quantity || undefined,
-    categories: cleanTags(raw.categories_tags),
+    categories: raw.categories_tags ? cleanTags(raw.categories_tags) : undefined,
+    categoryIds: raw.categories_tags,
     labels,
-    countries: cleanTags(raw.countries_tags),
+    countries: raw.countries_tags ? cleanTags(raw.countries_tags) : undefined,
     ingredientsText,
-    allergens: cleanTags(raw.allergens_tags),
-    additives: cleanTags(raw.additives_tags),
-    traces: cleanTags(raw.traces_tags),
+    allergens: raw.allergens_tags ? cleanTags(raw.allergens_tags) : undefined,
+    additives: raw.additives_tags ? cleanTags(raw.additives_tags) : undefined,
+    traces: raw.traces_tags ? cleanTags(raw.traces_tags) : undefined,
     nutriments: {
       energyKcal: num(n["energy-kcal_100g"]),
       sugars: num(n["sugars_100g"]),
@@ -345,8 +360,9 @@ export function mapOffProduct(raw: OffRawProduct): Product {
     },
     nutriScore: grade(raw.nutriscore_grade),
     nutriScorePoints: typeof raw.nutriscore_score === "number" && Number.isFinite(raw.nutriscore_score) ? raw.nutriscore_score : undefined,
+    nutriScoreVersion: raw.nutriscore_version,
     novaGroup,
-    greenScore: grade(raw.green_score) ?? grade(raw.environmental_score_grade) ?? grade(raw.ecoscore_grade),
+    greenScore: grade(raw.greenscore_grade) ?? grade(raw.green_score) ?? grade(raw.environmental_score_grade) ?? grade(raw.ecoscore_grade),
     environment: normalizeEnvironment(raw),
     halalStatus,
     veganStatus,

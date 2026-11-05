@@ -35,7 +35,7 @@ const CONFIDENCE_FACTOR: Record<GreeScore["confidence"], number> = { high: 1, me
 
 /* ── query relevance (0–1) ── */
 function tokens(s: string): string[] {
-  return normalize(s).split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+  return normalize(s).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1);
 }
 
 /** Share of query tokens found in the product's name / brand / categories. */
@@ -74,7 +74,8 @@ function inMarket(p: Product): boolean {
 export function rankSearchResults(
   query: string,
   scored: ScoredProduct[],
-  prefs: LocalPreferences
+  prefs: LocalPreferences,
+  preferFrenchMarket = true
 ): RankedProduct[] {
   const ranked = scored.map(({ p, gree }) => {
     const relevance = relevanceScore(query, p);
@@ -85,7 +86,7 @@ export function rankSearchResults(
       relevance * W_RELEVANCE +
       effectiveScore * W_SCORE +
       criteriaBoost(p, prefs) * W_CRITERIA +
-      (inMarket(p) ? W_MARKET : 0);
+      (preferFrenchMarket && inMarket(p) ? W_MARKET : 0);
     return { p, gree, relevance, rank };
   });
 

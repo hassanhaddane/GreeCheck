@@ -1,3 +1,5 @@
+import type { DataState, FieldProvenanceMap, NutritionBasis, NutrientConflict } from "./provenance";
+
 /* ════════════════════════════════════════════════════════════════
    Normalized product model — the ONE shape every UI/engine consumes.
    Raw source payloads (OFF, later Ciqual/USDA) never leak past the
@@ -95,10 +97,13 @@ export interface Product {
   /* identity */
   barcode: string;
   name: string;
+  localizedNames?: Partial<Record<"fr" | "en" | "ar", string>>;
   brand?: string;
   imageUrl?: string;
   quantity?: string;
   categories?: string[];
+  /** Canonical taxonomy IDs when supplied by the provider. */
+  categoryIds?: string[];
   /** Region/market tags (countries where the product is sold). */
   countries?: string[];
   /** Quality/claim label tags (bio, fair-trade, sans gluten…). */
@@ -109,8 +114,10 @@ export interface Product {
   additives?: string[];
   traces?: string[];
   nutriments: Nutriments;
+  nutritionBasis?: NutritionBasis;
   /* official gradings */
   nutriScore?: Grade;
+  nutriScoreVersion?: string;
   /** Original Nutri-Score RAW points as provided by the source (OFF `nutriscore_score`). */
   nutriScorePoints?: number;
   novaGroup?: 1 | 2 | 3 | 4;
@@ -138,6 +145,9 @@ export interface Product {
   origin?: "user_ocr";
   /** Always set by the normalizer; may be absent on old cached rows. */
   dataQuality?: DataQuality;
+  dataState?: DataState;
+  provenance?: FieldProvenanceMap;
+  conflicts?: NutrientConflict[];
 }
 
 /** Assessment status of a normalized product. */

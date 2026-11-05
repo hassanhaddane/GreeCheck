@@ -231,6 +231,14 @@ export function computeGreeScore(product: Product, preferences: LocalPreferences
     });
   }
 
+  if (p.provenance?.additives?.validationStatus === "missing") {
+    return unscoredResult({
+      code: "missing_additives_data", verdict: "insufficient_data",
+      confidence: "low", confidenceReasons: quality.confidenceReasons,
+      reasons, warnings, subScores: baseSub
+    });
+  }
+
   /* 4 · nutrition — provider points ▸ computed ▸ documented grade fallback. */
   const kind: NutritionKind = nutritionKindOf(p);
   const water = isWater(p);

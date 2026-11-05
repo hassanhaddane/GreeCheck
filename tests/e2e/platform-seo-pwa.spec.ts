@@ -24,7 +24,7 @@ test("localized manifests are installable and start standalone in GreeLens", asy
   }
 });
 
-test("real product SEO page is indexable and an invalid product is not", async ({ page }) => {
+test("complete fixture is indexable and an invalid product is not", async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto("/fr/product/3017620422003");
   await expect(page).toHaveTitle(/Nutella.*GreeCheck/);
@@ -34,13 +34,16 @@ test("real product SEO page is indexable and an invalid product is not", async (
   await expect(jsonLd).toHaveCount(1);
   expect(await jsonLd.textContent()).toContain('"@type":"Product"');
   await expect(page.locator('link[rel="alternate"][hreflang="ar"]')).toHaveAttribute("href", /\/ar\/product\/3017620422003/);
+  await page.getByRole("button", { name: "Source et méthodologie" }).click();
+  await expect(page.getByText("Identité et champs contrôlés")).toBeVisible();
+  await expect(page.getByText("Version Nutri-Score", { exact: true })).toBeVisible();
 
   await page.goto("/fr/product/000000");
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
 });
 
-test("cached real product remains readable offline", async ({ page, context }) => {
+test("cached fixture remains readable offline", async ({ page, context }) => {
   test.setTimeout(60_000);
   await page.goto("/fr/product/3017620422003");
   await expect(page.getByRole("heading", { name: "Nutella" })).toBeVisible();

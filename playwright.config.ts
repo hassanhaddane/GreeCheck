@@ -13,14 +13,14 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "off",
-    serviceWorkers: "allow",
-    permissions: ["camera"]
+    serviceWorkers: "allow"
   },
   projects: [
     {
       name: "chromium",
       use: {
-        ...devices["Desktop Chrome"]
+        ...devices["Desktop Chrome"],
+        channel: "chromium"
       }
     }
   ],

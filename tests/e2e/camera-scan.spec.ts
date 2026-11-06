@@ -1,6 +1,6 @@
 import { BarcodeFormat, QRCodeWriter } from "@zxing/library";
 import { expect, test } from "@playwright/test";
-import { mockIdleCamera, mockProductApis, poorProduct } from "./fixtures";
+import { mockProductApis, poorProduct } from "./fixtures";
 
 test.describe("GreeLens camera and first scan", () => {
   test.beforeEach(async ({ page }) => {
@@ -9,7 +9,6 @@ test.describe("GreeLens camera and first scan", () => {
   });
 
   test("accepted camera, first successful scan, optional help and rapid session", async ({ page }) => {
-    await mockIdleCamera(page);
     await page.goto("/fr/scan?source=pwa");
     await expect(page.getByRole("heading", { name: "GreeLens" })).toBeVisible();
     await expect(page.getByText("Recherche d'un code…", { exact: true })).toBeVisible();

@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { mockIdleCamera, mockProductApis } from "./fixtures";
+import { mockProductApis } from "./fixtures";
 
 test.beforeEach(async ({ page }) => {
   await mockProductApis(page);
@@ -10,7 +10,6 @@ test.beforeEach(async ({ page }) => {
 for (const route of ["/fr", "/fr/scan", "/fr/discover", "/fr/search?q=test", "/fr/product/11111115", "/fr/product/44444440", "/fr/products", "/fr/products/favorites", "/ar/criteria", "/fr/settings", "/fr/privacy", "/en/sources", "/ar/contribute", "/fr/support"]) {
   test(`${route} has no WCAG A/AA violations`, async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    if (route === "/fr/scan") await mockIdleCamera(page);
     await page.goto(route);
     await page.locator("main").waitFor();
     await page.waitForTimeout(700);

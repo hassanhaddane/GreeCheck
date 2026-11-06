@@ -117,6 +117,7 @@ function productEnvelope(product: Product) {
 }
 
 export async function mockProductApis(page: Page) {
+  await mockIdleCamera(page);
   await page.route("**/api/product/*", async (route: Route) => {
     const code = new URL(route.request().url()).pathname.split("/").pop() ?? "";
     const product = products.get(code);
@@ -143,7 +144,9 @@ export async function mockProductApis(page: Page) {
 /** Controlled blank video for preview/permission tests. No Chromium fake device required. */
 export async function mockIdleCamera(page: Page) {
   await page.addInitScript(() => {
+    if (Object.hasOwn(navigator.mediaDevices, "getUserMedia")) return;
     Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
       value: async () => {
         const canvas = document.createElement("canvas");
         canvas.width = 320;

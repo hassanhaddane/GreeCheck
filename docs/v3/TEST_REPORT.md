@@ -16,7 +16,7 @@ Contrôles réalisés le 6 novembre 2026 sur le candidat. La suite Playwright Ch
 
 Playwright couvre la première visite, EAN-8 et QR synthétiques, le refus et le changement de caméra, la saisie manuelle, la recherche, la note et l’état non évaluable, GreeSwap, les favoris, l’historique, la purge locale, les critères, la navigation et le RTL. Les tests PWA couvrent les copies en cache, la relance, la transition de version avec données locales et l’exclusion des recherches à paramètres de CacheStorage. La suite inclut 14 contrôles axe et 15 captures de non-régression.
 
-Les itérations ont détecté des échecs de démarrage du worker, de décodage QR de canonical attendu et de libellés dupliqués pour la saisie manuelle. Les causes ont été corrigées. Des arrêts du processus Chromium au démarrage de contextes avec le faux périphérique natif ont également été observés. Les tests caméra utilisent des flux canvas contrôlés à la place. La suite reste active.
+Les itérations ont détecté des échecs de démarrage du worker, de décodage QR de canonical attendu et de libellés dupliqués pour la saisie manuelle. Les causes ont été corrigées. Des arrêts du processus Chromium Headless Shell au démarrage de certains contextes ont été observés. La configuration utilise Chromium en mode headless complet avec des flux canvas contrôlés. Le premier passage GitHub Actions a aussi refusé des entrées multiplateformes absentes du lockfile. Le lockfile a été complété avec Node 24.22.2 et npm 11.19.1.
 
 ## Mesures en laboratoire
 

@@ -1,8 +1,8 @@
 "use client";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,6 +28,8 @@ import { GreeCard } from "@/components/system/gree-card";
 import { ScanOverlay } from "@/components/scan/scan-overlay";
 import type { ScanMode } from "@/components/scan/scan-frame-shape";
 import { useBarcodeScanner, type CamState } from "@/hooks/use-barcode-scanner";
+import { productAddUrl } from "@/domains/product/contribute";
+import { gtinIdentity } from "@greecheck/domain/product/gtin";
 import { getProduct } from "@/domains/product/repository";
 import { parseProductCode, interpretScan } from "@/lib/utils/parse-scan";
 import { createScanGate } from "@/lib/utils/scan-gate";
@@ -56,6 +58,8 @@ function sourceFromParam(value: string | null): ScanSource {
 
 export function ScanClient() {
   const t = useTranslations("scan");
+  const locale = useLocale();
+  const tProduct = useTranslations("product");
   const router = useRouter();
   const searchParams = useSearchParams();
   const source = sourceFromParam(searchParams.get("source"));
@@ -70,9 +74,8 @@ export function ScanClient() {
   const prefs = usePreferencesStore();
 
   const [mode, setMode] = useState<ScanMode>("barcode");
-  const [phase, setPhase] = useState<"idle" | "detected" | "analyzing">("idle");
-  const detected = phase !== "idle";
   const [lookup, setLookup] = useState<LookupState>("idle");
+  const detected = lookup === "loading";
   const [lastCode, setLastCode] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [manual, setManual] = useState("");
@@ -83,7 +86,13 @@ export function ScanClient() {
   const sessionCodesRef = useRef<Set<string>>(new Set());
   // Time-based duplicate cooldown: same code resolves at most once per window.
   const scanGateRef = useRef(createScanGate());
+  const lookupToken = useRef<symbol | null>(null);
   const noticeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => {
+    lookupToken.current = null;
+    clearTimeout(noticeTimer.current);
+  }, []);
 
   const flashNotice = useCallback((message: string) => {
     clearTimeout(noticeTimer.current);
@@ -101,17 +110,16 @@ export function ScanClient() {
 
   const resolveProduct = useCallback(
     async (code: string) => {
-      // GreeLens staged feedback: detected → analyzing → result.
-      setPhase("detected");
+      if (lookupToken.current) return;
+      const token = Symbol();
+      lookupToken.current = token;
       setLookup("loading");
       setLastCode(code);
-      await new Promise((r) => setTimeout(r, 550));
-      setPhase("analyzing");
 
       try {
         const result = await getProduct(code);
+        if (lookupToken.current !== token) return;
         if (result.kind !== "product") {
-          setPhase("idle");
           const offline = typeof navigator !== "undefined" && navigator.onLine === false;
           setLookup(
             result.kind === "not_found" ? "not_found"
@@ -119,15 +127,16 @@ export function ScanClient() {
               : offline ? "offline" : "network_error"
           );
           // A failed resolution must not lock the code behind the cooldown.
-          scanGateRef.current.release(code);
+          scanGateRef.current.release(gtinIdentity(code) ?? code);
           return;
         }
 
         const gree = computeGreeScore(result.product, prefs);
         recordHistory(result.product, gree);
 
-        if (!sessionCodesRef.current.has(result.product.barcode)) {
-          sessionCodesRef.current.add(result.product.barcode);
+        const identity = gtinIdentity(result.product.barcode) ?? result.product.barcode;
+        if (!sessionCodesRef.current.has(identity)) {
+          sessionCodesRef.current.add(identity);
           setSessionCount(sessionCodesRef.current.size);
         }
 
@@ -145,13 +154,14 @@ export function ScanClient() {
         }
 
         // Default GreeLens flow → Rapid Scan Session (no forced navigation).
-        setPhase("idle");
         setLookup("idle");
         setRapid({ product: result.product, gree, stale: result.stale });
       } catch {
-        setPhase("idle");
+        if (lookupToken.current !== token) return;
         setLookup(typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "network_error");
-        scanGateRef.current.release(code);
+        scanGateRef.current.release(gtinIdentity(code) ?? code);
+      } finally {
+        if (lookupToken.current === token) lookupToken.current = null;
       }
     },
     [addBattle, addProductToCart, prefs, recordHistory, router, source]
@@ -159,6 +169,7 @@ export function ScanClient() {
 
   const handleDetect = useCallback(
     (raw: string, format?: string) => {
+      if (lookupToken.current) return false;
       const parsed = interpretScan(raw, format);
       if (parsed.kind !== "product") {
         // Explicit unsupported state — a QR without a product identifier is
@@ -169,12 +180,14 @@ export function ScanClient() {
       }
       // Duplicate cooldown: the same code resolves at most once per window,
       // while the camera stays live for the next product.
-      if (!scanGateRef.current.shouldResolve(parsed.code)) {
+      if (!scanGateRef.current.shouldResolve(gtinIdentity(parsed.code) ?? parsed.code)) {
         flashNotice(t("rapid.alreadyScanned"));
         return false;
       }
       // Physical confirmation that a code was READ (not yet a result claim).
-      try { navigator.vibrate?.(35); } catch { /* unsupported */ }
+      if (navigator.userActivation?.hasBeenActive && document.visibilityState === "visible") {
+        navigator.vibrate?.(35);
+      }
       void resolveProduct(parsed.code);
       return true; // handled → the hook pauses the stream until "scan another"
     },
@@ -200,6 +213,7 @@ export function ScanClient() {
   const manualCode = parseProductCode(manual);
   const manualValid = Boolean(manualCode);
   const goManual = () => {
+    if (lookupToken.current || rapid) return;
     if (!manualCode) {
       setLookup("unsupported");
       return;
@@ -209,7 +223,6 @@ export function ScanClient() {
   };
 
   const retryAll = () => {
-    setPhase("idle");
     setLookup("idle");
     setLastCode("");
     retry();
@@ -252,9 +265,8 @@ export function ScanClient() {
     { id: "qr", icon: QrCode }
   ];
 
-  const statusText: Record<CamState | "detected", string> = {
+  const statusText: Record<CamState, string> = {
     idle: "",
-    checking: t("checkingEnvironment"),
     requesting: t("requesting"),
     active: t("scanningStatus"),
     paused: t("paused"),
@@ -263,12 +275,11 @@ export function ScanClient() {
     "no-camera": t("noCameraFound"),
     "in-use": t("cameraInUse"),
     unsupported: t("cameraUnsupported"),
-    error: t("cameraUnsupported"),
-    detected: t("analyzing")
+    error: t("cameraUnsupported")
   };
-  const phaseText = phase === "detected" ? t("productDetected") : phase === "analyzing" ? t("analyzingNutrition") : "";
+  const phaseText = t("analyzingNutrition");
   const liveStatus = detected ? phaseText : statusText[state];
-  const cameraPreview = state === "active" || state === "checking" || state === "requesting" || detected;
+  const cameraPreview = state === "active" || state === "requesting" || detected;
 
   return (
     <div className="mx-auto max-w-xl space-y-3">
@@ -284,6 +295,7 @@ export function ScanClient() {
           <RapidScanCard
             key={rapid.product.barcode}
             result={rapid}
+            prefs={prefs}
             sessionCount={sessionCount}
             inCart={inCart}
             inBattle={inBattle}
@@ -349,7 +361,7 @@ export function ScanClient() {
         <AnimatePresence mode="wait">
           {detected && (
             <motion.div
-              key={phase}
+              key="identifying"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
@@ -362,16 +374,16 @@ export function ScanClient() {
           )}
         </AnimatePresence>
 
-        {(state === "checking" || state === "requesting") && (
+        {(state === "requesting") && (
           <div className="absolute inset-0 grid place-items-center text-white/75">
             <div className="flex flex-col items-center gap-2">
               <Camera className="h-6 w-6" aria-hidden />
-              <span className="text-sm">{state === "checking" ? t("checkingEnvironment") : t("requesting")}</span>
+              <span className="text-sm">{t("requesting")}</span>
             </div>
           </div>
         )}
 
-        {!rapid && <CameraStatePanel state={state} retry={retryAll} />}
+        {!rapid && (state !== "paused" || lookup === "idle") && <CameraStatePanel state={state} retry={retryAll} />}
 
         <AnimatePresence>
           {notice && (
@@ -421,12 +433,17 @@ export function ScanClient() {
                     : t("unsupportedCode")}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <GreeButton variant="neon" size="sm" onClick={retryAll}>
+            <GreeButton variant="neon" size="sm" onClick={lastCode && ["network_error", "offline", "rate_limited"].includes(lookup) ? () => void resolveProduct(lastCode) : retryAll}>
               <RotateCw className="h-4 w-4" /> {t("retry")}
             </GreeButton>
             <GreeButton variant="soft" size="sm" onClick={() => router.push("/search")}>
               <Search className="h-4 w-4" /> {t("searchInstead")}
             </GreeButton>
+            {lookup === "not_found" && lastCode && (
+              <a className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-natural-strong hover:underline" href={productAddUrl(lastCode, locale)} target="_blank" rel="noopener noreferrer">
+                {tProduct("contribute")}
+              </a>
+            )}
           </div>
         </GreeCard>
       )}
@@ -442,14 +459,14 @@ export function ScanClient() {
             value={manual}
             onChange={(e) => setManual(e.target.value.trim().slice(0, 96))}
             onKeyDown={(e) => e.key === "Enter" && goManual()}
-            inputMode="text"
+            inputMode={mode === "barcode" ? "numeric" : "text"}
             autoComplete="off"
             dir="ltr"
             aria-invalid={manual.length > 0 && !manualValid}
             placeholder={t("manualPlaceholder")}
             className="gc-field h-11 min-w-0 flex-1 px-3 text-base"
           />
-          <GreeButton variant="neon" size="icon" disabled={!manualValid || lookup === "loading"} onClick={goManual} aria-label={t("enterBarcode")}>
+          <GreeButton variant="neon" size="icon" disabled={!manualValid || detected || Boolean(rapid)} onClick={goManual} aria-label={t("enterBarcode")}>
             <ArrowRight className="h-5 w-5 rtl:rotate-180" aria-hidden />
           </GreeButton>
         </div>
@@ -587,7 +604,7 @@ function ScannerControls({
           </GreeButton>
         )}
         {torchSupported && (
-          <GreeButton variant={torchOn ? "neon" : "soft"} size="sm" onClick={onToggleTorch}>
+          <GreeButton variant={torchOn ? "neon" : "soft"} size="sm" onClick={onToggleTorch} aria-pressed={torchOn}>
             {torchOn ? <FlashlightOff className="h-4 w-4" /> : <Flashlight className="h-4 w-4" />}
             {torchOn ? t("torchOff") : t("torchOn")}
           </GreeButton>

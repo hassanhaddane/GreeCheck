@@ -145,7 +145,7 @@ export default function ProductPage({ params }: { params: Promise<{ barcode: str
   const additiveCount = p.additives?.length ?? 0;
   const hasNutrition = Object.values(p.nutriments).some((v) => v !== undefined);
 
-  const canFindAlternative = gree.status === "scored" && Boolean(p.categoryIds?.at(-1) ?? preciseCategory(p)) && isSwapEligible(p, gree, prefs).eligible;
+  const canFindAlternative = gree.status === "scored" && Boolean(preciseCategory(p)) && isSwapEligible(p, gree, prefs).eligible;
   const primaryReason = (gree.score !== undefined && gree.score < 65)
     ? gree.topNegatives[0] ?? gree.topPositives[0]
     : gree.topPositives[0] ?? gree.topNegatives[0];

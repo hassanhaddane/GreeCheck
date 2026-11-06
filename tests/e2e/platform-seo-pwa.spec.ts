@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { mockProductApis } from "./fixtures";
 
 test("localized manifests are installable and start standalone in GreeLens", async ({ request }) => {
   for (const locale of ["fr", "en", "ar"] as const) {
@@ -47,6 +48,7 @@ test("cached fixture remains readable offline", async ({ page, context }) => {
   test.setTimeout(60_000);
   await page.goto("/fr/product/3017620422003");
   await expect(page.getByRole("heading", { name: "Nutella" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Nutella" })).toBeVisible();
   await context.setOffline(true);
@@ -83,4 +85,29 @@ test("robots, sitemap and localized marketing structured data are valid", async 
   const structured = await page.locator('script[type="application/ld+json"]').textContent();
   expect(structured).toContain('"@type":"WebApplication"');
   expect(structured).toContain('"inLanguage":"en"');
+});
+
+test("reopening the app offline can display a scan whose product page was never visited", async ({ page, context }) => {
+  await mockProductApis(page);
+  await page.goto("/fr/scan");
+  await page.getByRole("textbox", { name: "Saisie manuelle" }).fill("11111115");
+  await page.getByRole("button", { name: "Entrer le code-barres", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Scan éclair" }).getByText("Test Choco")).toBeVisible();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await page.close();
+
+  await context.setOffline(true);
+  const reopened = await context.newPage();
+  try {
+    await reopened.goto("/fr/scan?source=pwa", { waitUntil: "domcontentloaded" });
+    await expect(reopened.getByRole("heading", { name: "GreeLens" })).toBeVisible();
+    await reopened.getByRole("navigation", { name: "Navigation principale" }).getByRole("link", { name: "Mes produits" }).click();
+    const savedProduct = reopened.locator("main").getByRole("link", { name: /Test Choco/ });
+    await expect(savedProduct).toBeVisible();
+    await savedProduct.click();
+    await expect(reopened.getByRole("heading", { name: "Test Choco" })).toBeVisible();
+    await expect(reopened.getByText("Copie enregistrée sur cet appareil")).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
 });

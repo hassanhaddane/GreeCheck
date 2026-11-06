@@ -84,3 +84,11 @@ test("unknown symbology never resolves", () => {
 test("determinism", () => {
   assert.deepEqual(interpretScan("3017620422003", "EAN_13"), interpretScan("3017620422003", "EAN_13"));
 });
+
+test("manual entry accepts localized digits while unrelated QR links remain unsupported", () => {
+  assert.equal(parseProductCode("٣٠١٧ ٦٢٠٤-٢٢٠٠٣"), "3017620422003");
+  assert.equal(parseProductCode("۱۲۳۴"), null);
+  assert.equal(parseProductCode("https://example.com/article/3017620422003", "QR_CODE"), null);
+  assert.equal(parseProductCode("ftp://example.com/product/3017620422003", "QR_CODE"), null);
+  assert.equal(parseProductCode("(01)03017620422003", "CODE_128"), "3017620422003");
+});

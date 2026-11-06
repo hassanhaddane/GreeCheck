@@ -21,9 +21,9 @@ interface PreferencesState extends LocalPreferences {
 
 /** Extract only the persistable preference fields from the store state. */
 function snapshot(s: PreferencesState): LocalPreferences {
-  const { language, goals, avoidAllergens, preferBio, preferHalal, preferVegan, preferVegetarian,
+  const { language, goals, avoidAllergens, preferBio, preferEnvironment, preferHalal, preferVegan, preferVegetarian,
     reduceSugar, reduceSalt, reduceAdditives, reduceUltraProcessed, increaseProtein, increaseFiber } = s;
-  return { language, goals, avoidAllergens, preferBio, preferHalal, preferVegan, preferVegetarian,
+  return { language, goals, avoidAllergens, preferBio, preferEnvironment, preferHalal, preferVegan, preferVegetarian,
     reduceSugar, reduceSalt, reduceAdditives, reduceUltraProcessed, increaseProtein, increaseFiber };
 }
 

@@ -27,7 +27,8 @@
     "favorites": "المفضلة",
     "list": "قائمة التسوق",
     "support": "ادعمنا",
-    "language": "اللغة"
+    "language": "اللغة",
+    "myLists": "قوائمي"
   },
   "scan": {
     "scannerLabel": "ماسح المنتجات",
@@ -65,8 +66,8 @@
     "networkError": "تعذر الاتصال بـ Open Food Facts. أعد المحاولة بعد قليل.",
     "scanGuidance": "ثبّت المنتج، استخدم إضاءة جيدة، واقترب أو ابتعد إذا لم يبدأ المسح. إذا كانت الصورة ضبابية فجرّب تغيير الكاميرا.",
     "switchCamera": "تغيير الكاميرا",
-    "torchOn": "المصباح قيد التشغيل",
-    "torchOff": "المصباح متوقف",
+    "torchOn": "تشغيل المصباح",
+    "torchOff": "إطفاء المصباح",
     "zoom": "تكبير",
     "camera": "الكاميرا",
     "cameraN": "كاميرا {n}",
@@ -86,7 +87,7 @@
       "addedToBattle": "أُضيف إلى GreeCompare",
       "alreadyInBattle": "موجود في GreeCompare",
       "battleFull": "GreeCompare ممتلئ (حد 3)",
-      "cached": "نتيجة من الذاكرة المؤقتة (دون اتصال)",
+      "cached": "نسخة محفوظة على هذا الجهاز",
       "alreadyScanned": "تم مسحه مسبقًا — وجّه إلى منتج آخر",
       "sessionCount": "{n} تم مسحها في هذه الجلسة"
     },
@@ -209,7 +210,8 @@
       "lactoseFree": "خالٍ من اللاكتوز",
       "noPalmOil": "بدون زيت النخيل",
       "greenScore": "أثر منخفض"
-    }
+    },
+    "invalidBarcode": "تحقق من أرقام الرمز الشريطي."
   },
   "dataMethodology": {
     "off": "الدليل التشاركي الأساسي. البيانات وفق ODbL والصور وفق CC BY-SA حسب شروط Open Food Facts.",
@@ -400,7 +402,7 @@
       "medium": "متوسطة",
       "low": "منخفضة"
     },
-    "staleBanner": "نسخة محلية من {date} · بيانات قديمة",
+    "staleBanner": "نسخة محلية محفوظة في {date} · تعذر التحديث",
     "staleRefresh": "تحديث",
     "rateLimited": "الخدمة محدودة مؤقتًا",
     "rateLimitedBody": "مصدر البيانات يقيد الطلبات. حاول مرة أخرى بعد قليل.",
@@ -470,7 +472,8 @@
       "noFlaggedAdditives": "لا توجد إضافات مُشار إليها",
       "fewerAdditives": "‏{n} إضافة أقل",
       "organic": "معتمَد عضويًا",
-      "betterScore": "‏GreeScore ‏+{n} نقطة"
+      "betterScore": "‏GreeScore ‏+{n} نقطة",
+      "checkLabel": "تحقق من مسببات الحساسية وآثارها على العبوة قبل الاختيار."
     },
     "dataKind": {
       "declared": "مصرح به",
@@ -975,7 +978,9 @@
       "haramIngredient": "مكوّن قد يكون غير حلال",
       "partialData": "التقييم مبني على بيانات جزئية",
       "halalCheckRequired": "مكوّن يحتاج إلى التحقق بالنسبة للحلال (يجب تأكيد المصدر)",
-      "halalNotConfirmed": "وضع الحلال غير مؤكد (معلومة، وليست مشكلة)"
+      "halalNotConfirmed": "وضع الحلال غير مؤكد (معلومة، وليست مشكلة)",
+      "sugarPreference": "تفضيل تقليل السكر · {value, number} غ من السكريات لكل {basis}.",
+      "saltPreference": "تفضيل تقليل الملح · {value, number} غ من الملح لكل {basis}."
     },
     "bestChoice": "الخيار الأفضل",
     "lowScoreWarning": "نتيجة منخفضة — قلّل منه",
@@ -1092,7 +1097,9 @@
     "moreActions": "إجراءات أخرى",
     "addedCart": "أُضيف إلى GreeCart",
     "addedBattle": "أُضيف إلى GreeCompare",
-    "actionUnavailable": "المنتج غير متاح دون اتصال"
+    "actionUnavailable": "المنتج غير متاح دون اتصال",
+    "clearHistory": "مسح سجل المسح",
+    "clearHistoryConfirm": "هل تريد حذف كل عمليات المسح من هذا الجهاز؟ ستبقى المفضلات وقائمة التسوق."
   },
   "criteria": {
     "metaTitle": "معاييري — GreeCheck",
@@ -1122,7 +1129,8 @@
       "reduceAdditives": "تقليل الإضافات",
       "reduceUltraProcessed": "تجنب المعالج جدًا",
       "increaseProtein": "المزيد من البروتين",
-      "increaseFiber": "المزيد من الألياف"
+      "increaseFiber": "المزيد من الألياف",
+      "preferEnvironment": "أولوية للأثر البيئي"
     },
     "allergenPresets": {
       "gluten": "غلوتين",
@@ -1441,7 +1449,7 @@
     "healthWinnerClose": "الفائز صحيًا (بفارق ضئيل)",
     "environmentWinner": "الفائز بيئيًا",
     "sameWinnerBoth": "الفائز نفسه صحيًا وبيئيًا.",
-    "noEnvComparison": "بيانات بيئية غير كافية لمقارنة الأثر.",
+    "noEnvComparison": "لم يتسنّ إثبات فرق في الأثر البيئي.",
     "yourChoice": "اختيارك",
     "yourChoiceHint": "تُقيَّم الصحة والبيئة بشكل منفصل — أنت من يوازن.",
     "healthPick": "الأفضل صحيًا",
@@ -1455,7 +1463,9 @@
       "closerOrigins": "أصول أقرب",
       "certifiedProduction": "إنتاج معتمد",
       "noThreatenedSpecies": "بلا مكوّن يهدد الأنواع"
-    }
+    },
+    "tradeOffs": "الفروق التي تستحق الانتباه",
+    "lessNutrient": "يحتوي {name} على كمية أقل من {nutrient} ({first} مقابل {second} غ/{basis})."
   },
   "coach": {
     "title": "GreeCoach",

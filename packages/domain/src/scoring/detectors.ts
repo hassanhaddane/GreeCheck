@@ -38,12 +38,12 @@ const allergenWords = (value: string) => value.normalize("NFKD").toLowerCase().r
   .replace(/^[a-z]{2,3}:/, "").match(/[\p{L}\p{N}]+/gu)?.join(" ") ?? "";
 
 const allergenAliases: Record<string, string[]> = {
-  gluten: ["gluten", "glúten", "غلوتين", "جلوتين"],
+  gluten: ["gluten", "glúten", "غلوتين", "جلوتين", "wheat", "blé", "trigo", "orge", "barley", "seigle", "rye", "قمح", "شعير"],
   milk: ["milk", "lait", "leche", "حليب"],
   lactose: ["lactose", "lactosa", "لاكتوز"],
   eggs: ["egg", "eggs", "œuf", "œufs", "oeuf", "oeufs", "huevo", "huevos", "بيض"],
   peanuts: ["peanut", "peanuts", "arachide", "arachides", "cacahuète", "cacahuètes", "cacahuete", "cacahuetes", "فول سوداني"],
-  nuts: ["nuts", "tree nuts", "fruits à coque", "fruits a coque", "frutos secos", "مكسرات"],
+  nuts: ["nuts", "tree nuts", "fruits à coque", "fruits a coque", "frutos secos", "مكسرات", "almond", "almonds", "amande", "amandes", "hazelnut", "hazelnuts", "noisette", "noisettes", "cashew", "cashews", "pistachio", "pistachios", "pistache", "pistaches", "walnut", "walnuts", "لوز", "بندق", "فستق"],
   soybeans: ["soybeans", "soy", "soya", "soja", "صويا"],
   palm: ["palm", "palme", "palma", "نخيل"]
 };

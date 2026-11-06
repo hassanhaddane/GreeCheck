@@ -1,13 +1,13 @@
 /* GreeCheck service worker — public shell/assets only. User data stays in IndexedDB. */
-const VERSION = "gc-v4";
+const VERSION = "gc-v5";
 const SHELL = `${VERSION}-shell`;
+const STATIC = `${VERSION}-static`;
 const RUNTIME = `${VERSION}-runtime`;
 const MAX_RUNTIME_ENTRIES = 40;
 
 const PRECACHE = [
-  "/fr/offline",
-  "/en/offline",
-  "/ar/offline",
+  ...["fr", "en", "ar"].flatMap((locale) => ["/offline", "/scan", "/products", "/products/favorites", "/list"]
+    .map((route) => `/${locale}${route}`)),
   "/fr/manifest.webmanifest",
   "/en/manifest.webmanifest",
   "/ar/manifest.webmanifest",
@@ -20,14 +20,26 @@ const PRECACHE = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     // Atomic install: a broken release must not replace the last working worker.
-    caches.open(SHELL).then((cache) => cache.addAll(PRECACHE))
+    (async () => {
+      const cache = await caches.open(SHELL);
+      await cache.addAll(PRECACHE);
+      const assets = new Set();
+      await Promise.all(PRECACHE.filter((path) => !isStaticAsset(new URL(path, self.location.origin)) && !path.endsWith(".webmanifest"))
+        .map(async (path) => {
+          const page = await cache.match(path);
+          for (const [, asset] of (await page.text()).matchAll(/(?:src|href)="(\/_next\/static\/[^"]+)"/g)) {
+            assets.add(asset);
+          }
+        }));
+      await cache.addAll([...assets]);
+    })()
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== SHELL && key !== RUNTIME).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => key !== SHELL && key !== STATIC && key !== RUNTIME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
@@ -72,14 +84,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  if (request.mode === "navigate") {
+  if (sameOrigin && request.mode === "navigate") {
     event.respondWith((async () => {
       try {
         const response = await fetch(request);
         event.waitUntil(putBounded(RUNTIME, request, response.clone()));
         return response;
       } catch {
-        const cached = await caches.match(request, { ignoreSearch: true });
+        const runtime = await caches.open(RUNTIME);
+        const cached = (await runtime.match(request)) || (await caches.match(request, { ignoreSearch: true }));
         if (cached) return cached;
         const locale = localeFromPath(url.pathname);
         return (await caches.match(`/${locale}/offline`)) || (await caches.match("/fr/offline")) || Response.error();
@@ -90,9 +103,11 @@ self.addEventListener("fetch", (event) => {
 
   if (sameOrigin && isStaticAsset(url)) {
     event.respondWith((async () => {
+      const pinned = await (await caches.open(SHELL)).match(request);
+      if (pinned) return pinned;
       const cached = await caches.match(request);
       const network = fetch(request).then((response) => {
-        event.waitUntil(putBounded(SHELL, request, response.clone()));
+        event.waitUntil(putBounded(STATIC, request, response.clone()));
         return response;
       }).catch(() => cached);
       return cached || network;
@@ -100,7 +115,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (/openfoodfacts\.org$/.test(url.hostname)) {
+  if (/(^|\.)openfoodfacts\.org$/.test(url.hostname)) {
     event.respondWith(fetch(request).then((response) => {
       event.waitUntil(putBounded(RUNTIME, request, response.clone()));
       return response;

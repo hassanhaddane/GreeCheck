@@ -27,7 +27,8 @@
     "favorites": "Favorites",
     "list": "Shopping list",
     "support": "Support",
-    "language": "Language"
+    "language": "Language",
+    "myLists": "My lists"
   },
   "scan": {
     "scannerLabel": "Product scanner",
@@ -65,8 +66,8 @@
     "networkError": "Product lookup failed. Check your connection and retry.",
     "scanGuidance": "Keep the product steady, use good lighting, and move closer or farther if it does not scan. If the image is blurry, switch camera.",
     "switchCamera": "Switch camera",
-    "torchOn": "Torch on",
-    "torchOff": "Torch off",
+    "torchOn": "Turn on the torch",
+    "torchOff": "Turn off the torch",
     "zoom": "Zoom",
     "camera": "Camera",
     "cameraN": "Camera {n}",
@@ -86,7 +87,7 @@
       "addedToBattle": "Added to GreeCompare",
       "alreadyInBattle": "Already in GreeCompare",
       "battleFull": "GreeCompare full (max 3)",
-      "cached": "Cached result (offline)",
+      "cached": "Copy saved on this device",
       "alreadyScanned": "Already scanned — aim at another product",
       "sessionCount": "{n} scanned this session"
     },
@@ -209,7 +210,8 @@
       "lactoseFree": "Lactose-free",
       "noPalmOil": "No palm oil",
       "greenScore": "Low impact"
-    }
+    },
+    "invalidBarcode": "Check the digits in the barcode."
   },
   "dataMethodology": {
     "off": "Primary community-maintained catalogue. Data under ODbL and photos under CC BY-SA according to Open Food Facts terms.",
@@ -400,7 +402,7 @@
       "medium": "medium",
       "low": "low"
     },
-    "staleBanner": "Local copy from {date} · older data",
+    "staleBanner": "Local copy saved on {date} · refresh unavailable",
     "staleRefresh": "Refresh",
     "rateLimited": "Service temporarily limited",
     "rateLimitedBody": "The data source is limiting requests. Try again in a moment.",
@@ -470,7 +472,8 @@
       "noFlaggedAdditives": "No flagged additives",
       "fewerAdditives": "{n, plural, one {# fewer additive} other {# fewer additives}}",
       "organic": "Certified organic",
-      "betterScore": "GreeScore +{n} points"
+      "betterScore": "GreeScore +{n} points",
+      "checkLabel": "Check the packaging for allergens and traces before choosing."
     },
     "dataKind": {
       "declared": "Reported",
@@ -975,7 +978,9 @@
       "haramIngredient": "Potentially non-halal ingredient",
       "partialData": "Score based on partial data",
       "halalCheckRequired": "Ingredient to verify for halal (origin to confirm)",
-      "halalNotConfirmed": "Halal status not confirmed (information, not an issue)"
+      "halalNotConfirmed": "Halal status not confirmed (information, not an issue)",
+      "sugarPreference": "Your sugar preference · {value, number} g of sugars per {basis}.",
+      "saltPreference": "Your salt preference · {value, number} g of salt per {basis}."
     },
     "bestChoice": "Best choice",
     "lowScoreWarning": "Low score — limit",
@@ -1092,7 +1097,9 @@
     "moreActions": "More actions",
     "addedCart": "Added to GreeCart",
     "addedBattle": "Added to GreeCompare",
-    "actionUnavailable": "Product unavailable offline"
+    "actionUnavailable": "Product unavailable offline",
+    "clearHistory": "Clear scan history",
+    "clearHistoryConfirm": "Remove all scans from this device? Your favourites and shopping list will be kept."
   },
   "criteria": {
     "metaTitle": "My criteria — GreeCheck",
@@ -1122,7 +1129,8 @@
       "reduceAdditives": "Reduce additives",
       "reduceUltraProcessed": "Avoid ultra-processed",
       "increaseProtein": "More protein",
-      "increaseFiber": "More fiber"
+      "increaseFiber": "More fiber",
+      "preferEnvironment": "Prioritize environmental impact"
     },
     "allergenPresets": {
       "gluten": "Gluten",
@@ -1441,7 +1449,7 @@
     "healthWinnerClose": "Health winner (neck and neck)",
     "environmentWinner": "Environment winner",
     "sameWinnerBoth": "Same winner on health and environment.",
-    "noEnvComparison": "Not enough environmental data to compare impact.",
+    "noEnvComparison": "No environmental difference could be established.",
     "yourChoice": "Your choice",
     "yourChoiceHint": "Health and environment are scored separately — you decide the balance.",
     "healthPick": "Best for health",
@@ -1455,7 +1463,9 @@
       "closerOrigins": "Closer origins",
       "certifiedProduction": "Certified production",
       "noThreatenedSpecies": "No species-risk ingredient"
-    }
+    },
+    "tradeOffs": "Trade-offs",
+    "lessNutrient": "{name} has less {nutrient} ({first} vs {second} g/{basis})."
   },
   "coach": {
     "title": "GreeCoach",

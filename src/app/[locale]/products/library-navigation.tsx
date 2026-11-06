@@ -4,8 +4,9 @@ import { Link, usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils/cn";
 
 const views = [
-  { key: "history", href: "/products" },
-  { key: "favorites", href: "/products/favorites" }
+  { key: "recents", href: "/products" },
+  { key: "favorites", href: "/products/favorites" },
+  { key: "myLists", href: "/list" }
 ] as const;
 
 export function LibraryNavigation() {

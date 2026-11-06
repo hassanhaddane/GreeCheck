@@ -21,7 +21,8 @@ import { nutriRank } from "@greecheck/domain/scoring/thresholds";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { parseIntent, isBarcodeQuery, INTENT_PRESETS } from "@/domains/search/intents";
-import { rankSearchResults } from "@/domains/search/ranking";
+import { parseProductCode } from "@/lib/utils/parse-scan";
+import { rankSearchResults, searchProviderTerm } from "@/domains/search/ranking";
 import type { FilterLocale } from "@/types/filters";
 import type { Product } from "@greecheck/domain/product/model";
 
@@ -59,7 +60,8 @@ export function SearchClient() {
   // Deterministic taxonomy mapping: recognized modifiers become structured
   // constraints; the remainder is the free-text subject for OFF.
   const intent = useMemo(() => parseIntent(query), [query]);
-  const isBarcode = isBarcodeQuery(query);
+  const barcode = parseProductCode(query);
+  const isBarcode = Boolean(barcode) || isBarcodeQuery(query);
   const searchTerm = intent.textQuery || query.trim();
   const searchable = !isBarcode && searchTerm.length >= 2;
   const requestKey = JSON.stringify([searchTerm, locale, attempt]);
@@ -70,7 +72,7 @@ export function SearchClient() {
     if (!searchable) return;
     const timer = setTimeout(async () => {
       try {
-        const data = await searchProductsClient(searchTerm, 1, locale);
+        const data = await searchProductsClient(searchProviderTerm(searchTerm, locale), 1, locale);
         if (!current) return;
         setResults(data.products.map(product => ({ ...product, name: product.localizedNames?.[locale] ?? product.name })));
         setResponseKey(requestKey);
@@ -115,13 +117,13 @@ export function SearchClient() {
       if (confidentOnly && gree.confidence === "low") return false;
       return activeDefs.every((def) => def.match(p, gree));
     });
-    if (sort === "best") return rankSearchResults(searchTerm, list, prefs, locale === "fr");
+    if (sort === "best") return rankSearchResults(searchTerm, list, prefs);
     return [...list].sort((a, b) => {
       if (sort === "gree") return (b.gree.score ?? -1) - (a.gree.score ?? -1);
       if (sort === "nutri") return nutriRank(a.p.nutriScore) - nutriRank(b.p.nutriScore);
       return novaRank(a.p.novaGroup) - novaRank(b.p.novaGroup);
     });
-  }, [scored, activeDefs, effNutri, effNova, minScore, confidentOnly, sort, searchTerm, prefs, locale]);
+  }, [scored, activeDefs, effNutri, effNova, minScore, confidentOnly, sort, searchTerm, prefs]);
 
   const sorts: { id: SortMode; label: string }[] = [
     { id: "best", label: t("sortBest") },
@@ -184,6 +186,8 @@ export function SearchClient() {
           </GreeCard>
         </Link>
       )}
+
+      {isBarcode && !barcode && <p className="text-sm text-score-d-ink" role="status">{t("invalidBarcode")}</p>}
 
       {!isBarcode && (status === "ok" || activeCount > 0) && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line pb-2">

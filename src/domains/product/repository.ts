@@ -88,9 +88,27 @@ async function staleFallback(code: string, reason: StaleReason): Promise<Product
   return toLookup(revived, { cachedAt: cached.cachedAt, reason });
 }
 
+/** Read the device cache without making a network request. */
+export async function getCachedProduct(barcode: string): Promise<Extract<ProductLookup, { kind: "product" }> | undefined> {
+  const result = await staleFallback(barcode, "network_error");
+  return result?.kind === "product" ? result : undefined;
+}
+
+async function withRequestTimeout<T>(timeout: number, read: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await read(controller.signal);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /* ──────────────────────────── barcode lookup ───────────────────────────── */
 
 async function lookupUncached(code: string, force: boolean): Promise<ProductLookup> {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return unavailable(code, "network_error");
+
   // Fresh local cache first (24h TTL).
   if (!force) {
     const cached = await productCacheRepo.get(code);
@@ -102,30 +120,32 @@ async function lookupUncached(code: string, force: boolean): Promise<ProductLook
   }
 
   try {
-    const res = await fetch("/api/product/" + encodeURIComponent(code), { cache: force ? "reload" : "default", signal: AbortSignal.timeout(15_000) });
+    return await withRequestTimeout(15_000, async (signal) => {
+      const res = await fetch("/api/product/" + encodeURIComponent(code), { cache: force ? "reload" : "default", signal });
 
-    if (res.status === 429 || res.status === 503) {
-      const retryMs = retryAfterMs(res.headers.get("retry-after")) ?? 30_000;
-      const reason = res.status === 429 ? "rate_limited" : "upstream_unavailable";
-      const until = Date.now() + retryMs;
-      if (!lookupCooldown || lookupCooldown.until <= until) lookupCooldown = { until, reason };
-      return unavailable(code, reason, retryMs);
-    }
-    if (!res.ok && res.status !== 404) throw new Error("Lookup failed");
-    const body = await res.json() as ProductResult | null;
-    if (res.status === 404 && body?.status === "not_found" && body.barcode === code) {
-      return { kind: "not_found", dataState: "UNAVAILABLE", barcode: code };
-    }
-    if (!res.ok || !body || !["complete", "usable_incomplete", "insufficient_for_score"].includes(body.status) ||
-      body.status === "not_found" || body.product?.barcode !== code || typeof body.product.name !== "string" ||
-      !body.product.nutriments || typeof body.product.nutriments !== "object" || Array.isArray(body.product.nutriments) ||
-      Object.values(body.product.nutriments).some(value => typeof value !== "number" || !Number.isFinite(value) || value < 0) ||
-      (body.product.source !== "openfoodfacts" && body.product.source !== "usda")) {
-      throw new Error("Invalid lookup response");
-    }
-    const result = reviveResult(body);
-    await productCacheRepo.put(code, result);
-    return toLookup(result, false);
+      if (res.status === 429 || res.status === 503) {
+        const retryMs = retryAfterMs(res.headers.get("retry-after")) ?? 30_000;
+        const reason = res.status === 429 ? "rate_limited" : "upstream_unavailable";
+        const until = Date.now() + retryMs;
+        if (!lookupCooldown || lookupCooldown.until <= until) lookupCooldown = { until, reason };
+        return unavailable(code, reason, retryMs);
+      }
+      if (!res.ok && res.status !== 404) throw new Error("Lookup failed");
+      const body = await res.json() as ProductResult | null;
+      if (res.status === 404 && body?.status === "not_found" && body.barcode === code) {
+        return { kind: "not_found", dataState: "UNAVAILABLE", barcode: code };
+      }
+      if (!res.ok || !body || !["complete", "usable_incomplete", "insufficient_for_score"].includes(body.status) ||
+        body.status === "not_found" || body.product?.barcode !== code || typeof body.product.name !== "string" ||
+        !body.product.nutriments || typeof body.product.nutriments !== "object" || Array.isArray(body.product.nutriments) ||
+        Object.values(body.product.nutriments).some(value => typeof value !== "number" || !Number.isFinite(value) || value < 0) ||
+        (body.product.source !== "openfoodfacts" && body.product.source !== "usda")) {
+        throw new Error("Invalid lookup response");
+      }
+      const result = reviveResult(body);
+      await productCacheRepo.put(code, result);
+      return toLookup(result, false);
+    });
   } catch {
     return unavailable(code, "network_error");
   }
@@ -159,10 +179,10 @@ export function searchProductsClient(query: string, page = 1, locale: DataLocale
   const pending = searchInflight.get(key);
   if (pending) return pending;
 
-  const p = (async () => {
+  const p = withRequestTimeout(13_000, async (signal) => {
     if (Date.now() < searchCooldownUntil) throw new Error("search_cooldown");
     const params = new URLSearchParams({ q, page: String(page), locale });
-    const res = await fetch("/api/search?" + params.toString(), { signal: AbortSignal.timeout(13_000) });
+    const res = await fetch("/api/search?" + params.toString(), { signal });
     if (res.status === 429 || res.status === 503) {
       const until = Date.now() + (retryAfterMs(res.headers.get("retry-after")) ?? 30_000);
       searchCooldownUntil = Math.max(searchCooldownUntil, until);
@@ -171,7 +191,7 @@ export function searchProductsClient(query: string, page = 1, locale: DataLocale
     const result = await res.json() as SearchResult | null;
     if (!result || !Array.isArray(result.products) || !Number.isInteger(result.count)) throw new Error("search_invalid_payload");
     return result;
-  })().finally(() => searchInflight.delete(key));
+  }).finally(() => searchInflight.delete(key));
   searchInflight.set(key, p);
   return p;
 }

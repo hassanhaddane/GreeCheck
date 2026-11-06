@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import {
   Plus, GitCompareArrows, ScanLine, Search, Trash2, RotateCcw, ShoppingBasket,
@@ -26,6 +26,7 @@ import { usePreferencesStore } from "@/domains/criteria/store";
 
 export default function ComparePage() {
   const t = useTranslations("compare");
+  const format = useFormatter();
   const tb = useTranslations("battle");
   const tScore = useTranslations("score");
   const router = useRouter();
@@ -173,6 +174,23 @@ export default function ComparePage() {
                 reasons={result!.healthReasons.map((k) => tb(`reason.${k}`))}
               />
 
+              {result!.tradeOffs.length > 0 && (
+                <GreeCard>
+                  <GreeCardContent className="space-y-2">
+                    <h2 className="text-sm font-semibold">{t("tradeOffs")}</h2>
+                    <ul className="space-y-1 text-sm text-muted">
+                      {result!.tradeOffs.map(({ nutrient, lower, lowerAmount, higherAmount, basis }) => (
+                        <li key={nutrient}>{t("lessNutrient", {
+                          name: lower.name, nutrient: tScore("gs3Missing." + nutrient).toLocaleLowerCase(),
+                          first: format.number(lowerAmount), second: format.number(higherAmount),
+                          basis: basis === "100ml" ? "100 ml" : "100 g"
+                        })}</li>
+                      ))}
+                    </ul>
+                  </GreeCardContent>
+                </GreeCard>
+              )}
+
               {/* ENVIRONMENT winner — surfaced distinctly, especially when different */}
               {env && result!.winnersDiffer && (
                 <WinnerCard
@@ -274,6 +292,7 @@ function WinnerCard({
   kind, name, grade, score, close, reasons
 }: { kind: "health" | "environment"; name: string; grade: string; score?: number; close?: boolean; reasons: string[] }) {
   const t = useTranslations("compare");
+  const format = useFormatter();
   const isHealth = kind === "health";
   return (
     <GreeCard className={isHealth ? "" : "bg-pastel-sky/60"}>

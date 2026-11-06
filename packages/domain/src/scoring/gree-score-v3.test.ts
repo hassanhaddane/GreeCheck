@@ -153,3 +153,15 @@ test("methodology fixtures are deterministic and do not mutate inputs", () => {
   assert.ok(legacy.every(result => result.methodologyVersion === "GS-2.0.0"));
   assert.deepEqual(legacy.map(result => result.status === "scored" ? result.global : undefined), [90, 30, 90, 84, 30, 100, 15, 90, 84]);
 });
+
+test("sugar and salt preferences surface reported quantities without changing GS-3", () => {
+  const product = { ...soda, nutriments: { ...soda.nutriments, sugars: 13, salt: 0.85 } };
+  const plain = computeGreeScore(product, prefs);
+  const personal = computeGreeScore(product, { ...prefs, reduceSugar: true, reduceSalt: true });
+  assert.equal(plain.status, "scored");
+  assert.equal(personal.score, plain.score);
+  assert.deepEqual(personal.warnings.filter(w => w.code.endsWith("Preference")).map(w => w.values),
+    [{ value: 13, basis: "100 ml" }, { value: 0.85, basis: "100 ml" }]);
+  const unknown = computeGreeScore({ ...product, nutritionBasis: undefined }, { ...prefs, reduceSugar: true });
+  assert.ok(!unknown.warnings.some(w => w.code === "sugarPreference"));
+});

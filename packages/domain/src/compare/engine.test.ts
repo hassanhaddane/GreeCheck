@@ -132,3 +132,12 @@ test("determinism: identical inputs, identical comparison", () => {
   const b = product({ barcode: "b", nutriScore: "c" });
   assert.deepEqual(computeComparison([a, b], PREFS), computeComparison([a, b], PREFS));
 });
+
+test("trade-offs report an advantage on each side and omit unknown values", () => {
+  const first = product({ barcode: "a", nutriScore: "a", nutriments: { sugars: 4, salt: 0.2 } });
+  const second = product({ barcode: "b", nutriScore: "c", nutriments: { sugars: 12, salt: 0.02, saturatedFat: 2 } });
+  const { tradeOffs } = computeComparison([first, second], PREFS);
+  assert.deepEqual(tradeOffs.map(({ nutrient, lower, lowerAmount, higherAmount, basis }) =>
+    [nutrient, lower.barcode, lowerAmount, higherAmount, basis]),
+    [["sugars", "a", 4, 12, "100g"], ["salt", "b", 0.02, 0.2, "100g"]]);
+});

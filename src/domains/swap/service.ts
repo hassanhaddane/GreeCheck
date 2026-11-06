@@ -18,8 +18,7 @@ import {
 
 /**
  * Suggest validated healthier alternatives. Returns [] when the product is not
- * swap-eligible or when no TRUSTWORTHY alternative exists (the UI then renders
- * nothing — never an empty section).
+ * swap-eligible or when no TRUSTWORTHY alternative exists (the UI explains why no suggestion is offered).
  */
 export async function getAlternatives(
   product: Product,
@@ -29,7 +28,7 @@ export async function getAlternatives(
   const curGree = computeGreeScore(product, prefs);
   if (!isSwapEligible(product, curGree, prefs).eligible) return [];
 
-  const cat = product.categoryIds?.at(-1) ?? preciseCategory(product);
+  const cat = preciseCategory(product);
   if (!cat) return [];
 
   const res = await fetch(

@@ -1,4 +1,5 @@
 "use client";
+import { LibraryNavigation } from "../products/library-navigation";
 import { useEffect, useState } from "react";
 import { METHODOLOGY_VERSION } from "@greecheck/domain/scoring/methodology";
 import { useTranslations } from "next-intl";
@@ -34,6 +35,7 @@ export function ListClient() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeading title={t("title")} subtitle={t("subtitle")} />
+      <LibraryNavigation />
 
       <form onSubmit={submit} className="mb-4 flex gap-2">
         <label htmlFor="list-add" className="sr-only">{t("addLabel")}</label>

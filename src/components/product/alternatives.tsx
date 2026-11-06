@@ -87,8 +87,10 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
           </GreeCard>
         ) : items.length === 0 ? <p role="status" className="rounded-xl border border-line bg-surface p-3 text-sm text-muted">{t("noAlternative")}</p>
         : (
+          <>
+          {prefs.avoidAllergens.length > 0 && <p className="text-sm text-muted">{t("swap.checkLabel")}</p>}
           <ul className="space-y-2">
-            {items.slice(0, 1).map(alt => {
+            {items.map(alt => {
               const p = alt.product;
               const name = p.localizedNames?.[locale] ?? p.name;
               return (
@@ -112,6 +114,7 @@ export function Alternatives({ product, prefs }: { product: Product; prefs: Loca
               );
             })}
           </ul>
+          </>
         )}
 
       {/* "Why better?" — measurable breakdown */}

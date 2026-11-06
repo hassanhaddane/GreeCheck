@@ -27,7 +27,8 @@
     "favorites": "Favoris",
     "list": "Liste de courses",
     "support": "Soutenir",
-    "language": "Langue"
+    "language": "Langue",
+    "myLists": "Mes listes"
   },
   "scan": {
     "scannerLabel": "Scanner de produits",
@@ -65,8 +66,8 @@
     "networkError": "Connexion impossible à Open Food Facts. Réessaie dans un instant.",
     "scanGuidance": "Garde le produit stable, utilise une bonne lumière et approche ou éloigne le produit si le scan ne démarre pas. Si l'image est floue, change de caméra.",
     "switchCamera": "Changer de caméra",
-    "torchOn": "Lampe activée",
-    "torchOff": "Lampe désactivée",
+    "torchOn": "Allumer la lampe",
+    "torchOff": "Éteindre la lampe",
     "zoom": "Zoom",
     "camera": "Caméra",
     "cameraN": "Caméra {n}",
@@ -86,7 +87,7 @@
       "addedToBattle": "Ajouté à GreeCompare",
       "alreadyInBattle": "Déjà dans GreeCompare",
       "battleFull": "GreeCompare complet (max 3)",
-      "cached": "Résultat en cache (hors ligne)",
+      "cached": "Copie enregistrée sur cet appareil",
       "alreadyScanned": "Déjà scanné — vise un autre produit",
       "sessionCount": "{n} scannés dans cette session"
     },
@@ -209,7 +210,8 @@
       "lactoseFree": "Sans lactose",
       "noPalmOil": "Sans huile de palme",
       "greenScore": "Faible impact"
-    }
+    },
+    "invalidBarcode": "Vérifie les chiffres du code-barres."
   },
   "dataMethodology": {
     "off": "Catalogue contributif prioritaire. Données sous ODbL et photos sous CC BY-SA selon les conditions d’Open Food Facts.",
@@ -400,7 +402,7 @@
       "medium": "moyenne",
       "low": "faible"
     },
-    "staleBanner": "Copie locale du {date} · données anciennes",
+    "staleBanner": "Copie locale enregistrée le {date} · actualisation indisponible",
     "staleRefresh": "Actualiser",
     "rateLimited": "Service temporairement limité",
     "rateLimitedBody": "La source de données limite les requêtes. Réessaie dans un instant.",
@@ -470,7 +472,8 @@
       "noFlaggedAdditives": "Aucun additif signalé",
       "fewerAdditives": "{n, plural, one {# additif en moins} other {# additifs en moins}}",
       "organic": "Certifié biologique",
-      "betterScore": "GreeScore +{n} points"
+      "betterScore": "GreeScore +{n} points",
+      "checkLabel": "Vérifie les allergènes et les traces sur l’emballage avant de choisir."
     },
     "dataKind": {
       "declared": "Déclaré",
@@ -975,7 +978,9 @@
       "haramIngredient": "Ingrédient potentiellement non halal",
       "partialData": "Score calculé avec des données partielles",
       "halalCheckRequired": "Ingrédient à vérifier pour le halal (origine à confirmer)",
-      "halalNotConfirmed": "Statut halal non confirmé (information, pas un problème)"
+      "halalNotConfirmed": "Statut halal non confirmé (information, pas un problème)",
+      "sugarPreference": "Ton critère sucre · {value, number} g de sucres par {basis}.",
+      "saltPreference": "Ton critère sel · {value, number} g de sel par {basis}."
     },
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",
@@ -1092,7 +1097,9 @@
     "moreActions": "Plus d’actions",
     "addedCart": "Ajouté au GreeCart",
     "addedBattle": "Ajouté à GreeCompare",
-    "actionUnavailable": "Produit indisponible hors ligne"
+    "actionUnavailable": "Produit indisponible hors ligne",
+    "clearHistory": "Vider l’historique",
+    "clearHistoryConfirm": "Supprimer tous les scans de cet appareil ? Tes favoris et ta liste seront conservés."
   },
   "criteria": {
     "metaTitle": "Mes critères — GreeCheck",
@@ -1122,7 +1129,8 @@
       "reduceAdditives": "Réduire les additifs",
       "reduceUltraProcessed": "Éviter l'ultra-transformé",
       "increaseProtein": "Plus de protéines",
-      "increaseFiber": "Plus de fibres"
+      "increaseFiber": "Plus de fibres",
+      "preferEnvironment": "Priorité à l’environnement"
     },
     "allergenPresets": {
       "gluten": "Gluten",
@@ -1441,7 +1449,7 @@
     "healthWinnerClose": "Gagnant santé (au coude-à-coude)",
     "environmentWinner": "Gagnant environnement",
     "sameWinnerBoth": "Même gagnant côté santé et côté environnement.",
-    "noEnvComparison": "Données environnementales insuffisantes pour comparer l'impact.",
+    "noEnvComparison": "Aucun écart environnemental ne peut être établi.",
     "yourChoice": "Votre choix",
     "yourChoiceHint": "Santé et environnement sont notés séparément — à vous d'arbitrer.",
     "healthPick": "Meilleur santé",
@@ -1455,7 +1463,9 @@
       "closerOrigins": "Origines plus proches",
       "certifiedProduction": "Production certifiée",
       "noThreatenedSpecies": "Sans ingrédient à risque pour les espèces"
-    }
+    },
+    "tradeOffs": "Compromis observés",
+    "lessNutrient": "{name} a moins de {nutrient} ({first} contre {second} g/{basis})."
   },
   "coach": {
     "title": "GreeCoach",

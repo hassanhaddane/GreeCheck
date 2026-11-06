@@ -47,6 +47,7 @@ export function HistoryClient() {
   const router = useRouter();
 
   const entries = useHistoryStore((s) => s.entries);
+  const clearHistory = useHistoryStore((s) => s.clear);
   const removeEntry = useHistoryStore((s) => s.remove);
   const favorites = useFavoritesStore();
   const addCart = useCartStore((s) => s.addProduct);
@@ -55,6 +56,7 @@ export function HistoryClient() {
 
   const [view, setView] = useState<ViewMode>("list");
   const [filters, setFilters] = useState<HistoryFilters>(DEFAULT_FILTERS);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [actionsFor, setActionsFor] = useState<ScanHistoryItem | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -118,7 +120,7 @@ export function HistoryClient() {
       <h2 className="sr-only">{t("title")}</h2>
 
       {/* Toolbar: filters + view switch */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <GreeButton variant={activeCount ? "primary" : "soft"} size="sm" onClick={() => setFiltersOpen(true)}>
           <SlidersHorizontal className="h-4 w-4" /> {t("filtersTitle")}
           {activeCount > 0 && <span className="ms-1 rounded-full bg-white/25 px-1.5 text-xs">{activeCount}</span>}
@@ -136,7 +138,23 @@ export function HistoryClient() {
         </div>
       </div>
 
-      <p className="px-1 text-xs text-muted" role="status">{t("count", { n: visible.length })}</p>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="px-1 text-xs text-muted" role="status">{t("count", { n: visible.length })}</p>
+        <GreeButton variant="ghost" size="sm" onClick={() => setConfirmClear(true)}>
+          <Trash2 className="h-4 w-4" aria-hidden /> {t("clearHistory")}
+        </GreeButton>
+      </div>
+
+      <GreeBottomSheet open={confirmClear} onClose={() => setConfirmClear(false)} title={t("clearHistory")} closeLabel={tc("close")}>
+        <p className="text-sm text-muted">{t("clearHistoryConfirm")}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <GreeButton variant="outline" onClick={() => setConfirmClear(false)}>{tc("close")}</GreeButton>
+          <GreeButton variant="primary" onClick={() => {
+            setConfirmClear(false);
+            clearHistory();
+          }}>{t("clearHistory")}</GreeButton>
+        </div>
+      </GreeBottomSheet>
 
       {notice && (
         <p className="rounded-2xl bg-natural/10 px-3 py-2 text-center text-sm font-medium text-natural-strong" role="status">{notice}</p>

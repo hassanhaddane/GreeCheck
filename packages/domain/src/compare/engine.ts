@@ -26,6 +26,7 @@ export interface CompareResult {
   /** Best → worst by confidence-discounted GreeScore (health ordering). */
   entries: CompareEntry[];
   validation: BattleValidation;
+  tradeOffs: NutritionDifference[];
 
   /** Health winner (GreeScore) — null when < 2 products. */
   healthWinner: (CompareEntry & { gree: ScoredGreeScore }) | null;
@@ -45,6 +46,24 @@ export interface CompareResult {
   winnersDiffer: boolean;
 }
 
+export interface NutritionDifference {
+  nutrient: "sugars" | "salt" | "saturatedFat";
+  lower: Product;
+  lowerAmount: number;
+  higherAmount: number;
+  basis: "100g" | "100ml";
+}
+
+function nutritionDifferences(first: Product, second: Product): NutritionDifference[] {
+  const basis = first.nutritionBasis;
+  if (!basis || basis !== second.nutritionBasis) return [];
+  return (["sugars", "salt", "saturatedFat"] as const).flatMap((nutrient) => {
+    const a = first.nutriments[nutrient], b = second.nutriments[nutrient];
+    if (a === undefined || b === undefined || a === b) return [];
+    return [{ nutrient, lower: a < b ? first : second, lowerAmount: Math.min(a, b), higherAmount: Math.max(a, b), basis }];
+  });
+}
+
 const gradeRank = (g?: string) => (g ? "abcde".indexOf(g) : 9);
 
 /* ── environmental ordering (separate from health, never blended) ── */
@@ -52,13 +71,16 @@ const gradeRank = (g?: string) => (g ? "abcde".indexOf(g) : 9);
 function pickEnvironmentWinner(entries: CompareEntry[]): CompareEntry | undefined {
   const valid = entries.filter((e) => e.impact.status === "valid" && e.impact.grade);
   if (valid.length < 2) return undefined; // nothing meaningful to compare on environment
-  return [...valid].sort((a, b) => {
+  const [first, second] = [...valid].sort((a, b) => {
     const r = gradeRank(a.impact.grade) - gradeRank(b.impact.grade);
     if (r !== 0) return r;
     const sa = a.impact.score ?? -1, sb = b.impact.score ?? -1;
     if (sb !== sa) return sb - sa;
     return a.product.barcode.localeCompare(b.product.barcode);
-  })[0];
+  });
+  const a = first.impact, b = second.impact;
+  if (a.grade === b.grade && (a.score === undefined || b.score === undefined || a.score === b.score)) return undefined;
+  return first;
 }
 
 /** Measurable environmental differences: env winner vs the health winner. */
@@ -79,8 +101,8 @@ function environmentReasons(env: CompareEntry, health: CompareEntry): string[] {
   if (ep !== undefined && hp !== undefined && ep > hp) out.push("lessPackagingImpact");
   const eo = val(ea, "origins"), ho = val(ha, "origins");
   if (eo !== undefined && ho !== undefined && eo > ho) out.push("closerOrigins");
-  if (ind(ea, "labels")?.tone === "positive" && ind(ha, "labels")?.tone !== "positive") out.push("certifiedProduction");
-  if (ind(ha, "species")?.tone === "negative" && ind(ea, "species")?.tone !== "negative") out.push("noThreatenedSpecies");
+  if (ind(ea, "labels")?.tone === "positive" && ind(ha, "labels")?.tone === "neutral") out.push("certifiedProduction");
+  if (ind(ha, "species")?.tone === "negative" && ind(ea, "species")?.tone === "positive") out.push("noThreatenedSpecies");
   return out.slice(0, 4);
 }
 
@@ -103,6 +125,8 @@ export function computeComparison(products: Product[], prefs: LocalPreferences):
   return {
     entries,
     validation: battle.validation,
+    tradeOffs: battle.validation.comparable && healthWinner && healthRunnerUp
+      ? nutritionDifferences(healthWinner.product, healthRunnerUp.product) : [],
     healthWinner,
     healthRunnerUp,
     healthReasons: battle.reasons,

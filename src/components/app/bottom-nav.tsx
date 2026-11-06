@@ -10,12 +10,12 @@ export function PrimaryNav({ mobile = false }: { mobile?: boolean }) {
   return (
     <nav aria-label={t("primary")} className={mobile ? "mx-auto grid max-w-lg grid-cols-3 gap-1" : "hidden min-w-0 flex-wrap items-center gap-1 py-1 md:flex"}>
       {PRIMARY_NAV.map(({ key, href, icon: Icon, primary }) => {
-        const active = pathname === href || pathname.startsWith(href + "/");
+        const active = pathname === href || pathname.startsWith(href + "/") || (key === "products" && pathname === "/list");
         return (
           <Link
             key={key}
             href={href}
-            aria-current={active ? "page" : undefined}
+            aria-current={active ? (pathname === href ? "page" : "location") : undefined}
             className={cn(
               "gc-pressable flex min-w-0 items-center justify-center gap-1.5 rounded-xl px-2.5 font-semibold transition-colors",
               mobile ? "min-h-[3.25rem] flex-col py-1.5 text-xs" : "min-h-10 text-sm [&>svg]:hidden lg:[&>svg]:block",

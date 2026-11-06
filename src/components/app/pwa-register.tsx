@@ -34,7 +34,7 @@ export function PwaRegister() {
       /ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(message);
 
     const recover = (message: string) => {
-      if (!looksLikeStaleChunk(message)) return;
+      if (navigator.onLine === false || !looksLikeStaleChunk(message)) return;
       try {
         if (sessionStorage.getItem(RECOVERY_FLAG)) return; // already tried this session
         sessionStorage.setItem(RECOVERY_FLAG, "1");

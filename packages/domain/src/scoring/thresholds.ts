@@ -21,6 +21,9 @@ export const NUTRITION_THRESHOLDS = {
   kcalHigh: 250
 } as const;
 
+// Per-100 ml high bands for drinks, UK front-of-pack guide, Table 3.
+export const DRINK_NUTRITION_HIGH = { sugar: 11.25, salt: 0.75, saturatedFat: 2.5 } as const;
+
 export const clamp = (n: number, lo = 0, hi = 100) => Math.max(lo, Math.min(hi, n));
 export const round = (n: number) => Math.round(n);
 

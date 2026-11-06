@@ -4,7 +4,7 @@ import { ADDITIVE_EVIDENCE_VERSION, additiveEvidenceFor } from "./additive-evide
 import { declaredProfile, nutritionTags, excluded, computePoints2023, officialGrade, pointsInRange } from "./nutrition-2023";
 import { GRADE_BANDS, METHODOLOGY_UPDATED_AT, METHODOLOGY_VERSION, NUTRI_SCORE_REFERENCE, NUTRITION_ANCHORS } from "./methodology";
 import type { GreeScore, NutritionComponent, ProductWarning, ScoreEvidence, ScoreExplanation, ScoreReason, UnscoredReasonCode } from "./types";
-import { NUTRITION_THRESHOLDS as T } from "./thresholds";
+import { DRINK_NUTRITION_HIGH, NUTRITION_THRESHOLDS as T } from "./thresholds";
 import { halalStatusOf, matchingAllergens } from "./detectors";
 import { specificOrganicLabelOf } from "./organic";
 
@@ -25,6 +25,24 @@ function warningsFor(p: Product, prefs: LocalPreferences): ProductWarning[] {
   }
   if ((prefs.preferVegetarian || prefs.goals.includes("vegetarian")) && p.vegetarianStatus === "incompatible") {
     warnings.push({ level: "warning", code: "vegetarianMismatch" });
+  }
+  const reduceSugar = prefs.reduceSugar || prefs.goals.includes("reduce_sugar");
+  const reduceSalt = prefs.reduceSalt || prefs.goals.includes("reduce_salt");
+  if ((reduceSugar || reduceSalt) && p.nutritionBasis && p.source !== "ciqual" && p.dataState !== "CONFLICTED" && !p.conflicts?.length && !invalidAmounts(p)) {
+    const drink = p.nutritionBasis === "100ml";
+    const basis = drink ? "100 ml" : "100 g";
+    const reportedHigh = (field: "sugars" | "salt", high: number) => {
+      const value = p.nutriments[field];
+      return value !== undefined && value > high && p.provenance?.[`nutriments.${field}` as const]?.dataKind !== "category_reference" ? value : undefined;
+    };
+    const sugars = reportedHigh("sugars", drink ? DRINK_NUTRITION_HIGH.sugar : T.sugarHigh);
+    const salt = reportedHigh("salt", drink ? DRINK_NUTRITION_HIGH.salt : T.saltHigh);
+    if (sugars !== undefined && reduceSugar) {
+      warnings.push({ level: "warning", code: "sugarPreference", values: { value: sugars, basis } });
+    }
+    if (salt !== undefined && reduceSalt) {
+      warnings.push({ level: "warning", code: "saltPreference", values: { value: salt, basis } });
+    }
   }
   return warnings;
 }

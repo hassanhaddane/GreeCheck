@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   isSwapEligible, validateCandidate, rankAlternatives, computeImprovements,
-  introducesCriticalWeakness, hasSufficientData, MIN_SCORE_GAIN
+  introducesCriticalWeakness, hasSufficientData, MIN_SCORE_GAIN, relatedCategory
 } from "./engine";
 import { computeGreeScore } from "../scoring/gree-score";
 import { defaultPreferences } from "../criteria/model";
@@ -139,7 +139,7 @@ test("rejects a candidate conflicting with a critical local criterion", () => {
 /* ─────────────────────────── improvements ─────────────────────────── */
 test("computeImprovements yields exact measurable deltas", () => {
   const a = product({ name: "A", nutriScore: "e", novaGroup: 4, additives: ["e150d"], nutriments: { sugars: 78 } });
-  const b = product({ name: "B", nutriScore: "b", novaGroup: 3, additives: [], isBio: true, nutriments: { sugars: 53 } });
+  const b = product({ name: "B", nutriScore: "b", novaGroup: 3, additives: [], isBio: true, labels: ["eu organic"], nutriments: { sugars: 53 } });
   const imps = computeImprovements(a, b, score(a), score(b), PREFS);
   const sugar = imps.find((i) => i.code === "lessSugar");
   assert.equal(sugar?.percent, 32); // (1 - 53/78) ≈ 32%
@@ -181,4 +181,33 @@ test("results are deterministic", () => {
   const a = rankAlternatives(cur, curGree, cands, PREFS);
   const b = rankAlternatives(cur, curGree, cands, PREFS);
   assert.deepEqual(a, b);
+});
+
+test("does not confuse a broad shared taxonomy with the same product family", () => {
+  const cola = product({ categoryIds: ["en:beverages", "en:sodas", "en:colas"] });
+  const juice = product({ categoryIds: ["en:beverages", "en:fruit-juices"], categories: ["beverages", "sodas"] });
+  const similar = product({ categoryIds: ["en:beverages", "en:colas", "en:cola-with-sweeteners"] });
+  assert.equal(relatedCategory(cola, juice), false);
+  assert.equal(relatedCategory(cola, similar), true);
+  assert.equal(relatedCategory(product({ categories: undefined }), similar), false);
+});
+
+test("cannot recommend a swap when the nutrition basis or allergen disclosure is missing", () => {
+  const candidate = product({ nutriScore: "b", novaGroup: 2, additives: [], nutriments: { sugars: 4 },
+    ingredientsText: "eau, sucre", allergens: [], traces: [] });
+  const prefs = { ...PREFS, avoidAllergens: ["nuts"] };
+  assert.ok(validateCandidate(cur, curGree, candidate, score(candidate), prefs));
+  assert.equal(validateCandidate(cur, curGree, { ...candidate, nutritionBasis: undefined }, score(candidate), prefs), null);
+  assert.equal(validateCandidate(cur, curGree, { ...candidate, traces: undefined }, score(candidate), prefs), null);
+  assert.equal(validateCandidate(cur, curGree, { ...candidate, traces: ["en:almonds"] }, score(candidate), prefs), null);
+});
+
+test("returns at most three alternatives and removes zero-padded GTIN duplicates", () => {
+  const candidates = ["11111115", "000011111115", "22222220", "33333335", "44444440"].map(barcode => {
+    const alt = product({ barcode, nutriScore: "b", novaGroup: 2, additives: [], nutriments: { sugars: 3 } });
+    return { product: alt, gree: score(alt) };
+  });
+  const ranked = rankAlternatives(cur, curGree, candidates, PREFS);
+  assert.equal(ranked.length, 3);
+  assert.equal(ranked.filter(({ product }) => product.barcode.endsWith("11111115")).length, 1);
 });

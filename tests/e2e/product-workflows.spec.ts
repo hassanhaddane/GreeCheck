@@ -50,7 +50,7 @@ test.describe("Product decisions and local library", () => {
                 .last(),
         ).toBeVisible();
 
-        await page.getByRole("navigation", { name: "Mes produits" }).getByRole("link", { name: "Mes scans" }).click();
+        await page.getByRole("navigation", { name: "Mes produits" }).getByRole("link", { name: "Récents" }).click();
         await expect(page).toHaveURL(/\/fr\/products$/);
 
         await expect(
@@ -270,4 +270,25 @@ test.describe("GreeCompare journeys", () => {
         ).toHaveCount(0);
       },
   );
+});
+test("clear-history confirmation preserves the favourite and the shopping list", async ({ page }) => {
+  await mockProductApis(page);
+  await page.goto("/fr/product/11111115");
+  await page.getByRole("button", { name: "Favori", exact: true }).click();
+  await page.getByRole("button", { name: "Ajouter à ma liste" }).click();
+  await page.goto("/fr/products");
+  await page.getByRole("button", { name: "Vider l’historique" }).click();
+  const confirmation = page.getByRole("dialog", { name: "Vider l’historique" });
+  await confirmation.getByRole("button", { name: "Vider l’historique" }).click();
+  await expect(page.getByText("Aucun scan pour l'instant", { exact: true })).toBeVisible();
+
+  const library = page.getByRole("navigation", { name: "Mes produits" });
+  await library.getByRole("link", { name: "Favoris" }).click();
+  await expect(page.getByRole("link", { name: /Test Choco/ })).toBeVisible();
+  await library.getByRole("link", { name: "Mes listes" }).click();
+  await expect(page.getByRole("link", { name: "Test Choco" })).toBeVisible();
+  await library.getByRole("link", { name: "Récents" }).click();
+  await expect(page).toHaveURL(/\/fr\/products$/);
+  await page.reload();
+  await expect(page.getByText("Aucun scan pour l'instant", { exact: true })).toBeVisible();
 });

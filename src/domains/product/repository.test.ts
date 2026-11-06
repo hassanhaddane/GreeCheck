@@ -10,7 +10,7 @@ import { db } from "@/services/storage/db";
 import { productCacheRepo } from "@/services/storage/repositories";
 import { getProduct, __resetRepositoryForTests } from "./repository";
 import { mapOffProduct } from "@greecheck/domain/product/normalizer";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 
 /** Build a realistic normalized result from a raw-ish payload. */
 function found(barcode: string): ProductResult {
@@ -123,4 +123,26 @@ test("legacy cached rows (pre-V2 statuses) are revived into the new envelope", a
     assert.ok(result.product.halalStatus); // derived statuses filled on revival
     assert.ok(result.product.dataQuality);
   }
+});
+
+test("503 serves an old local copy and respects an HTTP-date Retry-After", async () => {
+  await productCacheRepo.put("9500", found("9500"));
+  await db!.products.update("9500", { cachedAt: Date.now() - 48 * 60 * 60_000 });
+  stubFetch(async () => new Response(null, {
+    status: 503, headers: { "Retry-After": new Date(Date.now() + 60_000).toUTCString() }
+  }));
+  const old = await getProduct("9500");
+  assert.ok(old.kind === "product" && old.dataState === "STALE" && old.staleReason === "upstream_unavailable");
+  const noCopy = await getProduct("9501");
+  assert.ok(noCopy.kind === "network_error" && noCopy.dataState === "UNAVAILABLE" && noCopy.retryAfterMs);
+  assert.equal(fetchCalls, 1);
+});
+
+test("malformed success and wrong barcode cannot replace an older product", async () => {
+  await productCacheRepo.put("9600", found("9600"));
+  await db!.products.update("9600", { cachedAt: Date.now() - 48 * 60 * 60_000 });
+  stubFetch(async () => Response.json(found("9601")));
+  const old = await getProduct("9600");
+  assert.ok(old.kind === "product" && old.product.barcode === "9600" && old.dataState === "STALE");
+  assert.equal(await db!.products.count(), 1);
 });

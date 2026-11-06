@@ -8,6 +8,7 @@
  * NEVER throws: a broken IndexedDB must not crash the app — the stores simply
  * keep their empty defaults and the UI shows its normal empty states.
  */
+import { migrateScoreSnapshots } from "./migrate-score";
 import { migrateLegacyLocalStorage } from "./migrate-legacy";
 import {
   historyRepo, favoritesRepo, cartRepo, battleRepo,
@@ -20,7 +21,7 @@ import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
 
-let booted = false;
+let booting: Promise<void> | undefined;
 
 function mergeByBarcode<T extends { barcode: string }>(current: T[], persisted: T[]): T[] {
   const seen = new Set(current.map((item) => item.barcode));
@@ -29,16 +30,21 @@ function mergeByBarcode<T extends { barcode: string }>(current: T[], persisted: 
 
 /** Test-only escape hatch (module state persists across app loads in tests). */
 export function __resetBootForTests() {
-  booted = false;
+  booting = undefined;
 }
 
 /** Idempotent: migration + store hydration. Called from <LocalDataBoot />. */
-export async function bootLocalData(): Promise<void> {
-  if (booted || typeof window === "undefined") return;
-  booted = true;
+export function bootLocalData(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  booting ??= hydrateLocalData();
+  return booting;
+}
 
+async function hydrateLocalData(): Promise<void> {
   try {
     await migrateLegacyLocalStorage(); // never throws; "failed" retries next boot
+
+    await migrateScoreSnapshots();
 
     const [history, favorites, cart, battle, prefs, onboarding] = await Promise.all([
       historyRepo.all(),

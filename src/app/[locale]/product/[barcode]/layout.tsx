@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import { getTranslations } from "next-intl/server";
-import { fetchProductByBarcode } from "@/services/api/openfoodfacts";
+import { lookupBarcode } from "@/services/api/sources";
 import { localizedAlternates, SITE_URL } from "@/lib/seo";
 import { routing, type Locale } from "@/i18n/routing";
+import { gtinIdentity } from "@greecheck/domain/product/gtin";
 import type { Product } from "@greecheck/domain/product/model";
 
-const getPublicProduct = cache(async (barcode: string) => {
-  const code = barcode.replace(/\D/g, "");
-  if (code.length < 6) return undefined;
+const getPublicProduct = cache(async (code: string) => {
+  if (!gtinIdentity(code)) return undefined;
   try {
-    const result = await fetchProductByBarcode(code);
+    const result = await lookupBarcode(code);
     return result.status === "not_found" ? undefined : result;
   } catch {
     return undefined;
@@ -35,10 +35,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   const t = await getTranslations({ locale, namespace: "product" });
-  const title = t("metaTitle", { name: result.product.name });
-  const description = t("metaDescription", { name: result.product.name });
+  const name = result.product.localizedNames?.[locale] ?? result.product.name;
+  const title = t("metaTitle", { name });
+  const description = t("metaDescription", { name });
   const canonical = `${SITE_URL}/${locale}${canonicalPath}`;
-  const images = result.product.imageUrl ? [{ url: result.product.imageUrl, alt: result.product.name }] : undefined;
+  const images = result.product.imageUrl ? [{ url: result.product.imageUrl, alt: name }] : undefined;
 
   return {
     title,
@@ -69,10 +70,11 @@ function productJsonLd(product: Product) {
   };
 }
 
-export default async function ProductLayout({ children, params }: { children: React.ReactNode; params: Promise<{ barcode: string }> }) {
-  const { barcode } = await params;
+export default async function ProductLayout({ children, params }: { children: React.ReactNode; params: Promise<{ barcode: string; locale: string }> }) {
+  const { barcode, locale: rawLocale } = await params;
+  const locale = routing.locales.includes(rawLocale as Locale) ? rawLocale as Locale : routing.defaultLocale;
   const result = await getPublicProduct(barcode);
-  const structured = result && indexable(result.product, result.status) ? productJsonLd(result.product) : undefined;
+  const structured = result && indexable(result.product, result.status) ? productJsonLd({ ...result.product, name: result.product.localizedNames?.[locale] ?? result.product.name }) : undefined;
 
   return (
     <>

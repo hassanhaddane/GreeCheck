@@ -7,7 +7,7 @@
  * Every method is SSR-safe (no-op / empty result on the server).
  */
 import { db, PRODUCT_TTL, type CachedProduct } from "./db";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 import type { ScanHistoryItem, FavoriteItem } from "@/domains/library/model";
 import type { CartItem } from "@greecheck/domain/cart/model";
 import type { BattleDraftItem } from "@greecheck/domain/battle/model";
@@ -186,7 +186,7 @@ export const onboardingRepo = {
 
 
 /** Replacement log — better-alternative swaps, for local weekly progress. */
-export interface ReplacementLogEntry { at: number; fromScore: number; toScore: number }
+export interface ReplacementLogEntry { at: number; fromScore: number; toScore: number; scoreVersion?: string }
 export const replacementsRepo = {
   async all(): Promise<ReplacementLogEntry[]> {
     return (await kvGet<ReplacementLogEntry[]>("replacements")) ?? [];
@@ -212,3 +212,12 @@ export const metaRepo = {
   get: <T>(key: string) => kvGet<T>(`meta.${key}`),
   set: (key: string, value: unknown) => kvSet(`meta.${key}`, value)
 };
+
+/** Atomic purge of persisted local data, including all current and legacy KV rows. */
+export async function clearLocalDatabase(): Promise<void> {
+  const database = db;
+  if (!database) return;
+  await database.transaction("rw", database.tables, async () => {
+    await Promise.all(database.tables.map((table) => table.clear()));
+  });
+}

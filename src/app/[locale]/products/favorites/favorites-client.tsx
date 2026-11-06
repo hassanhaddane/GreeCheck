@@ -3,13 +3,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Heart, ScanLine, Swords, ShoppingBasket, ChevronRight, Trash2 } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { PageHeading } from "@/components/app/page-heading";
-import { GreeButton } from "@/components/system/gree-button";
+import { greeButtonVariants } from "@/components/system/gree-button";
 import { GreeCard } from "@/components/system/gree-card";
 import { GreeBadge } from "@/components/system/gree-badge";
 import { EmptyState } from "@/components/system/empty-state";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
-import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { ProductThumbnail } from "@/components/system/product-thumbnail";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
@@ -31,6 +29,7 @@ function gradeTone(grade?: string): "positive" | "caution" | "negative" | "neutr
 /** Favorites — secondary but one tap away. Integrates with Battle & GreeCart. */
 export function FavoritesClient() {
   const t = useTranslations("favorites");
+  const tScore = useTranslations("score");
   const mounted = useMounted();
   const favorites = useFavoritesStore();
   const items = useFavoritesStore((s) => s.items);
@@ -54,7 +53,7 @@ export function FavoritesClient() {
   if (!mounted) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
-        <PageHeading title={t("title")} />
+        <h2 className="sr-only">{t("title")}</h2>
         <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /></div>
       </div>
     );
@@ -62,7 +61,7 @@ export function FavoritesClient() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
-      <PageHeading title={t("title")} />
+      <h2 className="sr-only">{t("title")}</h2>
 
       {notice && <p className="rounded-2xl bg-natural/10 px-3 py-2 text-center text-sm font-medium text-natural-strong" role="status">{notice}</p>}
 
@@ -71,7 +70,7 @@ export function FavoritesClient() {
           icon={Heart}
           title={t("empty")}
           description={t("emptyBody")}
-          action={<Link href="/scan"><GreeButton variant="neon" size="sm"><ScanLine className="h-4 w-4" /> {t("scanCta")}</GreeButton></Link>}
+          action={<Link href="/scan" className={greeButtonVariants({ size: "sm" })}><ScanLine className="h-4 w-4" aria-hidden /> {t("scanCta")}</Link>}
         />
       ) : (
         <>
@@ -84,17 +83,17 @@ export function FavoritesClient() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{e.name}</p>
                     {e.brand && <p className="truncate text-xs text-muted">{e.brand}</p>}
-                    {e.grade && <div className="mt-1"><GreeBadge tone={gradeTone(e.grade)} size="sm">{e.verdict}</GreeBadge></div>}
+                    <div className="mt-1"><GreeBadge tone={gradeTone(e.grade)} size="sm">{e.grade ? `${tScore(`grade.${e.grade}`)} · ${e.scoreVersion}` : tScore(e.scoreObsolete ? "gs3Obsolete" : "gs3Unavailable")}</GreeBadge></div>
                   </div>
-                  <GreeScoreRing value={e.score} size={46} label="" />
+                  <>{e.score !== undefined && <GreeBadge tone={gradeTone(e.grade)} className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{e.score}/100</bdi></GreeBadge>}</>
                 </Link>
                 <div className="flex shrink-0 flex-col gap-1">
                   <button onClick={() => toBattle(e)} aria-label={t("addBattle")} title={t("addBattle")}
-                    className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted hover:bg-deep hover:text-white">
+                    className="gc-pressable grid min-h-9 min-w-9 place-items-center rounded-xl bg-surface-2 text-muted hover:bg-deep hover:text-white">
                     <Swords className="h-4 w-4" />
                   </button>
                   <button onClick={() => toCart(e)} aria-label={t("addCart")} title={t("addCart")}
-                    className="gc-pressable grid h-8 w-8 place-items-center rounded-xl bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural-strong">
+                    className="gc-pressable grid min-h-9 min-w-9 place-items-center rounded-xl bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural-strong">
                     <ShoppingBasket className="h-4 w-4" />
                   </button>
                   <button onClick={() => favorites.toggle(e)} aria-label={t("remove")} title={t("remove")}

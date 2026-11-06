@@ -2,7 +2,7 @@
  * Normalized upstream/API errors — one vocabulary for routes and clients.
  * No raw upstream error ever reaches the UI.
  */
-export type ApiErrorCode = "network" | "rate_limited" | "upstream" | "invalid_request";
+export type ApiErrorCode = "network" | "rate_limited" | "unavailable" | "upstream" | "invalid_request" | "invalid_payload";
 
 export class ApiError extends Error {
   readonly code: ApiErrorCode;
@@ -17,13 +17,6 @@ export class ApiError extends Error {
   }
 }
 
-export class RateLimitedError extends ApiError {
-  constructor(retryAfterMs?: number) {
-    super("rate_limited", "upstream rate limited", retryAfterMs);
-    this.name = "RateLimitedError";
-  }
-}
-
 /** Map any thrown value to a normalized ApiError. */
 export function normalizeError(err: unknown): ApiError {
   if (err instanceof ApiError) return err;
@@ -33,10 +26,12 @@ export function normalizeError(err: unknown): ApiError {
 }
 
 /** Parse a Retry-After header (seconds or HTTP date) into milliseconds. */
-export function retryAfterMs(header: string | null): number | undefined {
-  if (!header) return undefined;
-  const secs = Number(header);
-  if (Number.isFinite(secs)) return Math.max(0, secs * 1000);
+export function retryAfterMs(header: string | null, now = Date.now()): number | undefined {
+  if (!header?.trim()) return undefined;
+  if (/^\d+$/.test(header.trim())) {
+    const ms = Number(header) * 1000;
+    return Number.isFinite(ms) ? ms : undefined;
+  }
   const at = Date.parse(header);
-  return Number.isNaN(at) ? undefined : Math.max(0, at - Date.now());
+  return Number.isNaN(at) ? undefined : Math.max(0, at - now);
 }

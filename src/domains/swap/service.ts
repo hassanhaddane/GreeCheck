@@ -18,12 +18,12 @@ import {
 
 /**
  * Suggest validated healthier alternatives. Returns [] when the product is not
- * swap-eligible or when no TRUSTWORTHY alternative exists (the UI then renders
- * nothing — never an empty section).
+ * swap-eligible or when no TRUSTWORTHY alternative exists (the UI explains why no suggestion is offered).
  */
 export async function getAlternatives(
   product: Product,
-  prefs: LocalPreferences
+  prefs: LocalPreferences,
+  signal?: AbortSignal
 ): Promise<ProductAlternative[]> {
   const curGree = computeGreeScore(product, prefs);
   if (!isSwapEligible(product, curGree, prefs).eligible) return [];
@@ -32,9 +32,10 @@ export async function getAlternatives(
   if (!cat) return [];
 
   const res = await fetch(
-    `/api/alternatives?category=${encodeURIComponent(cat)}&exclude=${product.barcode}`
+    `/api/alternatives?category=${encodeURIComponent(cat)}&exclude=${product.barcode}`,
+    { signal }
   );
-  if (!res.ok) return [];
+  if (!res.ok) throw new Error("Alternative lookup failed");
   const data = (await res.json()) as { products?: Product[] };
 
   const candidates = (data.products ?? [])

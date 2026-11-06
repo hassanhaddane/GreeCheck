@@ -38,3 +38,9 @@ export function organicCertificationOf(labels: string[] | undefined): OrganicCer
   const label = cleaned.find((l) => (OFFICIAL_ORGANIC_LABELS as readonly string[]).includes(l));
   return label ? { certified: true, label } : { certified: false };
 }
+
+/** Named certification label reported by the source. The generic taxonomy tag is excluded. */
+export function specificOrganicLabelOf(labels: string[] | undefined): string | undefined {
+  const matched = organicCertificationOf(labels?.filter(label => !["organic", "agriculture biologique"].includes(label.trim().toLowerCase())));
+  return matched.label;
+}

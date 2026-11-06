@@ -1,5 +1,7 @@
 "use client";
+import { LibraryNavigation } from "../products/library-navigation";
 import { useEffect, useState } from "react";
+import { METHODOLOGY_VERSION } from "@greecheck/domain/scoring/methodology";
 import { useTranslations } from "next-intl";
 import { Plus, Minus, Trash2, ScanLine } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -18,13 +20,13 @@ export function ListClient() {
   const { items, hydrated, ensureHydrated, add, toggle, remove, setQuantity, clearChecked } = useShoppingListStore();
   const [draft, setDraft] = useState("");
 
-  useEffect(() => ensureHydrated(), [ensureHydrated]);
+  useEffect(() => { void ensureHydrated(); }, [ensureHydrated]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const name = draft.trim();
     if (!name) return;
-    add({ name, source: "manual" });
+    void add({ name, source: "manual" });
     setDraft("");
   };
 
@@ -33,6 +35,7 @@ export function ListClient() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeading title={t("title")} subtitle={t("subtitle")} />
+      <LibraryNavigation />
 
       <form onSubmit={submit} className="mb-4 flex gap-2">
         <label htmlFor="list-add" className="sr-only">{t("addLabel")}</label>
@@ -95,7 +98,7 @@ export function ListClient() {
                       item.name
                     )}
                   </label>
-                  {item.grade && (
+                  {item.grade && item.scoreVersion === METHODOLOGY_VERSION && (
                     <GreeBadge size="sm" tone={item.grade === "A" || item.grade === "B" ? "positive" : item.grade === "C" ? "caution" : "negative"}>
                       {item.grade}
                     </GreeBadge>

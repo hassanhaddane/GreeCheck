@@ -12,19 +12,22 @@
  *   • one stable normalized envelope (`ProductLookup`) — the UI never needs
  *     source-specific conditions.
  */
-import type { ProductResult, SearchResult } from "@/services/api/openfoodfacts";
+import type { DataLocale, ProductResult, SearchResult } from "@/services/api/product-contracts";
 import type { Product, AssessmentStatus, Confidence } from "@greecheck/domain/product/model";
 import { ensureDerived, assessProduct } from "@greecheck/domain/product/normalizer";
+import { retryAfterMs } from "@/services/api/errors";
+import type { DataState } from "@greecheck/domain/product/provenance";
 import { productCacheRepo } from "@/services/storage/repositories";
 
 /* ───────────────────────── lookup envelope ───────────────────────── */
 
-export type StaleReason = "network_error" | "rate_limited";
+export type StaleReason = "network_error" | "rate_limited" | "upstream_unavailable";
 
 export type ProductLookup =
   | {
       kind: "product";
       status: AssessmentStatus;
+      dataState: DataState;
       product: Product;
       confidence: Confidence;
       missing: string[];
@@ -33,9 +36,9 @@ export type ProductLookup =
       cachedAt?: number;
       staleReason?: StaleReason;
     }
-  | { kind: "not_found"; barcode: string }
-  | { kind: "network_error"; barcode: string }
-  | { kind: "rate_limited"; barcode: string; retryAfterMs?: number };
+  | { kind: "not_found"; dataState: "UNAVAILABLE"; barcode: string }
+  | { kind: "network_error"; dataState: "UNAVAILABLE"; barcode: string; retryAfterMs?: number }
+  | { kind: "rate_limited"; dataState: "UNAVAILABLE"; barcode: string; retryAfterMs?: number };
 
 /* ─────────────────── legacy cache-row revival (shim) ─────────────────── */
 
@@ -48,10 +51,11 @@ function reviveResult(result: ProductResult): ProductResult {
 }
 
 function toLookup(result: ProductResult, stale: false | { cachedAt?: number; reason: StaleReason }): ProductLookup {
-  if (result.status === "not_found") return { kind: "not_found", barcode: result.barcode };
+  if (result.status === "not_found") return { kind: "not_found", dataState: "UNAVAILABLE", barcode: result.barcode };
   return {
     kind: "product",
     status: result.status,
+    dataState: stale ? "STALE" : (result.product.dataState ?? "PARTIAL"),
     product: result.product,
     confidence: result.confidence,
     missing: result.missing,
@@ -65,13 +69,15 @@ function toLookup(result: ProductResult, stale: false | { cachedAt?: number; rea
 
 const inflight = new Map<string, Promise<ProductLookup>>();
 const searchInflight = new Map<string, Promise<SearchResult>>();
-let rateLimitedUntil = 0;
+let lookupCooldown: { until: number; reason: "rate_limited" | "upstream_unavailable" } | undefined;
+let searchCooldownUntil = 0;
 
 /** Test-only escape hatch. */
 export function __resetRepositoryForTests() {
   inflight.clear();
   searchInflight.clear();
-  rateLimitedUntil = 0;
+  lookupCooldown = undefined;
+  searchCooldownUntil = 0;
 }
 
 async function staleFallback(code: string, reason: StaleReason): Promise<ProductLookup | undefined> {
@@ -82,49 +88,79 @@ async function staleFallback(code: string, reason: StaleReason): Promise<Product
   return toLookup(revived, { cachedAt: cached.cachedAt, reason });
 }
 
+/** Read the device cache without making a network request. */
+export async function getCachedProduct(barcode: string): Promise<Extract<ProductLookup, { kind: "product" }> | undefined> {
+  const result = await staleFallback(barcode, "network_error");
+  return result?.kind === "product" ? result : undefined;
+}
+
+async function withRequestTimeout<T>(timeout: number, read: (signal: AbortSignal) => Promise<T>): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    return await read(controller.signal);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /* ──────────────────────────── barcode lookup ───────────────────────────── */
 
 async function lookupUncached(code: string, force: boolean): Promise<ProductLookup> {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return unavailable(code, "network_error");
+
   // Fresh local cache first (24h TTL).
   if (!force) {
     const cached = await productCacheRepo.get(code);
     if (cached) return toLookup(reviveResult(cached), false);
   }
 
-  // Rate-limit cooldown: don't hammer the proxy; degrade to stale data.
-  if (Date.now() < rateLimitedUntil) {
-    return (await staleFallback(code, "rate_limited")) ?? { kind: "rate_limited", barcode: code, retryAfterMs: rateLimitedUntil - Date.now() };
+  if (lookupCooldown && Date.now() < lookupCooldown.until) {
+    return unavailable(code, lookupCooldown.reason, lookupCooldown.until - Date.now());
   }
 
   try {
-    const res = await fetch(`/api/product/${code}`);
+    return await withRequestTimeout(15_000, async (signal) => {
+      const res = await fetch("/api/product/" + encodeURIComponent(code), { cache: force ? "reload" : "default", signal });
 
-    if (res.status === 429) {
-      const retryMs = Number(res.headers.get("retry-after") ?? "30") * 1000 || 30_000;
-      rateLimitedUntil = Date.now() + Math.min(retryMs, 120_000);
-      return (await staleFallback(code, "rate_limited")) ?? { kind: "rate_limited", barcode: code, retryAfterMs: retryMs };
-    }
-    if (res.status === 404) {
-      return { kind: "not_found", barcode: code };
-    }
-    if (!res.ok) {
-      return (await staleFallback(code, "network_error")) ?? { kind: "network_error", barcode: code };
-    }
-
-    const result = reviveResult((await res.json()) as ProductResult);
-    if (result.status !== "not_found") {
-      void productCacheRepo.put(code, result);
-    }
-    return toLookup(result, false);
+      if (res.status === 429 || res.status === 503) {
+        const retryMs = retryAfterMs(res.headers.get("retry-after")) ?? 30_000;
+        const reason = res.status === 429 ? "rate_limited" : "upstream_unavailable";
+        const until = Date.now() + retryMs;
+        if (!lookupCooldown || lookupCooldown.until <= until) lookupCooldown = { until, reason };
+        return unavailable(code, reason, retryMs);
+      }
+      if (!res.ok && res.status !== 404) throw new Error("Lookup failed");
+      const body = await res.json() as ProductResult | null;
+      if (res.status === 404 && body?.status === "not_found" && body.barcode === code) {
+        return { kind: "not_found", dataState: "UNAVAILABLE", barcode: code };
+      }
+      if (!res.ok || !body || !["complete", "usable_incomplete", "insufficient_for_score"].includes(body.status) ||
+        body.status === "not_found" || body.product?.barcode !== code || typeof body.product.name !== "string" ||
+        !body.product.nutriments || typeof body.product.nutriments !== "object" || Array.isArray(body.product.nutriments) ||
+        Object.values(body.product.nutriments).some(value => typeof value !== "number" || !Number.isFinite(value) || value < 0) ||
+        (body.product.source !== "openfoodfacts" && body.product.source !== "usda")) {
+        throw new Error("Invalid lookup response");
+      }
+      const result = reviveResult(body);
+      await productCacheRepo.put(code, result);
+      return toLookup(result, false);
+    });
   } catch {
-    // Offline / fetch failure: freshest local copy, explicitly marked stale.
-    return (await staleFallback(code, "network_error")) ?? { kind: "network_error", barcode: code };
+    return unavailable(code, "network_error");
   }
+}
+
+async function unavailable(code: string, reason: StaleReason, retryMs?: number): Promise<ProductLookup> {
+  return (await staleFallback(code, reason)) ?? {
+    kind: reason === "rate_limited" ? "rate_limited" : "network_error",
+    dataState: "UNAVAILABLE", barcode: code, retryAfterMs: retryMs
+  };
 }
 
 /** Barcode lookup — deduplicated, cached, rate-limit-aware, stale-explicit. */
 export function getProduct(barcode: string, opts: { force?: boolean } = {}): Promise<ProductLookup> {
-  const code = barcode.replace(/\D/g, "");
+  const code = barcode.trim();
   const key = `${code}|${opts.force ? 1 : 0}`;
   const pending = inflight.get(key);
   if (pending) return pending;
@@ -137,17 +173,25 @@ export function getProduct(barcode: string, opts: { force?: boolean } = {}): Pro
 /* ─────────────────────────────── search ───────────────────────────────── */
 
 /** Full-text product search through the internal proxy (deduplicated). */
-export function searchProductsClient(query: string, page = 1): Promise<SearchResult> {
-  const key = `${query.trim().toLowerCase()}|${page}`;
+export function searchProductsClient(query: string, page = 1, locale: DataLocale = "fr"): Promise<SearchResult> {
+  const q = query.trim();
+  const key = JSON.stringify([q, page, locale]);
   const pending = searchInflight.get(key);
   if (pending) return pending;
 
-  const p = (async () => {
-    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&page=${page}`);
-    if (res.status === 429) throw new Error("search_rate_limited");
-    if (!res.ok) throw new Error(`search_failed_${res.status}`);
-    return (await res.json()) as SearchResult;
-  })().finally(() => searchInflight.delete(key));
+  const p = withRequestTimeout(13_000, async (signal) => {
+    if (Date.now() < searchCooldownUntil) throw new Error("search_cooldown");
+    const params = new URLSearchParams({ q, page: String(page), locale });
+    const res = await fetch("/api/search?" + params.toString(), { signal });
+    if (res.status === 429 || res.status === 503) {
+      const until = Date.now() + (retryAfterMs(res.headers.get("retry-after")) ?? 30_000);
+      searchCooldownUntil = Math.max(searchCooldownUntil, until);
+    }
+    if (!res.ok) throw new Error("search_failed_" + res.status);
+    const result = await res.json() as SearchResult | null;
+    if (!result || !Array.isArray(result.products) || !Number.isInteger(result.count)) throw new Error("search_invalid_payload");
+    return result;
+  }).finally(() => searchInflight.delete(key));
   searchInflight.set(key, p);
   return p;
 }

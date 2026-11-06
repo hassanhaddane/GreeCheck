@@ -14,6 +14,7 @@ export interface ShoppingListItem {
   imageUrl?: string;
   /** GreeScore grade at add time, when the item came from a scored product. */
   grade?: ScoreGrade;
+  scoreVersion?: string;
   /** Purchase quantity (≥ 1). */
   quantity: number;
   checked: boolean;

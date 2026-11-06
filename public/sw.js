@@ -1,13 +1,16 @@
 /* GreeCheck service worker — public shell/assets only. User data stays in IndexedDB. */
-const VERSION = "gc-v4";
+const revision = new URL(self.location.href).searchParams.get("build") ?? "";
+const VERSION = "gc-v6" + (/^[a-z0-9]{7,40}$/.test(revision) ? "-" + revision : "");
 const SHELL = `${VERSION}-shell`;
+const STATIC = `${VERSION}-static`;
 const RUNTIME = `${VERSION}-runtime`;
 const MAX_RUNTIME_ENTRIES = 40;
+const isGreeCache = (name) => /^gc-v\d+(?:-[a-z0-9]+)?-(?:shell|static|runtime)$/.test(name);
 
+const PAGES = ["fr", "en", "ar"].flatMap((locale) => ["/offline", "/scan", "/products", "/products/favorites", "/list"]
+  .map((route) => `/${locale}${route}`));
 const PRECACHE = [
-  "/fr/offline",
-  "/en/offline",
-  "/ar/offline",
+  ...PAGES,
   "/fr/manifest.webmanifest",
   "/en/manifest.webmanifest",
   "/ar/manifest.webmanifest",
@@ -20,29 +23,34 @@ const PRECACHE = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     // Atomic install: a broken release must not replace the last working worker.
-    caches.open(SHELL).then((cache) => cache.addAll(PRECACHE))
+    (async () => {
+      const cache = await caches.open(SHELL);
+      await cache.addAll(PRECACHE);
+      const assets = new Set();
+      await Promise.all(PAGES.map(async (path) => {
+        const page = await cache.match(path);
+        for (const [, asset] of (await page.text()).matchAll(/(?:src|href)="(\/_next\/static\/[^"]+)"/g)) {
+          assets.add(asset);
+        }
+      }));
+      await cache.addAll([...assets]);
+    })()
   );
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== SHELL && key !== RUNTIME).map((key) => caches.delete(key))))
+      .then((keys) => Promise.all(keys.filter((key) => isGreeCache(key) && key !== SHELL && key !== STATIC && key !== RUNTIME).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("message", (event) => {
   if (event.data === "SKIP_WAITING") self.skipWaiting();
-  // Obsolete-cache recovery: the page asks us to drop every cache when it
-  // detects assets that no longer exist (stale shell after a deployment).
-  if (event.data === "CLEAR_CACHES") {
-    event.waitUntil(
-      caches.keys()
-        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
-        .then(() => self.clients.matchAll({ type: "window" }))
-        .then((clients) => clients.forEach((client) => client.postMessage("CACHES_CLEARED")))
-    );
+  if (event.data === "RECOVER_CACHES") {
+    event.waitUntil(Promise.all([caches.delete(STATIC), caches.delete(RUNTIME)])
+      .then(() => event.source?.postMessage("CACHES_CLEARED")));
   }
 });
 
@@ -72,14 +80,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  if (request.mode === "navigate") {
+  if (sameOrigin && request.mode === "navigate" && !url.pathname.startsWith("/api/")) {
     event.respondWith((async () => {
       try {
         const response = await fetch(request);
-        event.waitUntil(putBounded(RUNTIME, request, response.clone()));
+        if (!url.search) event.waitUntil(putBounded(RUNTIME, request, response.clone()));
         return response;
       } catch {
-        const cached = await caches.match(request, { ignoreSearch: true });
+        const cached = (!url.search && await caches.match(request, { cacheName: RUNTIME }))
+          || (await caches.match(url.pathname, { cacheName: SHELL }));
         if (cached) return cached;
         const locale = localeFromPath(url.pathname);
         return (await caches.match(`/${locale}/offline`)) || (await caches.match("/fr/offline")) || Response.error();
@@ -90,9 +99,11 @@ self.addEventListener("fetch", (event) => {
 
   if (sameOrigin && isStaticAsset(url)) {
     event.respondWith((async () => {
-      const cached = await caches.match(request);
+      const pinned = await (await caches.open(SHELL)).match(request);
+      if (pinned) return pinned;
+      const cached = await caches.match(request, { cacheName: STATIC });
       const network = fetch(request).then((response) => {
-        event.waitUntil(putBounded(SHELL, request, response.clone()));
+        event.waitUntil(putBounded(STATIC, request, response.clone()));
         return response;
       }).catch(() => cached);
       return cached || network;
@@ -100,7 +111,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (/openfoodfacts\.org$/.test(url.hostname)) {
+  if (request.destination === "image" && ["images.openfoodfacts.org", "world.openfoodfacts.org", "static.openfoodfacts.org"].includes(url.hostname)) {
     event.respondWith(fetch(request).then((response) => {
       event.waitUntil(putBounded(RUNTIME, request, response.clone()));
       return response;

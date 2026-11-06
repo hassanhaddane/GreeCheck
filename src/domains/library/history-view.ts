@@ -57,9 +57,13 @@ export function filterHistory(
 ): ScanHistoryItem[] {
   const out = entries.filter((e) => {
     if (!withinDate(e, filters.date, now)) return false;
-    if (filters.quality === "good" && e.score < GOOD_THRESHOLD) return false;
-    if (filters.quality === "poor" && e.score >= POOR_THRESHOLD) return false;
-    if (e.score < filters.minScore || e.score > filters.maxScore) return false;
+    if (e.score === undefined) {
+      if (filters.quality !== "all" || filters.minScore > 0 || filters.maxScore < 100) return false;
+    } else {
+      if (filters.quality === "good" && e.score < GOOD_THRESHOLD) return false;
+      if (filters.quality === "poor" && e.score >= POOR_THRESHOLD) return false;
+      if (e.score < filters.minScore || e.score > filters.maxScore) return false;
+    }
     if (filters.category && e.category !== filters.category) return false;
     if (filters.favoritesOnly && !isFavorite(e.barcode)) return false;
     if (filters.organicOnly && !e.isBio) return false;

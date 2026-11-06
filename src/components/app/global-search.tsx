@@ -1,38 +1,37 @@
 "use client";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
-import { useRouter, usePathname } from "@/i18n/routing";
+import Form from "next/form";
+import { useLocale, useTranslations } from "next-intl";
+import { ArrowRight, Search } from "lucide-react";
+import { getPathname, usePathname, type Locale } from "@/i18n/routing";
 
 /** Desktop top-bar global search — search is always one keystroke away. */
-export function GlobalSearch() {
+export function GlobalSearch({ home = false }: { home?: boolean }) {
   const t = useTranslations("nav");
-  const router = useRouter();
+  const h = useTranslations("home");
+  const locale = useLocale() as Locale;
   const pathname = usePathname();
-  const [q, setQ] = useState("");
 
   // The search page has its own dominant search field.
-  if (pathname === "/search") return null;
+  if (!home && (pathname === "/search" || pathname === "/")) return null;
 
   return (
-    <form
+    <Form
+      action={getPathname({ locale, href: "/search" })}
+      prefetch={false}
       role="search"
       aria-label={t("searchLabel")}
-      className="hidden max-w-xs flex-1 items-center gap-2 rounded-2xl border border-line bg-surface-2/60 px-3 md:flex"
-      onSubmit={(e) => {
-        e.preventDefault();
-        router.push(q.trim() ? `/search?q=${encodeURIComponent(q.trim())}` : "/search");
-        setQ("");
-      }}
+      className={home ? "gc-field flex items-center gap-3 pe-1.5 ps-3.5" : "gc-field hidden w-[clamp(8rem,14vw,12rem)] items-center gap-2 px-3 lg:flex"}
     >
       <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden />
       <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder={t("searchLabel")}
+        name="q"
+        placeholder={home ? h("search.placeholder") : t("searchLabel")}
         aria-label={t("searchLabel")}
-        className="h-9 min-w-0 flex-1 bg-transparent text-sm outline-none"
+        type="search"
+        autoComplete="off"
+        className="h-11 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted lg:text-sm"
       />
-    </form>
+      {home && <button type="submit" className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-pastel-sage text-ink hover:bg-surface-3" aria-label={t("search")}><ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden /></button>}
+    </Form>
   );
 }

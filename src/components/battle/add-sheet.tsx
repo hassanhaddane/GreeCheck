@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/routing";
 import { motion, AnimatePresence } from "framer-motion";
 import { ScanLine, Search as SearchIcon, Keyboard, ArrowRight, Plus, Check, Loader2, CameraOff, Library, History, Heart, ShoppingBasket } from "lucide-react";
 import { GreeButton } from "@/components/system/gree-button";
@@ -83,26 +84,36 @@ export function AddSheet({ onClose, initialMode = "search" }: { onClose: () => v
 /* ── search ── */
 function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
   const t = useTranslations("battle");
+  const data = useTranslations("productData");
+  const locale = useLocale() as Locale;
   const has = useBattleStore((s) => s.has);
   const [q, setQ] = useState("");
   const [items, setItems] = useState<Product[]>([]);
-  const [status, setStatus] = useState<"idle" | "loading" | "ok">("idle");
-  const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   useEffect(() => {
-    clearTimeout(debounce.current);
+    let current = true;
     const query = q.trim();
-    if (query.length < 2) {
-      debounce.current = setTimeout(() => { setItems([]); setStatus("idle"); }, 0);
-      return () => clearTimeout(debounce.current);
-    }
-    debounce.current = setTimeout(async () => {
+    const timer = setTimeout(async () => {
+      if (query.length < 2) {
+        setItems([]);
+        setStatus("idle");
+        return;
+      }
       setStatus("loading");
-      try { const d = await searchProductsClient(query); setItems(d.products); setStatus("ok"); }
-      catch { setItems([]); setStatus("ok"); }
-    }, 400);
-    return () => clearTimeout(debounce.current);
-  }, [q]);
+      try {
+        const result = await searchProductsClient(query, 1, locale);
+        if (!current) return;
+        setItems(result.products.map(product => ({ ...product, name: product.localizedNames?.[locale] ?? product.name })));
+        setStatus("ok");
+      } catch {
+        if (!current) return;
+        setItems([]);
+        setStatus("error");
+      }
+    }, query.length < 2 ? 0 : 600);
+    return () => { current = false; clearTimeout(timer); };
+  }, [q, locale]);
 
   return (
     <div className="space-y-3">
@@ -111,6 +122,7 @@ function SearchTab({ onAdd }: { onAdd: (p: Product) => void }) {
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("searchPlaceholder")} autoFocus className="h-11 flex-1 bg-transparent text-sm outline-none" />
       </div>
       {status === "loading" && <div className="space-y-2"><ProductRowSkeleton /><ProductRowSkeleton /></div>}
+      {status === "error" && <p className="py-6 text-center text-sm text-muted" role="status">{data("searchError")}</p>}
       {status === "ok" && items.length === 0 && <p className="py-6 text-center text-sm text-muted">{t("noResults")}</p>}
       <div className="space-y-2">
         {items.slice(0, 12).map((p) => {

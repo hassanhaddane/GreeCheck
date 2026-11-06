@@ -5,8 +5,8 @@ type Variant = "plain" | "glass" | "deep" | "tinted";
 
 const VARIANT_CLASSES: Record<Variant, string> = {
   plain: "gc-card",
-  glass: "gc-glass rounded-2xl shadow-glass gc-edge",
-  deep: "relative overflow-hidden rounded-2xl bg-deep-grad text-white shadow-glass gc-edge",
+  glass: "gc-card",
+  deep: "relative overflow-hidden rounded-2xl bg-deep text-white",
   tinted: "rounded-2xl border border-natural/25 bg-natural/5 shadow-soft"
 };
 

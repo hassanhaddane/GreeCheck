@@ -9,9 +9,8 @@ import { usePreferencesStore } from "@/domains/criteria/store";
 import type { PrefKey } from "@greecheck/domain/criteria/goals";
 import { useMounted } from "@/hooks/use-mounted";
 
-/** The 8 default-visible criteria (order per spec). */
-const DEFAULT_KEYS: PrefKey[] = [
-  "preferBio", "preferHalal", "reduceSugar", "reduceSalt",
+const DEFAULT_KEYS: (PrefKey | "preferEnvironment")[] = [
+  "preferBio", "preferEnvironment", "preferHalal", "reduceSugar", "reduceSalt",
   "reduceAdditives", "reduceUltraProcessed", "increaseProtein", "increaseFiber"
 ];
 const ADVANCED_KEYS: PrefKey[] = ["preferVegan", "preferVegetarian"];

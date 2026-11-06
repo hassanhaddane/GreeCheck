@@ -1,60 +1,42 @@
 "use client";
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/routing";
-import { BOTTOM_NAV } from "@/lib/constants/navigation";
+import { PRIMARY_NAV } from "@/lib/constants/navigation";
 import { cn } from "@/lib/utils/cn";
 
-/**
- * Floating premium bottom nav — frosted dock, animated active pill
- * (shared layoutId) and a dominant central scan button with a soft
- * pulsing halo.
- */
-export function BottomNav() {
+export function PrimaryNav({ mobile = false }: { mobile?: boolean }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
-
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 px-4 pb-[env(safe-area-inset-bottom)] md:hidden">
-      <div className="gc-glass gc-edge mx-auto mb-3 flex max-w-md items-center justify-around rounded-[1.75rem] px-2 py-2 shadow-glass">
-        {BOTTOM_NAV.map((item) => {
-          const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const Icon = item.icon;
-          if (item.primary) {
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-label={t(item.key)}
-                className="gc-pressable gc-pulse-ring relative -mt-8 grid h-[4.25rem] w-[4.25rem] place-items-center rounded-full bg-natural-grad shadow-raised ring-4 ring-bg"
-              >
-                <Icon className="h-7 w-7 text-white" strokeWidth={2.4} />
-              </Link>
-            );
-          }
-          return (
-            <Link
-              key={item.key}
-              href={item.href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "gc-pressable relative flex min-w-0 flex-1 flex-col items-center gap-1 rounded-2xl py-2 text-[0.65rem] font-medium",
-                active ? "text-deep dark:text-natural-strong" : "text-muted"
-              )}
-            >
-              {active && (
-                <motion.span
-                  layoutId="nav-pill"
-                  className="absolute inset-x-1.5 inset-y-0.5 -z-10 rounded-2xl bg-natural/10"
-                  transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                />
-              )}
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
-              <span className="max-w-full truncate px-0.5">{t(item.key)}</span>
-            </Link>
-          );
-        })}
-      </div>
+    <nav aria-label={t("primary")} className={mobile ? "mx-auto grid max-w-lg grid-cols-3 gap-1" : "hidden min-w-0 flex-wrap items-center gap-1 py-1 md:flex"}>
+      {PRIMARY_NAV.map(({ key, href, icon: Icon, primary }) => {
+        const active = pathname === href || pathname.startsWith(href + "/") || (key === "products" && pathname === "/list");
+        return (
+          <Link
+            key={key}
+            href={href}
+            aria-current={active ? (pathname === href ? "page" : "location") : undefined}
+            className={cn(
+              "gc-pressable flex min-w-0 items-center justify-center gap-1.5 rounded-xl px-2.5 font-semibold transition-colors",
+              mobile ? "min-h-[3.25rem] flex-col py-1.5 text-xs" : "min-h-10 text-sm [&>svg]:hidden lg:[&>svg]:block",
+              primary ? "bg-deep text-white hover:bg-deep/90"
+                : active ? "bg-pastel-sage text-ink" : "text-muted hover:bg-surface-2 hover:text-ink",
+              active && "underline decoration-2 underline-offset-4"
+            )}
+          >
+            <Icon aria-hidden className={mobile ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0"} />
+            <span className="text-center leading-tight">{t(key)}</span>
+          </Link>
+        );
+      })}
     </nav>
+  );
+}
+
+export function BottomNav() {
+  return (
+    <div className="gc-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-line bg-bg px-3 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))] md:hidden">
+      <PrimaryNav mobile />
+    </div>
   );
 }

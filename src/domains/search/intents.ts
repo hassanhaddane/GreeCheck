@@ -7,6 +7,7 @@
  *  same output.
  * ════════════════════════════════════════════════════════════════════════
  */
+import { normalizeBarcodeInput } from "@/lib/utils/parse-scan";
 import type { FilterLocale } from "@/types/filters";
 
 export interface IntentResult {
@@ -102,9 +103,9 @@ export const INTENT_PRESETS: IntentPreset[] = [
   { id: "less_processed", label: { fr: "Peu transformé", en: "Less processed", ar: "أقل معالجة" }, query: { fr: "peu transformé", en: "less processed", ar: "أقل معالجة" } }
 ];
 
-const BARCODE_RE = /^\d{8,14}$/;
+const BARCODE_RE = /^(?:\d{8}|\d{12,14})$/;
 
 /** True when the raw query is a scannable product barcode (EAN/UPC). */
 export function isBarcodeQuery(raw: string): boolean {
-  return BARCODE_RE.test(raw.trim());
+  return BARCODE_RE.test(normalizeBarcodeInput(raw));
 }

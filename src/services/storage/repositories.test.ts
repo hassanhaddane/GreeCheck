@@ -6,14 +6,18 @@ import { localStorageStub } from "./test-setup";
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { db, PRODUCT_TTL } from "./db";
-import { historyRepo, cartRepo, productCacheRepo, preferencesRepo } from "./repositories";
+import { historyRepo, cartRepo, productCacheRepo, preferencesRepo, shoppingListRepo } from "./repositories";
+import { migrateScoreSnapshots } from "./migrate-score";
+import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
+import { water } from "@greecheck/domain/scoring/gs3-fixtures";
 import { bootLocalData, __resetBootForTests } from "./boot";
 import { resetApp } from "./local-data";
+import { useShoppingListStore } from "@/domains/list/store";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useCartStore } from "@/domains/cart/store";
 import { usePreferencesStore, defaultPreferences } from "@/domains/criteria/store";
 import type { Product } from "@greecheck/domain/product/model";
-import type { ProductResult } from "@/services/api/openfoodfacts";
+import type { ProductResult } from "@/services/api/product-contracts";
 
 const ls = localStorageStub();
 const product = (barcode: string): Product => ({ barcode, name: `P${barcode}`, nutriments: {}, source: "openfoodfacts" });
@@ -46,7 +50,7 @@ test("boot hydrates every feature store from its repository", async () => {
 test("boot merges an eager first action instead of erasing it", async () => {
   await db!.cart.put({ product: product("persisted"), score: 60, addedAt: 1 });
   await db!.kv.put({ key: "meta.legacyMigrated", value: true });
-  useCartStore.getState().addProduct(product("eager"), { global: 75 } as never);
+  useCartStore.getState().addProduct(product("eager"), computeGreeScore(product("eager"), defaultPreferences));
 
   await bootLocalData();
 
@@ -62,7 +66,7 @@ test("store mutations write through to the repository", async () => {
   await new Promise((r) => setTimeout(r, 20));
   assert.equal((await historyRepo.all())[0]?.barcode, "777");
 
-  useCartStore.getState().addProduct(product("888"), { global: 55 } as never);
+  useCartStore.getState().addProduct(product("888"), computeGreeScore(product("888"), defaultPreferences));
   await new Promise((r) => setTimeout(r, 20));
   assert.equal((await cartRepo.all())[0]?.product.barcode, "888");
 });
@@ -92,8 +96,10 @@ test("repository reads fail gracefully (closed DB → empty results, no throw)",
 
 test("local reset clears every store and every repository", async () => {
   useHistoryStore.getState().add({ barcode: "1", name: "A", score: 1, verdict: "x", scannedAt: 1 });
-  useCartStore.getState().addProduct(product("2"), { global: 50 } as never);
+  useCartStore.getState().addProduct(product("2"), computeGreeScore(product("2"), defaultPreferences));
   usePreferencesStore.getState().setPreferences({ preferBio: true });
+  await shoppingListRepo.set([{ id: "reset-list", name: "Pommes", quantity: 1, checked: false, addedAt: 1, source: "manual" }]);
+  await db!.kv.put({ key: "replacements", value: [{ at: 1 }] });
   ls.setItem("greecheck.theme", "dark");
   await new Promise((r) => setTimeout(r, 20));
 
@@ -105,4 +111,52 @@ test("local reset clears every store and every repository", async () => {
   assert.deepEqual(await historyRepo.all(), []);
   assert.deepEqual(await cartRepo.all(), []);
   assert.equal(ls.getItem("greecheck.theme"), null);
+  assert.deepEqual(await db!.kv.toArray(), []);
+  assert.deepEqual(useShoppingListStore.getState().items, []);
+});
+
+test("first additions to the shopping list retain saved entries and combine concurrent quantities", async () => {
+  await shoppingListRepo.set([
+    { id: "saved", name: "Pommes", quantity: 2, checked: true, addedAt: 1, source: "manual" }
+  ]);
+  useShoppingListStore.setState({ items: [], hydrated: false });
+  const list = useShoppingListStore.getState();
+  assert.equal(list.hydrated, false);
+
+  const oats = { barcode: "22222220", name: "Avoine" };
+  await Promise.all([list.add(oats), list.addMany([oats, { id: "pears", name: "Poires" }])]);
+
+  const items = await shoppingListRepo.get();
+  assert.equal(items?.find((item) => item.id === "saved")?.checked, true);
+  assert.equal(items?.find((item) => item.id === oats.barcode)?.quantity, 2);
+  assert.equal(items?.find((item) => item.id === "pears")?.quantity, 1);
+});
+
+test("GS-3 recomputes cached snapshots, archives old notes and preserves history across reruns", async () => {
+  const cached = { ...water, barcode: "111" };
+  const legacy = { barcode: cached.barcode, name: "Eau", score: 90, grade: "A" as const, verdict: "ok", warningCode: "additiveAvoid", scannedAt: 5, favorite: true };
+  await db!.history.bulkPut([legacy, { ...legacy, barcode: "missing", score: 50, grade: "C" }]);
+  await db!.favorites.put(legacy);
+  await db!.cart.bulkPut([{ product: cached, score: 90, addedAt: 1 }, { product: product("partial"), score: 50, addedAt: 2 }]);
+  await productCacheRepo.put(cached.barcode, { ...found(cached.barcode), product: cached } as ProductResult);
+
+  await bootLocalData();
+  const history = await db!.history.toArray();
+  const current = history.find(entry => entry.barcode === cached.barcode);
+  const obsolete = history.find(entry => entry.barcode === "missing");
+  assert.equal(current?.score, 100);
+  assert.equal(current?.scoreVersion, "GS-3.0.0");
+  assert.equal(current?.scannedAt, 5);
+  assert.equal(current?.favorite, true);
+  assert.equal(current?.warningCode, undefined);
+  assert.deepEqual(current?.previousScore, { score: 90, grade: "A", version: "legacy" });
+  assert.equal(obsolete?.score, undefined);
+  assert.equal(obsolete?.grade, undefined);
+  assert.equal(obsolete?.scoreObsolete, true);
+  assert.equal((await db!.favorites.get(cached.barcode))?.score, 100);
+  assert.equal((await db!.cart.get(cached.barcode))?.score, 100);
+  assert.equal((await db!.cart.get("partial"))?.score, undefined);
+  assert.equal((await db!.cart.get("partial"))?.addedAt, 2);
+  await migrateScoreSnapshots();
+  assert.deepEqual(await db!.history.toArray(), history);
 });

@@ -48,10 +48,10 @@ export function BattleCard({
       </div>
 
       <div className="relative">
-        <GreeScoreRing value={gree.global} size={70} label="" tone={isWinner ? "brand" : "band"} />
-        <span className={cn("absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-lg text-xs font-extrabold text-white", GRADE_BG[gree.grade])}>
+        <GreeScoreRing value={gree.score} size={70} label="" tone={isWinner ? "brand" : "band"} />
+        {gree.status === "scored" && <span className={cn("absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-lg text-xs font-extrabold text-white", GRADE_BG[gree.grade])}>
           {gree.grade}
-        </span>
+        </span>}
       </div>
 
       <p className="line-clamp-2 min-h-[2.2rem] text-xs font-semibold leading-tight">{p.name}</p>

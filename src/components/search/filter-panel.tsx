@@ -7,7 +7,7 @@ import { Chip } from "@/components/ui/chip";
 import { GreeButton } from "@/components/system/gree-button";
 import { NUTRI_COLORS, NOVA_COLORS } from "@/lib/constants/badges";
 import { FILTER_DEFS, NUTRI_LETTERS, NOVA_GROUPS } from "@/lib/filters/definitions";
-import type { FilterGroup, FilterLocale } from "@/types/filters";
+import type { FilterLocale } from "@/types/filters";
 
 export interface FilterSelection {
   active: Set<string>;
@@ -32,14 +32,10 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
   const locale = useLocale() as FilterLocale;
   const activeCount = active.size + nutriSel.size + novaSel.size;
 
-  const groups: Record<FilterGroup, typeof FILTER_DEFS> = useMemo(
-    () => ({
-      diet: FILTER_DEFS.filter((f) => f.group === "diet"),
-      nutrition: FILTER_DEFS.filter((f) => f.group === "nutrition"),
-      smart: FILTER_DEFS.filter((f) => f.group === "smart")
-    }),
-    []
-  );
+  const groups = useMemo(() => ({
+    diet: FILTER_DEFS.filter(f => ["halal", "vegan", "vegetarian", "gluten_free", "lactose_free", "no_palm_oil"].includes(f.id)),
+    nutrition: FILTER_DEFS.filter(f => ["green_high", "less_processed"].includes(f.id))
+  }), []);
 
   const activeDefs = FILTER_DEFS.filter((f) => active.has(f.id));
 
@@ -90,10 +86,10 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
       </div>
 
       {/* Grouped smart chips with icons */}
-      {(["diet", "nutrition", "smart"] as const).map((g) => (
+      {(["diet", "nutrition"] as const).map((g) => (
         <div key={g}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-            {t(g === "diet" ? "groupDiet" : g === "nutrition" ? "groupNutrition" : "groupSmart")}
+            {t(g === "diet" ? "groupDiet" : "groupNutrition")}
           </p>
           <div className="flex flex-wrap gap-2">
             {groups[g].map((f) => {
@@ -104,7 +100,6 @@ export function FilterPanel({ active, nutriSel, novaSel, onToggleFilter, onToggl
                   active={active.has(f.id)}
                   onClick={() => onToggleFilter(f.id)}
                   title={f.description[locale]}
-                  className={g === "smart" ? "data-[active=true]:bg-natural-grad data-[active=true]:text-white" : ""}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   {f.label[locale]}

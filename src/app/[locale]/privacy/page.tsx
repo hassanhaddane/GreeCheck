@@ -6,7 +6,8 @@ import {
   History, Heart, ShoppingBasket, SlidersHorizontal, MapPin, ExternalLink, BadgeX
 } from "lucide-react";
 import { PageHeading } from "@/components/app/page-heading";
-import { GreeButton } from "@/components/system/gree-button";
+import { Link } from "@/i18n/routing";
+import { greeButtonVariants } from "@/components/system/gree-button";
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -105,6 +106,13 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
         </div>
       </GreeCard>
 
+      <GreeCard className="space-y-3 p-5">
+        <h2 className="text-sm font-semibold">{t("networkTitle")}</h2>
+        <p className="text-sm leading-relaxed text-muted">{t("networkBody")}</p>
+        <p className="text-sm leading-relaxed text-muted">{t("retentionBody")}</p>
+        <Link href="/settings" className={greeButtonVariants({ variant: "soft", size: "sm" })}>{t("manageLocal")}</Link>
+      </GreeCard>
+
       {/* Open Food Facts contribution + attribution */}
       <GreeCard>
         <GreeCardContent className="space-y-3">
@@ -115,8 +123,8 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
               <p className="mt-1 text-sm leading-relaxed text-muted">{t("contributeBody")}</p>
             </div>
           </div>
-          <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer" className="inline-block">
-            <GreeButton variant="soft" size="sm"><ExternalLink className="h-4 w-4" /> {t("contributeCta")}</GreeButton>
+          <a href="https://world.openfoodfacts.org" target="_blank" rel="noreferrer" className={greeButtonVariants({ variant: "soft", size: "sm" })}>
+            <ExternalLink className="h-4 w-4" aria-hidden /> {t("contributeCta")}
           </a>
         </GreeCardContent>
       </GreeCard>

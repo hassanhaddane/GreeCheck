@@ -27,23 +27,23 @@ export function VerdictCard({ gree, title, subtitle, children, className }: Verd
     <GreeCard variant="glass" className={cn("relative overflow-hidden", className)}>
       <span aria-hidden className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-natural/10 blur-3xl" />
       <GreeCardContent className="flex items-center gap-5">
-        <GreeScoreRing value={gree.global} size={116} label={t(`grade.${gree.grade}`)} />
+        <GreeScoreRing value={gree.score} size={116} label={gree.status === "scored" ? t(`grade.${gree.grade}`) : undefined} />
         <div className="min-w-0 flex-1 space-y-1.5">
           {title && <p className="gc-title line-clamp-2">{title}</p>}
           {subtitle && <p className="gc-caption truncate">{subtitle}</p>}
           <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
             <GreeBadge
               tone={
-                gree.verdict === "insufficient_data"
+                gree.status === "unscored"
                   ? "unknown"
                   : gree.verdict === "excellent_choice" || gree.verdict === "good_choice"
                     ? "positive"
-                    : gree.verdict === "limit" || gree.verdict === "poor_fit_for_goal"
+                    : gree.verdict === "limit" || gree.verdict === "mixed_profile"
                       ? "caution"
                       : "negative"
               }
             >
-              {t(`verdict.${gree.verdict}`)}
+              {gree.status === "scored" ? t(`verdict.${gree.verdict}`) : t("gs3Unavailable")}
             </GreeBadge>
             <TrustHalo level={gree.confidence} size="sm" />
           </div>

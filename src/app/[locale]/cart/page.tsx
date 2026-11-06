@@ -77,7 +77,7 @@ export default function CartPage() {
   const products = useMemo(() => items.map((i) => i.product), [items]);
   const groups = useMemo(() => groupBasket(result.analyses), [result]);
   const coverage = useMemo(() => categoryCoverage(result.analyses), [result]);
-  const scoreByBarcode = useMemo(() => new Map(result.analyses.map((a) => [a.product.barcode, a.gree.global])), [result]);
+  const scoreByBarcode = useMemo(() => new Map(result.analyses.map((a) => [a.product.barcode, a.gree.score])), [result]);
 
   const keepCount = groups.strong.length + groups.acceptable.length;
   const reconsiderCount = groups.priority.length;
@@ -93,24 +93,24 @@ export default function CartPage() {
   };
   const replaceProduct = (barcode: string, alternative: Product) => {
     const altGree = computeGreeScore(alternative, prefs);
-    logReplacement(scoreByBarcode.get(barcode) ?? 0, altGree.global);
+    logReplacement(scoreByBarcode.get(barcode), altGree.score);
     remove(barcode); cart.addProduct(alternative, altGree);
   };
 
   /** Move the kept (strong + acceptable) products into the shopping list. */
-  const addKeepToList = () => {
+  const addKeepToList = async () => {
     const keep = [...groups.strong, ...groups.acceptable];
     if (!keep.length) return;
-    list.addMany(keep.map((a) => ({
+    await list.addMany(keep.map((a) => ({
       name: a.product.name, barcode: a.product.barcode, imageUrl: a.product.imageUrl, grade: a.gree.grade, source: "cart" as const
     })));
     setListNotice(t("addedKeepToList", { n: keep.length }));
   };
 
   /** Move the improvement-plan replacements into the shopping list. */
-  const addPlanToList = () => {
+  const addPlanToList = async () => {
     if (!plan?.steps.length) return;
-    list.addMany(plan.steps.map((s) => ({
+    await list.addMany(plan.steps.map((s) => ({
       name: s.replacement.name, barcode: s.replacement.barcode, imageUrl: s.replacement.imageUrl, grade: s.replacementGree.grade, source: "cart" as const
     })));
     setListNotice(t("addedPlanToList", { n: plan.steps.length }));
@@ -135,14 +135,14 @@ export default function CartPage() {
   };
 
   const applyStep = (step: PlanStep) => {
-    logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.global);
+    logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.score);
     remove(step.targetBarcode);
     cart.addProduct(step.replacement, step.replacementGree);
     setPlan((prev) => (prev ? { ...prev, steps: prev.steps.filter((s) => s.targetBarcode !== step.targetBarcode) } : prev));
   };
   const applyAll = () => {
     plan?.steps.forEach((step) => {
-      logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.global);
+      logReplacement(scoreByBarcode.get(step.targetBarcode) ?? step.before, step.replacementGree.score);
       remove(step.targetBarcode); cart.addProduct(step.replacement, step.replacementGree);
     });
     setPlan(null); setPlanState("idle");
@@ -183,10 +183,10 @@ export default function CartPage() {
         <span aria-hidden className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-neon/15 blur-3xl" />
         <GreeCardContent className="space-y-3">
           <div className="flex items-center gap-5">
-            <GreeScoreRing value={result.global} size={116} label={t(`gradeLabel.${result.labelKey}`)} tone="brand" />
+            <GreeScoreRing value={result.global} size={116} label={result.labelKey ? t(`gradeLabel.${result.labelKey}`) : undefined} tone="brand" />
             <div className="min-w-0 flex-1 space-y-1">
               <p className="text-sm font-semibold">{t("score")}</p>
-              <p className="text-sm text-muted">{t("itemsCount", { n: result.metrics.productCount })}</p>
+              <p className="text-sm text-muted">{t("gs3Coverage", { rated: result.metrics.ratedProducts, total: result.metrics.productCount })}</p>
               <div className="pt-0.5"><TrustHalo level={CONFIDENCE_TO_HALO[result.confidenceLevel]} size="sm" /></div>
               <p className="flex flex-wrap gap-x-3 text-xs text-muted">
                 <span className="text-natural-strong">{t("keepCount", { n: keepCount })}</span>
@@ -363,7 +363,7 @@ export default function CartPage() {
                     <li key={c.product.barcode} className="flex items-center justify-between gap-2 text-sm">
                       <span className="min-w-0 flex-1 truncate">{c.product.name}</span>
                       <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
-                        {c.riskyCount > 0 && <span className="text-score-d-ink">{t("riskyN", { n: c.riskyCount })} · </span>}{t("totalN", { n: c.totalCount })}
+                        {t("totalN", { n: c.totalCount })}
                       </span>
                     </li>
                   ))}

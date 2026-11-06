@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /** GreeCompare — comparability, health/environment winners, low-confidence warning. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -11,12 +12,12 @@ const PREFS: LocalPreferences = { ...defaultPreferences };
 const env = (e: Omit<ProductEnvironment, "provider">): ProductEnvironment => ({ provider: "openfoodfacts", ...e });
 
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: Math.random().toString().slice(2, 12), name: "P", source: "openfoodfacts",
     categories: ["dairy", "yogurts"], ingredientsText: "lait, ferments", additives: [], imageUrl: "x",
     nutriments: { energyKcal: 90, sugars: 6, salt: 0.1, proteins: 6, saturatedFat: 2, fiber: 1 },
     nutriScore: "b", novaGroup: 2, ...o
-  };
+  });
 }
 
 /* ───────────────────────── comparability ───────────────────────── */
@@ -130,4 +131,13 @@ test("determinism: identical inputs, identical comparison", () => {
   const a = product({ barcode: "a", nutriScore: "a" });
   const b = product({ barcode: "b", nutriScore: "c" });
   assert.deepEqual(computeComparison([a, b], PREFS), computeComparison([a, b], PREFS));
+});
+
+test("trade-offs report an advantage on each side and omit unknown values", () => {
+  const first = product({ barcode: "a", nutriScore: "a", nutriments: { sugars: 4, salt: 0.2 } });
+  const second = product({ barcode: "b", nutriScore: "c", nutriments: { sugars: 12, salt: 0.02, saturatedFat: 2 } });
+  const { tradeOffs } = computeComparison([first, second], PREFS);
+  assert.deepEqual(tradeOffs.map(({ nutrient, lower, lowerAmount, higherAmount, basis }) =>
+    [nutrient, lower.barcode, lowerAmount, higherAmount, basis]),
+    [["sugars", "a", 4, 12, "100g"], ["salt", "b", 0.02, 0.2, "100g"]]);
 });

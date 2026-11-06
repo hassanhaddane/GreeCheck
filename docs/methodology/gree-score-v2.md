@@ -1,5 +1,7 @@
 # GreeScore GS-2 — Methodology
 
+> Archive de GS-2. Le moteur actif suit [GS-3](gree-score-v3.md).
+
 > **Version: `GS-2.0.0`** (constant `METHODOLOGY_VERSION`,
 > `packages/domain/src/scoring/methodology.ts`). Every score result carries
 > this version plus the additive registry version. Any change to a number in

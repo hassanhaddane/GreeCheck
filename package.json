@@ -7,7 +7,10 @@
     "node": ">=20.19.0"
   },
   "overrides": {
-    "postcss": "$postcss"
+    "postcss": "$postcss",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "11.0.1"
+    }
   },
   "scripts": {
     "dev": "next dev",
@@ -15,11 +18,13 @@
     "start": "next start",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test packages/domain/src/impact/engine.test.ts packages/domain/src/purity.test.ts packages/domain/src/scoring/nutrition.test.ts packages/domain/src/scoring/additive-registry.test.ts packages/domain/src/scoring/gree-score.test.ts packages/domain/src/swap/engine.test.ts packages/domain/src/battle/engine.test.ts packages/domain/src/compare/engine.test.ts src/domains/compare/migration.test.ts packages/domain/src/cart/what-if.test.ts packages/domain/src/weekly/engine.test.ts packages/domain/src/coach/engine.test.ts packages/domain/src/cart/analysis.test.ts src/domains/ocr/ocr.test.ts src/lib/utils/parse-scan.test.ts src/lib/utils/scan-gate.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/library/history-view.test.ts packages/domain/src/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx src/lib/api/guard.test.ts src/app/api/places/route.test.ts",
+    "test": "node --import tsx --test packages/domain/src/impact/engine.test.ts packages/domain/src/purity.test.ts packages/domain/src/scoring/nutrition.test.ts packages/domain/src/scoring/additive-registry.test.ts packages/domain/src/scoring/gree-score.test.ts packages/domain/src/scoring/gree-score-v3.test.ts packages/domain/src/swap/engine.test.ts packages/domain/src/battle/engine.test.ts packages/domain/src/compare/engine.test.ts src/domains/compare/migration.test.ts packages/domain/src/cart/what-if.test.ts packages/domain/src/weekly/engine.test.ts packages/domain/src/coach/engine.test.ts packages/domain/src/cart/analysis.test.ts src/domains/ocr/ocr.test.ts src/lib/utils/parse-scan.test.ts src/lib/utils/scan-gate.test.ts src/domains/search/intents.test.ts src/domains/search/ranking.test.ts src/domains/library/history-view.test.ts packages/domain/src/product/normalizer.test.ts src/domains/product/repository.test.ts src/services/api/sources.test.ts src/services/storage/migrate-legacy.test.ts src/services/storage/repositories.test.ts src/components/system/system.test.tsx src/lib/api/guard.test.ts src/app/api/places/route.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "typecheck:domain": "tsc -p packages/domain/tsconfig.json",
-    "test:e2e:update": "playwright test visual-regression --update-snapshots"
+    "test:e2e:update": "playwright test visual-regression --update-snapshots",
+    "smoke:providers": "node --import tsx scripts/smoke-providers.ts",
+    "measure:vitals": "node scripts/measure-vitals.mjs"
   },
   "dependencies": {
     "@zxing/browser": "^0.1.5",
@@ -29,7 +34,7 @@
     "dexie": "^4.0.11",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.23.0",
-    "next": "^16.2.10",
+    "next": "^16.4.5",
     "next-intl": "^4.13.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -45,12 +50,13 @@
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.10",
+    "eslint-config-next": "^16.4.5",
     "fake-indexeddb": "^6.0.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.32",
     "tailwindcss": "^3.4.7",
     "tsx": "^4.19.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "web-vitals": "^6.2.3"
   },
   "optionalDependencies": {
     "@parcel/watcher-linux-x64-glibc": "^2.5.6",

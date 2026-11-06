@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { locales, routing, type Locale } from "@/i18n/routing";
 
 /** Public origin used for canonical / hreflang URLs. */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://greecheck.app";
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://gree-check.vercel.app").replace(/\/+$/, "");
 
 const OPEN_GRAPH_LOCALE: Record<Locale, string> = { fr: "fr_FR", en: "en_GB", ar: "ar_SA" };
 

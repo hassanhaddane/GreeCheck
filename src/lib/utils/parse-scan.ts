@@ -1,3 +1,6 @@
+import { hasValidGs1CheckDigit } from "@greecheck/domain/product/gtin";
+export { hasValidGs1CheckDigit } from "@greecheck/domain/product/gtin";
+
 /**
  * Scan-input interpreter — the ONLY authority on what counts as a product code.
  *
@@ -28,15 +31,6 @@ export type ScanInterpretation =
   | { kind: "unsupported"; reason: UnsupportedReason };
 
 /* ───────────────────────── GS1 check digit ───────────────────────── */
-
-/** GS1 mod-10: from the right, weights 3,1,3,1… on the digits before the check. */
-export function hasValidGs1CheckDigit(code: string): boolean {
-  if (!/^\d{8}$|^\d{12,14}$/.test(code)) return false;
-  const digits = code.split("").map(Number);
-  const check = digits.pop()!;
-  const sum = digits.reverse().reduce((acc, d, i) => acc + d * (i % 2 === 0 ? 3 : 1), 0);
-  return (10 - (sum % 10)) % 10 === check;
-}
 
 /** GTIN-14 with a single leading zero is the same article as its GTIN-13. */
 function normalizeGtin(code: string): string {
@@ -75,7 +69,7 @@ export function expandUpcE(upce: string): string | undefined {
 /* ─────────────────────── payload extraction ──────────────────────── */
 
 /** GS1 element string: AI (01) + GTIN-14, tolerating FNC1/group separators. */
-const GS1_AI01_RE = /(?:^|[^\d])01(\d{14})/;
+const GS1_AI01_RE = /(?:^|\x1d)(?:01|\(01\))(\d{14})/;
 
 /** A URL path segment (or GS1 Digital Link "/01/<gtin>") holding a valid GTIN. */
 function gtinFromUrl(raw: string): string | undefined {
@@ -85,14 +79,15 @@ function gtinFromUrl(raw: string): string | undefined {
   } catch {
     return undefined;
   }
-  const segments = url.pathname.split("/").filter(Boolean);
-  // GS1 Digital Link: …/01/<gtin14>
-  const aiIndex = segments.indexOf("01");
-  if (aiIndex >= 0 && segments[aiIndex + 1] && hasValidGs1CheckDigit(segments[aiIndex + 1])) {
-    return segments[aiIndex + 1];
+  if (!["https:", "http:"].includes(url.protocol) || url.username || url.password) return undefined;
+  const parts = url.pathname.split("/").filter(Boolean);
+  for (const [index, part] of parts.entries()) {
+    const code = parts[index + 1];
+    if (!code || !hasValidGs1CheckDigit(code)) continue;
+    if (part === "01" && code.length === 14) return code;
+    if (["product", "produit", "producto", "produkt"].includes(part.toLowerCase())) return code;
   }
-  // Product URLs (e.g. …/product/<code>/…): any segment that IS a valid GTIN.
-  return segments.find((seg) => /^\d{8}$|^\d{12,14}$/.test(seg) && hasValidGs1CheckDigit(seg));
+  return undefined;
 }
 
 /* ───────────────────────── interpretation ────────────────────────── */
@@ -101,6 +96,11 @@ function gtinFromUrl(raw: string): string | undefined {
  * Interpret a decoded scanner payload. `format` is the zxing symbology name
  * ("EAN_13", "UPC_E", "QR_CODE"…); omit it for manual entry.
  */
+export function normalizeBarcodeInput(raw: string): string {
+  return raw.trim().replace(/[\u0660-\u0669\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) & 15))
+    .replace(/(\d)[\s-]+(?=\d)/g, "$1");
+}
+
 export function interpretScan(raw: string, format?: string): ScanInterpretation {
   const s = raw.trim();
   if (!s) return { kind: "unsupported", reason: "not_a_code" };
@@ -138,7 +138,8 @@ export function interpretScan(raw: string, format?: string): ScanInterpretation 
     }
     case undefined: {
       // Manual entry (or pasted URL).
-      if (/^\d+$/.test(s)) return acceptDigits(s, "manual");
+      const digits = normalizeBarcodeInput(s);
+      if (/^\d+$/.test(digits)) return acceptDigits(digits, "manual");
       const fromUrl = gtinFromUrl(s);
       if (fromUrl) return { kind: "product", code: normalizeGtin(fromUrl), symbology: "manual" };
       return { kind: "unsupported", reason: "not_a_code" };

@@ -2,32 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ════════════════════════════════════════════════════════════════
-   GreeCheck V2 — Design Tokens ("warm Apple-white, living green")
-   ----------------------------------------------------------------
-   • Colors are space-separated RGB channels → rgb(var(--x) / a).
-   • Natural green = brand. Neon green = MOTION ONLY (scan, focus,
-     success, progress). Never use neon for static decoration.
-   • Surfaces are 4 elevation levels; shadows are 3 depth levels +
-     one motion glow. Soft-3D = shadow + inset top highlight, never
-     heavy bevels.
-   ════════════════════════════════════════════════════════════════ */
+/* GreeCheck · produce labels, ink and a single scan accent.
+   RGB channels keep the Tailwind semantic aliases themeable. */
 :root {
   /* ── color · canvas & ink ─────────────────────────────────── */
-  --gc-bg: 250 250 247;          /* warm apple-white canvas       */
-  --gc-surface-0: 250 250 247;   /* level 0 = canvas              */
-  --gc-surface: 255 255 255;     /* level 1 · cards               */
-  --gc-surface-2: 245 246 244;   /* level 2 · insets, wells       */
-  --gc-surface-3: 238 240 236;   /* level 3 · pressed / deep well */
-  --gc-ink: 16 19 18;            /* deep neutral text             */
-  --gc-muted: 92 101 95;         /* secondary text (AA on stone/pastels) */
-  --gc-line: 232 234 231;        /* hairline borders              */
+  --gc-bg: 247 246 239;          /* warm apple-white canvas       */
+  --gc-surface-0: 247 246 239;   /* level 0 = canvas              */
+  --gc-surface: 255 254 250;     /* level 1 · cards               */
+  --gc-surface-2: 240 240 231;   /* level 2 · insets, wells       */
+  --gc-surface-3: 229 233 222;   /* level 3 · pressed / deep well */
+  --gc-ink: 23 41 32;            /* deep neutral text             */
+  --gc-muted: 75 91 81;         /* secondary text (AA on stone/pastels) */
+  --gc-line: 215 222 210;        /* hairline borders              */
 
   /* ── color · brand ────────────────────────────────────────── */
-  --gc-natural: 46 204 113;      /* natural green — brand accent  */
-  --gc-natural-strong: 18 116 54; /* AA text green: 5.9:1 on white, >=4.7:1 on every pastel tint */
+  --gc-natural: 60 151 103;      /* natural green — brand accent  */
+  --gc-natural-strong: 25 100 65; /* AA text green: 5.9:1 on white, >=4.7:1 on every pastel tint */
   --gc-neon: 57 255 136;         /* neon — active motion ONLY     */
-  --gc-deep: 11 61 46;           /* deep green — hero surfaces    */
+  --gc-deep: 15 67 49;           /* deep green — hero surfaces    */
 
   /* ── color · semantic score (A→E) ─────────────────────────────
      plain tokens = FILLS/GRAPHICS only; *-ink = AA-safe TEXT colors */
@@ -51,7 +43,7 @@
   /* ── color · pastel dashboard tints (V2 design system) ──────
      backgrounds ONLY; text on pastel uses the paired *-ink token */
   --gc-pastel-mint: 220 242 227;
-  --gc-pastel-sage: 230 239 224;
+  --gc-pastel-sage: 225 237 219;
   --gc-pastel-sand: 243 237 224;
   --gc-pastel-butter: 248 241 220;
   --gc-pastel-sky: 225 238 242;
@@ -72,13 +64,19 @@
   --gc-glass: 255 255 255;
 
   /* ── typography ───────────────────────────────────────────── */
-  --font-sans: "Inter", "SF Pro Display", system-ui, sans-serif;
+  --font-sans: system-ui, "Segoe UI", sans-serif;
+
+  --gc-font-editorial: Georgia, "Times New Roman", serif;
+  --gc-space-inline: clamp(1rem, 4vw, 2rem);
+  --gc-space-section: clamp(1rem, 2.8vw, 1.75rem);
+  --gc-measure: 72rem;
+  --gc-ticket-accent: #dceda8;
 
   /* ── radii ────────────────────────────────────────────────── */
   --gc-r-sm: 0.625rem;
-  --gc-r-md: 1rem;
-  --gc-r-lg: 1.5rem;
-  --gc-r-xl: 2rem;
+  --gc-r-md: 0.75rem;
+  --gc-r-lg: 1rem;
+  --gc-r-xl: 1.25rem;
   --radius: 1rem; /* legacy alias */
 
   /* ── elevation (soft-3D) ──────────────────────────────────── */
@@ -108,7 +106,7 @@
   --gc-muted: 150 160 154;
   --gc-line: 38 44 41;
 
-  --gc-natural: 46 204 113;
+  --gc-natural: 60 151 103;
   --gc-natural-strong: 74 222 128;
   --gc-neon: 57 255 136;
   --gc-deep: 18 60 47;
@@ -170,34 +168,87 @@ body {
   border-radius: var(--gc-r-sm);
 }
 
-/* ════════════════════════════════════════════════════════════════
-   Ambient premium background (rendered by <AppBackground/>)
-   ════════════════════════════════════════════════════════════════ */
-.gc-bg-halos {
-  background-image:
-    radial-gradient(52rem 52rem at 112% -12%, rgb(var(--gc-neon) / 0.075), transparent 62%),
-    radial-gradient(46rem 46rem at -12% 6%, rgb(var(--gc-natural) / 0.065), transparent 58%),
-    radial-gradient(60rem 44rem at 50% 118%, rgb(var(--gc-deep) / 0.05), transparent 60%);
+/* Reserve room for sticky controls when the browser scrolls keyboard focus. */
+html {
+  scroll-padding-block: calc(4.25rem + env(safe-area-inset-top)) calc(5.25rem + env(safe-area-inset-bottom));
 }
-.dark .gc-bg-halos {
-  background-image:
-    radial-gradient(52rem 52rem at 112% -12%, rgb(var(--gc-neon) / 0.06), transparent 62%),
-    radial-gradient(46rem 46rem at -12% 6%, rgb(var(--gc-natural) / 0.05), transparent 58%);
+@media (min-width: 768px) {
+  html { scroll-padding-block: calc(6rem + env(safe-area-inset-top)) 1.5rem; }
 }
-.gc-bg-grid {
-  background-image:
-    linear-gradient(rgb(var(--gc-ink) / 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(var(--gc-ink) / 0.028) 1px, transparent 1px);
-  background-size: 44px 44px;
-  mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
-  -webkit-mask-image: radial-gradient(120% 90% at 50% 0%, black 0%, transparent 78%);
+
+.gc-container {
+  inline-size: 100%;
+  max-inline-size: var(--gc-measure);
+  margin-inline: auto;
+  padding-inline: max(var(--gc-space-inline), env(safe-area-inset-left)) max(var(--gc-space-inline), env(safe-area-inset-right));
 }
+[dir="rtl"] .gc-container {
+  padding-inline: max(var(--gc-space-inline), env(safe-area-inset-right)) max(var(--gc-space-inline), env(safe-area-inset-left));
+}
+.gc-bottom-nav { padding-inline: max(.75rem, env(safe-area-inset-left)) max(.75rem, env(safe-area-inset-right)); }
+.gc-main { padding-block: var(--gc-space-section) calc(5.25rem + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) { .gc-main { padding-block-end: 3rem; } }
+
+.gc-editorial {
+  font-family: var(--gc-font-editorial);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+[lang="ar"] .gc-editorial { font-family: var(--font-sans); letter-spacing: normal; font-weight: 650; line-height: 1.35; }
+[dir="rtl"] :is(.gc-overline, .gc-title, .gc-heading, .gc-display) { letter-spacing: normal; }
+
+.gc-field {
+  border: 1px solid rgb(var(--gc-line));
+  background: rgb(var(--gc-surface));
+  border-radius: var(--gc-r-md);
+}
+.gc-field:focus-within { outline: 2px solid rgb(var(--gc-focus-ring)); outline-offset: 2px; }
+.gc-field input:focus-visible { outline: none; }
+
+.gc-home-layout, .gc-home-companion { display: grid; align-content: start; gap: var(--gc-space-section); }
+.gc-scan-ticket {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(3.75rem, 24%, 8.5rem);
+  align-items: center;
+  gap: clamp(0.4rem, 2vw, 1.5rem);
+  padding: clamp(1.15rem, 4vw, 2.25rem);
+  border-radius: var(--gc-r-xl);
+  background: rgb(var(--gc-deep));
+  color: #fffef7;
+}
+.gc-ticket-label { display: flex; align-items: center; gap: 0.45rem; color: var(--gc-ticket-accent); font-size: .75rem; font-weight: 700; }
+.gc-ticket-title { margin-block: .7rem .6rem; font-size: clamp(1.85rem, 5.5vw, 3.3rem); }
+.gc-ticket-summary { color: #e1eddf; font-size: .875rem; line-height: 1.5; max-inline-size: 32ch; }
+.gc-ticket-cta {
+  display: inline-flex;
+  min-block-size: 2.75rem;
+  align-items: center;
+  gap: .5rem;
+  margin-block-start: 1rem;
+  border-radius: var(--gc-r-sm);
+  padding: .45rem .8rem;
+  background: var(--gc-ticket-accent);
+  color: #172920;
+  font-size: .875rem;
+  font-weight: 750;
+}
+.gc-ticket-cta:hover { background: #edf7cb; }
+.gc-ticket-cta:focus-visible { outline-color: var(--gc-ticket-accent); }
+.gc-ticket-art { color: #dceadd; }
+.gc-ticket-art svg { display: block; inline-size: 100%; }
+.gc-ticket-scanline { stroke: var(--gc-ticket-accent); }
+@media (min-width: 768px) {
+  .gc-home-layout { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); align-items: start; }
+  .gc-home-companion { padding-block-start: .25rem; }
+}
+
 @layer components {
   /* ── surfaces & soft-3D depth ─────────────────────────────── */
   .gc-glass {
-    background-color: rgb(var(--gc-glass) / 0.72);
-    backdrop-filter: saturate(160%) blur(18px);
-    -webkit-backdrop-filter: saturate(160%) blur(18px);
+    background-color: rgb(var(--gc-glass) / 0.96);
     border: 1px solid rgb(var(--gc-line) / 0.8);
   }
   .gc-card {
@@ -213,7 +264,7 @@ body {
   /* Premium hover lift for interactive cards (pointer devices) */
   .gc-lift { transition: transform var(--gc-dur-base) var(--gc-ease-out), box-shadow var(--gc-dur-base) var(--gc-ease-out); }
   @media (hover: hover) {
-    .gc-lift:hover { transform: translateY(-2px); box-shadow: var(--gc-shadow-2); }
+    .gc-lift:hover { border-color: rgb(var(--gc-natural-strong) / .38); }
   }
   .gc-pressable { transition: transform var(--gc-dur-fast) var(--gc-ease-out); }
   .gc-pressable:active { transform: scale(0.97); }
@@ -224,7 +275,7 @@ body {
   .gc-heading { @apply text-base font-semibold tracking-tight; }
   .gc-body    { @apply text-sm leading-relaxed; }
   .gc-caption { @apply text-xs text-muted; }
-  .gc-overline{ @apply text-[0.65rem] font-bold uppercase tracking-wider text-muted; }
+  .gc-overline{ @apply text-xs font-bold tracking-wide text-muted; }
 
   /* ── chips ─────────────────────────────────────────────────── */
   .gc-chip {
@@ -234,39 +285,6 @@ body {
   .gc-chip[data-active="true"] { @apply border-transparent bg-deep text-white shadow-soft; }
 
   .gc-gradient-text { @apply bg-natural-grad bg-clip-text text-transparent; }
-}
-
-/* Diagonal shine sweep (hero / neon buttons — motion accent) */
-.gc-shine { position: relative; overflow: hidden; }
-.gc-shine::after {
-  content: "";
-  position: absolute;
-  inset: -150% auto auto -60%;
-  height: 400%;
-  width: 40%;
-  transform: rotate(24deg) translateX(0);
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.14), transparent);
-  animation: gc-shine 5.5s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes gc-shine {
-  0%, 60%, 100% { transform: rotate(24deg) translateX(-140%); }
-  80% { transform: rotate(24deg) translateX(420%); }
-}
-
-/* Soft pulsing halo (scan FAB, GreePulse scanning) — neon = motion */
-@keyframes gc-pulse-ring {
-  0% { transform: scale(1); opacity: 0.45; }
-  70%, 100% { transform: scale(1.55); opacity: 0; }
-}
-.gc-pulse-ring::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: rgb(var(--gc-neon) / 0.35);
-  animation: gc-pulse-ring 2.6s var(--gc-ease-out) infinite;
-  z-index: -1;
 }
 
 /* premium scrollbar */
@@ -282,3 +300,12 @@ body {
   button, [role="button"], input, select { min-block-size: 44px; }
   button, [role="button"] { min-inline-size: 44px; }
 }
+
+.gc-product-photo { inline-size: 4.5rem; block-size: 4.5rem; }
+@media (min-width: 640px) { .gc-product-photo { inline-size: 6rem; block-size: 6rem; } }
+
+.gc-sheet { position: fixed; inset: auto 0 0; inline-size: 100%; }
+.gc-sheet::backdrop { background: rgb(13 31 23 / .55); }
+.gc-sheet[open] { animation: gc-sheet-in .16s ease-out; }
+@keyframes gc-sheet-in { from { opacity: 0; translate: 0 .4rem; } to { opacity: 1; translate: 0 0; } }
+@media (min-width: 768px) { .gc-sheet { inset: 0; inline-size: min(100% - 2rem, 32rem); } }

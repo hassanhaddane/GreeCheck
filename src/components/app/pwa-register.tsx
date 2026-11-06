@@ -21,7 +21,7 @@ export function PwaRegister() {
     /**
      * Obsolete-cache recovery. After a deployment, a cached shell can reference
      * chunks that no longer exist; the app would then fail to hydrate a route.
-     * On such a failure we ask the worker to drop every cache and reload ONCE
+     * On such a failure we ask the worker to drop transient caches and reload once
      * (a single ephemeral session flag guards against reload loops).
      */
     const RECOVERY_FLAG = "gc.cacheRecovery";
@@ -34,19 +34,24 @@ export function PwaRegister() {
       /ChunkLoadError|Loading chunk .* failed|Failed to fetch dynamically imported module|Importing a module script failed/i.test(message);
 
     const recover = (message: string) => {
-      if (!looksLikeStaleChunk(message)) return;
+      const controller = navigator.serviceWorker.controller;
+      if (!controller || navigator.onLine === false || !looksLikeStaleChunk(message)) return;
       try {
         if (sessionStorage.getItem(RECOVERY_FLAG)) return; // already tried this session
         sessionStorage.setItem(RECOVERY_FLAG, "1");
       } catch { /* storage unavailable — attempt recovery anyway */ }
-      navigator.serviceWorker.controller?.postMessage("CLEAR_CACHES");
+      controller.postMessage("RECOVER_CACHES");
     };
     const onError = (e: ErrorEvent) => recover(e.message ?? "");
     const onRejection = (e: PromiseRejectionEvent) => recover(String((e.reason as Error)?.message ?? e.reason ?? ""));
     window.addEventListener("error", onError);
     window.addEventListener("unhandledrejection", onRejection);
 
-    void navigator.serviceWorker.register("/sw.js").then((registration) => {
+    const workerUrl = new URL("/sw.js", window.location.origin);
+    const revision = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA;
+    if (revision) workerUrl.searchParams.set("build", revision);
+
+    void navigator.serviceWorker.register(workerUrl, { updateViaCache: "none" }).then((registration) => {
       if (registration.waiting && navigator.serviceWorker.controller) setWaiting(registration.waiting);
       registration.addEventListener("updatefound", () => {
         const worker = registration.installing;

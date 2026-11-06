@@ -34,13 +34,13 @@ test("sugar improvement = a DROP week-over-week", () => {
 
 test("avoided risky additives: fewer per scan this week", () => {
   const scans: WeeklyScan[] = [
-    { scannedAt: thisWeek(1), score: 70, riskyAdditives: 0 },
-    { scannedAt: thisWeek(2), score: 70, riskyAdditives: 1 },
-    { scannedAt: lastWeek(1), score: 60, riskyAdditives: 3 }
+    { scannedAt: thisWeek(1), score: 70, declaredAdditives: 0 },
+    { scannedAt: thisWeek(2), score: 70, declaredAdditives: 1 },
+    { scannedAt: lastWeek(1), score: 60, declaredAdditives: 3 }
   ];
   const w = computeWeeklyProgress(scans, [], NOW);
-  assert.equal(w.riskyAdditives.current, 0.5);
-  assert.equal(w.riskyAdditives.previous, 3);
+  assert.equal(w.declaredAdditives.current, 0.5);
+  assert.equal(w.declaredAdditives.previous, 3);
 });
 
 test("environmental grade improvement (lower rank = better)", () => {

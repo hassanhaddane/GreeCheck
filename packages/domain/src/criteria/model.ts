@@ -20,6 +20,7 @@ export interface LocalPreferences {
   goals: UserGoal[];
   avoidAllergens: string[];
   preferBio: boolean;
+  preferEnvironment?: boolean;
   preferHalal: boolean;
   preferVegan: boolean;
   preferVegetarian: boolean;
@@ -37,6 +38,7 @@ export const defaultPreferences: LocalPreferences = {
   goals: [],
   avoidAllergens: [],
   preferBio: false,
+  preferEnvironment: false,
   preferHalal: false,
   preferVegan: false,
   preferVegetarian: false,

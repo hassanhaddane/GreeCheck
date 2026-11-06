@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Calculator, ShieldQuestion, Scale, Database, Lock, ExternalLink } from "lucide-react";
+import { Calculator, ShieldQuestion, Scale, Lock, ExternalLink } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
+import { SourceDetails } from "@/components/app/source-details";
+import { Link } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
+import { METHODOLOGY_VERSION, METHODOLOGY_UPDATED_AT, NUTRI_SCORE_REFERENCE } from "@greecheck/domain/scoring/methodology";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -11,13 +14,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return buildPageMetadata(locale as Locale, "/methodology", "methodology");
 }
 
-const BUCKET_KEYS = ["nutrition", "processing", "additives", "labels", "goal", "ecology"] as const;
-const RULE_KEYS = ["nova", "bio", "halal", "missing"] as const;
+const RULE_KEYS = ["formula", "anchors", "missing", "axes"] as const;
 
 export default async function MethodologyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("methodology");
+  const score = await getTranslations("score");
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -30,15 +33,13 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <Calculator className="h-4 w-4 text-natural-strong" aria-hidden /> {t("scoreTitle")}
           </h2>
-          <p className="text-sm leading-relaxed text-muted">{t("scoreBody")}</p>
-          <ul className="space-y-2">
-            {BUCKET_KEYS.map((key) => (
-              <li key={key} className="flex items-start gap-2 text-sm">
-                <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-natural" />
-                {t(`buckets.${key}`)}
-              </li>
-            ))}
-          </ul>
+          <p className="text-xs font-medium text-muted">{METHODOLOGY_VERSION} · <time dateTime={METHODOLOGY_UPDATED_AT}>{METHODOLOGY_UPDATED_AT}</time></p>
+          <p className="text-sm leading-relaxed text-muted">{t("gs3Body")}</p>
+          <p className="text-sm leading-relaxed text-muted">{t("gs3Limit")}</p>
+          <p className="text-sm leading-relaxed text-muted">{t("proprietary")}</p>
+          <a href={NUTRI_SCORE_REFERENCE} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline">
+            {score("gs3OfficialMethod")} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+          </a>
         </GreeCardContent>
       </GreeCard>
 
@@ -52,7 +53,7 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
             {RULE_KEYS.map((key) => (
               <li key={key} className="flex items-start gap-2 text-sm">
                 <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-natural" />
-                {t(`rules.${key}`)}
+                {t(`gs3Rules.${key}`)}
               </li>
             ))}
           </ul>
@@ -65,27 +66,12 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
           <h2 className="flex items-center gap-2 text-sm font-semibold">
             <ShieldQuestion className="h-4 w-4 text-natural-strong" aria-hidden /> {t("confidenceTitle")}
           </h2>
-          <p className="text-sm leading-relaxed text-muted">{t("confidenceBody")}</p>
+          <p className="text-sm leading-relaxed text-muted">{t("gs3Confidence")}</p>
         </GreeCardContent>
       </GreeCard>
 
-      {/* Sources */}
-      <GreeCard id="sources">
-        <GreeCardContent className="space-y-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Database className="h-4 w-4 text-natural-strong" aria-hidden /> {t("sourcesTitle")}
-          </h2>
-          <p className="text-sm leading-relaxed text-muted">{t("sourcesBody")}</p>
-          <a
-            href="https://world.openfoodfacts.org"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline underline-offset-2"
-          >
-            Open Food Facts <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-          </a>
-        </GreeCardContent>
-      </GreeCard>
+      <SourceDetails />
+      <Link href="/sources" className="inline-flex min-h-11 items-center text-sm font-semibold text-natural-strong underline">{t("sourcesTitle")}</Link>
 
       {/* Privacy note */}
       <GreeCard className="border-natural/25 bg-natural/5">

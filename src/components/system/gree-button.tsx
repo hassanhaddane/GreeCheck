@@ -3,23 +3,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils/cn";
 
 const greeButtonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold gc-pressable transition-colors duration-fast ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-natural-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:opacity-50 disabled:pointer-events-none",
+  "inline-flex items-center justify-center gap-2 rounded-xl text-center text-sm leading-snug font-semibold gc-pressable transition-colors duration-fast ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-natural-strong focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:opacity-50 disabled:pointer-events-none",
   {
     variants: {
       variant: {
         /** Deep-green primary — the ONE dominant action of a screen. */
         primary: "bg-deep text-white shadow-soft hover:brightness-110",
-        /** Neon gradient — motion/success actions only (scan, confirm swap). */
-        /** Success/confirm actions: natural at rest — neon glow appears only on hover, press or focus (motion rule). */
-        neon: "bg-natural-grad text-white shadow-soft hover:shadow-glow active:shadow-glow focus-visible:shadow-glow hover:brightness-105",
+        /** High-emphasis scan and confirmation. */
+        neon: "bg-deep text-white hover:brightness-110 active:brightness-95",
         soft: "bg-surface-2 text-ink hover:bg-surface-3",
         outline: "border border-line bg-surface text-ink hover:bg-surface-2",
         ghost: "text-ink hover:bg-surface-2"
       },
       size: {
-        sm: "h-9 px-4",
-        md: "h-11 px-5",
-        lg: "h-14 px-7 text-base",
+        sm: "min-h-9 px-3 py-1.5",
+        md: "min-h-11 px-4 py-2",
+        lg: "min-h-12 px-5 py-2 text-base",
         icon: "h-11 w-11"
       }
     },

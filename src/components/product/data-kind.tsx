@@ -6,15 +6,17 @@ import { cn } from "@/lib/utils/cn";
 /**
  * Fact / estimate / opinion marker — makes the epistemic status of every
  * figure explicit (design system requirement):
- *  - fact     = measured value reported by the source (nutrition, ingredients);
+ *  - fact     = information shown as a factual input on legacy records;
+ *  - declared = data reported by a source for the product;
  *  - estimate = category-level or derived value (GreeImpact lifecycle, grade
  *               fallback) — true of a category, not measured on this item;
  *  - opinion  = GreeCheck's editorial assessment (the verdict, additive risk).
  * Never color-only: each carries an icon and a word.
  */
-export type DataKindValue = "fact" | "estimate" | "opinion";
+export type DataKindValue = "fact" | "declared" | "estimate" | "opinion";
 
 const STYLE: Record<DataKindValue, { icon: typeof CircleCheck; cls: string }> = {
+  declared: { icon: CircleCheck, cls: "bg-surface-2 text-muted" },
   fact: { icon: CircleCheck, cls: "bg-pastel-mint text-score-a-ink" },
   estimate: { icon: Sigma, cls: "bg-pastel-sky text-sky-ink" },
   opinion: { icon: MessageSquareQuote, cls: "bg-pastel-butter text-score-c-ink" }

@@ -9,7 +9,9 @@ function jsonResponse(value: unknown, status = 200) {
   return new Response(JSON.stringify(value), { status, headers: { "Content-Type": "application/json" } });
 }
 
-test("places route geocodes a city and normalizes useful OSM categories", async () => {
+test("places route geocodes a city and normalizes useful OSM categories", async (t) => {
+  process.env.NOMINATIM_API_URL = "https://nominatim.example.test/search";
+  t.after(() => { delete process.env.NOMINATIM_API_URL; });
   const calls: string[] = [];
   globalThis.fetch = (async (input: string | URL | Request) => {
     const url = String(input);
@@ -26,7 +28,7 @@ test("places route geocodes a city and normalizes useful OSM categories", async 
 
   const response = await GET(new Request("http://localhost/api/places?city=Paris&types=market,organic,halal"));
   assert.equal(response.status, 200);
-  assert.equal(response.headers.get("Cache-Control"), "public, max-age=300, stale-while-revalidate=3600");
+  assert.equal(response.headers.get("Cache-Control"), "private, no-store");
   const body = await response.json();
   assert.equal(body.center.label, "Paris, France");
   assert.deepEqual(body.places.map((place: { type: string }) => place.type), ["market", "organic", "halal"]);
@@ -40,4 +42,22 @@ test("Around me never becomes a shared cache entry", async () => {
   const response = await GET(new Request("http://localhost/api/places?lat=48.85&lon=2.35&types=supermarket"));
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+});
+
+test("ambiguous location and the unconfigured city provider fail before any external call", async () => {
+  globalThis.fetch = (async () => { assert.fail("must not reach an external provider"); }) as typeof fetch;
+  const mixed = await GET(new Request("http://localhost/api/places?city=Paris&lat=48.85111&lon=2.35555"));
+  assert.equal(mixed.status, 400);
+  const unconfigured = await GET(new Request("http://localhost/api/places?city=Lyon"));
+  assert.equal(unconfigured.status, 503);
+  assert.deepEqual(await unconfigured.json(), { error: "city_search_unavailable" });
+});
+
+test("Around me rounds coordinates before forwarding them and ignores malformed places", async () => {
+  globalThis.fetch = (async (_input, init) => {
+    assert.match(String(init?.body), /48\.85%2C2\.36/);
+    return jsonResponse({ elements: [{ type: "node", id: 1, lat: "invalid", lon: 2, tags: { shop: "organic" } }] });
+  }) as typeof fetch;
+  const response = await GET(new Request("http://localhost/api/places?lat=48.8511&lon=2.3562"));
+  assert.deepEqual((await response.json()).places, []);
 });

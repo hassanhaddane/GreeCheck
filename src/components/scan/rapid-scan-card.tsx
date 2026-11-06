@@ -1,14 +1,16 @@
 "use client";
-import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { Alternatives } from "@/components/product/alternatives";
+import { isSwapEligible, preciseCategory } from "@greecheck/domain/swap/engine";
+import type { LocalPreferences } from "@greecheck/domain/criteria/model";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
+import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, Plus, ScanLine, ShoppingBasket, Swords, WifiOff, AlertTriangle } from "lucide-react";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { GreeButton } from "@/components/system/gree-button";
-import { GreeScoreRing } from "@/components/system/gree-score-ring";
 import { GreeBadge } from "@/components/system/gree-badge";
-import { TrustHalo } from "@/components/system/trust-halo";
-import { ImpactBadge } from "@/components/product/impact-badge";
+import { productContributionUrl } from "@/domains/product/contribute";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
@@ -21,6 +23,7 @@ export interface RapidScanResult {
 
 interface RapidScanCardProps {
   result: RapidScanResult;
+  prefs: LocalPreferences;
   /** Number of distinct products resolved in the current rapid session. */
   sessionCount: number;
   inCart: boolean;
@@ -33,9 +36,9 @@ interface RapidScanCardProps {
 }
 
 function verdictTone(verdict: GreeScore["verdict"]) {
-  if (verdict === "insufficient_data") return "unknown" as const;
+  if (verdict === "insufficient_data" || verdict === "excluded_category" || verdict === "unsupported_category") return "unknown" as const;
   if (verdict === "excellent_choice" || verdict === "good_choice") return "positive" as const;
-  if (verdict === "limit" || verdict === "poor_fit_for_goal") return "caution" as const;
+  if (verdict === "limit" || verdict === "mixed_profile") return "caution" as const;
   return "negative" as const;
 }
 
@@ -48,6 +51,7 @@ function verdictTone(verdict: GreeScore["verdict"]) {
  */
 export function RapidScanCard({
   result,
+  prefs,
   sessionCount,
   inCart,
   inBattle,
@@ -58,13 +62,18 @@ export function RapidScanCard({
   onScanAnother
 }: RapidScanCardProps) {
   const t = useTranslations("scan");
+  const locale = useLocale();
+  const tProduct = useTranslations("product");
   const tScore = useTranslations("score");
   const { product, gree, stale } = result;
+  const [showAlternatives, setShowAlternatives] = useState(false);
+  const canFindAlternative = !stale && Boolean(preciseCategory(product)) && isSwapEligible(product, gree, prefs).eligible;
 
   // One primary reason (most decision-relevant) and one critical warning.
-  const isPoor = gree.global < 50 || gree.grade === "D" || gree.grade === "E" || gree.alerts.length > 0;
+  const isPoor = (gree.status === "scored" && gree.score < 50) || gree.grade === "D" || gree.grade === "E" || gree.alerts.length > 0;
   const primaryReason = (isPoor ? gree.topNegatives[0] : gree.topPositives[0]) ?? gree.topNegatives[0] ?? gree.topPositives[0];
   const criticalWarning = gree.alerts[0];
+  const preferenceWarning = gree.warnings.find((warning) => warning.level === "warning");
 
   return (
     <motion.div
@@ -74,9 +83,8 @@ export function RapidScanCard({
       role="region"
       aria-label={t("rapid.heading")}
     >
-      <GreeCard variant="glass" className="relative overflow-hidden">
-        <span aria-hidden className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-natural/10 blur-3xl" />
-        <GreeCardContent className="space-y-4">
+      <GreeCard className="relative">
+        <GreeCardContent className="space-y-3 p-3 sm:p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="gc-overline inline-flex items-center gap-1.5 text-natural-strong">
               <ScanLine className="h-3.5 w-3.5" aria-hidden /> {t("rapid.heading")}
@@ -88,29 +96,56 @@ export function RapidScanCard({
             )}
           </div>
 
-          <div className="flex items-center gap-4">
-            <GreeScoreRing value={gree.global} size={92} label={tScore(`grade.${gree.grade}`)} />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="flex items-center gap-2.5">
-                {product.imageUrl && (
-                  <span className="aspect-square w-11 shrink-0 overflow-hidden rounded-xl bg-surface-2">
-                    <Image src={product.imageUrl} alt="" width={44} height={44} sizes="44px" className="h-full w-full object-contain" />
-                  </span>
-                )}
-                <p className="gc-title line-clamp-2 text-base">{product.name}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <GreeBadge tone={verdictTone(gree.verdict)} size="sm">{tScore(`verdict.${gree.verdict}`)}</GreeBadge>
-                <TrustHalo level={gree.confidence} size="sm" />
-                <ImpactBadge product={product} />
-              </div>
-              {stale && (
-                <p className="inline-flex items-center gap-1 text-xs font-medium text-muted">
-                  <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden /> {t("rapid.cached")}
-                </p>
+          {/* One critical warning (compatibility alert — never a health verdict). */}
+          {criticalWarning && (
+            <p role="alert" className="flex items-start gap-1.5 rounded-2xl bg-score-e/5 p-2.5 text-sm font-medium text-score-e-ink">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+              {tScore(`warning.${criticalWarning.code}`, criticalWarning.values)}
+            </p>
+          )}
+
+          {!criticalWarning && preferenceWarning && (
+            <p className="rounded-xl bg-pastel-butter p-2.5 text-sm text-score-c-ink">
+              {tScore("warning." + preferenceWarning.code, preferenceWarning.values)}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <ProductThumbnail src={product.imageUrl} />
+            <div className="min-w-0 flex-1">
+              <p className="break-words font-semibold">{product.localizedNames?.[locale as LocalPreferences["language"]] ?? product.name}</p>
+              {product.brand && <p className="text-xs text-muted">{product.brand}</p>}
+            </div>
+            {gree.status === "scored" && <GreeBadge tone={verdictTone(gree.verdict)} size="sm" className="shrink-0"><span className="sr-only">GreeScore </span><bdi>{gree.score}/100</bdi></GreeBadge>}
+          </div>
+          <p className="text-sm font-semibold">{gree.status === "scored" ? tScore(`verdict.${gree.verdict}`) : tScore("gs3Unavailable")}</p>
+          {stale && (
+            <p className="inline-flex items-center gap-1 text-xs font-medium text-muted">
+              <WifiOff className="h-3.5 w-3.5 shrink-0" aria-hidden /> {t("rapid.cached")}
+            </p>
+          )}
+
+          {gree.status === "unscored" && (
+            <div className="space-y-1 text-sm text-muted">
+              <p>{tScore("unscored." + gree.reason.code, gree.reason.values)}</p>
+              {(gree.availableFacts.nutriScore || gree.availableFacts.novaGroup) && (
+                <div className="flex flex-wrap gap-1">
+                  {gree.availableFacts.nutriScore && <GreeBadge tone="neutral">{tProduct("nutriScore")} {gree.availableFacts.nutriScore.toUpperCase()}</GreeBadge>}
+                  {gree.availableFacts.novaGroup && <GreeBadge tone="neutral">{tProduct("nova")} {gree.availableFacts.novaGroup}</GreeBadge>}
+                </div>
+              )}
+              {gree.missingData.length > 0 && (
+                <ul className="list-inside list-disc">
+                  {gree.missingData.slice(0, 2).map((code) => <li key={code}>{tScore("gs3Missing." + code)}</li>)}
+                </ul>
+              )}
+              {gree.missingData.length > 0 && product.source === "openfoodfacts" && (
+                <a className="inline-flex min-h-11 items-center font-semibold text-natural-strong hover:underline" href={productContributionUrl(product.barcode, locale)} target="_blank" rel="noopener noreferrer">
+                  {tProduct("contributeEdit")}
+                </a>
               )}
             </div>
-          </div>
+          )}
 
           {/* One primary reason. */}
           {primaryReason && (
@@ -122,21 +157,19 @@ export function RapidScanCard({
             </p>
           )}
 
-          {/* One critical warning (compatibility alert — never a health verdict). */}
-          {criticalWarning && (
-            <p className="flex items-start gap-1.5 rounded-2xl bg-score-e/5 p-2.5 text-sm font-medium text-score-e-ink">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-              {tScore(`warning.${criticalWarning.code}`, criticalWarning.values)}
-            </p>
+          {canFindAlternative && !showAlternatives && (
+            <GreeButton variant="neon" className="w-full" onClick={() => setShowAlternatives(true)}>
+              {tProduct("findAlternative")}
+            </GreeButton>
           )}
-
-          {/* Primary action — view the full decision screen. */}
-          <GreeButton variant="neon" className="w-full" onClick={onViewResult}>
+          <GreeButton variant={canFindAlternative ? "outline" : "neon"} className="w-full" onClick={onViewResult}>
             {t("rapid.viewResult")} <ArrowRight className="h-4 w-4 rtl:rotate-180" aria-hidden />
           </GreeButton>
 
+          {canFindAlternative && showAlternatives && <Alternatives product={product} prefs={prefs} />}
+
           {/* Secondary quick-add actions — no navigation, stay in the session. */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex flex-wrap gap-2">
             <GreeButton
               variant={inCart ? "soft" : "outline"}
               onClick={onAddToCart}
@@ -144,7 +177,7 @@ export function RapidScanCard({
               aria-label={inCart ? t("rapid.inCart") : t("rapid.addToCart")}
             >
               {inCart ? <Check className="h-4 w-4 text-natural-strong" aria-hidden /> : <ShoppingBasket className="h-4 w-4" aria-hidden />}
-              <span className="truncate">{inCart ? t("rapid.inCart") : t("rapid.addToCart")}</span>
+              <span>{inCart ? t("rapid.inCart") : t("rapid.addToCart")}</span>
             </GreeButton>
             <GreeButton
               variant={inBattle ? "soft" : "outline"}
@@ -153,7 +186,7 @@ export function RapidScanCard({
               aria-label={inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}
             >
               {inBattle ? <Check className="h-4 w-4 text-natural-strong" aria-hidden /> : <Swords className="h-4 w-4" aria-hidden />}
-              <span className="truncate">{inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}</span>
+              <span>{inBattle ? t("rapid.alreadyInBattle") : battleFull ? t("rapid.battleFull") : t("rapid.addToBattle")}</span>
             </GreeButton>
           </div>
 

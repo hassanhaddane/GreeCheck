@@ -1,3 +1,4 @@
+import { with2023Points } from "../scoring/test-products";
 /** GreeCoach V1 — deterministic intent classification + answer assembly. */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -17,12 +18,12 @@ const PREFS: LocalPreferences = { ...defaultPreferences };
 const env = (e: Omit<ProductEnvironment, "provider">): ProductEnvironment => ({ provider: "openfoodfacts", ...e });
 
 function product(o: Partial<Product> = {}): Product {
-  return {
+  return with2023Points({
     barcode: "3000000000001", name: "Produit", source: "openfoodfacts",
     categories: ["breakfast cereals"], ingredientsText: "flocons, sucre", additives: [],
     nutriments: { energyKcal: 380, sugars: 22, saturatedFat: 3, salt: 0.5, fiber: 5, proteins: 8 },
     nutriScore: "c", novaGroup: 4, ...o
-  };
+  });
 }
 const productCtx = (o: Partial<Product> = {}, prefs = PREFS, alternative?: ProductContext["alternative"]): ProductContext => {
   const p = product(o);
@@ -48,19 +49,18 @@ test("classification is constrained to the context; unknown text → null", () =
 
 test("supported intents differ by context and scored state", () => {
   assert.ok(supportedIntents(productCtx()).includes("whyRated"));
-  const unscored = productCtx({ ingredientsText: undefined });
+  const unscored = productCtx({ nutriScore: undefined });
   assert.ok(supportedIntents(unscored).includes("whyNoScore"));
   assert.ok(!supportedIntents(unscored).includes("whyRated"));
 });
 
 /* ── product answers ── */
 
-test("whyRated cites the verdict, top reasons and component breakdown — all by reference", () => {
+test("whyRated cites the verdict and methodology — all by reference", () => {
   const a = answerCoach("whyRated", productCtx());
   assert.equal(a.unsupported, undefined);
   assert.equal(a.lines[0].ref?.ns, "verdict");
-  assert.ok(a.lines.some((l) => l.ref?.ns === "reason"));
-  assert.ok(a.lines.some((l) => l.code === "componentBreakdown"));
+  assert.ok(a.lines.some((l) => l.code === "gs3Method" && l.params?.version === "GS-3.0.0"));
   assert.equal(a.methodology, "score");
 });
 
@@ -70,15 +70,16 @@ test("mainWeakness / mainStrength reference an engine reason, never invent one",
   if (w.lines[0].code === "weaknessIs") assert.equal(w.lines[0].ref?.ns, "reason");
 });
 
-test("whichAdditive lists only additives that affected the score", () => {
-  const withAdditive = answerCoach("whichAdditive", productCtx({ additives: ["en:e250"] })); // high-risk nitrite
-  assert.ok(withAdditive.lines.some((l) => l.code === "additiveCapped" || l.code === "additivePenalty"));
+test("whichAdditive reports documented additives independently of the score", () => {
+  const withAdditive = answerCoach("whichAdditive", productCtx({ additives: ["en:e250"] }));
+  assert.equal(withAdditive.lines[0].code, "gs3Additives");
+  assert.equal(withAdditive.lines[0].params?.reviewed, 1);
   const clean = answerCoach("whichAdditive", productCtx({ additives: [] }));
-  assert.equal(clean.lines[0].code, "noAdditiveImpact");
+  assert.equal(clean.lines[0].params?.count, 0);
 });
 
 test("whyNoScore explains the typed unscored reason and flags uncertainty", () => {
-  const a = answerCoach("whyNoScore", productCtx({ ingredientsText: undefined }));
+  const a = answerCoach("whyNoScore", productCtx({ nutriScore: undefined }));
   assert.equal(a.lines[0].ref?.ns, "unscored");
   assert.ok(a.uncertainty);
   // A scored product answered honestly: it IS scored.

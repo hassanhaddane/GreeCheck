@@ -1,169 +1,80 @@
-/**
- * Open Food Facts integration (server-side fetchers).
- * No data is persisted server-side: every call is a stateless proxy/fetch.
- * Raw→Product mapping lives in `product-normalizer.ts`.
- */
-import type { Product, Confidence, ProductState } from "@greecheck/domain/product/model";
-import { OFF_FIELDS, mapOffProduct, assessProduct, type OffRawProduct } from "@greecheck/domain/product/normalizer";
-import { RateLimitedError, retryAfterMs } from "./errors";
+import type { Product } from "@greecheck/domain/product/model";
+import { OFF_FIELDS } from "@greecheck/domain/product/normalizer";
+import { gtinIdentity } from "@greecheck/domain/product/gtin";
+import { ApiError } from "./errors";
+import { offProduct } from "./off-normalization";
+import { asProductResult, type DataLocale, type ProductResult, type SearchResult } from "./product-contracts";
+import { cachedRequests, invalidPayload, jsonObject, quantity, record, upstream } from "./upstream";
 
-// Re-exported for existing consumers of this module.
-export { OFF_FIELDS, mapOffProduct, assessProduct };
-export type { OffRawProduct };
+const productRequest = upstream(15);
+const structuredRequest = upstream(10);
+const textRequest = upstream(10);
+const searchCache = cachedRequests<SearchResult>(200, () => 10 * 60_000);
 
-const BASE = process.env.NEXT_PUBLIC_OFF_BASE_URL || "https://world.openfoodfacts.org";
-// France-first full-text search goes through the fr subdomain (same data, FR-scoped ranking).
-const BASE_FR = "https://fr.openfoodfacts.org";
-// Search-a-licious — Open Food Facts' officially supported full-text search service.
-const SEARCH_BASE = process.env.OFF_SEARCH_BASE_URL || "https://search.openfoodfacts.org";
-const USER_AGENT = process.env.OFF_USER_AGENT || "GreeCheck/0.1 (contact@greecheck.app)";
-const UPSTREAM_TIMEOUT_MS = 8000;
+const offBase = () => process.env.OFF_BASE_URL || process.env.NEXT_PUBLIC_OFF_BASE_URL || "https://world.openfoodfacts.org";
+const searchBase = () => process.env.OFF_SEARCH_BASE_URL || "https://search.openfoodfacts.org";
+const headers = () => ({ "User-Agent": process.env.OFF_USER_AGENT || process.env.OPENFOODFACTS_USER_AGENT || "GreeCheck/3.0 (+https://github.com/hassanhaddane/GreeCheck)", Accept: "application/json" });
+const timeout = 5000;
 
-export type ProductResult =
-  | { status: Exclude<ProductState, "not_found">; product: Product; confidence: Confidence; missing: string[] }
-  | { status: "not_found"; barcode: string };
-
-async function offFetch(url: string, revalidate = 60 * 60): Promise<Response> {
-  const res = await fetch(url, {
-    headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-    next: { revalidate },
-    signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)
-  });
-  // Rate-limit awareness: OFF answers 429 when the shared quota is exhausted.
-  if (res.status === 429) throw new RateLimitedError(retryAfterMs(res.headers.get("retry-after")));
-  return res;
-}
-
-/**
- * Parse an upstream response defensively: OFF occasionally answers 200 with an
- * HTML error page, which used to crash `res.json()` and surface as a bare 502.
- */
-async function safeJson<T>(res: Response, source: string): Promise<T> {
-  const contentType = res.headers.get("content-type") ?? "";
-  const text = await res.text();
-  if (!contentType.includes("json") && !text.trimStart().startsWith("{")) {
-    throw new Error(`${source}_non_json_response (status ${res.status})`);
+/** v3 by default; v2 is an explicit, temporary rollback switch. */
+export async function fetchProductByBarcode(code: string): Promise<ProductResult> {
+  if (!gtinIdentity(code)) throw new ApiError("invalid_request", "Invalid GTIN");
+  const v2 = process.env.OFF_PRODUCT_API_VERSION === "v2";
+  const version = v2 ? "v2" : "v3";
+  const url = new URL("/api/" + version + "/product/" + code, offBase());
+  url.searchParams.set("fields", OFF_FIELDS + ",product_quantity_unit" + (v2 ? "" : ",nutrition"));
+  if (!v2) url.searchParams.set("product_type", "food");
+  const response = await productRequest(url, headers(), timeout);
+  if (!response.ok && response.status !== 404) throw new ApiError("upstream", "OFF product request failed");
+  const body = await jsonObject(response);
+  if (body.code !== undefined && (typeof body.code !== "string" || gtinIdentity(body.code) !== gtinIdentity(code))) invalidPayload();
+  const resultId = record(body.result)?.id;
+  if (v2 ? body.status === 0 : response.status === 404 && resultId === "product_not_found") {
+    return { status: "not_found", barcode: code };
   }
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    throw new Error(`${source}_invalid_json (status ${res.status})`);
-  }
+  if (!response.ok || (v2 ? body.status !== 1 : body.status !== "success" || resultId !== "product_found")) invalidPayload();
+  const product = offProduct(body.product, "product-api-" + version, code);
+  if (!product) return invalidPayload();
+  return asProductResult(product);
 }
 
-export async function fetchProductByBarcode(barcode: string): Promise<ProductResult> {
-  const code = barcode.replace(/\D/g, "");
-  if (!code) return { status: "not_found", barcode };
-
-  const url = `${BASE}/api/v2/product/${encodeURIComponent(code)}.json?fields=${OFF_FIELDS}`;
-  const res = await offFetch(url);
-  // OFF v2 answers 404 for unknown barcodes — that is a normal "not found",
-  // not an upstream failure, and must never surface as a 502.
-  if (res.status === 404) return { status: "not_found", barcode: code };
-  if (!res.ok) throw new Error(`OFF responded ${res.status}`);
-
-  const data = await safeJson<{ status?: number; product?: OffRawProduct }>(res, "off_product");
-  if (data.status !== 1 || !data.product) return { status: "not_found", barcode: code };
-
-  const product = mapOffProduct(data.product);
-  const { status, confidence, missing } = assessProduct(product);
-  return { status, product, confidence, missing };
-}
-
-export interface SearchResult {
-  count: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-  products: Product[];
-}
-
-/** Put products actually sold in France first (without dropping the rest). */
-function prioritizeFrance(products: Product[]): Product[] {
-  const inFrance = (p: Product) => (p.countries ?? []).some((c) => /france|french/i.test(c));
-  return [...products.filter(inFrance), ...products.filter((p) => !inFrance(p))];
-}
-
-function toSearchResult(raw: OffRawProduct[], count: number, page: number, pageSize: number): SearchResult {
-  const products = prioritizeFrance(raw.map(mapOffProduct).filter((p) => p.barcode && p.name));
+async function searchResults(response: Response, field: "hits" | "products", version: string, page: number, pageSize: number): Promise<SearchResult> {
+  if (!response.ok) throw new ApiError("upstream", "OFF search request failed");
+  const body = await jsonObject(response);
+  const entries = body[field];
+  const count = quantity(body.count);
+  if (!Array.isArray(entries) || count === undefined || !Number.isInteger(count)) return invalidPayload();
+  const products = entries.map(entry => offProduct(entry, version)).filter((p): p is Product => Boolean(p?.name));
+  if (entries.length && !products.length && entries.every(entry => !record(entry)?.code)) invalidPayload();
   return { count, page, pageSize, hasMore: page * pageSize < count, products };
 }
 
-/** Primary strategy: Search-a-licious, OFF's supported full-text search service. */
-async function searchViaSearchALicious(query: string, page: number, pageSize: number): Promise<SearchResult> {
-  const params = new URLSearchParams({
-    q: query,
-    langs: "fr,en",
-    page: String(page),
-    page_size: String(pageSize),
-    fields: OFF_FIELDS
-  });
-  const res = await offFetch(`${SEARCH_BASE}/search?${params.toString()}`, 60 * 30);
-  if (!res.ok) throw new Error(`searchalicious_${res.status}`);
-  const data = await safeJson<{ count?: number; hits?: OffRawProduct[] }>(res, "searchalicious");
-  return toSearchResult(data.hits ?? [], data.count ?? (data.hits ?? []).length, page, pageSize);
-}
-
-/** Fallback strategy: legacy full-text endpoint on the FR subdomain. */
-async function searchViaLegacy(query: string, page: number, pageSize: number): Promise<SearchResult> {
-  const params = new URLSearchParams({
-    search_terms: query,
-    search_simple: "1",
-    action: "process",
-    json: "1",
-    page: String(page),
-    page_size: String(pageSize),
-    fields: OFF_FIELDS
-  });
-  const res = await offFetch(`${BASE_FR}/cgi/search.pl?${params.toString()}`, 60 * 30);
-  if (!res.ok) throw new Error(`off_legacy_search_${res.status}`);
-  const data = await safeJson<{ count?: number; page?: number; page_size?: number; products?: OffRawProduct[] }>(
-    res,
-    "off_legacy_search"
-  );
-  return toSearchResult(data.products ?? [], data.count ?? (data.products ?? []).length, page, pageSize);
-}
-
-/**
- * Robust full-text product search: Search-a-licious first, legacy `cgi/search.pl`
- * as fallback. Throws only if BOTH upstreams fail (the route maps that to 502).
- */
-export async function searchProducts(query: string, page = 1, pageSize = 20): Promise<SearchResult> {
-  try {
-    return await searchViaSearchALicious(query, page, pageSize);
-  } catch {
+export function searchProducts(query: string, page = 1, pageSize = 20, locale: DataLocale = "fr"): Promise<SearchResult> {
+  return searchCache(JSON.stringify(["text", query, page, pageSize, locale]), async () => {
+    const url = new URL("/search", searchBase());
+    url.search = new URLSearchParams({
+      q: query, langs: [...new Set([locale, "en", "fr"])].join(","), page: String(page), page_size: String(pageSize), fields: OFF_FIELDS
+    }).toString();
     try {
-      return await searchViaLegacy(query, page, pageSize);
-    } catch (fallbackErr) {
-      throw fallbackErr;
+      return await searchResults(await textRequest(url, headers(), timeout), "hits", "search-a-licious", page, pageSize);
+    } catch (error) {
+      if (error instanceof ApiError && (error.code === "rate_limited" || error.code === "unavailable")) throw error;
+      const legacy = new URL("/cgi/search.pl", offBase());
+      legacy.search = new URLSearchParams({
+        search_terms: query, search_simple: "1", action: "process", json: "1", lc: locale,
+        page: String(page), page_size: String(pageSize), fields: OFF_FIELDS
+      }).toString();
+      return searchResults(await structuredRequest(legacy, headers(), timeout), "products", "legacy-text-search", page, pageSize);
     }
-  }
+  });
 }
 
-/**
- * Find products in the same category — used to suggest healthier alternatives.
- * Sorted by popularity so suggestions are recognizable; ranking by GreeScore
- * happens client-side (it needs the user's local preferences).
- */
-export async function searchByCategory(category: string, pageSize = 16): Promise<SearchResult> {
-  const params = new URLSearchParams({
-    action: "process",
-    json: "1",
-    page_size: String(pageSize),
-    tagtype_0: "categories",
-    tag_contains_0: "contains",
-    tag_0: category,
-    sort_by: "unique_scans_n",
-    fields: OFF_FIELDS
+export function searchByCategory(category: string, pageSize = 16): Promise<SearchResult> {
+  return searchCache(JSON.stringify(["category", category, pageSize]), async () => {
+    const url = new URL("/api/v2/search", offBase());
+    url.search = new URLSearchParams({
+      categories_tags: category.includes(":") ? category : "en:" + category.replaceAll(" ", "-"), page_size: String(pageSize), sort_by: "unique_scans_n", fields: OFF_FIELDS
+    }).toString();
+    return searchResults(await structuredRequest(url, headers(), timeout), "products", "structured-search-v2", 1, pageSize);
   });
-  const url = `${BASE}/cgi/search.pl?${params.toString()}`;
-  const res = await offFetch(url, 60 * 60);
-  if (!res.ok) throw new Error(`OFF category search responded ${res.status}`);
-
-  const data = await safeJson<{ count?: number; page?: number; page_size?: number; products?: OffRawProduct[] }>(
-    res,
-    "off_category_search"
-  );
-  const products = (data.products ?? []).map(mapOffProduct).filter((p) => p.barcode && p.name);
-  return { count: data.count ?? products.length, page: 1, pageSize, hasMore: false, products };
 }

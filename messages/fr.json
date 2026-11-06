@@ -7,6 +7,8 @@
     "metaDescription": "Scanne un produit et découvre son GreeScore : verdict clair, raisons principales et meilleures alternatives. Sans compte, données 100 % locales."
   },
   "nav": {
+    "products": "Mes produits",
+    "primary": "Navigation principale",
     "home": "Accueil",
     "scan": "Scanner",
     "search": "Rechercher",
@@ -25,9 +27,12 @@
     "favorites": "Favoris",
     "list": "Liste de courses",
     "support": "Soutenir",
-    "language": "Langue"
+    "language": "Langue",
+    "myLists": "Mes listes",
+    "about": "À propos de GreeCheck"
   },
   "scan": {
+    "scannerLabel": "Scanner de produits",
     "title": "GreeLens",
     "instruction": "Place le code-barres dans le cadre",
     "analyzing": "Analyse du produit…",
@@ -62,8 +67,8 @@
     "networkError": "Connexion impossible à Open Food Facts. Réessaie dans un instant.",
     "scanGuidance": "Garde le produit stable, utilise une bonne lumière et approche ou éloigne le produit si le scan ne démarre pas. Si l'image est floue, change de caméra.",
     "switchCamera": "Changer de caméra",
-    "torchOn": "Lampe activée",
-    "torchOff": "Lampe désactivée",
+    "torchOn": "Allumer la lampe",
+    "torchOff": "Éteindre la lampe",
     "zoom": "Zoom",
     "camera": "Caméra",
     "cameraN": "Caméra {n}",
@@ -83,11 +88,12 @@
       "addedToBattle": "Ajouté à GreeCompare",
       "alreadyInBattle": "Déjà dans GreeCompare",
       "battleFull": "GreeCompare complet (max 3)",
-      "cached": "Résultat en cache (hors ligne)",
+      "cached": "Copie enregistrée sur cet appareil",
       "alreadyScanned": "Déjà scanné — vise un autre produit",
       "sessionCount": "{n} scannés dans cette session"
     },
     "intro": {
+      "open": "Comment lire le résultat ?",
       "title": "Bienvenue dans GreeCheck",
       "stepLabel": "Étape {n} / 3",
       "step1Title": "Comprends le GreeScore",
@@ -149,9 +155,13 @@
         "no_text_found": "Aucun texte lisible n'a été trouvé. Cadrez le tableau ou la liste et réessayez.",
         "image_unreadable": "Image illisible. Réessayez avec plus de lumière."
       }
-    }
+    },
+    "preparingDecoder": "Préparation de la lecture…",
+    "focusManual": "Utiliser la saisie manuelle"
   },
   "search": {
+    "quickAll": "Tous",
+    "openScanner": "Ouvrir le scanner",
     "title": "Rechercher",
     "placeholder": "Produit, marque, besoin…",
     "filters": "Filtres",
@@ -161,7 +171,7 @@
     "sortGree": "GreeScore",
     "sortNutri": "Nutri-Score",
     "sortNova": "NOVA",
-    "sortLabel": "Trier",
+    "sortLabel": "Trier les résultats",
     "groupNutriScore": "Nutri-Score",
     "groupNova": "NOVA",
     "groupDiet": "Régime & labels",
@@ -203,9 +213,114 @@
       "lactoseFree": "Sans lactose",
       "noPalmOil": "Sans huile de palme",
       "greenScore": "Faible impact"
+    },
+    "invalidBarcode": "Vérifie les chiffres du code-barres."
+  },
+  "dataMethodology": {
+    "off": "Catalogue contributif prioritaire. Données sous ODbL et photos sous CC BY-SA selon les conditions d’Open Food Facts.",
+    "usda": "Source complémentaire facultative. GreeCheck vérifie le même GTIN dans les deux réponses USDA avant d’utiliser une fiche de marque. Données sous CC0.",
+    "ciqual": "Valeurs génériques pour quelques catégories d’aliments bruts, sous Licence Ouverte. Elles restent séparées des valeurs du produit et ne modifient pas son GreeScore.",
+    "science": "Les avis scientifiques sont datés et liés à la source. L’autorisation et la présence d’un additif ne suffisent pas pour établir un risque individuel.",
+    "qualityTitle": "Confiance et divergences",
+    "quality": "Confiance élevée pour le contrôle de l’identifiant, moyenne pour les valeurs déclarées ou calculées et faible pour les données manquantes ou les références génériques. Une copie ancienne est signalée.",
+    "conflict": "À base et unité identiques, un écart supérieur à 20 % et au seuil absolu est signalé. Les seuils sont de 10 kcal pour l’énergie, 0,1 g pour le sel et 0,5 g pour les autres nutriments.",
+    "coverageTitle": "Couverture internationale",
+    "coverage": "Les noms FR, EN et AR sont affichés quand le catalogue les fournit. Les marques et les marchés varient selon les sources. Le Green-Score combine des données de produit et des estimations de catégorie. Les valeurs environnementales manquantes restent indisponibles."
+  },
+  "productData": {
+    "additivesUnavailable": "Données sur les additifs indisponibles.",
+    "perMass": "Pour 100 g",
+    "perVolume": "Pour 100 ml",
+    "unknownBasis": "Base de la source non précisée (100 g ou 100 ml)",
+    "retrieved": "Récupéré le {date}",
+    "sourceUpdated": "Source mise à jour le {date}",
+    "conflictTitle": "Divergences entre sources",
+    "conflictBody": "Les valeurs sont présentées séparément. La fiche conserve la lecture principale d’Open Food Facts.",
+    "conflictBanner": "Des sources donnent des valeurs différentes. Voir Source et méthodologie.",
+    "referenceTitle": "Valeurs génériques de référence",
+    "referenceBody": "Composition moyenne de la catégorie. Ces valeurs sont exclues de la fiche nutritionnelle et du GreeScore.",
+    "viewRecord": "Consulter la fiche source",
+    "scientificEvidence": "Évaluation scientifique · {authority} · {date}",
+    "searchError": "Recherche temporairement indisponible",
+    "state": {
+      "VERIFIED": "Identité et champs contrôlés",
+      "PARTIAL": "Données partielles",
+      "CONFLICTED": "Sources divergentes",
+      "UNAVAILABLE": "Données indisponibles",
+      "STALE": "Copie locale ancienne"
+    },
+    "kind": {
+      "measured": "Mesuré",
+      "declared": "Déclaré par la source",
+      "computed": "Calculé",
+      "category_reference": "Référence de catégorie"
+    },
+    "missing": {
+      "not_reported": "Non fourni",
+      "invalid_or_unsupported": "Valeur ou unité inexploitable"
+    },
+    "confidence": {
+      "high": "Confiance élevée",
+      "medium": "Confiance moyenne",
+      "low": "Confiance faible"
+    },
+    "fields": {
+      "nutriScore2023": "Points Nutri-Score 2023",
+      "nutritionEnergyKj": "Énergie (kJ)",
+      "fruitVegetableLegumePercent": "Part de fruits, légumes et légumineuses",
+      "nonNutritiveSweeteners": "Statut des édulcorants non nutritifs",
+      "barcode": "Code-barres",
+      "name": "Nom",
+      "localizedNames_fr": "Nom français",
+      "localizedNames_en": "Nom anglais",
+      "localizedNames_ar": "Nom arabe",
+      "brand": "Marque",
+      "imageUrl": "Image",
+      "quantity": "Quantité",
+      "categoryIds": "Identifiants de catégorie",
+      "categories": "Catégories",
+      "countries": "Marchés",
+      "labels": "Labels",
+      "ingredientsText": "Ingrédients",
+      "allergens": "Allergènes",
+      "traces": "Traces",
+      "additives": "Additifs",
+      "nutriScore": "Nutri-Score",
+      "nutriScorePoints": "Points Nutri-Score",
+      "nutriScoreVersion": "Version Nutri-Score",
+      "novaGroup": "NOVA",
+      "greenScore": "Green-Score",
+      "environment_normalizedScore": "Score environnemental",
+      "environment_adjustments": "Ajustements environnementaux",
+      "environment_lifecycleScore": "Cycle de vie de la catégorie",
+      "halalStatus": "Indication halal",
+      "veganStatus": "Indication vegan",
+      "vegetarianStatus": "Indication végétarienne",
+      "palmOilStatus": "Huile de palme",
+      "nutritionBasis": "Base nutritionnelle",
+      "nutriments_energyKcal": "Énergie",
+      "nutriments_sugars": "Sucres",
+      "nutriments_salt": "Sel",
+      "nutriments_saturatedFat": "Acides gras saturés",
+      "nutriments_fat": "Matières grasses",
+      "nutriments_fiber": "Fibres",
+      "nutriments_proteins": "Protéines"
     }
   },
   "product": {
+    "noAlternative": "Aucune alternative comparable et mieux notée n’a été trouvée.",
+    "alternativeError": "La recherche d’alternatives est indisponible.",
+    "otherActions": "Autres actions",
+    "evaluationDetails": "Comprendre le GreeScore",
+    "productDetails": "Détails du produit",
+    "reportedAdditives": "{count, plural, one {# additif signalé} other {# additifs signalés}}",
+    "processing": "Degré de transformation",
+    "productFacts": "À retenir",
+    "viewList": "Voir ma liste",
+    "addToList": "Ajouter à ma liste",
+    "findAlternative": "Trouver une alternative",
+    "scoreSummary": "La note résume le profil nutritionnel à partir des données disponibles.",
+    "loadingProduct": "Chargement de la fiche",
     "metaTitle": "{name} — analyse nutritionnelle | GreeCheck",
     "metaDescription": "Découvre les données nutritionnelles, ingrédients, additifs, Nutri-Score et niveau de transformation de {name}.",
     "title": "Fiche produit",
@@ -290,7 +405,7 @@
       "medium": "moyenne",
       "low": "faible"
     },
-    "staleBanner": "Résultat en cache du {date} — réseau indisponible",
+    "staleBanner": "Copie locale enregistrée le {date} · actualisation indisponible",
     "staleRefresh": "Actualiser",
     "rateLimited": "Service temporairement limité",
     "rateLimitedBody": "La source de données limite les requêtes. Réessaie dans un instant.",
@@ -360,9 +475,12 @@
       "noFlaggedAdditives": "Aucun additif signalé",
       "fewerAdditives": "{n, plural, one {# additif en moins} other {# additifs en moins}}",
       "organic": "Certifié biologique",
-      "betterScore": "GreeScore +{n} points"
+      "betterScore": "GreeScore +{n} points",
+      "checkLabel": "Vérifie les allergènes et les traces sur l’emballage avant de choisir."
     },
     "dataKind": {
+      "declared": "Déclaré",
+      "declaredHelp": "Information publiée par la source pour ce produit.",
       "fact": "Fait",
       "estimate": "Estimation",
       "opinion": "Avis GreeCheck",
@@ -388,7 +506,7 @@
     "environmentalDetails": "Détails environnementaux",
     "confidenceHint": "Fiabilité du résultat selon les données disponibles.",
     "whatsMissing": "Ce qui manque",
-    "confidenceExplain": "Une donnée manquante réduit la confiance, jamais la note santé elle-même.",
+    "confidenceExplain": "La confiance dépend de la provenance et des entrées. Les données manquantes peuvent empêcher une évaluation.",
     "compatibility": "Compatibilité",
     "halalLabel": "Halal",
     "halalVerified": "Vérifié",
@@ -405,6 +523,7 @@
     "addedBattle": "Ajouté à GreeCompare"
   },
   "battle": {
+    "issue_differentNutritionBasis": "Les bases nutritionnelles diffèrent (100 g et 100 ml).",
     "title": "GreeCompare",
     "subtitle": "Comparez jusqu'à 3 produits et laissez GreeCheck vous aider à choisir.",
     "addProduct": "Ajouter un produit",
@@ -501,6 +620,7 @@
     "dnaCompare": "Comparaison GreeDNA"
   },
   "cart": {
+    "gs3Coverage": "{rated, number} produits évalués sur {total, number}",
     "title": "Panier intelligent",
     "subtitle": "Scanne plusieurs produits et obtiens une note globale.",
     "score": "Score du panier",
@@ -547,6 +667,7 @@
       "low": "faible"
     },
     "verdict": {
+      "unscored": "Données insuffisantes pour une moyenne nutritionnelle du panier.",
       "empty": "Ton panier est vide.",
       "excellentClean": "Excellent panier : sain, peu transformé et sans alerte.",
       "halalMatch": "Panier 100% compatible halal.",
@@ -690,7 +811,8 @@
     "clearCart": "Vider GreeCart",
     "criteriaTitle": "Mes critères",
     "criteriaHint": "Objectifs et préférences alimentaires — gérés dans une page dédiée.",
-    "resetPrefs": "Réinitialiser les critères"
+    "resetPrefs": "Réinitialiser les critères",
+    "resetFailed": "La suppression a échoué. Réessaie depuis cet appareil."
   },
   "labels": {
     "bio": "Bio",
@@ -713,7 +835,7 @@
     "localHistory": "Historique de scans — stocké localement, effaçable à tout moment.",
     "localFavorites": "Favoris — enregistrés uniquement sur ton appareil.",
     "localBasket": "Panier & listes de courses — jamais envoyés à un serveur.",
-    "localPrefs": "Préférences, objectifs et allergènes — utilisés localement pour personnaliser ton GreeScore.",
+    "localPrefs": "Préférences, objectifs et allergènes utilisés localement pour adapter tes alertes et suggestions.",
     "noHealthServer": "Aucune donnée santé n'est stockée côté serveur : GreeCheck n'a ni base utilisateur, ni profil.",
     "geoTitle": "Localisation",
     "geoBody": "Ta position n'est demandée qu'après ton action dans Discover. Elle transite par le proxy sans état de GreeCheck vers OpenStreetMap uniquement pour trouver les lieux proches ; elle n'est conservée ni par GreeCheck ni dans ton historique.",
@@ -721,7 +843,11 @@
     "noAdsBody": "GreeCheck V2 n'affiche aucune publicité, aucun emplacement publicitaire et n'intègre aucun profilage publicitaire.",
     "contributeTitle": "Contribution Open Food Facts",
     "contributeBody": "Si un produit est introuvable, tu peux l'ajouter à la base collaborative Open Food Facts. La contribution se fait sur leur site, selon leurs conditions.",
-    "contributeCta": "Contribuer sur Open Food Facts"
+    "contributeCta": "Contribuer sur Open Food Facts",
+    "networkTitle": "Appels réseau",
+    "networkBody": "Les recherches transmettent le texte et sa langue. Les scans transmettent le code-barres. Les alternatives transmettent une catégorie et un code à exclure. Découvrir transmet une ville ou une position approximative après une action explicite.",
+    "retentionBody": "Les préférences et listes sont gardées sur l’appareil jusqu’à leur effacement. Une fiche est considérée fraîche pendant 24 h. L’hébergeur peut traiter les journaux nécessaires au service. Un cookie mémorise la langue.",
+    "manageLocal": "Gérer les données locales"
   },
   "common": {
     "back": "Retour",
@@ -771,6 +897,38 @@
     "offlineAction": "Réessayer"
   },
   "score": {
+    "gs3Unavailable": "Non évaluable",
+    "gs3Obsolete": "Ancienne évaluation archivée",
+    "gs3ReportedCertification": "Certification signalée · {label}",
+    "gs3HalalReported": "Label halal signalé",
+    "gs3EvidenceAvailable": "Référence scientifique disponible",
+    "gs3EvidenceUnavailable": "Référence scientifique non recensée",
+    "gs3Method": "La note GS-3 reflète le profil nutritionnel. Les autres informations sont présentées séparément.",
+    "gs3Path": {
+      "provider_2023": "Points Nutri-Score 2023 fournis par la source",
+      "computed_2023": "Points Nutri-Score 2023 recalculés",
+      "plain_water": "Eau nature identifiée"
+    },
+    "gs3Raw": "Points bruts Nutri-Score 2023 · {points, number}",
+    "gs3OfficialMethod": "Règles officielles du Nutri-Score",
+    "gs3Missing": {
+      "productNutrition": "Valeurs propres au produit",
+      "ingredients": "Ingrédients",
+      "additives": "Additifs déclarés",
+      "nova": "Classe NOVA",
+      "nutritionBasis": "Base par 100 g ou 100 ml",
+      "nutritionCategory": "Catégorie nutritionnelle",
+      "plainWater": "Confirmation que l’eau est nature",
+      "sugars": "Sucres",
+      "saturatedFat": "Graisses saturées",
+      "salt": "Sel",
+      "fiber": "Fibres",
+      "fruitVegetableLegumePercent": "Part de fruits, légumes et légumineuses",
+      "energyKj": "Énergie en kJ",
+      "fat": "Matières grasses",
+      "nonNutritiveSweeteners": "Présence ou absence d’édulcorants non nutritifs",
+      "proteins": "Protéines"
+    },
     "grade": {
       "A": "Excellent",
       "B": "Bon choix",
@@ -779,6 +937,17 @@
       "E": "À éviter"
     },
     "reason": {
+      "gs3Energy": "Énergie en kJ · {points, number} points bruts",
+      "gs3Sugars": "Sucres · {points, number} points bruts",
+      "gs3Saturated": "Graisses saturées · {points, number} points bruts",
+      "gs3Salt": "Sel · {points, number} points bruts",
+      "gs3Sweeteners": "Édulcorants non nutritifs · {points, number} points bruts",
+      "gs3Fiber": "Fibres · {points, number} points bruts",
+      "gs3Fvl": "Part de fruits, légumes et légumineuses · {points, number} points bruts",
+      "gs3Proteins": "Protéines · {points, number} points bruts",
+      "gs3Water": "Eau nature identifiée par les données du produit.",
+      "gs3ReportedSugar": "Sucres déclarés · {value, number} g par 100 {unit}.",
+      "gs3ReportedSalt": "Sel déclaré · {value, number} g par 100 {unit}.",
       "nutriScore": "Nutri-Score {grade}",
       "tooSugar": "Trop de sucre",
       "richFiber": "Riche en fibres",
@@ -806,16 +975,20 @@
       "additivesUnreviewed": "{n} additif(s) non encore évalué(s) par notre registre"
     },
     "warning": {
+      "veganMismatch": "Les données indiquent une incompatibilité avec ton régime vegan.",
+      "vegetarianMismatch": "Les données indiquent une incompatibilité avec ton régime végétarien.",
       "highSugar": "Sucre élevé ({v} g / 100 g)",
       "highSalt": "Sel élevé ({v} g / 100 g)",
       "highSatFat": "Riche en gras saturés",
       "additiveAvoid": "Additif à éviter : {code}",
       "palmOil": "Contient de l'huile de palme",
-      "allergenPresent": "Allergène présent : {name}",
+      "allergenPresent": "Allergène signalé ou trace possible · {name}",
       "haramIngredient": "Ingrédient potentiellement non halal",
       "partialData": "Score calculé avec des données partielles",
       "halalCheckRequired": "Ingrédient à vérifier pour le halal (origine à confirmer)",
-      "halalNotConfirmed": "Statut halal non confirmé (information, pas un problème)"
+      "halalNotConfirmed": "Statut halal non confirmé (information, pas un problème)",
+      "sugarPreference": "Ton critère sucre · {value, number} g de sucres par {basis}.",
+      "saltPreference": "Ton critère sel · {value, number} g de sel par {basis}."
     },
     "bestChoice": "Meilleur choix",
     "lowScoreWarning": "Score faible — à limiter",
@@ -827,6 +1000,8 @@
       "low": "Données insuffisantes"
     },
     "verdict": {
+      "mixed_profile": "Profil intermédiaire",
+      "low_profile": "Profil faible",
       "excellent_choice": "Excellent choix",
       "good_choice": "Bon choix",
       "limit": "À limiter",
@@ -837,6 +1012,7 @@
       "unsupported_category": "Catégorie non prise en charge"
     },
     "explain": {
+      "gs3Explanation": "La note GS-3 reflète le profil nutritionnel. Les autres informations sont présentées séparément.",
       "highSugarUltraProcessed": "Très sucré et ultra-transformé.",
       "ultraProcessed": "Produit ultra-transformé.",
       "organicMinimal": "Bio et peu transformé.",
@@ -867,8 +1043,12 @@
       "betterDigestion": "meilleure digestion"
     },
     "unscored": {
+      "conflicting_nutrition_data": "les données nutritionnelles se contredisent",
+      "invalid_nutrition_data": "certaines valeurs sont invalides ou incohérentes",
+      "unknown_nutrition_category": "la catégorie nutritionnelle ne peut pas être établie",
       "missing_nutrition_data": "les valeurs nutritionnelles nécessaires sont absentes",
       "missing_ingredients_data": "la liste d'ingrédients est indisponible",
+      "missing_additives_data": "les données sur les additifs sont indisponibles",
       "excluded_alcohol": "les boissons alcoolisées ne sont pas notées",
       "excluded_pure_sugar": "le sucre pur n'est pas noté",
       "excluded_infant_formula": "les laits infantiles ne sont pas notés",
@@ -925,7 +1105,9 @@
     "moreActions": "Plus d’actions",
     "addedCart": "Ajouté au GreeCart",
     "addedBattle": "Ajouté à GreeCompare",
-    "actionUnavailable": "Produit indisponible hors ligne"
+    "actionUnavailable": "Produit indisponible hors ligne",
+    "clearHistory": "Vider l’historique",
+    "clearHistoryConfirm": "Supprimer tous les scans de cet appareil ? Tes favoris et ta liste seront conservés."
   },
   "criteria": {
     "metaTitle": "Mes critères — GreeCheck",
@@ -955,7 +1137,8 @@
       "reduceAdditives": "Réduire les additifs",
       "reduceUltraProcessed": "Éviter l'ultra-transformé",
       "increaseProtein": "Plus de protéines",
-      "increaseFiber": "Plus de fibres"
+      "increaseFiber": "Plus de fibres",
+      "preferEnvironment": "Priorité à l’environnement"
     },
     "allergenPresets": {
       "gluten": "Gluten",
@@ -1008,9 +1191,19 @@
     "unknownPlace": "Commerce sans nom",
     "hours": "Horaires : {value}",
     "directions": "Itinéraire",
-    "websiteFor": "Site de {name}"
+    "websiteFor": "Site de {name}",
+    "cityUnavailable": "La recherche par ville est indisponible sur cette version."
   },
   "methodology": {
+    "gs3Body": "La nutrition compte pour 100 % de la note. Nous reprenons les points bruts Nutri-Score 2023 quand la source précise cette version, ou les recalculons à partir des données requises.",
+    "gs3Limit": "L’échelle 0–100 est un choix éditorial de GreeCheck. Elle ne représente ni une mesure officielle de santé ni un pourcentage de sécurité.",
+    "gs3Rules": {
+      "formula": "Multiplie (borne basse de qualité − points bruts) / (borne basse de qualité − borne haute de qualité) par 100, puis borne et arrondis à l’entier le plus proche.",
+      "anchors": "Bornes haute et basse en points bruts · aliments −5 et 30, matières grasses −10 et 30, boissons −6 et 20. Eau nature à 100, autres boissons plafonnées à 99.",
+      "missing": "Une lettre seule, des données insuffisantes ou contradictoires ou une catégorie indéterminée donnent un résultat non évaluable.",
+      "axes": "Les additifs, le bio, NOVA, GreeImpact et les préférences sont séparés. Les allergènes détectés déclenchent une alerte prioritaire."
+    },
+    "gs3Confidence": "Confiance élevée pour un calcul reproductible avec identité contrôlée, moyenne pour les autres résultats évaluables, faible quand aucune note ne peut être établie.",
     "metaTitle": "Méthodologie GreeScore — GreeCheck",
     "metaDescription": "Comment le GreeScore est calculé : nutrition, transformation, additifs, labels, confiance des données et sources.",
     "title": "Méthodologie",
@@ -1036,7 +1229,8 @@
     "confidenceBody": "Chaque résultat indique un niveau de confiance basé sur la complétude des données : Nutri-Score, ingrédients et valeurs nutritionnelles disponibles. Un produit mal renseigné affiche « données partielles » plutôt qu'un mauvais score.",
     "sourcesTitle": "Sources",
     "sourcesBody": "Les données produits proviennent d'Open Food Facts, base collaborative et ouverte. GreeCheck n'invente jamais d'information produit.",
-    "privacyBody": "Le calcul s'effectue entièrement sur ton appareil : aucun compte, aucun historique serveur, aucun profil publicitaire."
+    "privacyBody": "Le calcul s'effectue entièrement sur ton appareil : aucun compte, aucun historique serveur, aucun profil publicitaire.",
+    "proprietary": "Le GreeScore est un indicateur propre à GreeCheck. Il utilise des données de référence et une méthode publique. La note ne constitue pas un avis médical."
   },
   "marketing": {
     "hero": {
@@ -1071,7 +1265,7 @@
     },
     "score": {
       "title": "GreeScore + Trust Halo",
-      "body": "Un score santé de 0 à 100, déterministe et explicable : nutrition, transformation NOVA, additifs, labels. Le Trust Halo indique séparément la fiabilité des données — une information manquante réduit la confiance, jamais le score.",
+      "body": "GreeScore utilise les points Nutri-Score 2023 pour produire un indice nutritionnel de 0 à 100. Le résultat dépend des données disponibles. Les additifs, NOVA et les labels sont présentés séparément.",
       "explain": "Chaque score est explicable, ligne par ligne."
     },
     "swap": {
@@ -1127,15 +1321,16 @@
     "actionUnavailable": "Produit indisponible hors ligne"
   },
   "home": {
+    "privacyShort": "Ton historique reste sur ton appareil.",
     "hero": {
-      "title": "Chaque scan améliore vos habitudes.",
-      "subtitle": "Verdict clair en deux secondes, preuves à l'appui.",
-      "cta": "Scanner un produit",
+      "title": "Scanner un produit",
+      "subtitle": "Cadre le code-barres ou le QR code de l’emballage.",
+      "cta": "Ouvrir le scanner",
       "firstHint": "Premier scan ? Visez simplement le code-barres."
     },
     "search": {
-      "label": "Recherche produit",
-      "placeholder": "Rechercher un produit ou un code-barres…"
+      "label": "Rechercher un produit",
+      "placeholder": "Produit, marque ou code"
     },
     "weekly": {
       "title": "Votre semaine",
@@ -1145,7 +1340,7 @@
       "avg": "score moyen",
       "localNote": "Calculé sur cet appareil. Rien ne quitte votre téléphone.",
       "sugarDown": "−{n} g de sucre",
-      "additivesDown": "Moins d'additifs à risque",
+      "additivesDown": "Moins d’additifs déclarés",
       "envUp": "Meilleur impact",
       "replacements": "{n} remplacement(s) · +{pts} pts"
     },
@@ -1183,7 +1378,7 @@
     "metaTitle": "Soutenir GreeCheck — Indépendance",
     "metaDescription": "GreeCheck est gratuit, sans pub et financé par les dons. Découvrez ce que votre soutien protège.",
     "title": "Soutenir GreeCheck",
-    "subtitle": "Gratuit pour tout le monde. Financé par personne d'autre que vous.",
+    "subtitle": "Gratuit, indépendant et sans compte.",
     "manifestoTitle": "Notre indépendance n'est pas à vendre.",
     "manifestoBody": "Aucune marque ne peut acheter une note, une place ou une recommandation. Les scores sortent d'une méthode publique et versionnée — et de rien d'autre.",
     "pointIndependenceTitle": "Zéro placement payant",
@@ -1192,10 +1387,12 @@
     "pointNoAdsBody": "Pas de compte, pas de profil, pas d'analytics. Vos scans restent sur votre appareil.",
     "pointMethodologyTitle": "Méthode publique",
     "pointMethodologyBody": "Formule, seuils et registre d'additifs sont documentés et datés. Chaque point est explicable.",
-    "donateTitle": "Les dons ouvriront au lancement",
-    "donateBody": "GreeCheck vivra uniquement de dons volontaires. Un don n'achète rien : ni visibilité, ni fonctionnalité, ni donnée. En attendant, parlez-en autour de vous — c'est déjà un soutien.",
+    "donateTitle": "Dons volontaires",
+    "donateBody": "Les dons volontaires peuvent soutenir le projet. Ils ne changent ni l’accès, ni les résultats.",
     "meanwhile": "Envie de vérifier par vous-même ?",
-    "meanwhileLink": "Lisez la méthodologie."
+    "meanwhileLink": "Lisez la méthodologie.",
+    "donateLink": "Faire un don volontaire",
+    "donateUnavailable": "Les dons en ligne sont actuellement indisponibles."
   },
   "impact": {
     "impact_label_low": "Faible impact",
@@ -1237,6 +1434,8 @@
     "impact_source_missing_signal": "Donnée manquante : {signal}"
   },
   "compare": {
+    "issue_differentNutritionBasis": "Les bases nutritionnelles diffèrent (100 g et 100 ml).",
+    "advanced": "Comparaison avancée",
     "title": "GreeCompare",
     "subtitle": "Comparez 2 ou 3 produits comparables et choisissez le meilleur, en toute transparence.",
     "emptyTitle": "Lancez une comparaison",
@@ -1258,11 +1457,11 @@
     "keyMetrics": "Indicateurs clés",
     "podium": "Podium",
     "lowConfidenceWinner": "Le gagnant santé repose sur des données incomplètes — à confirmer avant de décider.",
-    "healthWinner": "Gagnant santé",
+    "healthWinner": "Gagnant nutritionnel",
     "healthWinnerClose": "Gagnant santé (au coude-à-coude)",
     "environmentWinner": "Gagnant environnement",
     "sameWinnerBoth": "Même gagnant côté santé et côté environnement.",
-    "noEnvComparison": "Données environnementales insuffisantes pour comparer l'impact.",
+    "noEnvComparison": "Aucun écart environnemental ne peut être établi.",
     "yourChoice": "Votre choix",
     "yourChoiceHint": "Santé et environnement sont notés séparément — à vous d'arbitrer.",
     "healthPick": "Meilleur santé",
@@ -1276,7 +1475,9 @@
       "closerOrigins": "Origines plus proches",
       "certifiedProduction": "Production certifiée",
       "noThreatenedSpecies": "Sans ingrédient à risque pour les espèces"
-    }
+    },
+    "tradeOffs": "Compromis observés",
+    "lessNutrient": "{name} a moins de {nutrient} ({first} contre {second} g/{basis})."
   },
   "coach": {
     "title": "GreeCoach",
@@ -1305,6 +1506,9 @@
       "explainSimpler": "Explique plus simplement"
     },
     "line": {
+      "gs3Method": "La version {version} utilise les points Nutri-Score 2023 ou l’identification de l’eau nature.",
+      "gs3Additives": "{count, number} additifs déclarés. Le registre couvre {reviewed, number} d’entre eux.",
+      "cartUnscored": "Aucun produit de ce panier ne dispose d’une note GS-3.",
       "unsupported": "Je ne peux répondre qu'à partir des données de ce produit. Choisissez une des questions proposées.",
       "verdictIs": "Verdict : {ref} ({score}/100).",
       "reasonMinus": "− {ref}",
@@ -1324,7 +1528,7 @@
       "actuallyScored": "Ce produit EST noté : {score}/100 (note {ref}).",
       "noScoreBecause": "Pas de note car {ref}.",
       "noScoreUncertain": "Une donnée absente n'est jamais comptée contre le produit.",
-      "halalConfirmed": "Certification halal confirmée par un label officiel.",
+      "halalConfirmed": "Label halal signalé par la source. La certification reste à vérifier.",
       "halalIncompatible": "Un ingrédient clairement incompatible a été détecté.",
       "halalCheck": "Un ingrédient ambigu mérite vérification.",
       "halalUncertain": "« Non vérifié » ne veut pas dire « non halal » — la donnée est simplement absente.",
@@ -1359,5 +1563,33 @@
       "cartAlreadyGood": "Votre panier est déjà solide.",
       "cartPartialData": "{n} produit(s) manquent de données fiables."
     }
+  },
+  "about": {
+    "title": "À propos de GreeCheck",
+    "metaDescription": "Un assistant indépendant pour comprendre les produits alimentaires.",
+    "intro": "GreeCheck est un assistant gratuit pour scanner un produit, comprendre son évaluation et comparer des alternatives documentées.",
+    "independence": "L’application fonctionne sans compte ni publicité. Les dons éventuels sont volontaires et ne changent ni le score ni le classement.",
+    "method": "Méthodologie",
+    "sources": "Sources de données",
+    "privacy": "Confidentialité",
+    "contribute": "Contribuer ou signaler une erreur",
+    "support": "Soutenir GreeCheck",
+    "metaTitle": "À propos de GreeCheck · GreeCheck"
+  },
+  "contribute": {
+    "title": "Contribuer ou signaler une erreur",
+    "metaDescription": "Corriger une donnée produit ou signaler un problème avec l’application.",
+    "dataTitle": "Corriger une fiche produit",
+    "dataBody": "Ouvre la fiche dans Open Food Facts depuis GreeCheck pour signaler une donnée erronée ou compléter le produit. Vérifie le code-barres et l’étiquette avant de modifier une fiche.",
+    "dataLink": "Contribuer à Open Food Facts",
+    "appTitle": "Signaler un problème dans GreeCheck",
+    "appBody": "Indique la page, la langue et les étapes pour reproduire le problème. Les tickets GitHub sont publics. Garde tes informations personnelles et préférences sur ton appareil.",
+    "appLink": "Voir les tickets publics",
+    "metaTitle": "Contribuer ou signaler une erreur · GreeCheck"
+  },
+  "sources": {
+    "title": "Sources de données",
+    "metaDescription": "Origine, licences et couverture des données alimentaires et environnementales.",
+    "metaTitle": "Sources de données · GreeCheck"
   }
 }

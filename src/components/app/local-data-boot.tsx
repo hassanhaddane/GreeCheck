@@ -1,6 +1,5 @@
 "use client";
 import { useEffect } from "react";
-import { bootLocalData } from "@/services/storage/boot";
 
 /**
  * Client-only bootstrapper: migrates V1 localStorage data to IndexedDB (once)
@@ -9,7 +8,7 @@ import { bootLocalData } from "@/services/storage/boot";
  */
 export function LocalDataBoot() {
   useEffect(() => {
-    void bootLocalData();
+    void import("@/services/storage/boot").then(({ bootLocalData }) => bootLocalData()).catch(() => {});
   }, []);
   return null;
 }

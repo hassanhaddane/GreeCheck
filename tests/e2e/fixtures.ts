@@ -11,7 +11,16 @@ const availability = {
   categories: true
 };
 
-const imageUrl = "https://images.openfoodfacts.org/images/products/301/762/042/2003/front_en.879.100.jpg";
+// Keep both the Next.js image path and direct thumbnails independent of OFF.
+const productIllustration = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">',
+  '<rect x="18" y="24" width="44" height="48" rx="9" fill="#78533d"/>',
+  '<rect x="16" y="12" width="48" height="16" rx="5" fill="#405e52"/>',
+  '<rect x="18" y="40" width="44" height="20" rx="3" fill="#f4ebdc"/>',
+  '<path d="M32 50h16" stroke="#78533d" stroke-width="3" stroke-linecap="round"/>',
+  '</svg>'
+].join("");
+const imageUrl = "data:image/svg+xml," + encodeURIComponent(productIllustration);
 
 export const poorProduct: Product = {
   barcode: "11111115",
@@ -24,6 +33,8 @@ export const poorProduct: Product = {
   additives: ["e322"],
   nutriments: { energyKcal: 560, sugars: 58, salt: 0.12, saturatedFat: 11, fiber: 2, proteins: 6 },
   nutriScore: "e" as const,
+  nutriScore2023: { points: 25, grade: "e", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 4 as const,
   greenScore: "d" as const,
   isBio: false,
@@ -43,6 +54,8 @@ export const goodProduct: Product = {
   additives: [],
   nutriments: { energyKcal: 180, sugars: 2, salt: 0.03, saturatedFat: 0.4, fiber: 8, proteins: 10 },
   nutriScore: "a" as const,
+  nutriScore2023: { points: -4, grade: "a", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 1 as const,
   greenScore: "a" as const,
   isBio: true,
@@ -57,6 +70,8 @@ export const thirdProduct: Product = {
   name: "Test Almond Spread",
   nutriments: { ...goodProduct.nutriments, sugars: 5, proteins: 8 },
   nutriScore: "b" as const,
+  nutriScore2023: { points: 2, grade: "b", profile: "general" },
+  nutritionBasis: "100g",
   novaGroup: 2 as const
 };
 
@@ -64,6 +79,7 @@ export const incompleteProduct: Product = {
   ...goodProduct,
   barcode: "44444440",
   name: "Test Partial Product",
+  nutriScore2023: undefined,
   ingredientsText: undefined,
   additives: undefined,
   dataQuality: {
@@ -101,6 +117,7 @@ function productEnvelope(product: Product) {
 }
 
 export async function mockProductApis(page: Page) {
+  await mockIdleCamera(page);
   await page.route("**/api/product/*", async (route: Route) => {
     const code = new URL(route.request().url()).pathname.split("/").pop() ?? "";
     const product = products.get(code);
@@ -120,6 +137,28 @@ export async function mockProductApis(page: Page) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify({ count: 4, page: 1, pageSize: 20, hasMore: false, products: [goodProduct, poorProduct, incompleteProduct, unrelatedProduct] })
+    });
+  });
+}
+
+/** Controlled blank video for preview/permission tests. No Chromium fake device required. */
+export async function mockIdleCamera(page: Page) {
+  await page.addInitScript(() => {
+    if (Object.hasOwn(navigator.mediaDevices, "getUserMedia")) return;
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      configurable: true,
+      value: async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 320;
+        canvas.height = 240;
+        const stream = canvas.captureStream(10);
+        const track = stream.getVideoTracks()[0];
+        const timer = setInterval(() => {
+          if (track.readyState === "ended") clearInterval(timer);
+          else canvas.getContext("2d")?.fillRect(0, 0, 320, 240);
+        }, 100);
+        return stream;
+      }
     });
   });
 }

@@ -1,3 +1,4 @@
+import { normalizeError } from "@/services/api/errors";
 /**
  * API hardening helpers shared by every proxy route.
  *
@@ -30,6 +31,16 @@ export type ApiErrorCode =
 export function apiError(code: ApiErrorCode, status: number, headers?: HeadersInit) {
   // Deliberately opaque: stable machine code only, never an exception message.
   return NextResponse.json({ status: "error", error: code }, { status, headers });
+}
+
+/** Keep error envelopes stable and forward only safe status/retry information. */
+export function upstreamApiError(error: unknown) {
+  const e = normalizeError(error);
+  const headers = e.retryAfterMs === undefined ? undefined : { "Retry-After": String(Math.ceil(e.retryAfterMs / 1000)) };
+  if (e.code === "rate_limited") return apiError("rate_limited", 429, headers);
+  if (e.code === "unavailable") return apiError("upstream_unavailable", 503, headers);
+  if (e.code === "invalid_payload") return apiError("upstream_invalid_payload", 502);
+  return apiError(e.code === "network" ? "upstream_unreachable" : "upstream_unavailable", 502);
 }
 
 /* ───────────────────────── rate protection ───────────────────────── */

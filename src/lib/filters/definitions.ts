@@ -19,17 +19,14 @@ export type Locale = FilterLocale;
 export type FilterDef = SmartFilter;
 
 const labels = (p: Product) => (p.labels ?? []).join(" ").toLowerCase();
-const ing = (p: Product) => (p.ingredientsText ?? "").toLowerCase();
 const num = (v: number | undefined) => (v === undefined ? null : v);
-const additiveCount = (p: Product) => p.additives?.length ?? 0;
-const hasIngredientData = (p: Product) => Boolean(p.ingredientsText) || p.additives !== undefined;
 
 export const FILTER_DEFS: SmartFilter[] = [
   /* ── Diet & labels ── */
   {
     id: "bio", group: "diet", icon: Leaf,
     label: { fr: "Bio", en: "Organic", ar: "عضوي" },
-    description: { fr: "Label agriculture biologique", en: "Certified organic label", ar: "حاصل على شهادة عضوية" },
+    description: { fr: "Label bio signalé", en: "Reported organic label", ar: "علامة عضوية مُبلّغ عنها" },
     match: (p) => !!p.isBio
   },
   {
@@ -54,25 +51,25 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "gluten_free", group: "diet", icon: WheatOff,
     label: { fr: "Sans gluten", en: "Gluten-free", ar: "خالٍ من الغلوتين" },
     description: { fr: "Aucun gluten détecté", en: "No gluten detected", ar: "لا غلوتين" },
-    match: (p) => /gluten[- ]?free|sans gluten|no gluten/.test(labels(p)) || (!!p.allergens && !p.allergens.some((a) => /gluten|wheat|blé/i.test(a)) && (p.allergens.length > 0 || ing(p).length > 0))
+    match: (p) => /gluten[- ]?free|sans gluten|no gluten/.test(labels(p))
   },
   {
     id: "lactose_free", group: "diet", icon: MilkOff,
     label: { fr: "Sans lactose", en: "Lactose-free", ar: "خالٍ من اللاكتوز" },
     description: { fr: "Aucun lactose détecté", en: "No lactose detected", ar: "لا لاكتوز" },
-    match: (p) => /lactose[- ]?free|sans lactose|no lactose/.test(labels(p)) || (!!p.allergens && !p.allergens.some((a) => /milk|lactose|lait/i.test(a)) && p.allergens.length > 0)
+    match: (p) => /lactose[- ]?free|sans lactose|no lactose/.test(labels(p))
   },
   {
     id: "no_palm_oil", group: "diet", icon: TreePalm,
     label: { fr: "Sans huile de palme", en: "No palm oil", ar: "بدون زيت النخيل" },
     description: { fr: "Ingrédients sans palme", en: "Palm-free ingredients", ar: "مكونات بدون نخيل" },
-    match: (p) => /palm oil free|no palm|sans huile de palme/.test(labels(p)) || (ing(p).length > 0 && !/palm/.test(ing(p)))
+    match: (p) => /palm oil free|no palm|sans huile de palme/.test(labels(p))
   },
   {
     id: "no_additives", group: "diet", icon: FlaskConical,
-    label: { fr: "Sans additifs", en: "No additives", ar: "بدون إضافات" },
-    description: { fr: "Zéro additif détecté", en: "Zero additives detected", ar: "صفر إضافات" },
-    match: (p) => additiveCount(p) === 0 && hasIngredientData(p)
+    label: { fr: "Sans additifs signalés", en: "No additives reported", ar: "لا مضافات مُبلّغ عنها" },
+    description: { fr: "La source indique une liste d’additifs vide", en: "The source reports an empty additive list", ar: "يُظهر المصدر قائمة مضافات فارغة" },
+    match: (p) => p.additives?.length === 0
   },
 
   /* ── Nutrition ── */
@@ -118,7 +115,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "weight_loss", group: "smart", icon: Scale,
     label: { fr: "Best for weight loss", en: "Best for weight loss", ar: "الأفضل لإنقاص الوزن" },
     description: { fr: "Peu calorique, peu sucré, sain", en: "Low calorie, low sugar, healthy", ar: "سعرات وسكر منخفضان" },
-    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.subScores.nutrition >= 55
+    match: (p, g) => num(p.nutriments.energyKcal) !== null && p.nutriments.energyKcal! <= 150 && (p.nutriments.sugars ?? 99) <= 10 && g.status === "scored" && g.score >= 55
   },
   {
     id: "breakfast", group: "smart", icon: Sunrise,
@@ -130,7 +127,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "healthy_snack", group: "smart", icon: Cookie,
     label: { fr: "Smart snack", en: "Smart snack", ar: "وجبة خفيفة ذكية" },
     description: { fr: "Bon score, léger, peu transformé", en: "Good score, light, low processed", ar: "نتيجة جيدة وخفيف" },
-    match: (p, g) => g.global >= 60 && (g.subScores.processing ?? 0) >= 50 && (p.nutriments.energyKcal ?? 999) <= 250
+    match: (p, g) => g.status === "scored" && g.score >= 60 && p.novaGroup !== undefined && p.novaGroup <= 2 && (p.nutriments.energyKcal ?? 999) <= 250
   },
   {
     id: "halal_ok", group: "smart", icon: ShieldCheck,
@@ -142,7 +139,7 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "best_bio", group: "smart", icon: Star,
     label: { fr: "Bio first", en: "Bio first", ar: "عضوي أولاً" },
     description: { fr: "Bio avec un bon GreeScore", en: "Organic with a good GreeScore", ar: "عضوي بنتيجة جيدة" },
-    match: (p, g) => !!p.isBio && g.global >= 55
+    match: (p, g) => !!p.isBio && g.status === "scored" && g.score >= 55
   },
   {
     id: "less_processed", group: "smart", icon: Factory,
@@ -154,25 +151,25 @@ export const FILTER_DEFS: SmartFilter[] = [
     id: "low_sugar_swap", group: "smart", icon: Repeat,
     label: { fr: "Low sugar swap", en: "Low sugar swap", ar: "بديل قليل السكر" },
     description: { fr: "Alternative peu sucrée et correcte", en: "Low-sugar, decent alternative", ar: "بديل قليل السكر وجيد" },
-    match: (p, g) => num(p.nutriments.sugars) !== null && p.nutriments.sugars! <= T.sugarLow && g.global >= 55
+    match: (p, g) => num(p.nutriments.sugars) !== null && p.nutriments.sugars! <= T.sugarLow && g.status === "scored" && g.score >= 55
   },
   {
     id: "daily_use", group: "smart", icon: CalendarCheck,
     label: { fr: "Better for daily use", en: "Better for daily use", ar: "أفضل للاستخدام اليومي" },
     description: { fr: "Sain au quotidien, sans alerte majeure", en: "Healthy every day, no major warning", ar: "صحي يومياً بدون تحذير كبير" },
-    match: (p, g) => g.global >= 65 && g.warnings.every((w) => w.level === "info") && (p.novaGroup ?? 4) <= 3
+    match: (p, g) => g.status === "scored" && g.score >= 65 && g.warnings.every((w) => w.level === "info") && (p.novaGroup ?? 4) <= 3
   },
   {
     id: "family_safe", group: "smart", icon: Users,
     label: { fr: "Family safe", en: "Family safe", ar: "آمن للعائلة" },
     description: { fr: "Sans additif à risque, sucre et sel maîtrisés", en: "No risky additives, controlled sugar & salt", ar: "بدون إضافات خطرة وسكر وملح معتدلان" },
-    match: (p, g) => (g.subScores.additives ?? 0) >= 80 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
+    match: (p) => p.additives?.length === 0 && (p.nutriments.sugars ?? 99) <= T.sugarHigh && (p.nutriments.salt ?? 99) <= T.saltHigh && (p.novaGroup ?? 4) <= 3
   },
   {
     id: "supermarket_best", group: "smart", icon: Store,
-    label: { fr: "Supermarket best choice", en: "Supermarket best choice", ar: "أفضل خيار في السوبرماركت" },
-    description: { fr: "Le haut du panier : score ≥ 70", en: "Top of the shelf: score ≥ 70", ar: "الأفضل على الرف: نتيجة ≥ 70" },
-    match: (_p, g) => g.global >= 70
+    label: { fr: "GreeScore ≥ 70", en: "GreeScore ≥ 70", ar: "GreeScore ≥ 70" },
+    description: { fr: "Note nutritionnelle d’au moins 70 sur 100", en: "Nutrition score of at least 70 out of 100", ar: "درجة غذائية لا تقل عن 70 من 100" },
+    match: (_p, g) => g.status === "scored" && g.score >= 70
   }
 ];
 

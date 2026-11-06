@@ -1,144 +1,29 @@
 "use client";
-import { ProductThumbnail } from "@/components/system/product-thumbnail";
-import type * as React from "react";
 import { useTranslations } from "next-intl";
-import { ChevronRight, Swords, ShoppingBasket, Check, Trophy, AlertTriangle, ArrowUp, Sparkles } from "lucide-react";
-import { useRouter, Link } from "@/i18n/routing";
-import { GreeCard } from "@/components/system/gree-card";
-import { GreeScoreRing } from "@/components/system/gree-score-ring";
-import { TrustHalo } from "@/components/system/trust-halo";
-import { MiniRadar } from "@/components/product/nutrition-radar";
-import { NutriScoreBadge } from "@/components/badges/nutri-score-badge";
-import { NovaBadge } from "@/components/badges/nova-badge";
-import { LabelBadge } from "@/components/badges/label-badge";
-import { useCartStore } from "@/domains/cart/store";
-import { useBattleStore } from "@/domains/battle/store";
+import { AlertTriangle, ChevronRight } from "lucide-react";
+import { Link } from "@/i18n/routing";
+import { ProductThumbnail } from "@/components/system/product-thumbnail";
+import { GreeBadge } from "@/components/system/gree-badge";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
-/**
- * ProductCard — the shared premium product row.
- * Image, name/brand, Nutri/NOVA/Bio/Halal badges, short verdict,
- * GreeScore ring and quick actions (compare, basket).
- */
-export interface ProductCardProps {
-  product: Product;
-  gree: GreeScore;
-  showActions?: boolean;
-  /** Ribbon marking the best personalized choice in a result list. */
-  bestChoice?: boolean;
-  /** Hint that a better-scored option exists higher in the list. */
-  betterAvailable?: boolean;
-}
-
-export function ProductCard({ product: p, gree, showActions = true, bestChoice, betterAvailable }: ProductCardProps) {
-  const tScore = useTranslations("score");
-  const tp = useTranslations("product");
-  const router = useRouter();
-  const basket = useCartStore();
-  const battle = useBattleStore();
-  const inBasket = basket.has(p.barcode);
-
-  // Search-result intelligence: real signals from the scoring engine.
-  const topReason = gree.reasons.find((r) => r.kind === "bonus");
-  const blockingWarning = gree.warnings.find((w) => w.level !== "info");
-  const lowScore = gree.global < 45;
-
-  const addToBattle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    battle.add(p);
-    router.push("/battle");
-  };
-  const addToBasket = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    basket.addProduct(p, gree);
-  };
+export function ProductCard({ product, gree }: { product: Product; gree: GreeScore }) {
+  const t = useTranslations("score");
+  const alert = gree.alerts[0];
+  const tone = gree.status !== "scored" ? "unknown" : gree.grade === "A" || gree.grade === "B" ? "positive" : gree.grade === "C" ? "caution" : "negative";
 
   return (
-    <GreeCard interactive className={`p-0 ${bestChoice ? "border-natural/40 ring-1 ring-natural/25" : ""}`}>
-      {bestChoice && (
-        <div className="flex items-center gap-1.5 rounded-t-2xl bg-natural-grad px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wide text-white">
-          <Trophy className="h-3 w-3" aria-hidden /> {tScore("bestChoice")}
-        </div>
-      )}
-      <div className="flex items-center gap-3 p-3">
-        <Link href={`/product/${p.barcode}`} className="flex min-w-0 flex-1 items-center gap-3">
-          <ProductThumbnail src={p.imageUrl} alt={p.name} size="lg" className="h-14 w-14" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{p.name}</p>
-            <p className="truncate text-xs text-muted">{p.brand || "—"}</p>
-            <div className="mt-1 flex flex-wrap items-center gap-1.5">
-              {/* At most THREE relevant badges — the strongest signals first. */}
-              {[
-                p.nutriScore ? <NutriScoreBadge key="nutri" grade={p.nutriScore} variant="compact" className="h-5 w-5 rounded-md text-[0.6rem]" /> : null,
-                p.novaGroup ? <NovaBadge key="nova" group={p.novaGroup} className="scale-90" /> : null,
-                p.isBio ? <LabelBadge key="bio" kind="bio" className="px-1.5 py-0 text-[0.65rem]" /> : null,
-                p.isHalal ? <LabelBadge key="halal" kind="halal" className="px-1.5 py-0 text-[0.65rem]" /> : null
-              ].filter(Boolean).slice(0, 3)}
-              <TrustHalo level={gree.confidence} size="sm" />
-              <span className="text-[0.65rem] font-medium text-muted">{tScore(`grade.${gree.grade}`)}</span>
-            </div>
-          </div>
-          <span className="hidden shrink-0 sm:block" aria-hidden><MiniRadar product={p} size={40} /></span>
-          <GreeScoreRing value={gree.global} size={46} label="" />
-          <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted rtl:rotate-180 sm:block" />
-        </Link>
-        {showActions && (
-          <div className="flex shrink-0 flex-col gap-1.5">
-            <button
-              type="button"
-              onClick={addToBattle}
-              aria-label={tp("scanBattle")}
-              title={tp("scanBattle")}
-              className="gc-pressable grid h-11 w-11 place-items-center rounded-xl bg-surface-2 text-muted transition hover:bg-deep hover:text-white"
-            >
-              <Swords className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
-              onClick={addToBasket}
-              aria-label={tp("addToBasket")}
-              title={tp("addToBasket")}
-              className={`gc-pressable grid h-11 w-11 place-items-center rounded-xl transition ${
-                inBasket ? "bg-natural/15 text-natural-strong" : "bg-surface-2 text-muted hover:bg-natural/15 hover:text-natural-strong"
-              }`}
-            >
-              {inBasket ? <Check className="h-4 w-4" /> : <ShoppingBasket className="h-4 w-4" />}
-            </button>
-          </div>
-        )}
+    <Link href={`/product/${product.barcode}`} className="flex min-h-[4.75rem] items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-surface-2 focus-visible:outline-offset-[-3px] sm:px-4">
+      <ProductThumbnail src={product.imageUrl} size="md" />
+      <div className="min-w-0 flex-1">
+        <p className="break-words text-sm font-semibold leading-snug sm:text-base">{product.name}</p>
+        {product.brand && <p className="mt-0.5 break-words text-xs text-muted sm:text-sm">{product.brand}</p>}
+        {alert && <p className="mt-1 flex gap-1 text-xs font-semibold text-score-e-ink"><AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden />{t(`warning.${alert.code}`, alert.values)}</p>}
       </div>
-
-      {(topReason || blockingWarning || lowScore || betterAvailable) && (
-        <div className="space-y-1 border-t border-line/70 px-3 py-2">
-          {topReason && !lowScore && (
-            <p className="flex items-center gap-1.5 text-[0.7rem] text-natural-strong">
-              <Sparkles className="h-3 w-3 shrink-0" aria-hidden />
-              {tScore(`reason.${topReason.code}`, topReason.values)}
-            </p>
-          )}
-          {blockingWarning && (
-            <p className={`flex items-center gap-1.5 text-[0.7rem] ${blockingWarning.level === "critical" ? "text-score-e-ink" : "text-score-d-ink"}`}>
-              <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
-              {tScore(`warning.${blockingWarning.code}`, blockingWarning.values)}
-            </p>
-          )}
-          {lowScore && !blockingWarning && (
-            <p className="flex items-center gap-1.5 text-[0.7rem] text-score-d-ink">
-              <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden />
-              {tScore("lowScoreWarning")}
-            </p>
-          )}
-          {betterAvailable && (
-            <p className="flex items-center gap-1.5 text-[0.7rem] font-medium text-muted">
-              <ArrowUp className="h-3 w-3 shrink-0 text-natural-strong" aria-hidden />
-              {tScore("betterAvailable")}
-            </p>
-          )}
-        </div>
-      )}
-    </GreeCard>
+      {gree.status === "scored"
+        ? <GreeBadge tone={tone} size="sm" className="shrink-0"><span className="sr-only">GreeScore </span><bdi className="tabular-nums">{gree.score}/100</bdi></GreeBadge>
+        : <span className="max-w-[6.5rem] shrink-0 text-end text-xs font-semibold text-muted">{t("gs3Unavailable")}</span>}
+      <ChevronRight aria-hidden className="hidden h-4 w-4 shrink-0 text-muted sm:block rtl:rotate-180" />
+    </Link>
   );
 }

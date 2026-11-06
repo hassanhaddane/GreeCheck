@@ -16,11 +16,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
  * Support / donate — the independence charter made concrete. Static, honest:
  * no payment integration ships before launch; no fake donate button.
  */
+function donationUrl(value: string | undefined): string | undefined {
+  if (!value) return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !url.username && !url.password ? url.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export default async function SupportPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("support");
 
+  const donation = donationUrl(process.env.GREECHECK_DONATION_URL);
   const points = [
     { icon: ShieldCheck, key: "pointIndependence" },
     { icon: EyeOff, key: "pointNoAds" },
@@ -46,7 +57,7 @@ export default async function SupportPage({ params }: { params: Promise<{ locale
                 <Icon className="h-4 w-4" aria-hidden />
               </span>
               <div>
-                <h3 className="text-sm font-semibold">{t(`${key}Title`)}</h3>
+                <h2 className="text-sm font-semibold">{t(`${key}Title`)}</h2>
                 <p className="mt-0.5 text-sm text-muted">{t(`${key}Body`)}</p>
               </div>
             </GreeCardContent>
@@ -56,8 +67,11 @@ export default async function SupportPage({ params }: { params: Promise<{ locale
 
       <GreeCard className="mt-4">
         <GreeCardContent className="py-4">
-          <h3 className="text-sm font-semibold">{t("donateTitle")}</h3>
+          <h2 className="text-sm font-semibold">{t("donateTitle")}</h2>
           <p className="mt-1 text-sm text-muted">{t("donateBody")}</p>
+          {donation ? (
+            <a className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-natural-strong underline" href={donation} rel="noreferrer">{t("donateLink")}</a>
+          ) : <p className="mt-2 text-xs text-muted">{t("donateUnavailable")}</p>}
           <p className="mt-3 text-xs text-muted">
             {t("meanwhile")}{" "}
             <Link href="/methodology" className="font-semibold text-natural-strong hover:underline">

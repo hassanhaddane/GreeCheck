@@ -1,18 +1,7 @@
-/**
- * ════════════════════════════════════════════════════════════════════════
- *  Scan Battle — a serious purchase-decision instrument (not a game).
- *  Deterministic, preference-aware AND confidence-aware winner selection,
- *  plus pre-comparison VALIDATION so we never crown a misleading podium.
- * ════════════════════════════════════════════════════════════════════════
- *
- *  Winner = highest EFFECTIVE score (GreeScore × data-confidence factor), with
- *  transparent preference tie-breaks. Discounting by confidence is what stops a
- *  low-confidence product from "winning" just because missing data produced
- *  fewer penalties.
- */
+/** Nutritional comparisons with a separate check for comparable data. */
 import type { Product } from "../product/model";
 import type { LocalPreferences } from "../criteria/model";
-import type { GreeScore } from "../scoring/types";
+import type { GreeScore, ScoredGreeScore } from "../scoring/types";
 import { computeGreeScore } from "../scoring/gree-score";
 import { computeDataQuality } from "../product/normalizer";
 import { nutriRank } from "../scoring/thresholds";
@@ -21,6 +10,8 @@ export interface BattleEntry {
   product: Product;
   gree: GreeScore;
 }
+
+type ScoredEntry = BattleEntry & { gree: ScoredGreeScore };
 
 export interface BattleValidation {
   /** True when a definitive winner can be presented honestly. */
@@ -35,8 +26,8 @@ export interface BattleValidation {
 
 export interface BattleResult {
   ranking: BattleEntry[]; // best → worst
-  winner: BattleEntry | null;
-  runnerUp: BattleEntry | null;
+  winner: ScoredEntry | null;
+  runnerUp: ScoredEntry | null;
   closeness: "clear" | "close";
   confidence: "high" | "partial";
   /** Reason keys explaining winner vs runner-up (rendered via i18n). */
@@ -47,9 +38,7 @@ export interface BattleResult {
 const nova = (n?: number) => n ?? 9;
 const lc = (s: string) => s.trim().toLowerCase();
 
-/** Confidence discount so missing data never wins on absence of penalties. */
-const CONFIDENCE_FACTOR: Record<GreeScore["confidence"], number> = { high: 1, medium: 0.9, low: 0.72 };
-export const effectiveScore = (e: BattleEntry): number => e.gree.global * CONFIDENCE_FACTOR[e.gree.confidence];
+const CONFIDENCE_ORDER: Record<GreeScore["confidence"], number> = { high: 2, medium: 1, low: 0 };
 
 /* ───────────────────────── validation ──────────────────────────── */
 
@@ -81,13 +70,8 @@ export function validateBattle(entries: BattleEntry[]): BattleValidation {
   const shared = sharedCategory(products);
   if (allHaveCategories && !shared) issues.push("differentCategories");
 
-  // Comparability of data — a product with neither nutrition nor Nutri-Score
-  // cannot be meaningfully compared (its score is mostly a derived default).
-  const thin = entries.filter((e) => {
-    const a = qualityOf(e.product).availability;
-    return !(a.nutrition || a.nutriScore);
-  });
-  if (thin.length) issues.push("insufficientData");
+  if (entries.some(entry => entry.gree.status === "unscored")) issues.push("insufficientData");
+  if (new Set(products.map(p => p.nutritionBasis).filter(Boolean)).size > 1) issues.push("differentNutritionBasis");
 
   return { comparable: issues.length === 0, issues, sharedCategory: shared, missingByBarcode };
 }
@@ -98,13 +82,12 @@ export function computeBattle(products: Product[], prefs: LocalPreferences): Bat
   const entries: BattleEntry[] = products.map((p) => ({ product: p, gree: computeGreeScore(p, prefs) }));
 
   const cmp = (a: BattleEntry, b: BattleEntry): number => {
-    // Primary: confidence-discounted effective score.
-    const ea = effectiveScore(a), eb = effectiveScore(b);
-    if (eb !== ea) return eb - ea;
+    // Compare the same GS-3 values shown on the product cards.
+    const ea = a.gree.score, eb = b.gree.score;
+    if (eb !== ea) return (eb ?? -1) - (ea ?? -1);
     // Then the higher raw confidence.
-    const ca = CONFIDENCE_FACTOR[a.gree.confidence], cb = CONFIDENCE_FACTOR[b.gree.confidence];
+    const ca = CONFIDENCE_ORDER[a.gree.confidence], cb = CONFIDENCE_ORDER[b.gree.confidence];
     if (cb !== ca) return cb - ca;
-    if (b.gree.subScores.nutrition !== a.gree.subScores.nutrition) return b.gree.subScores.nutrition - a.gree.subScores.nutrition;
 
     // Preference-weighted tie-breaks.
     if (prefs.reduceSugar) {
@@ -129,38 +112,38 @@ export function computeBattle(products: Product[], prefs: LocalPreferences): Bat
   };
 
   const ranking = [...entries].sort(cmp);
-  const winner = ranking[0] ?? null;
-  const runnerUp = ranking[1] ?? null;
-  const closeness = winner && runnerUp && Math.abs(effectiveScore(winner) - effectiveScore(runnerUp)) <= 5 ? "close" : "clear";
-  const confidence = entries.some((e) => e.gree.confidence === "low") ? "partial" : "high";
-  const reasons = winner && runnerUp ? buildReasons(winner, runnerUp, prefs) : [];
   const validation = validateBattle(entries);
+  const rated = ranking.filter((entry): entry is ScoredEntry => entry.gree.status === "scored");
+  const winner = validation.comparable ? (rated[0] ?? null) : null;
+  const runnerUp = validation.comparable ? (rated[1] ?? null) : null;
+  const closeness = winner && runnerUp && Math.abs(winner.gree.score - runnerUp.gree.score) <= 5 ? "close" : "clear";
+  const confidence = entries.some((e) => e.gree.confidence !== "high") ? "partial" : "high";
+  const reasons = winner && runnerUp ? buildReasons(winner, runnerUp, prefs) : [];
 
   return { ranking, winner, runnerUp, closeness, confidence, reasons, validation };
 }
 
-function buildReasons(w: BattleEntry, r: BattleEntry, prefs: LocalPreferences): string[] {
+function buildReasons(w: ScoredEntry, r: ScoredEntry, prefs: LocalPreferences): string[] {
   const out: string[] = [];
   const wn = w.product.nutriments, rn = r.product.nutriments;
   const less = (a?: number, b?: number) => a !== undefined && b !== undefined && a < b - 0.01;
   const more = (a?: number, b?: number) => a !== undefined && b !== undefined && a > b + 0.01;
-  const conf = (c: GreeScore["confidence"]) => CONFIDENCE_FACTOR[c];
+  const conf = (c: GreeScore["confidence"]) => CONFIDENCE_ORDER[c];
 
-  if (w.gree.global > r.gree.global) out.push("higherScore");
+  if (w.gree.score > r.gree.score) out.push("higherScore");
   if (conf(w.gree.confidence) > conf(r.gree.confidence)) out.push("moreReliable");
   if (less(wn.sugars, rn.sugars)) out.push("lessSugar");
   if (less(wn.salt, rn.salt)) out.push("lessSalt");
   if (less(wn.saturatedFat, rn.saturatedFat)) out.push("lessSatFat");
   if (more(wn.proteins, rn.proteins)) out.push("moreProtein");
   if (more(wn.fiber, rn.fiber)) out.push("moreFiber");
-  if ((w.product.additives?.length ?? 0) < (r.product.additives?.length ?? 0)) out.push("fewerAdditives");
+  if (w.product.additives && r.product.additives && w.product.additives.length < r.product.additives.length) out.push("fewerAdditives");
   if (nova(w.product.novaGroup) < nova(r.product.novaGroup)) out.push("lowerNova");
   if (nutriRank(w.product.nutriScore) < nutriRank(r.product.nutriScore)) out.push("betterNutri");
   if (w.product.isBio && !r.product.isBio) out.push("matchBio");
   if (w.product.greenScore && r.product.greenScore && w.product.greenScore < r.product.greenScore) out.push("lowerEcoImpact");
   if (prefs.preferHalal && w.product.isHalal && !r.product.isHalal) out.push("matchHalal");
   if ((prefs.preferVegan || prefs.goals.includes("vegan")) && w.product.isVegan && !r.product.isVegan) out.push("matchVegan");
-  if (prefs.goals.length && (w.gree.subScores.goalFit ?? 0) > (r.gree.subScores.goalFit ?? 0) + 3) out.push("betterGoal");
 
   return out.slice(0, 4);
 }

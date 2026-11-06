@@ -1,42 +1,45 @@
-/**
- * Product source adapter boundary.
- *
- * Open Food Facts is the primary and only ACTIVE source. Ciqual and USDA
- * FoodData Central exist as EXPLICIT boundaries only: they may be activated
- * later as justified fallbacks (e.g. generic nutrition for unbranded foods),
- * never as a permanent internal product database.
- */
-import type { ProductResult } from "./openfoodfacts";
+import { gtinIdentity } from "@greecheck/domain/product/gtin";
+import { nutrientConflicts } from "@greecheck/domain/product/provenance";
+import type { ProductResult } from "./product-contracts";
 import { fetchProductByBarcode } from "./openfoodfacts";
-import { ciqualAdapter } from "./fallback/ciqual";
-import { usdaAdapter } from "./fallback/usda";
+import { fetchUsdaProduct } from "./fallback/usda";
+import { ApiError } from "./errors";
+import { cachedRequests } from "./upstream";
 
-export interface ProductSourceAdapter {
-  id: "openfoodfacts" | "ciqual" | "usda";
-  /** Whether this source can resolve a retail barcode at all. */
-  supportsBarcode: boolean;
-  /** Inactive adapters must say why they are not used yet. */
-  active: boolean;
-  justification?: string;
-  fetchByBarcode?(barcode: string): Promise<ProductResult>;
+type ProductFetcher = (barcode: string) => Promise<ProductResult>;
+
+/** OFF stays primary. USDA is a fallback for a miss and a second reading for partial OFF records. */
+export async function resolveProductSources(
+  barcode: string,
+  primary: ProductFetcher,
+  secondary?: ProductFetcher
+): Promise<ProductResult> {
+  const result = await primary(barcode);
+  if (!secondary || result.status === "complete") return result;
+  if (result.status === "not_found") return secondary(barcode);
+  try {
+    const other = await secondary(barcode);
+    if (other.status === "not_found") return result;
+    const conflicts = nutrientConflicts(result.product, other.product);
+    if (conflicts.length) {
+      return { ...result, product: { ...result.product, dataState: "CONFLICTED", conflicts } };
+    }
+  } catch {
+    // Secondary failures must not discard the partial primary record.
+  }
+  return result;
 }
 
-export const offAdapter: ProductSourceAdapter = {
-  id: "openfoodfacts",
-  supportsBarcode: true,
-  active: true,
-  fetchByBarcode: fetchProductByBarcode
-};
+const productCache = cachedRequests<ProductResult>(500, result => result.status === "not_found" ? 60_000 : 5 * 60_000);
 
-/** Ordered source chain — only active, barcode-capable adapters are tried. */
-export const PRODUCT_SOURCES: ProductSourceAdapter[] = [offAdapter, ciqualAdapter, usdaAdapter];
+export function lookupBarcode(barcode: string): Promise<ProductResult> {
+  const identity = gtinIdentity(barcode);
+  if (!identity) return Promise.reject(new ApiError("invalid_request", "Invalid GTIN"));
 
-export async function lookupBarcode(barcode: string): Promise<ProductResult> {
-  const chain = PRODUCT_SOURCES.filter((s) => s.active && s.supportsBarcode && s.fetchByBarcode);
-  let last: ProductResult = { status: "not_found", barcode };
-  for (const source of chain) {
-    last = await source.fetchByBarcode!(barcode);
-    if (last.status !== "not_found") return last;
-  }
-  return last;
+  const apiKey = process.env.USDA_FDC_API_KEY?.trim();
+  const secondary: ProductFetcher | undefined = apiKey ? code => fetchUsdaProduct(code, apiKey) : undefined;
+  // Keep the requested barcode in the compatibility envelope. Different GS1
+  // padding representations may have distinct stored product URLs.
+  const key = JSON.stringify([barcode, process.env.OFF_PRODUCT_API_VERSION, Boolean(secondary)]);
+  return productCache(key, () => resolveProductSources(barcode, fetchProductByBarcode, secondary));
 }

@@ -8,7 +8,7 @@ import { InstallPrompt } from "@/components/app/install-prompt";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { Chip } from "@/components/ui/chip";
-import { GreeButton } from "@/components/system/gree-button";
+import { greeButtonVariants } from "@/components/system/gree-button";
 import { useTheme } from "@/components/app/theme-provider";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
@@ -31,7 +31,7 @@ function ConfirmButton({ label, icon, onConfirm, className }: { label: string; i
   return (
     <button
       onClick={click}
-      className={cn("gc-pressable flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition", armed ? "bg-score-e text-white" : "bg-surface-2 text-score-e-ink", className)}
+      className={cn("gc-pressable flex min-h-11 items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold transition", armed ? "bg-score-e text-white" : "bg-surface-2 text-score-e-ink", className)}
     >
       {armed ? <Check className="h-3.5 w-3.5" /> : icon}
       {armed ? t("confirm") : label}
@@ -41,11 +41,13 @@ function ConfirmButton({ label, icon, onConfirm, className }: { label: string; i
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
+  const nav = useTranslations("nav");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
+  const [resetFailed, setResetFailed] = useState(false);
 
   const historyCount = useHistoryStore((s) => s.entries.length);
   const favCount = useFavoritesStore((s) => s.items.length);
@@ -58,8 +60,13 @@ export default function SettingsPage() {
   ] as const;
 
   const doReset = async () => {
-    await resetApp();
-    if (typeof window !== "undefined") window.location.reload();
+    setResetFailed(false);
+    try {
+      await resetApp();
+      window.location.reload();
+    } catch {
+      setResetFailed(true);
+    }
   };
 
   const rows = [
@@ -125,7 +132,7 @@ export default function SettingsPage() {
           <GreeCardContent className="flex items-start gap-3">
             <Shield className="mt-0.5 h-5 w-5 shrink-0 text-natural-strong" />
             <p className="flex-1 text-sm leading-relaxed">{t("onDevice")}</p>
-            <Link href="/privacy"><GreeButton variant="ghost" size="sm">→</GreeButton></Link>
+            <Link href="/privacy" className={greeButtonVariants({ variant: "ghost", size: "sm" })} aria-label={nav("privacy")}><ChevronRight className="size-4 rtl:rotate-180" aria-hidden /></Link>
           </GreeCardContent>
         </GreeCard>
 
@@ -149,6 +156,8 @@ export default function SettingsPage() {
             })}
           </GreeCardContent>
         </GreeCard>
+
+        {resetFailed && <p role="alert" className="text-sm text-score-e-ink">{t("resetFailed")}</p>}
 
         {/* Full reset */}
         <GreeCard className="mt-3 border-score-e/25 bg-score-e/5">

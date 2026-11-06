@@ -21,11 +21,14 @@
  *                       fiber, additives, NOVA, organic, score points).
  *    5. RANKING       — score gain + active-criteria alignment + confidence.
  */
+import { gtinIdentity } from "../product/gtin";
+import { computeGreeImpact } from "../impact/engine";
+import { specificOrganicLabelOf } from "../scoring/organic";
 import type { Product } from "../product/model";
 import type { LocalPreferences } from "../criteria/model";
-import type { GreeScore } from "../scoring/types";
+import type { GreeScore, ScoredGreeScore } from "../scoring/types";
 import { computeGreeScore } from "../scoring/gree-score";
-import { NUTRITION_THRESHOLDS as T } from "../scoring/thresholds";
+import { DRINK_NUTRITION_HIGH, NUTRITION_THRESHOLDS as T } from "../scoring/thresholds";
 import { hasAllergenConflict, halalStatusOf } from "../scoring/detectors";
 import { computeDataQuality } from "../product/normalizer";
 
@@ -54,7 +57,7 @@ export interface SwapImprovement {
 
 export interface ProductAlternative {
   product: Product;
-  gree: GreeScore;
+  gree: ScoredGreeScore;
   /** Ordered, strongest first. */
   improvements: SwapImprovement[];
   /** Headline improvement (never a bare "betterScore" when a real fix exists). */
@@ -74,7 +77,7 @@ export interface SwapEligibility {
 
 /** An alternative must beat the current product by at least this many points. */
 export const MIN_SCORE_GAIN = 8;
-export const MAX_RESULTS = 6;
+export const MAX_RESULTS = 3;
 
 const SIGNIFICANCE: Record<ImprovementCode, number> = {
   lowerNova: 5, noFlaggedAdditives: 4.5, lessSugar: 4, organic: 4,
@@ -96,7 +99,8 @@ export function hasCriticalConflict(p: Product, prefs: LocalPreferences): boolea
 /* ──────────────────────────── eligibility ──────────────────────────────── */
 
 export function isSwapEligible(product: Product, gree: GreeScore, prefs: LocalPreferences): SwapEligibility {
-  if (gree.global < 50) return { eligible: true, trigger: "lowScore" };
+  if (gree.status === "unscored") return { eligible: false, trigger: null };
+  if (gree.score < 50) return { eligible: true, trigger: "lowScore" };
   if (gree.grade === "D" || gree.grade === "E") return { eligible: true, trigger: "lowGrade" };
   if (hasCriticalConflict(product, prefs)) return { eligible: true, trigger: "incompatible" };
   return { eligible: false, trigger: null };
@@ -112,14 +116,38 @@ export function hasSufficientData(p: Product): boolean {
 
 /* ──────────────────────────── category match ───────────────────────────── */
 
-const lc = (s: string) => s.trim().toLowerCase();
+const broadCategories = new Set([
+  "food", "foods", "aliments", "groceries", "beverages", "boissons", "snacks", "snacks sucres",
+  "dairy", "dairies", "produits laitiers", "plant based foods", "plant based foods and beverages",
+  "cereals and potatoes", "cereals and their products", "breakfasts", "petits dejeuners", "spreads"
+]);
 
-/** Same precise product family — never mix unrelated products from a broad parent. */
+function familyKey(category: string) {
+  return category.toLowerCase().replace(/^[a-z]{2,3}:/, "").normalize("NFD")
+    .replace(/\p{M}/gu, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+}
+
+function preciseFamily(categories?: string[]): string | undefined {
+  const category = categories?.at(-1);
+  const key = category ? familyKey(category) : "";
+  return category && key && !broadCategories.has(key) ? category : undefined;
+}
+
+/** The reference product must identify a precise food family shared by the candidate. */
 export function relatedCategory(current: Product, alt: Product): boolean {
-  const cur = (current.categories ?? []).slice(-2).map(lc).filter(Boolean);
-  if (!cur.length) return true; // retrieval already scoped; cannot assert further
-  const altCats = (alt.categories ?? []).map(lc);
-  return cur.some((c) => altCats.includes(c));
+  const useTaxonomy = Boolean(current.categoryIds?.length && alt.categoryIds?.length);
+  const family = preciseFamily(useTaxonomy ? current.categoryIds : current.categories);
+  const candidates = useTaxonomy ? alt.categoryIds : alt.categories;
+  return Boolean(family && candidates?.some((category) => familyKey(category) === familyKey(family)));
+}
+
+function canRecommendWithRestrictions(product: Product, prefs: LocalPreferences) {
+  if (hasCriticalConflict(product, prefs)) return false;
+  if (prefs.avoidAllergens.length && (!product.ingredientsText?.trim() || !product.allergens || !product.traces)) return false;
+  if ((prefs.preferHalal || prefs.goals.includes("halal")) && halalStatusOf(product) !== "confirmed") return false;
+  if ((prefs.preferVegan || prefs.goals.includes("vegan")) && product.veganStatus !== "confirmed") return false;
+  if ((prefs.preferVegetarian || prefs.goals.includes("vegetarian")) && product.vegetarianStatus !== "confirmed") return false;
+  return true;
 }
 
 /* ─────────────────────────── new-weakness guard ────────────────────────── */
@@ -127,11 +155,11 @@ export function relatedCategory(current: Product, alt: Product): boolean {
 /** Reject alternatives that fix one thing but break another that was fine. */
 export function introducesCriticalWeakness(current: Product, alt: Product): boolean {
   const cn = current.nutriments, an = alt.nutriments;
-  const regressed = (c?: number, a?: number, hi?: number) =>
-    c !== undefined && a !== undefined && hi !== undefined && c <= hi && a > hi;
-  if (regressed(cn.sugars, an.sugars, T.sugarHigh)) return true;
-  if (regressed(cn.salt, an.salt, T.saltHigh)) return true;
-  if (regressed(cn.saturatedFat, an.saturatedFat, T.satFatHigh)) return true;
+  const regressed = (current: number | undefined, candidate: number | undefined, high: number) =>
+    candidate !== undefined && candidate > high && (current === undefined || (candidate > current && (current <= high || candidate >= current * 1.2)));
+  if (regressed(cn.sugars, an.sugars, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.sugar : T.sugarHigh)) return true;
+  if (regressed(cn.salt, an.salt, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.salt : T.saltHigh)) return true;
+  if (regressed(cn.saturatedFat, an.saturatedFat, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.saturatedFat : T.satFatHigh)) return true;
   if ((current.novaGroup ?? 0) < 4 && alt.novaGroup === 4) return true;
   return false;
 }
@@ -166,15 +194,15 @@ export function computeImprovements(
     const percent = Math.round((1 - a / c) * 100);
     return percent >= 1 ? { percent, weakness: hi !== undefined && c > hi } : null;
   };
-  const rs = reduction(cn.sugars, an.sugars, T.sugarHigh);
+  const rs = reduction(cn.sugars, an.sugars, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.sugar : T.sugarHigh);
   if (rs) out.push({ code: "lessSugar", percent: rs.percent, from: cn.sugars, to: an.sugars, weakness: rs.weakness });
-  const rl = reduction(cn.salt, an.salt, T.saltHigh);
+  const rl = reduction(cn.salt, an.salt, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.salt : T.saltHigh);
   if (rl) out.push({ code: "lessSalt", percent: rl.percent, from: cn.salt, to: an.salt, weakness: rl.weakness });
-  const rf = reduction(cn.saturatedFat, an.saturatedFat, T.satFatHigh);
+  const rf = reduction(cn.saturatedFat, an.saturatedFat, current.nutritionBasis === "100ml" ? DRINK_NUTRITION_HIGH.saturatedFat : T.satFatHigh);
   if (rf) out.push({ code: "lessSatFat", percent: rf.percent, from: cn.saturatedFat, to: an.saturatedFat, weakness: rf.weakness });
 
   // Organic — a real improvement when the user prefers bio.
-  if (alt.isBio && !current.isBio) {
+  if (specificOrganicLabelOf(alt.labels) && !current.isBio && !specificOrganicLabelOf(current.labels)) {
     out.push({ code: "organic", weakness: prefs.preferBio || prefs.goals.includes("go_organic") });
   }
 
@@ -186,8 +214,8 @@ export function computeImprovements(
   if (gf) out.push({ code: "moreFiber", grams: gf, weakness: (prefs.increaseFiber || prefs.goals.includes("high_fiber")) && (cn.fiber ?? 0) < T.fiberHigh });
 
   // Score points — informational; never counts as a weakness fix.
-  const points = altGree.global - curGree.global;
-  if (points > 0) out.push({ code: "betterScore", points, weakness: false });
+  const points = altGree.status === "scored" && curGree.status === "scored" ? altGree.score - curGree.score : undefined;
+  if (points !== undefined && points > 0) out.push({ code: "betterScore", points, weakness: false });
 
   return out.sort((a, b) => rank(b) - rank(a));
 }
@@ -206,11 +234,13 @@ export function validateCandidate(
   altGree: GreeScore,
   prefs: LocalPreferences
 ): ProductAlternative | null {
-  if (!alt.barcode || alt.barcode === current.barcode) return null;
+  if (curGree.status !== "scored" || altGree.status !== "scored") return null;
+  if (!current.nutritionBasis || current.nutritionBasis !== alt.nutritionBasis) return null;
+  if (!alt.barcode || identityOf(alt) === identityOf(current)) return null;
   if (!relatedCategory(current, alt)) return null;      // unrelated category
   if (!hasSufficientData(alt)) return null;             // insufficient data / no image
-  if (altGree.global < curGree.global + MIN_SCORE_GAIN) return null; // not meaningfully higher / lower
-  if (hasCriticalConflict(alt, prefs)) return null;     // conflicts with a critical criterion
+  if (altGree.score < curGree.score + MIN_SCORE_GAIN) return null; // not meaningfully higher / lower
+  if (!canRecommendWithRestrictions(alt, prefs)) return null;
   if (introducesCriticalWeakness(current, alt)) return null; // trades one problem for another
 
   const improvements = computeImprovements(current, alt, curGree, altGree, prefs);
@@ -219,7 +249,7 @@ export function validateCandidate(
   if (!improvements.some((i) => i.weakness)) return null;
 
   const strongest = improvements.find((i) => i.weakness) ?? improvements[0];
-  return { product: alt, gree: altGree, improvements, strongest, scoreGain: altGree.global - curGree.global };
+  return { product: alt, gree: altGree, improvements, strongest, scoreGain: altGree.score - curGree.score };
 }
 
 /* ───────────────────────────── ranking ─────────────────────────────────── */
@@ -229,8 +259,14 @@ function sortKey(alt: ProductAlternative, prefs: LocalPreferences): number {
   const confidenceBonus = q.confidence === "high" ? 4 : q.confidence === "medium" ? 2 : 0;
   const bio = (prefs.preferBio || prefs.goals.includes("go_organic")) && alt.product.isBio ? 6 : 0;
   const halal = (prefs.preferHalal || prefs.goals.includes("halal")) && alt.product.isHalal ? 8 : 0;
-  return alt.scoreGain + confidenceBonus + bio + halal + q.completeness * 0.05;
+  const impact = prefs.preferEnvironment ? computeGreeImpact(alt.product) : undefined;
+  const environment = impact?.status === "valid" && (impact.grade === "a" || impact.grade === "b") ? 6 : 0;
+  const sugar = (prefs.reduceSugar || prefs.goals.includes("reduce_sugar")) && alt.improvements.some((item) => item.code === "lessSugar") ? 4 : 0;
+  const salt = (prefs.reduceSalt || prefs.goals.includes("reduce_salt")) && alt.improvements.some((item) => item.code === "lessSalt") ? 4 : 0;
+  return alt.scoreGain + confidenceBonus + bio + halal + environment + sugar + salt + q.completeness * 0.05;
 }
+
+const identityOf = (product: Product) => gtinIdentity(product.barcode) ?? product.barcode;
 
 /** Pure validation + ranking over pre-scored candidates (no I/O — unit-testable). */
 export function rankAlternatives(
@@ -239,13 +275,16 @@ export function rankAlternatives(
   candidates: { product: Product; gree: GreeScore }[],
   prefs: LocalPreferences
 ): ProductAlternative[] {
-  const seen = new Set<string>([current.barcode]);
+  const seen = new Set<string>([identityOf(current)]);
   const valid: ProductAlternative[] = [];
   for (const c of candidates) {
-    if (seen.has(c.product.barcode)) continue;
-    seen.add(c.product.barcode);
+    const identity = identityOf(c.product);
+    if (seen.has(identity)) continue;
     const v = validateCandidate(current, curGree, c.product, c.gree, prefs);
-    if (v) valid.push(v);
+    if (v) {
+      seen.add(identity);
+      valid.push(v);
+    }
   }
   return valid.sort((a, b) => sortKey(b, prefs) - sortKey(a, prefs)).slice(0, MAX_RESULTS);
 }
@@ -256,6 +295,5 @@ export function rankAlternatives(
 
 /** The most precise reliable category to search within (pure helper). */
 export function preciseCategory(product: Product): string | undefined {
-  const cats = product.categories?.filter(Boolean) ?? [];
-  return cats.length ? cats[cats.length - 1] : undefined;
+  return preciseFamily(product.categoryIds?.length ? product.categoryIds : product.categories);
 }

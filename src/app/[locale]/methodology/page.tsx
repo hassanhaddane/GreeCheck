@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Calculator, ShieldQuestion, Scale, Database, Lock, ExternalLink } from "lucide-react";
+import { Calculator, ShieldQuestion, Scale, Lock, ExternalLink } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { buildPageMetadata } from "@/lib/seo";
+import { SourceDetails } from "@/components/app/source-details";
+import { Link } from "@/i18n/routing";
 import { PageHeading } from "@/components/app/page-heading";
 import { METHODOLOGY_VERSION, METHODOLOGY_UPDATED_AT, NUTRI_SCORE_REFERENCE } from "@greecheck/domain/scoring/methodology";
 import { GreeCard, GreeCardContent } from "@/components/system/gree-card";
@@ -14,18 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 const RULE_KEYS = ["formula", "anchors", "missing", "axes"] as const;
 
-const dataSources = [
-  { id: "off", name: "Open Food Facts", url: "https://openfoodfacts.github.io/openfoodfacts-server/api/" },
-  { id: "usda", name: "USDA FoodData Central", url: "https://fdc.nal.usda.gov/api-guide/" },
-  { id: "ciqual", name: "Anses · Ciqual 2025", url: "https://doi.org/10.57745/RDMHWY" },
-  { id: "science", name: "EFSA / Anses", url: "https://www.efsa.europa.eu/en/topics/topic/food-additives" }
-] as const;
-
 export default async function MethodologyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("methodology");
-  const data = await getTranslations("dataMethodology");
   const score = await getTranslations("score");
 
   return (
@@ -42,6 +36,7 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
           <p className="text-xs font-medium text-muted">{METHODOLOGY_VERSION} · <time dateTime={METHODOLOGY_UPDATED_AT}>{METHODOLOGY_UPDATED_AT}</time></p>
           <p className="text-sm leading-relaxed text-muted">{t("gs3Body")}</p>
           <p className="text-sm leading-relaxed text-muted">{t("gs3Limit")}</p>
+          <p className="text-sm leading-relaxed text-muted">{t("proprietary")}</p>
           <a href={NUTRI_SCORE_REFERENCE} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline">
             {score("gs3OfficialMethod")} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
           </a>
@@ -75,29 +70,8 @@ export default async function MethodologyPage({ params }: { params: Promise<{ lo
         </GreeCardContent>
       </GreeCard>
 
-      {/* Sources */}
-      <GreeCard id="sources">
-        <GreeCardContent className="space-y-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Database className="h-4 w-4 text-natural-strong" aria-hidden /> {t("sourcesTitle")}
-          </h2>
-          <ul className="space-y-3">
-            {dataSources.map(({ id, name, url }) => (
-              <li key={id}>
-                <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-natural-strong underline underline-offset-2">
-                  {name} <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                </a>
-                <p className="text-sm leading-relaxed text-muted">{data(id)}</p>
-              </li>
-            ))}
-          </ul>
-          <h3 className="pt-2 text-sm font-semibold">{data("qualityTitle")}</h3>
-          <p className="text-sm leading-relaxed text-muted">{data("quality")}</p>
-          <p className="text-sm leading-relaxed text-muted">{data("conflict")}</p>
-          <h3 className="pt-2 text-sm font-semibold">{data("coverageTitle")}</h3>
-          <p className="text-sm leading-relaxed text-muted">{data("coverage")}</p>
-        </GreeCardContent>
-      </GreeCard>
+      <SourceDetails />
+      <Link href="/sources" className="inline-flex min-h-11 items-center text-sm font-semibold text-natural-strong underline">{t("sourcesTitle")}</Link>
 
       {/* Privacy note */}
       <GreeCard className="border-natural/25 bg-natural/5">

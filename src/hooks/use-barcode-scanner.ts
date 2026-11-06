@@ -5,6 +5,7 @@ import type { IScannerControls } from "@zxing/browser";
 export type CamState =
   | "idle"
   | "requesting"
+  | "preview"
   | "active"
   | "paused"
   | "insecure"
@@ -26,26 +27,6 @@ export function classifyCameraError(error: unknown): CamState {
   if (name === "NotReadableError" || name === "AbortError") return "in-use";
   if (name === "NotSupportedError") return "unsupported";
   return "error";
-}
-
-async function makeReader() {
-  const [browser, library] = await Promise.all([import("@zxing/browser"), import("@zxing/library")]);
-  const supportedFormats = [
-    browser.BarcodeFormat.EAN_13,
-    browser.BarcodeFormat.EAN_8,
-    browser.BarcodeFormat.UPC_A,
-    browser.BarcodeFormat.UPC_E,
-    browser.BarcodeFormat.CODE_128,
-    browser.BarcodeFormat.QR_CODE
-  ];
-  const hints = new Map();
-  hints.set(library.DecodeHintType.POSSIBLE_FORMATS, supportedFormats);
-  hints.set(library.DecodeHintType.TRY_HARDER, true);
-  const reader = new browser.BrowserMultiFormatReader(hints, {
-    delayBetweenScanAttempts: 100,
-    delayBetweenScanSuccess: 450
-  });
-  return { reader, BarcodeFormat: browser.BarcodeFormat };
 }
 
 type CameraCapabilities = MediaTrackCapabilities & {
@@ -144,13 +125,14 @@ export function useBarcodeScanner({ onDetect }: Options) {
     setTorchOn(false);
     setZoomValue(undefined);
 
+    const decoding = import("@/components/scan/retail-reader").catch(() => undefined);
     try {
       const deviceId = preferredDevice.current;
       const input = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 960 },
+          height: { ideal: 540 },
           ...(deviceId ? { deviceId: { exact: deviceId } } : { facingMode: { ideal: "environment" } })
         }
       });
@@ -182,9 +164,12 @@ export function useBarcodeScanner({ onDetect }: Options) {
         if (isCurrent()) setDevices(all.filter((item) => item.kind === "videoinput" && item.deviceId));
       }).catch(() => {});
 
-      const { reader, BarcodeFormat } = await makeReader();
-      if (!isCurrent()) return;
       preview.srcObject = input;
+      setState("preview");
+      const scanner = await decoding;
+      if (!isCurrent()) return;
+      if (!scanner) throw new Error("Scanner decoder unavailable");
+      const { reader, BarcodeFormat } = scanner.createRetailReader();
       // Keep stream ownership here. Stopping this ZXing decoder only stops decoding.
       const controls = await reader.decodeFromVideoElement(preview, (result) => {
         if (!result || !isCurrent()) return;

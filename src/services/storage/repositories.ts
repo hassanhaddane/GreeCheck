@@ -212,3 +212,12 @@ export const metaRepo = {
   get: <T>(key: string) => kvGet<T>(`meta.${key}`),
   set: (key: string, value: unknown) => kvSet(`meta.${key}`, value)
 };
+
+/** Atomic purge of persisted local data, including all current and legacy KV rows. */
+export async function clearLocalDatabase(): Promise<void> {
+  const database = db;
+  if (!database) return;
+  await database.transaction("rw", database.tables, async () => {
+    await Promise.all(database.tables.map((table) => table.clear()));
+  });
+}

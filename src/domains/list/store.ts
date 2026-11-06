@@ -66,7 +66,7 @@ export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
       hydration ??= shoppingListRepo.get().then((items) => {
         // Backfill quantity for rows written before it existed.
         const safe = (items ?? []).map((i) => ({ ...i, quantity: i.quantity ?? 1 }));
-        set({ items: safe, hydrated: true });
+        if (!get().hydrated) set({ items: safe, hydrated: true });
       });
       return hydration;
     },
@@ -84,6 +84,6 @@ export const useShoppingListStore = create<ShoppingListState>()((set, get) => {
     toggle: (id) => { set((s) => ({ items: s.items.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)) })); void persist(); },
     remove: (id) => { set((s) => ({ items: s.items.filter((i) => i.id !== id) })); void persist(); },
     clearChecked: () => { set((s) => ({ items: s.items.filter((i) => !i.checked) })); void persist(); },
-    clear: () => { set({ items: [] }); void shoppingListRepo.clear(); }
+    clear: () => { set({ items: [], hydrated: true }); void shoppingListRepo.clear(); }
   };
 });

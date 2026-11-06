@@ -20,8 +20,7 @@ export default defineConfig({
     {
       name: "chromium",
       use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: { args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] }
+        ...devices["Desktop Chrome"]
       }
     }
   ],
@@ -33,7 +32,7 @@ export default defineConfig({
     {
       command: "npm run build && npm run start -- -p 3100",
       url: "http://127.0.0.1:3100/fr",
-      env: { OFF_BASE_URL: "http://127.0.0.1:3101", OFF_PRODUCT_API_VERSION: "v3", USDA_FDC_API_KEY: "" },
+      env: { OFF_BASE_URL: "http://127.0.0.1:3101", OFF_PRODUCT_API_VERSION: "v3", OFF_SEARCH_BASE_URL: "http://127.0.0.1:3101", USDA_FDC_API_KEY: "", NEXT_PUBLIC_SITE_URL: "https://gree-check.vercel.app", GREECHECK_DONATION_URL: "", NOMINATIM_API_URL: "" },
       timeout: 180_000
     }
   ]

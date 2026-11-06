@@ -98,6 +98,8 @@ test("local reset clears every store and every repository", async () => {
   useHistoryStore.getState().add({ barcode: "1", name: "A", score: 1, verdict: "x", scannedAt: 1 });
   useCartStore.getState().addProduct(product("2"), computeGreeScore(product("2"), defaultPreferences));
   usePreferencesStore.getState().setPreferences({ preferBio: true });
+  await shoppingListRepo.set([{ id: "reset-list", name: "Pommes", quantity: 1, checked: false, addedAt: 1, source: "manual" }]);
+  await db!.kv.put({ key: "replacements", value: [{ at: 1 }] });
   ls.setItem("greecheck.theme", "dark");
   await new Promise((r) => setTimeout(r, 20));
 
@@ -109,12 +111,15 @@ test("local reset clears every store and every repository", async () => {
   assert.deepEqual(await historyRepo.all(), []);
   assert.deepEqual(await cartRepo.all(), []);
   assert.equal(ls.getItem("greecheck.theme"), null);
+  assert.deepEqual(await db!.kv.toArray(), []);
+  assert.deepEqual(useShoppingListStore.getState().items, []);
 });
 
 test("first additions to the shopping list retain saved entries and combine concurrent quantities", async () => {
   await shoppingListRepo.set([
     { id: "saved", name: "Pommes", quantity: 2, checked: true, addedAt: 1, source: "manual" }
   ]);
+  useShoppingListStore.setState({ items: [], hydrated: false });
   const list = useShoppingListStore.getState();
   assert.equal(list.hydrated, false);
 

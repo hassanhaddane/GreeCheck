@@ -35,18 +35,18 @@ import { parseProductCode, interpretScan } from "@/lib/utils/parse-scan";
 import { createScanGate } from "@/lib/utils/scan-gate";
 import { OCR_BETA_ENABLED } from "@/lib/flags";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import { computeGreeScore } from "@greecheck/domain/scoring/gree-score";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
 import { usePreferencesStore } from "@/domains/criteria/store";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { buildHistoryItem } from "@/domains/library/model";
 import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
-import { RapidScanCard, type RapidScanResult } from "@/components/scan/rapid-scan-card";
-import { FirstScanIntro } from "@/components/scan/first-scan-intro";
+import type { RapidScanResult } from "@/components/scan/rapid-scan-card";
 import type { Product } from "@greecheck/domain/product/model";
 import type { GreeScore } from "@greecheck/domain/scoring/types";
 
+const RapidScanCard = dynamic(() => import("@/components/scan/rapid-scan-card").then((module) => module.RapidScanCard));
+const FirstScanIntro = dynamic(() => import("@/components/scan/first-scan-intro").then((module) => module.FirstScanIntro));
 const OcrBeta = dynamic(() => import("@/components/scan/ocr-beta").then((module) => module.OcrBeta));
 
 type LookupState = "idle" | "loading" | "not_found" | "network_error" | "offline" | "rate_limited" | "unsupported";
@@ -131,6 +131,8 @@ export function ScanClient() {
           return;
         }
 
+        const { computeGreeScore } = await import("@greecheck/domain/scoring/gree-score");
+        if (lookupToken.current !== token) return;
         const gree = computeGreeScore(result.product, prefs);
         recordHistory(result.product, gree);
 
@@ -268,6 +270,7 @@ export function ScanClient() {
   const statusText: Record<CamState, string> = {
     idle: "",
     requesting: t("requesting"),
+    preview: t("preparingDecoder"),
     active: t("scanningStatus"),
     paused: t("paused"),
     insecure: t("httpsRequiredTitle"),
@@ -279,7 +282,7 @@ export function ScanClient() {
   };
   const phaseText = t("analyzingNutrition");
   const liveStatus = detected ? phaseText : statusText[state];
-  const cameraPreview = state === "active" || state === "requesting" || detected;
+  const cameraPreview = state === "idle" || state === "preview" || state === "active" || state === "requesting" || detected;
 
   return (
     <div className="mx-auto max-w-xl space-y-3">
@@ -339,10 +342,10 @@ export function ScanClient() {
 
       )}
 
-      <GreeCard className={`relative overflow-hidden ${rapid ? "hidden" : ""} ${cameraPreview ? "h-[clamp(14rem,37svh,20rem)] bg-deep" : "bg-surface"}`} role="region" aria-label={t("title")}>
+      <GreeCard className={`relative min-h-[clamp(14rem,37svh,20rem)] overflow-hidden ${rapid ? "hidden" : ""} ${cameraPreview ? "bg-deep" : "bg-surface"}`} role="region" aria-label={t("title")}>
         <video
           ref={videoRef}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${state === "active" ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${(state === "active" || state === "preview") ? "opacity-100" : "opacity-0"}`}
           muted
           playsInline
           autoPlay
@@ -350,7 +353,7 @@ export function ScanClient() {
         />
         {cameraPreview && <div className="absolute inset-0 bg-deep/20" aria-hidden />}
 
-        {(state === "active" || state === "requesting") && <ScanOverlay mode={mode} detected={detected} />}
+        {(state === "active" || state === "preview" || state === "requesting") && <ScanOverlay mode={mode} detected={detected} />}
 
         {state === "active" && !detected && (
           <div className="absolute inset-x-4 bottom-3 rounded-xl bg-black/75 px-3 py-2 text-center text-white">
@@ -374,11 +377,11 @@ export function ScanClient() {
           )}
         </AnimatePresence>
 
-        {(state === "requesting") && (
+        {(state === "requesting" || state === "preview") && (
           <div className="absolute inset-0 grid place-items-center text-white/75">
             <div className="flex flex-col items-center gap-2">
               <Camera className="h-6 w-6" aria-hidden />
-              <span className="text-sm">{t("requesting")}</span>
+              <span className="rounded-lg bg-deep/80 px-2.5 py-1 text-sm">{state === "preview" ? t("preparingDecoder") : t("requesting")}</span>
             </div>
           </div>
         )}
@@ -565,7 +568,7 @@ function CameraStatePanel({ state, retry }: { state: CamState; retry: () => void
         {fallbackStates.includes(state) && (
           <>
             <GreeButton variant="outline" size="sm" onClick={() => router.push("/search")}>{t("searchInstead")}</GreeButton>
-            <GreeButton variant="ghost" size="sm" onClick={focusManual}>{t("enterBarcode")}</GreeButton>
+            <GreeButton variant="ghost" size="sm" onClick={focusManual}>{t("focusManual")}</GreeButton>
           </>
         )}
       </div>

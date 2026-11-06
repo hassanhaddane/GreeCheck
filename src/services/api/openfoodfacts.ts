@@ -13,7 +13,7 @@ const searchCache = cachedRequests<SearchResult>(200, () => 10 * 60_000);
 
 const offBase = () => process.env.OFF_BASE_URL || process.env.NEXT_PUBLIC_OFF_BASE_URL || "https://world.openfoodfacts.org";
 const searchBase = () => process.env.OFF_SEARCH_BASE_URL || "https://search.openfoodfacts.org";
-const headers = () => ({ "User-Agent": process.env.OFF_USER_AGENT || "GreeCheck/0.1 (contact@greecheck.app)", Accept: "application/json" });
+const headers = () => ({ "User-Agent": process.env.OFF_USER_AGENT || process.env.OPENFOODFACTS_USER_AGENT || "GreeCheck/3.0 (+https://github.com/hassanhaddane/GreeCheck)", Accept: "application/json" });
 const timeout = 5000;
 
 /** v3 by default; v2 is an explicit, temporary rollback switch. */

@@ -1,6 +1,6 @@
 import {
   ScanLine, Search, GitCompareArrows, ShoppingBasket, Library, ListChecks, MapPin,
-  SlidersHorizontal, BookOpenText, Settings, ShieldCheck, HeartHandshake, type LucideIcon
+  SlidersHorizontal, BookOpenText, Info, Settings, ShieldCheck, HeartHandshake, type LucideIcon
 } from "lucide-react";
 
 export interface NavItem {
@@ -27,5 +27,6 @@ export const MORE_NAV: NavItem[] = [
   { key: "methodology", href: "/methodology", icon: BookOpenText },
   { key: "settings", href: "/settings", icon: Settings },
   { key: "privacy", href: "/privacy", icon: ShieldCheck },
+  { key: "about", href: "/about", icon: Info },
   { key: "support", href: "/support", icon: HeartHandshake }
 ];

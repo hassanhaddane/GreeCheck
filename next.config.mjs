@@ -40,7 +40,7 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
   // Camera is used by GreeLens on this origin only; everything else is denied.
-  { key: "Permissions-Policy", value: "camera=(self), geolocation=(self), microphone=(), payment=(), usb=(), interest-cohort=()" },
+  { key: "Permissions-Policy", value: "camera=(self), geolocation=(self), microphone=(), payment=(), usb=(), browsing-topics=()" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }
 ];
 
@@ -49,6 +49,7 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
+    maximumRedirects: 0,
     remotePatterns: [
       { protocol: "https", hostname: "images.openfoodfacts.org" },
       { protocol: "https", hostname: "world.openfoodfacts.org" },
@@ -58,6 +59,10 @@ const nextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      ...(process.env.VERCEL_ENV === "preview" ? [
+        { source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }
+      ] : []),
+      { source: "/sw.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
       // API proxies serve public product data only — never indexed.
       { source: "/api/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex" }] }
     ];

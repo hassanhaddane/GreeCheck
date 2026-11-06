@@ -13,7 +13,8 @@ export const localeMeta: Record<Locale, { label: string; dir: "ltr" | "rtl"; fla
 export const routing = defineRouting({
   locales,
   defaultLocale: "fr",
-  localePrefix: "always"
+  localePrefix: "always",
+  alternateLinks: false
 });
 
 export const { Link, redirect, usePathname, useRouter, getPathname } =

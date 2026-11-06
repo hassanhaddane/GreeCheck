@@ -28,7 +28,8 @@
     "list": "Shopping list",
     "support": "Support",
     "language": "Language",
-    "myLists": "My lists"
+    "myLists": "My lists",
+    "about": "About GreeCheck"
   },
   "scan": {
     "scannerLabel": "Product scanner",
@@ -154,7 +155,9 @@
         "no_text_found": "No readable text found. Frame the table or list and try again.",
         "image_unreadable": "Unreadable image. Try again with more light."
       }
-    }
+    },
+    "preparingDecoder": "Preparing barcode reading…",
+    "focusManual": "Use manual entry"
   },
   "search": {
     "quickAll": "All",
@@ -808,7 +811,8 @@
     "clearCart": "Clear GreeCart",
     "criteriaTitle": "My criteria",
     "criteriaHint": "Food goals and preferences — managed on a dedicated page.",
-    "resetPrefs": "Reset criteria"
+    "resetPrefs": "Reset criteria",
+    "resetFailed": "The reset failed. Try again on this device."
   },
   "labels": {
     "bio": "Organic",
@@ -839,7 +843,11 @@
     "noAdsBody": "GreeCheck V2 displays no ads or ad placeholders and includes no advertising profiling.",
     "contributeTitle": "Open Food Facts contribution",
     "contributeBody": "If a product can't be found, you can add it to the collaborative Open Food Facts database. Contribution happens on their site, under their terms.",
-    "contributeCta": "Contribute on Open Food Facts"
+    "contributeCta": "Contribute on Open Food Facts",
+    "networkTitle": "Network requests",
+    "networkBody": "Search sends the query and language. Scans send the barcode. Alternatives send a category and a barcode to exclude. Discover sends a city or approximate location after an explicit action.",
+    "retentionBody": "Preferences and lists stay on this device until you clear them. A product copy is considered fresh for 24 hours. The host may process logs needed to operate the service. A cookie remembers the language.",
+    "manageLocal": "Manage local data"
   },
   "common": {
     "back": "Back",
@@ -1183,7 +1191,8 @@
     "unknownPlace": "Unnamed store",
     "hours": "Hours: {value}",
     "directions": "Directions",
-    "websiteFor": "Website for {name}"
+    "websiteFor": "Website for {name}",
+    "cityUnavailable": "City search is unavailable in this version."
   },
   "methodology": {
     "gs3Body": "Nutrition accounts for 100% of the score. We use raw Nutri-Score 2023 points when the source specifies that version, or recalculate them from the required data.",
@@ -1220,7 +1229,8 @@
     "confidenceBody": "Every result shows a confidence level based on data completeness: Nutri-Score, ingredients and nutrition facts availability. A poorly documented product shows “partial data” rather than a bad score.",
     "sourcesTitle": "Sources",
     "sourcesBody": "Product data comes from Open Food Facts, the open collaborative database. GreeCheck never invents product information.",
-    "privacyBody": "Everything is computed on your device: no account, no server-side history, no advertising profile."
+    "privacyBody": "Everything is computed on your device: no account, no server-side history, no advertising profile.",
+    "proprietary": "GreeScore is GreeCheck’s own indicator. It uses reference data and a public method. The score does not provide medical advice."
   },
   "marketing": {
     "hero": {
@@ -1368,7 +1378,7 @@
     "metaTitle": "Support GreeCheck — Independence",
     "metaDescription": "GreeCheck is free, ad-free and donation-funded. See what your support protects.",
     "title": "Support GreeCheck",
-    "subtitle": "Free for everyone. Funded by no one but you.",
+    "subtitle": "Free, independent and available without an account.",
     "manifestoTitle": "Our independence is not for sale.",
     "manifestoBody": "No brand can buy a score, a ranking or a recommendation. Scores come from a public, versioned method — and from nothing else.",
     "pointIndependenceTitle": "Zero paid placement",
@@ -1377,10 +1387,12 @@
     "pointNoAdsBody": "No account, no profile, no analytics. Your scans stay on your device.",
     "pointMethodologyTitle": "Public methodology",
     "pointMethodologyBody": "Formula, thresholds and the additive registry are documented and dated. Every point is explainable.",
-    "donateTitle": "Donations open at launch",
-    "donateBody": "GreeCheck will run on voluntary donations only. A donation buys nothing: no visibility, no feature, no data. Meanwhile, telling people about it already helps.",
+    "donateTitle": "Voluntary donations",
+    "donateBody": "Voluntary donations can support the project. They do not affect access or results.",
     "meanwhile": "Want to check for yourself?",
-    "meanwhileLink": "Read the methodology."
+    "meanwhileLink": "Read the methodology.",
+    "donateLink": "Make a voluntary donation",
+    "donateUnavailable": "Online donations are currently unavailable."
   },
   "impact": {
     "impact_label_low": "Low impact",
@@ -1551,5 +1563,33 @@
       "cartAlreadyGood": "Your basket is already solid.",
       "cartPartialData": "{n} product(s) lack reliable data."
     }
+  },
+  "about": {
+    "title": "About GreeCheck",
+    "metaDescription": "An independent companion for understanding food products.",
+    "intro": "GreeCheck is a free companion for scanning products, understanding their assessments and comparing evidence-backed alternatives.",
+    "independence": "The app works without accounts or advertising. Any donations are voluntary and have no effect on scores or rankings.",
+    "method": "Methodology",
+    "sources": "Data sources",
+    "privacy": "Privacy",
+    "contribute": "Contribute or report an issue",
+    "support": "Support GreeCheck",
+    "metaTitle": "About GreeCheck · GreeCheck"
+  },
+  "contribute": {
+    "title": "Contribute or report an issue",
+    "metaDescription": "Correct product data or report an issue with the app.",
+    "dataTitle": "Correct a product record",
+    "dataBody": "Open the product in Open Food Facts from GreeCheck to report or correct its data. Check the barcode and the packaging before editing a record.",
+    "dataLink": "Contribute to Open Food Facts",
+    "appTitle": "Report a GreeCheck issue",
+    "appBody": "Include the page, language and steps to reproduce the issue. GitHub issues are public. Keep personal information and preferences on your device.",
+    "appLink": "View public issues",
+    "metaTitle": "Contribute or report an issue · GreeCheck"
+  },
+  "sources": {
+    "title": "Data sources",
+    "metaDescription": "Origin, licences and coverage of food and environmental data.",
+    "metaTitle": "Data sources · GreeCheck"
   }
 }

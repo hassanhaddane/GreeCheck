@@ -41,7 +41,7 @@ function directionsUrl(lat: number, lon: number) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${lat},${lon}`)}`;
 }
 
-export function DiscoverClient() {
+export function DiscoverClient({ citySearchEnabled }: { citySearchEnabled: boolean }) {
   const t = useTranslations("discover");
   const [city, setCity] = useState("");
   const [types, setTypes] = useState<PlaceType[]>([...PLACE_TYPES]);
@@ -70,7 +70,7 @@ export function DiscoverClient() {
   function submitCity(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const query = city.trim();
-    if (query.length < 2 || types.length === 0) return;
+    if (!citySearchEnabled || query.length < 2 || types.length === 0) return;
     void runSearch(new URLSearchParams({ city: query }));
   }
 
@@ -82,7 +82,7 @@ export function DiscoverClient() {
     setState("loading");
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        void runSearch(new URLSearchParams({ lat: String(coords.latitude), lon: String(coords.longitude) }));
+        void runSearch(new URLSearchParams({ lat: coords.latitude.toFixed(2), lon: coords.longitude.toFixed(2) }));
       },
       () => setState("location-denied"),
       { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 }
@@ -102,7 +102,7 @@ export function DiscoverClient() {
       </p>
 
       <GreeCard className="space-y-4 p-5">
-        <form onSubmit={submitCity} className="flex flex-col gap-2 sm:flex-row">
+        {citySearchEnabled ? <form onSubmit={submitCity} className="flex flex-col gap-2 sm:flex-row">
           <label htmlFor="discover-city" className="sr-only">{t("cityLabel")}</label>
           <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
@@ -118,7 +118,7 @@ export function DiscoverClient() {
           <GreeButton type="submit" variant="neon" disabled={city.trim().length < 2 || types.length === 0 || state === "loading"}>
             <Search className="h-4 w-4" aria-hidden /> {t("search")}
           </GreeButton>
-        </form>
+        </form> : <p className="text-sm text-muted">{t("cityUnavailable")}</p>}
 
         <button
           type="button"

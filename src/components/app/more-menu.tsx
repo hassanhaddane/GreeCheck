@@ -35,6 +35,7 @@ export function MoreMenu() {
                 <li key={item.key}>
                   <Link
                     href={item.href}
+                    prefetch={false}
                     aria-current={pathname === item.href ? "page" : undefined}
                     onClick={close}
                     className="gc-pressable flex min-h-11 items-center gap-3 py-1.5"

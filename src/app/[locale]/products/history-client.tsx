@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   ScanLine, Heart, Trash2, ChevronRight, SlidersHorizontal, List, LayoutGrid,
@@ -14,6 +14,7 @@ import { GreeBottomSheet } from "@/components/system/gree-bottom-sheet";
 import { EmptyState } from "@/components/system/empty-state";
 import { ProductRowSkeleton } from "@/components/system/loading-state";
 import { ProductThumbnail } from "@/components/system/product-thumbnail";
+import { bootLocalData } from "@/services/storage/boot";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
@@ -45,6 +46,8 @@ export function HistoryClient() {
   const locale = useLocale() as Locale;
   const mounted = useMounted();
   const router = useRouter();
+  // The library shell pins this bootstrap even if the first visit happened before worker activation.
+  useEffect(() => { void bootLocalData(); }, []);
 
   const entries = useHistoryStore((s) => s.entries);
   const clearHistory = useHistoryStore((s) => s.clear);

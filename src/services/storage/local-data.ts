@@ -7,14 +7,16 @@
  * user wipe any part of it. Nothing is ever sent to a server.
  */
 import {
-  historyRepo, favoritesRepo, cartRepo, battleRepo,
-  productCacheRepo, preferencesRepo, onboardingRepo
+  historyRepo, favoritesRepo, cartRepo, productCacheRepo, preferencesRepo, clearLocalDatabase
 } from "./repositories";
 import { useHistoryStore } from "@/domains/library/history-store";
 import { useFavoritesStore } from "@/domains/library/favorites-store";
 import { useCartStore } from "@/domains/cart/store";
 import { useBattleStore } from "@/domains/battle/store";
-import { usePreferencesStore } from "@/domains/criteria/store";
+import { bootLocalData } from "./boot";
+import { useShoppingListStore } from "@/domains/list/store";
+import { useOnboardingStore } from "@/domains/criteria/onboarding-store";
+import { defaultPreferences, usePreferencesStore } from "@/domains/criteria/store";
 
 export async function clearHistory() {
   useHistoryStore.getState().clear();
@@ -33,7 +35,7 @@ export async function clearCart() {
 
 /** Wipe the local IndexedDB product cache. */
 export async function clearProductCache() {
-  await productCacheRepo.clear();
+  await Promise.all([productCacheRepo.clear(), clearRuntimeCaches()]);
 }
 
 /** Reset "Mes critères" back to the neutral defaults. */
@@ -42,31 +44,36 @@ export async function clearPreferences() {
   await preferencesRepo.clear();
 }
 
-/** Full reset: clears every store, every repository and all local keys. */
-export async function resetApp() {
-  useHistoryStore.getState().clear();
-  useFavoritesStore.getState().clear();
-  useCartStore.getState().clear();
-  useBattleStore.getState().clear();
-  usePreferencesStore.getState().reset();
+/** Drop navigation and image copies while preserving the installed public shell. */
+async function clearRuntimeCaches() {
+  if (typeof caches === "undefined") return;
+  const names = await caches.keys();
+  await Promise.all(names.filter((name) => /^gc-v\d+(?:-[a-z0-9]+)?-runtime$/.test(name))
+    .map((name) => caches.delete(name)));
+}
 
-  await Promise.all([
-    historyRepo.clear(),
-    favoritesRepo.clear(),
-    cartRepo.clear(),
-    battleRepo.clear(),
-    productCacheRepo.clear(),
-    preferencesRepo.clear(),
-    onboardingRepo.clear()
-  ]);
+export async function resetApp() {
+  await bootLocalData();
+  await clearLocalDatabase();
+  await clearRuntimeCaches();
+
+  useHistoryStore.getState().hydrate([]);
+  useFavoritesStore.getState().hydrate([]);
+  useCartStore.getState().hydrate([]);
+  useBattleStore.getState().hydrate([]);
+  usePreferencesStore.getState().hydrate(defaultPreferences);
+  useOnboardingStore.getState().hydrate({ seen: false, completedAt: undefined });
+  useShoppingListStore.setState({ items: [], hydrated: true });
 
   if (typeof window !== "undefined") {
     try {
       Object.keys(localStorage)
-        .filter((k) => k.startsWith("greecheck"))
-        .forEach((k) => localStorage.removeItem(k));
+        .filter((key) => key.startsWith("greecheck"))
+        .forEach((key) => localStorage.removeItem(key));
+      sessionStorage.removeItem("gc.cacheRecovery");
+      document.cookie = "NEXT_LOCALE=; Max-Age=0; Path=/; SameSite=Lax";
     } catch {
-      /* storage unavailable */
+      // The browser can disable access to optional storage.
     }
   }
 }

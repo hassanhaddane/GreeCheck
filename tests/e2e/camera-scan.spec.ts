@@ -1,5 +1,6 @@
+import { BarcodeFormat, QRCodeWriter } from "@zxing/library";
 import { expect, test } from "@playwright/test";
-import { mockProductApis, poorProduct } from "./fixtures";
+import { mockIdleCamera, mockProductApis, poorProduct } from "./fixtures";
 
 test.describe("GreeLens camera and first scan", () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +9,7 @@ test.describe("GreeLens camera and first scan", () => {
   });
 
   test("accepted camera, first successful scan, optional help and rapid session", async ({ page }) => {
+    await mockIdleCamera(page);
     await page.goto("/fr/scan?source=pwa");
     await expect(page.getByRole("heading", { name: "GreeLens" })).toBeVisible();
     await expect(page.getByText("Recherche d'un code…", { exact: true })).toBeVisible();
@@ -176,7 +178,7 @@ test("an allergen alert remains visible when no trustworthy swap exists", async 
 test("camera switch releases the previous track and only offers torch control on a capable track", async ({ page }) => {
   await page.addInitScript(() => {
     const media = navigator.mediaDevices;
-    const fakeCamera = media.getUserMedia.bind(media);
+
     const tracks: MediaStreamTrack[] = [];
     Object.assign(window, { cameraTracks: tracks });
     Object.defineProperties(media, {
@@ -186,9 +188,16 @@ test("camera switch releases the previous track and only offers torch control on
       ] },
       getUserMedia: { value: async ({ video }: MediaStreamConstraints) => {
         const id = ((video as MediaTrackConstraints).deviceId as ConstrainDOMStringParameters | undefined)?.exact ?? "rear";
-        const stream = await fakeCamera({ video: true });
+        const canvas = document.createElement("canvas");
+        canvas.width = 320;
+        canvas.height = 240;
+        const stream = canvas.captureStream(10);
         const track = stream.getVideoTracks()[0];
         tracks.push(track);
+        const timer = setInterval(() => {
+          if (track.readyState === "ended") clearInterval(timer);
+          else canvas.getContext("2d")?.fillRect(0, 0, 320, 240);
+        }, 100);
         let torch = false;
         let applied: MediaTrackConstraints = {};
         Object.defineProperties(track, {
@@ -230,4 +239,35 @@ test("switching the scanner language preserves locally scanned products", async 
   await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
   await page.goto("/ar/products");
   await expect(page.locator("main").getByRole("link", { name: /Test Choco/ })).toBeVisible();
+});
+
+test("retail decoder still reads a product QR from video", async ({ page }) => {
+  await mockProductApis(page);
+  const matrix = new QRCodeWriter().encode("11111115", BarcodeFormat.QR_CODE, 180, 180, new Map());
+  const pixels = Array.from({ length: 180 * 180 }, (_, i) => matrix.get(i % 180, Math.floor(i / 180)));
+  await page.addInitScript((pixels) => {
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      value: async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 240;
+        canvas.height = 240;
+        const pen = canvas.getContext("2d")!;
+        const stream = canvas.captureStream(10);
+        const track = stream.getVideoTracks()[0];
+        const timer = setInterval(() => {
+          if (track.readyState === "ended") {
+            clearInterval(timer);
+            return;
+          }
+          pen.fillStyle = "white";
+          pen.fillRect(0, 0, 240, 240);
+          pen.fillStyle = "black";
+          pixels.forEach((black, i) => { if (black) pen.fillRect(30 + i % 180, 30 + Math.floor(i / 180), 1, 1); });
+        }, 100);
+        return stream;
+      }
+    });
+  }, pixels);
+  await page.goto("/fr/scan");
+  await expect(page.getByRole("region", { name: "Scan éclair" })).toContainText("Test Choco");
 });

@@ -8,7 +8,7 @@
  * On failure CI uploads the diff images (see .github/workflows/ci.yml).
  */
 import { expect, test } from "@playwright/test";
-import { mockProductApis } from "./fixtures";
+import { mockIdleCamera, mockProductApis } from "./fixtures";
 
 // Mobile-first: the design floor the whole app is built against.
 const MOBILE = { width: 375, height: 812 };
@@ -43,6 +43,7 @@ const CRITICAL_SCREENS: Array<{ name: string; path: string; viewport?: typeof MO
 for (const screen of CRITICAL_SCREENS) {
   test(`visual: ${screen.name}`, async ({ page }) => {
     if (screen.viewport) await page.setViewportSize(screen.viewport);
+    if (screen.name === "scan") await mockIdleCamera(page);
     if (screen.prepare === "loading") {
       // Keep the lookup pending until after the screenshot.
       await page.route("**/api/product/*", () => {});

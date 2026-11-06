@@ -139,3 +139,23 @@ export async function mockProductApis(page: Page) {
     });
   });
 }
+
+/** Controlled blank video for preview/permission tests. No Chromium fake device required. */
+export async function mockIdleCamera(page: Page) {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator.mediaDevices, "getUserMedia", {
+      value: async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 320;
+        canvas.height = 240;
+        const stream = canvas.captureStream(10);
+        const track = stream.getVideoTracks()[0];
+        const timer = setInterval(() => {
+          if (track.readyState === "ended") clearInterval(timer);
+          else canvas.getContext("2d")?.fillRect(0, 0, 320, 240);
+        }, 100);
+        return stream;
+      }
+    });
+  });
+}
